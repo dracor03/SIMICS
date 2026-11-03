@@ -1,0 +1,81 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ram_tracer_connection</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ram_tracer.html">ram_tracer</a>
+<a href="rm-class-realtime.html">realtime</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ram_tracer_connection"><a href="#ram_tracer_connection">ram_tracer_connection</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Instrumentation connection.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_connection
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:block"><a href="#dt:block">
+<i>block</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Block caching of accesses, disable tracing</dd>
+<dt id="dt:access"><a href="#dt:access">
+<i>access</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The types of accesses to trace from the ram</dd>
+<dt id="dt:ram"><a href="#dt:ram">
+<i>ram</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The ram object connected to the connection</dd>
+<dt id="dt:inquiry"><a href="#dt:inquiry">
+<i>inquiry</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Handle inquiry accesses as well as normal ones.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ram-tracer.html">ram-tracer</a>
+</section>
+<div class="chain">
+<a href="rm-class-ram_tracer.html">ram_tracer</a>
+<a href="rm-class-realtime.html">realtime</a>
+</div>

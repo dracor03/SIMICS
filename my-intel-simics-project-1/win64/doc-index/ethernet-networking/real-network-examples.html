@@ -1,0 +1,84 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3.1 Preparing for the Examples</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="real-network.html">3 Connecting to a Real Network</a>
+<a href="real-network-connections.html">3.2 Connection Types</a>
+</div>
+<div class="path">
+<a href="index.html">Ethernet Networking Technology Guide</a>
+&nbsp;/&nbsp;
+<a href="real-network.html">3 Connecting to a Real Network</a>
+&nbsp;/&nbsp;</div><h1 id="preparing-for-the-examples"><a href="#preparing-for-the-examples">3.1 Preparing for the Examples</a></h1>
+<p>All the examples in section <a class="reference" href="real-network-connections.html">3.2</a> use the simulated
+<code>QSP-x86</code> machine from the First Steps tutorial. Start the
+<code>firststeps-no-network.simics</code> configuration and boot the machine. Then, to save
+time when trying several examples, save a checkpoint. This checkpoint can be
+used instead of launching and booting <code>QSP-x86</code> for each example. When idling,
+<code>QSP-x86</code> runs faster than real time, which means that it can time out faster
+than expected, unless real time mode is turned on with <code>enable-real-time-mode</code>.</p>
+<blockquote class="markdown-alert-note">
+<p>Not all kinds of connections with real network, or with real file systems,
+will continue to work properly if you pause the simulation for a shorter or
+lengthier time. This applies to most stateful connections, for example NFS,
+TCP, etc.
+For the same reason, not all kinds of connections with the real world can be
+saved in a checkpoint and successfully restored at a later time. Hence, make a
+habit to disconnect such services before pausing the simulation, or before
+saving a checkpoint.</p>
+</blockquote>
+<p>Some of the examples involve using <em>telnet</em> to connect to the simulated machine.
+On both Linux and Windows, a telnet binary is provided and can be used directly
+in a terminal or in a Command-Line prompt, respectively. The output on Windows
+may be slightly different from the output given in the examples.</p>
+<p>In the examples, the simulated machine sometimes needs to be reconfigured. Since
+it is running Linux, the appropriate Linux configuration commands are indicated.
+Other operating systems should be configured similarly, but the commands may of
+course differ.</p>
+<p>Finally, in all examples, the host machine where Simics is running has the IP
+address 10.0.0.129 and the real host that communicates with the simulated
+network has the IP address 10.0.0.240. These addresses should be replaced as
+necessary. <code>QSP-x86</code> uses its default IP address 10.10.0.40.</p>
+<p>The examples assume that there is a host on the real network that accepts telnet
+connections. Check that it is possible to telnet from the simulation host to the
+other real host. Just run <code>telnet ip</code> at a command-line, where <em>ip</em> is the IP
+address of the other real host. If that does not work, the simulated machine
+will not be able to connect to the real host either.</p>
+<p>If there is no host that accepts telnet connections on the network, the
+connection can be tested with a web server on port 80 instead, by entering <code>GET / HTTP/1.0</code> and a blank line. This should return the HTML content of the start
+page of the server. Here www.google.com is used:</p>
+<pre><code class="language-simics">~# <strong>telnet www.google.com 80</strong>
+Trying 64.233.161.104...
+Connected to 64.233.161.104.
+Escape character is '^]'.
+GET / HTTP/1.0
+
+HTTP/1.0 302 Found
+Location: http://www.google.se/cxfer?c=PREF%3D:TM%3D1118841789:S%3DumCVbug84n5uBWAo&amp;prev=/
+Set-Cookie: PREF=ID=a5e237e2402bdcac:CR=1:TM=1118841789:LM=1118841789:S=HQ3jOc8_1peVGj98; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/; domain=.google.com
+Content-Type: text/html
+Server: GWS/2.1
+Content-Length: 214
+Date: Wed, 15 Jun 2005 13:23:09 GMT
+Connection: Keep-Alive
+
+&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;302 Moved&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;
+&lt;H1&gt;302 Moved&lt;/H1&gt;
+The document has moved
+&lt;A HREF="http://www.google.se/"&gt;here&lt;/A&gt;.
+&lt;/BODY&gt;&lt;/HTML&gt;
+Connection closed by foreign host.
+~#
+</code></pre>
+<p>Make sure that the telnet or web server is on the same IP subnet as the
+simulation host, since it may not be possible to access other subnets, depending
+on what real-network connection is in use.</p>
+
+<div class="chain">
+<a href="real-network.html">3 Connecting to a Real Network</a>
+<a href="real-network-connections.html">3.2 Connection Types</a>
+</div>

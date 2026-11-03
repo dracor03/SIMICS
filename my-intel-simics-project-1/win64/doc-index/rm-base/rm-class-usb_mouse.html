@@ -1,0 +1,183 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>usb_mouse</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-usb_keyboard.html">usb_keyboard</a>
+<a href="rm-class-usb_tablet.html">usb_tablet</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="usb_mouse"><a href="#usb_mouse">usb_mouse</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A USB mouse device.<br>
+Note: There are two interfaces ("abs_pointer" and "mouse") implemented in the usb_mouse. But use of the "abs_pointer" interface imposes a number of limitations on the functionality of the usb_mouse, please use the "mouse" interface.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, abs_pointer, mouse, usb_device
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:usb_host-optional"><a href="#dt:usb_host-optional">usb_host (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: usb
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-usb_mouse.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-usb_mouse.left-button.html">left-button</a>
+ – send button down/up event</li>
+<li>
+<a href="rm-cmd-usb_mouse.left-button.html">middle-button</a>
+ – send button down/up event</li>
+<li>
+<a href="rm-cmd-usb_mouse.moveto.html">moveto</a>
+ – move mouse cursor</li>
+<li>
+<a href="rm-cmd-usb_mouse.reset.html">reset</a>
+ – reset mouse cursor</li>
+<li>
+<a href="rm-cmd-usb_mouse.left-button.html">right-button</a>
+ – send button down/up event</li>
+<li>
+<a href="rm-cmd-usb_mouse.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:curr_x"><a href="#dt:curr_x">
+<i>curr_x</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The current position: x of the cursor.</dd>
+<dt id="dt:curr_y"><a href="#dt:curr_y">
+<i>curr_y</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The current position: y of the cursor.</dd>
+<dt id="dt:descriptor_data"><a href="#dt:descriptor_data">
+<i>descriptor_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The descriptors in data format.</dd>
+<dt id="dt:device_address"><a href="#dt:device_address">
+<i>device_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>USB device/function address.</dd>
+<dt id="dt:device_qualifier_descriptor_data"><a href="#dt:device_qualifier_descriptor_data">
+<i>device_qualifier_descriptor_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The device qualifier in data format.</dd>
+<dt id="dt:device_state"><a href="#dt:device_state">
+<i>device_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>USB device state.</dd>
+<dt id="dt:hid_data"><a href="#dt:hid_data">
+<i>hid_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiii]</code>
+<br>The USB HID report data</dd>
+<dt id="dt:hid_report_descriptor_data"><a href="#dt:hid_report_descriptor_data">
+<i>hid_report_descriptor_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The descriptors in data format.</dd>
+<dt id="dt:ms_os_descriptor"><a href="#dt:ms_os_descriptor">
+<i>ms_os_descriptor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The Microsoft OS Descriptor.</dd>
+<dt id="dt:ratio"><a href="#dt:ratio">
+<i>ratio</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>The ratio of the movement.</dd>
+<dt id="dt:string_descriptor_array"><a href="#dt:string_descriptor_array">
+<i>string_descriptor_array</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[d*]</code>
+<br>String descriptors.</dd>
+<dt id="dt:usb_host"><a href="#dt:usb_host">
+<i>usb_host</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The USB host controller.
+<p>
+Required interfaces: <tt>usb</tt>.</p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.usb-input-devices.html">usb-input-devices</a>
+</section>
+<div class="chain">
+<a href="rm-class-usb_keyboard.html">usb_keyboard</a>
+<a href="rm-class-usb_tablet.html">usb_tablet</a>
+</div>

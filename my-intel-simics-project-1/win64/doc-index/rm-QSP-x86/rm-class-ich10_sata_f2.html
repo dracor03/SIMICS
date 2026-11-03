@@ -1,0 +1,222 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ich10_sata_f2</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_rtc.html">ich10_rtc</a>
+<a href="rm-class-ich10_sata_f5.html">ich10_sata_f5</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ich10_sata_f2"><a href="#ich10_sata_f2">ich10_sata_f2</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+SATA controller function 2 in Intel® ICH10.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, bus_master_ide, io_memory, pci_device
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:chipset_config-optional"><a href="#dt:chipset_config-optional">chipset_config (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: int_register
+</dd>
+<dt id="dt:expansion_rom-optional"><a href="#dt:expansion_rom-optional">expansion_rom (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: rom
+</dd>
+<dt id="dt:ide-optional"><a href="#dt:ide-optional">ide (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: ide_dma_v2
+</dd>
+<dt id="dt:pci_bus-required"><a href="#dt:pci_bus-required">pci_bus (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory, pci_bus
+</dd>
+<dt id="dt:sata_device-optional"><a href="#dt:sata_device-optional">sata_device (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: sata
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-ahci"><a href="#dt:bank-ahci">bank.ahci</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.ahci">ich10_sata_f2.ahci</a>
+ – model of AHCI generic host control registers</dd>
+<dt id="dt:bank-ahci_w7_workaround"><a href="#dt:bank-ahci_w7_workaround">bank.ahci_w7_workaround</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.ahci_w7_workaround">ich10_sata_f2.ahci_w7_workaround</a>
+ – workaround for windows 7 shutdown</dd>
+<dt id="dt:bank-aidp"><a href="#dt:bank-aidp">bank.aidp</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.aidp">ich10_sata_f2.aidp</a>
+ – model of AHCI index/data pair registers</dd>
+<dt id="dt:bank-bm"><a href="#dt:bank-bm">bank.bm</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.bm">ich10_sata_f2.bm</a>
+ – bus master IDE I/O registers</dd>
+<dt id="dt:bank-pci_config"><a href="#dt:bank-pci_config">bank.pci_config</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.pci_config">ich10_sata_f2.pci_config</a>
+</dd>
+<dt id="dt:bank-sidp"><a href="#dt:bank-sidp">bank.sidp</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.sidp">ich10_sata_f2.sidp</a>
+ – serial ATA index/data pair registers</dd>
+<dt id="dt:port-sata_ctr_p0"><a href="#dt:port-sata_ctr_p0">port.sata_ctr_p0</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.sata_ctr_p0">ich10_sata_f2.sata_ctr_p0</a>
+</dd>
+<dt id="dt:port-sata_ctr_p1"><a href="#dt:port-sata_ctr_p1">port.sata_ctr_p1</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.sata_ctr_p1">ich10_sata_f2.sata_ctr_p1</a>
+</dd>
+<dt id="dt:port-sata_ctr_p2"><a href="#dt:port-sata_ctr_p2">port.sata_ctr_p2</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.sata_ctr_p2">ich10_sata_f2.sata_ctr_p2</a>
+</dd>
+<dt id="dt:port-sata_ctr_p3"><a href="#dt:port-sata_ctr_p3">port.sata_ctr_p3</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.sata_ctr_p3">ich10_sata_f2.sata_ctr_p3</a>
+</dd>
+<dt id="dt:port-sata_ctr_p4"><a href="#dt:port-sata_ctr_p4">port.sata_ctr_p4</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.sata_ctr_p4">ich10_sata_f2.sata_ctr_p4</a>
+</dd>
+<dt id="dt:port-sata_ctr_p5"><a href="#dt:port-sata_ctr_p5">port.sata_ctr_p5</a></dt>
+<dd>
+<a href="rm-class-ich10_sata_f2.html#ich10_sata_f2.sata_ctr_p5">ich10_sata_f2.sata_ctr_p5</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ich10_sata_f2.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ich10_sata_f2.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:chipset_config"><a href="#dt:chipset_config">
+<i>chipset_config</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Chipset configuration registers
+<p>
+Required interfaces: <tt>int_register</tt>.</p></dd>
+<dt id="dt:config_registers"><a href="#dt:config_registers">
+<i>config_registers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[i*]</code>
+<br>The PCI configuration registers, each 32 bits in size.</dd>
+<dt id="dt:expansion_rom_size"><a href="#dt:expansion_rom_size">
+<i>expansion_rom_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the expansion ROM mapping.</dd>
+<dt id="dt:fis_seq"><a href="#dt:fis_seq">
+<i>fis_seq</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Writing a FIS sequence to this attribute will cause it to immediately be executed by the HBA. It can be used in debug purpose. The data should include FIS data and it will only send to port 0.</dd>
+<dt id="dt:ide"><a href="#dt:ide">
+<i>ide</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o|[os]|n{0:2}]</code>
+<br>Connections to two IDE controllers
+<p>
+Required interfaces: <tt>ide_dma_v2</tt>.</p></dd>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>The PCI bus this device is connected to, implementing the <tt>pci-bus</tt> interface.
+<p>
+Required interfaces: <tt>io_memory</tt>, <tt>pci_bus</tt>.</p></dd>
+<dt id="dt:sata_device"><a href="#dt:sata_device">
+<i>sata_device</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o|[os]|n{0:32}]</code>
+<br>SATA interface of sata device
+<p>
+Required interfaces: <tt>sata</tt>.</p></dd>
+<dt id="dt:w7_shutdown_workaround"><a href="#dt:w7_shutdown_workaround">
+<i>w7_shutdown_workaround</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Setting this to true prevents windows 7 from getting an access to unmapped AHCI memory space at the time Windows is shutting down.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ICH10.html">ICH10</a>
+</section>
+<h2 id="ich10_sata_f2.ahci"><a href="#ich10_sata_f2.ahci">ich10_sata_f2.ahci</a></h2>
+<h2 id="ich10_sata_f2.ahci_w7_workaround"><a href="#ich10_sata_f2.ahci_w7_workaround">ich10_sata_f2.ahci_w7_workaround</a></h2>
+<h2 id="ich10_sata_f2.aidp"><a href="#ich10_sata_f2.aidp">ich10_sata_f2.aidp</a></h2>
+<h2 id="ich10_sata_f2.bm"><a href="#ich10_sata_f2.bm">ich10_sata_f2.bm</a></h2>
+<h2 id="ich10_sata_f2.pci_config"><a href="#ich10_sata_f2.pci_config">ich10_sata_f2.pci_config</a></h2>
+<h2 id="ich10_sata_f2.sata_ctr_p0"><a href="#ich10_sata_f2.sata_ctr_p0">ich10_sata_f2.sata_ctr_p0</a></h2>
+<h2 id="ich10_sata_f2.sata_ctr_p1"><a href="#ich10_sata_f2.sata_ctr_p1">ich10_sata_f2.sata_ctr_p1</a></h2>
+<h2 id="ich10_sata_f2.sata_ctr_p2"><a href="#ich10_sata_f2.sata_ctr_p2">ich10_sata_f2.sata_ctr_p2</a></h2>
+<h2 id="ich10_sata_f2.sata_ctr_p3"><a href="#ich10_sata_f2.sata_ctr_p3">ich10_sata_f2.sata_ctr_p3</a></h2>
+<h2 id="ich10_sata_f2.sata_ctr_p4"><a href="#ich10_sata_f2.sata_ctr_p4">ich10_sata_f2.sata_ctr_p4</a></h2>
+<h2 id="ich10_sata_f2.sata_ctr_p5"><a href="#ich10_sata_f2.sata_ctr_p5">ich10_sata_f2.sata_ctr_p5</a></h2>
+<h2 id="ich10_sata_f2.sidp"><a href="#ich10_sata_f2.sidp">ich10_sata_f2.sidp</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_rtc.html">ich10_rtc</a>
+<a href="rm-class-ich10_sata_f5.html">ich10_sata_f5</a>
+</div>

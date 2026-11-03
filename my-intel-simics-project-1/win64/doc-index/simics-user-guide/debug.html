@@ -1,0 +1,649 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3.2 Low-level Debugging with Simics</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction-2.html">3.1 Introduction</a>
+<a href="lowlevel-software.html">3.3 Using Simics for Hardware Bring-Up and Firmware Development</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="low-level-debugging.html">3 Low-Level Debugging</a>
+&nbsp;/&nbsp;</div><h1 id="low-level-debugging-with-simics"><a href="#low-level-debugging-with-simics">3.2 Low-level Debugging with Simics</a></h1>
+<blockquote class="markdown-alert-note">
+<p>Simics Analyzer provides a full symbolic debugger for C and C++ with a command line
+interface. You can read all about it in <a href="../analyzer-user-guide/index.html">Simics Analyzer User’s
+Guide</a> . This can be used in parallel with
+the low-level features described in this chapter.</p>
+</blockquote>
+<p>This chapter explains Simics’s powerful, but low-level, breakpoint support.</p>
+<h2 id="breakpoints"><a href="#breakpoints">3.2.1 Breakpoints</a></h2>
+<p>Simics can set breakpoints on code and data. Unlike most debuggers, Simics
+breakpoints are not limited by what the hardware can support; for example, there
+is no restriction on the number of read/write breakpoints (also known as
+watchpoints).</p>
+<p>In Simics you can set breakpoints on, for instance:</p>
+<ul>
+<li>memory accesses: any range and combination of read/write/execute</li>
+<li>time (number of cycles or instructions executed)</li>
+<li>instruction types, such as control register accesses</li>
+<li>device accesses</li>
+<li>output in the console</li>
+<li>log output</li>
+</ul>
+<p>Simics is fully deterministic, and breakpoints in Simics are fully
+non-intrusive. This makes it possible to narrow down the location of difficult
+bugs by re-running the <em>exact</em> same run as many times as you need.</p>
+<h3 id="the-breakpoint-manager"><a href="#the-breakpoint-manager">3.2.1.1 The Breakpoint Manager</a></h3>
+<p>Simics has a <em>breakpoint manager</em> which stores information about all
+breakpoints, of all types. It has commands for listing breakpoints, enabling,
+deleting and other common operations. Breakpoint creation is specific to the
+different types, and is described in the following chapters. The breakpoint
+manager is the object <code>bp</code>.</p>
+<p>In general, breakpoint creation commands return an ID, which can be used to
+later delete the breakpoint, or obtain information about it. The most important
+generic commands are</p>
+<ul>
+<li><code>bp.list</code>, which lists all breakpoints.</li>
+<li><code>bp.delete</code>, which removes a particular breakpoint.</li>
+<li><code>bp.show</code>, which shows more information about a particular breakpoint.</li>
+</ul>
+<h3 id="memory-breakpoints"><a href="#memory-breakpoints">3.2.1.2 Memory Breakpoints</a></h3>
+<p>A memory breakpoint stops the simulation whenever a memory location in a
+specified address interval is accessed. The address interval can be of arbitrary
+length and the type of memory access can be specified as any combination of
+<em>read</em>, <em>write</em>, and <em>execute</em>.</p>
+<p>The easiest way to set memory breakpoints is to use the <code>bp.memory.break</code>
+command:</p>
+<pre><code class="language-simics">simics&gt; <strong>output-radix 16</strong>
+simics&gt; <strong>bp.memory.break p:0x10000</strong>
+Breakpoint 1 set on address 0x10000 in 'board.mb.cpu0.mem[0][0]' with access mode 'x'
+</code></pre>
+<p>Prefix the address with <code>p:</code> or <code>v:</code> to get a physical or virtual address,
+respectively. As you can see in the following example, Simics defaults to
+interpreting a breakpoint address as virtual if you do not specify otherwise:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[0][0]-&gt;current_virtual_context = "board.cell_context"</strong>
+simics&gt; <strong>bp.memory.break v:0x4711</strong>
+[board.mb.cpu0.core[0][0] info] VMP not engaged. Reason: virtual breakpoint.
+Breakpoint 2 set on address 0x4711 in 'board.cell_context' with access mode 'x'
+simics&gt; <strong>bp.memory.break p:0x4711</strong>
+Breakpoint 3 set on address 0x4711 in 'board.mb.cpu0.mem[0][0]' with access mode 'x'
+simics&gt; <strong>bp.memory.break 0x4711</strong>
+Breakpoint 4 set on address 0x4711 in 'board.cell_context' with access mode 'x'
+Note: overlaps with breakpoint 2
+</code></pre>
+<p>This way of setting breakpoints will attach them to the memory space (physical
+address) or context (virtual address) connected to the <em>current processor</em>. If
+the current processor is not the processor you are interested in, it can be
+changed using the <code>pselect</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>pselect board.mb.cpu0.core[0][0]</strong>
+</code></pre>
+<p>Without an argument, <code>pselect</code> prints the current processor:</p>
+<pre><code class="language-simics">simics&gt; <strong>pselect</strong>
+"board.mb.cpu0.core[0][0]"
+</code></pre>
+<p>Also useful is the <code>cpu</code> object alias, which returns the current processor and
+can be used to expand child objects, commands and aliases on the current
+processor.</p>
+<pre><code class="language-simics">simics&gt; <strong>cpu # type cpu&lt;tab&gt;</strong>
+cpu-&gt;  cpu-pages-dump  cpu-switch-time  cpu.  cpu.vtime.
+</code></pre>
+<p>Physical memory breakpoints are handled by memory space objects. A memory space
+represents a physical address space; they sit between the processor and the
+actual hardware devices, for example RAM, that can be accessed with read and
+write instructions. Breakpoints are created with the memory space’s <code>break</code>
+command:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[0][0]-&gt;physical_memory</strong>
+"board.mb.cpu0.mem[0][0]"
+simics&gt; <strong>board.mb.cpu0.mem[0][0].bp-break-memory address = 0x10000 length = 16 -w</strong>
+Breakpoint 1 set on address 0x10000 in 'board.mb.cpu0.mem[0][0]', length 16 with access mode 'w'
+</code></pre>
+<p>Virtual memory breakpoints are handled by context objects. A context represents
+a virtual address space; you can learn more about them in chapter
+<a class="reference" href="#symbolic-debugging">3.2.2</a>. Essentially, they provide a level of indirection
+between processors and virtual memory breakpoints; a processor has a current
+context, which in turn has virtual breakpoints:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[0][0]-&gt;current_context</strong>
+"board.cell_context"
+simics&gt; <strong>board.cell_context.bp-break-memory 0x1ff00</strong>
+Breakpoint 2 set on address 0x1ff00 in 'board.cell_context' with access mode 'x'
+</code></pre>
+<p>Note that by default, all simulated processors in a cell share one context
+(<code>celln_context</code>). If you want a virtual breakpoint to apply only to a subset of
+the processors, create a new context just for them:</p>
+<pre><code class="language-simics">simics&gt; <strong>new-context foo</strong>
+simics&gt; <strong>board.mb.cpu0.core[0][0].set-context foo</strong>
+simics&gt; <strong>foo.bp-break-memory 0xffffffffbfc008b8</strong>
+</code></pre>
+<p>When creating execution breakpoints, it is possible to specify filter rules to
+only trigger when instructions match certain syntactical criteria. This feature
+is mainly useful with breakpoints covering large areas of memory. The available
+parameters to the break command are <em>prefix</em> (to match the start of an
+instruction), <em>substr</em> (to match a particular substring), and <em>pattern</em> (to
+match the bit pattern of the instruction).</p>
+<p>For example, to stop when an instruction with the name <code>add</code> is executed in a
+memory range from 0x10000 to 0x12000, use the following commands:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.memory.break 0x10000 0x2000 -x prefix = "add"</strong>
+Breakpoint 1 set on address 0x10000 in 'board.cell_context', length 8192 with access mode 'x'
+</code></pre>
+<p>Simics will now break on the first add instruction encountered. For more
+information, see the <a href="../rm-base/rm-cmd-categories.html#breakpoints">breakpoints
+section</a> in the <a href="../rm-base/index.html">Simics Reference
+Manual</a> or use the <code>help bp.memory.break</code> command.</p>
+<h3 id="temporal-breakpoints"><a href="#temporal-breakpoints">3.2.1.3 Temporal Breakpoints</a></h3>
+<p>Unlike an ordinary debugger, Simics can handle temporal breakpoints, i.e.,
+breakpoints in time. Since the concept of time is based on steps and cycles, to
+be precise a temporal breakpoint refers to a specific step or a cycle count as
+measured by a given processor, but one can also specify breakpoints in seconds
+of virtual time:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.cycle.break cpu0 100</strong>
+simics&gt; <strong>bp.step.break cpu0 100</strong>
+simics&gt; <strong>bp.time.break cpu0 1</strong>
+</code></pre>
+<p>In the example above, the breakpoints are specified relative to the current
+time. It is also possible to give temporal breakpoints in absolute time (where 0
+refers to the time when the original configuration was set up in Simics).</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[0][0].bp-break-cycle -absolute 100</strong>
+simics&gt; <strong>board.mb.cpu0.core[0][0].bp-break-step -absolute 100</strong>
+simics&gt; <strong>board.mb.cpu0.core[0][0].bp-break-time -absolute 1</strong>
+</code></pre>
+<p>The commands <code>bp.cycle.break</code>, <code>bp.step.break</code> and <code>bp.time.break</code>, can be given
+without providing the CPU as argument. This will set a breakpoint for the
+current processor.</p>
+<h3 id="control-register-breakpoints"><a href="#control-register-breakpoints">3.2.1.4 Control Register Breakpoints</a></h3>
+<p>A control register breakpoint triggers when the selected control register is
+accessed. The access type is determined by the break command parameters used.</p>
+<p>To break on a control register <em>write</em>, use <code>bp.control_register.break</code>. For
+example, to break when the register <code>cr0</code> is written to:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.control_register.break name = cr0</strong>
+</code></pre>
+<p>To break on a control register <em>read</em>, use <code>bp.control_register.break -r</code>. For
+example, to break when the register <code>cr0</code> is read:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.control_register.break name = cr0 -r</strong>
+</code></pre>
+<p>A list of available control registers can be obtained by tab-completing the
+<em>name</em> argument. See the documentation for
+<a href="../rm-base/rm-cmd-bp-manager.cr.break.html">bp.control_register.break</a> in the
+<a href="../rm-base/index.html">Simics Reference Manual</a> for more information.</p>
+<h3 id="i-o-breakpoints"><a href="#i-o-breakpoints">3.2.1.5 I/O Breakpoints</a></h3>
+<p>An I/O breakpoint is always connected to a specific device object. The
+breakpoint is triggered when that device is accessed. The breakpoint is set
+using the <code>break-io</code> command, which takes the device name as a parameter. For
+example, to break on accesses to a device called <code>dma</code>, we would use the
+following syntax:</p>
+<pre><code class="language-simics">simics&gt; <strong>break-io device = board.mb.sb.dma</strong>
+</code></pre>
+<p>A list of devices can be obtained by tab-completing the <em>device</em> argument.</p>
+<h3 id="text-output-breakpoints"><a href="#text-output-breakpoints">3.2.1.6 Text Output Breakpoints</a></h3>
+<p>Many simulated machines have a <em>text console</em>—a terminal window hooked up to a
+serial port on the target machine, so that you can type commands to the target
+and get replies. In particular x86 systems also often have a <em>graphics
+console</em>—a window acting as a monitor to the machine, hooked up to a graphics
+device on the target machine, and usually also to keyboard and mouse devices.</p>
+<p>A text console can halt the simulation on the occurrence of a given character
+sequence in the output; this is called a <em>text output breakpoint</em>. This is also
+possible on a graphics console when it is running in text mode graphics,
+assuming that the graphics device implements this.</p>
+<p>To set a breakpoint, use the command <code>bp.console_string.break console string</code>,
+which returns a breakpoint id. Simics will stop when <em>string</em> appears in the
+output.</p>
+<blockquote class="markdown-alert-note">
+<p>To find out if a specific simulated machine uses these consoles, look for
+objects of class <code>textcon</code> or <code>graphcon</code> in the list provided by
+<code>list-objects</code> once the configuration is loaded.</p>
+</blockquote>
+<h3 id="graphics-breakpoints"><a href="#graphics-breakpoints">3.2.1.7 Graphics Breakpoints</a></h3>
+<p>If your target machine has a graphical display (as opposed to just a text
+console), you can set graphical breakpoints on it. A graphical breakpoint is a
+(small or large) bitmap image and a pair of coordinates; when the pixels at
+those coordinates on the simulated display exactly match the breakpoint image,
+the simulation will halt.</p>
+<p>Graphics breakpoints can be created from the console GUI window, but the
+following commands can also be used to save and set breakpoints for a graphics
+console:</p>
+<dl>
+<dt id="dt:gfx-console-save-break-xy-filename-left-top-right-bottom"><a href="#dt:gfx-console-save-break-xy-filename-left-top-right-bottom"><code>gfx-console.save-break-xy filename left top right bottom</code></a></dt>
+<dd>Let the user specify a rectangular area inside the
+graphics console using the top left and bottom right corners coordinates. The
+selected area will be saved as a binary graphical breakpoint file.</dd>
+<dt id="dt:gfx-console-bp-break-gfx-filename"><a href="#dt:gfx-console-bp-break-gfx-filename"><code>gfx-console.bp-break-gfx filename</code></a></dt>
+<dd>Activate a
+previously saved breakpoint and return a breakpoint id. When a graphical
+breakpoint is reached, Simics halts execution and returns to the command
+prompt.</dd>
+<dt id="dt:bp-delete-id"><a href="#dt:bp-delete-id"><code>bp.delete id</code></a></dt>
+<dd>Delete the breakpoint associated with <em>id</em>.</dd>
+</dl>
+<h3 id="magic-instructions-and-magic-breakpoints"><a href="#magic-instructions-and-magic-breakpoints">3.2.1.8 Magic Instructions and Magic Breakpoints</a></h3>
+<p>For each simulated processor architecture, a special nop (no-operation)
+instruction has been chosen to be a <strong>magic instruction</strong> for the simulator.
+When the simulator executes such an instruction, it triggers a
+<code>Core_Magic_Instruction</code> hap and calls all the callback functions registered on
+this hap.</p>
+<p>Since magic instructions are just no-operation instructions on hardware, you can
+run code containing magic instructions on hardware as well as in the simulator,
+but you will not get any of the extra behavior Simics implements for the magic
+instruction.</p>
+<p>If the architecture makes it possible, a magic instruction parameter is encoded
+as an immediate value in the magic instruction. When the hap is triggered, this
+value is passed as an argument to the hap handlers. This provides the user with
+a rudimentary way of passing information from the simulated system to the hap
+handler.</p>
+<p>Magic instructions have to be compiled into the binary files that are executed
+on the target. The file <code>magic-instruction.h</code> in <code>[simics]/src/include/simics/</code>
+defines a <code>MAGIC(n)</code> macro that can be used to place magic instructions in your
+program, where <code>n</code> is the magic instruction parameter value to encode. Some
+parameter values are reserved for internal use; see figure
+<a class="reference" href="#magic_instruction_figure">29</a> and figure <a class="reference" href="#reserved_magic_numbers_figure">30</a>.</p>
+<p>A complete list of magic instructions and the range of the parameter <code>n</code> is
+provided in figure <a class="reference" href="#magic_instruction_figure">29</a>.</p>
+<blockquote class="markdown-alert-note">
+<p>The declaration of the macros are heavily dependent on the compiler used, so
+you may get an error message telling you that your compiler is not supported.
+In that case, you will have to write the inline assembly corresponding to the
+magic instruction you want to use. The GCC compiler should always be
+supported.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>The magic instruction macro is directly usable only from C and C++; if your
+program is written in another language, you will have to call a C function
+that uses the macro, or an assembly function that includes the magic
+instruction. (If the language supports inline assembly, that can of course be
+used as well.) For example, in Java it would be necessary to use the JNI
+interface. Check your compiler and language documentation for details.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>(x86 specific) The magic instruction parameter is passed through the <code>eax</code>
+register on x86, as this value: <code>0x4711 | (n &lt;&lt; 16)</code>, where <code>n</code> is the magic
+parameter. The <code>eax</code> register content is changed to <code>n</code> when the magic
+instruction is emulated by Simics. Thus the <code>eax</code> register value can be used
+just after the magic instruction to extract the magic parameter. There is also
+a local variable defined in the scope of the MAGIC macro for x86, called
+<code>simics_magic_instr_dummy</code>. Software debuggers can read out the magic
+parameter, after a magic instruction, by reading the
+<code>simics_magic_instr_dummy</code> variable, as it is bound to the output of the eax
+register. You have to make sure that the compiler does not optimize away this
+variable if you intend to use it.
+The values of the <code>ebx</code>, <code>ecx</code> and <code>edx</code> registers are undefined after the
+magic instruction. Earlier Simics versions had different definitions of magic
+instructions for x86. The old magic instruction can still be used on x86 if
+the processor is not running in VMP mode.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>(PowerPC specific) There are two different encodings of the <code>rlwimi</code>-based
+magic instruction on PowerPC. On 64-bit models, the new encoding is always
+used; it is also the one generated by the <code>MAGIC()</code> and <code>MAGIC_BREAKPOINT()</code>
+macros in <code>magic-instruction.h</code> when compiling 64-bit PowerPC code. The old
+encoding is used on 32-bit models when the <code>old_rlwimi_magic</code> attribute is
+set. When compiling 32-bit PowerPC code, the macros will use the old encoding
+unless the preprocessor symbol <code>SIM_NEW_RLWIMI_MAGIC</code> has been defined.
+It is recommended that the new encoding is used with 32-bit PowerPC models
+and code by setting the appropriate attribute and preprocessor symbol.</p>
+</blockquote>
+<figure id="magic_instruction_figure">
+<center>
+<table border="cross">
+  <tbody><tr>
+     <td><b>Target</b></td>
+     <td><b>Magic instruction</b></td>
+     <td><b>Conditions on <arg>n</arg></b></td>
+     <td>
+  </td></tr>
+  <tr>
+     <td>ARC</td><td><tt>mov 0, n</tt></td>
+                 <td>1 ≤ n &lt; 64</td>
+                 <td>
+  </td></tr>
+  <tr>
+     <td>ARM</td><td><tt>orr rn, rn, rn</tt></td>
+                 <td>0 ≤ n ≤ 14</td>
+                 <td>
+  </td></tr>
+  <tr>
+     <td>ARMv8</td><td><tt>orr xn, xn, xn</tt></td>
+                 <td>0 ≤ n ≤ 31</td>
+                 <td>
+  </td></tr>
+  <tr>
+     <td>ARM Thumb-2</td><td><tt>orr.w rn, rn, rn</tt></td>
+                         <td>0 ≤ n ≤ 12</td>
+                         <td>
+  </td></tr>
+  <tr>
+     <td>H8300</td><td><tt>brn n</tt></td>
+                   <td>-128 ≤ n ≤ 127</td>
+                   <td>
+  </td></tr>
+  <tr>
+     <td>M680x0</td><td><tt>dbt dx,y</tt></td>
+                  <td>0 ≤ n &lt; 0x3ffff</td>
+                  <td>
+  </td></tr>
+  <tr>
+    <td>
+    </td><td>x=n[17:15], y=n[14:0] * 2</td>
+    <td>
+    </td><td>
+  </td></tr>
+  <tr>
+     <td>MIPS</td><td><tt>li %zero, n</tt></td>
+                  <td>0 ≤ n &lt; 0x10000</td>
+                  <td>
+  </td></tr>
+  <tr>
+     <td>Nios II</td><td><tt>or rN, rN, rN,</tt></td>
+                  <td>0 ≤ N &lt; 32</td>
+                  <td>
+  </td></tr>
+  <tr>
+    <td>PowerPC</td><td><tt>rlwimi x,x,0,y,z</tt></td>
+    <td>0 ≤ n &lt; 8192</td>
+    <td>new encoding</td>
+  </tr>
+  <tr>
+    <td>
+    </td><td>x=n[12:8], y=n[7:4], z=n[3:0]|16</td>
+    <td>
+    </td><td>
+  </td></tr>
+  <tr>
+    <td>PowerPC</td><td><tt>rlwimi x,x,0,y,z</tt></td>
+    <td>0 ≤ n &lt; 32768</td>
+    <td>old encoding</td>
+  </tr>
+  <tr>
+    <td>
+    </td><td>x=n[14:10], y=n[9:5], z=n[4:0]</td>
+    <td>
+    </td><td>
+  </td></tr>
+  <tr>
+     <td>RISC-V</td><td><tt>srai zero, zero, n</tt></td>
+                 <td>0 ≤ n ≤ 31</td>
+                 <td>
+  </td></tr>
+  <tr>
+     <td>SH</td><td><tt>mov rn, rn</tt></td>
+                      <td>0 ≤ n &lt; 16</td>
+                      <td>
+  </td></tr>
+  <tr>
+     <td>SPARC</td><td><tt>sethi n, %g0</tt></td>
+             <td>1 ≤ n &lt; 0x400000</td>
+             <td>
+  </td></tr>
+  <tr>
+    <td>x86</td>
+    <td><tt>cpuid</tt></td>
+    <td>0 ≤ n &lt; 0x10000</td>
+    <td>
+  </td></tr>
+  <tr>
+    <td>
+    </td><td>with <tt>eax</tt> = 0x4711 + n * 2<sup>16</sup></td>
+    <td>
+    </td><td>
+  </td></tr>
+</tbody></table>
+</center>
+ <figcaption>Figure 29. Magic instructions for different Simics Targets</figcaption> 
+</figure>
+<figure id="reserved_magic_numbers_figure">
+<center>
+<table border="cross">
+  <tbody><tr><td><b>Reserved Magic Numbers</b></td></tr>
+  <tr><td><tt>&nbsp;0</tt></td></tr>
+  <tr><td><tt>12</tt></td></tr>
+</tbody></table>
+</center>
+ <figcaption>Figure 30. Reserved magic numbers, for internal use only.</figcaption> 
+</figure>
+<p>Here is a simple example of how to use magic instructions:</p>
+<pre><code class="language-C">#include "magic-instruction.h"
+
+int main(int argc, char **argv)
+{
+        initialize();
+        MAGIC(1);                     // tell the simulator to start
+                                      // the cache simulation
+        do_something_important();
+        MAGIC(2);                     // tell the simulator to stop
+                                      // the cache simulation
+        clean_up();
+}
+</code></pre>
+<p>This code needs to be coupled with a callback registered on the magic
+instruction hap to handle what happens when the simulator encounters a magic
+instruction with the arguments 1 or 2 (in this example, to start and stop the
+cache simulation).</p>
+<p>Simics implements a special handling of magic instructions called <strong>magic
+breakpoints</strong>. A magic breakpoint occurs if magic breakpoints are enabled and if
+the parameter <code>n</code> of a magic instruction matches a special condition. When a
+magic breakpoint is triggered, the simulation stops and returns to the prompt.</p>
+<p>Magic breakpoints can be enabled with the command <code>bp.magic.break number = n</code> .
+The command takes the number n and corresponds to the parameter passed to the
+MAGIC macro above. If the number is omitted, it defaults to 0. You can also pass
+<code>-all</code> that will break on all possible arguments.</p>
+<p>Note that the value 0 is included for architectures where no immediate can be
+specified. The file <code>magic-instruction.h</code> defines a macro called
+MAGIC_BREAKPOINT that places a magic instruction with a correct parameter value
+in your program, depending on the architecture.</p>
+<h3 id="advanced-magic-instruction-usage"><a href="#advanced-magic-instruction-usage">3.2.1.9 Advanced Magic Instruction Usage</a></h3>
+<p>Sometimes a simple magic instruction is not enough—for example, if you want to
+communicate with the target code through some channel. To do that, you can
+define your own magic instruction for the target that reserves memory or
+registers for communication. In our example below, we will reserve a register
+for passing a character to the magic handler. The purpose is to be able to
+capture text output; i.e., we do not want the program running on the target to
+write to standard output. Instead, we will grab the characters, issue a log
+message, and then inform the target program that it should not process the
+character normally. To illustrate this, we will using the x86 architecture.</p>
+<p>The normal MAGIC macro for x86, as defined in <code>magic-instruction.h</code> looks like
+this:</p>
+<pre><code>#define MAGIC(n) do {                                                       \
+        int simics_magic_instr_dummy;                                       \
+        __MAGIC_CASSERT((unsigned)(n) &lt; 0x10000);                           \
+        __asm__ __volatile__ ("cpuid"                                       \
+                              : "=a" (simics_magic_instr_dummy)             \
+                              : "a" (0x4711 | ((unsigned)(n) &lt;&lt; 16))        \
+                              : "ecx", "edx", "ebx");                       \
+} while (0)
+</code></pre>
+<p>The asm volatile syntax is used to insert assembler instructions in our target
+program. The x86 architecture uses the <code>cpuid</code> instruction as a magic
+instruction as described above. This instruction normally uses eax and ecx
+registers as input/output and also writes to the ebx and edx registers. As a
+magic instruction however, Simics only uses eax as input for the magic
+parameter, but mangled as “(0x4711 | ((unsigned)(n) &lt;&lt; 16))”. Here, “a” means
+to bound the expression to the eax register. We are using an undefined leaf node
+for cpuid to communicate this value, which will be the result of the expression.
+A normal processor will just ignore this, but can write random values to the
+output registers (ecx, edx, and ebx), so we cannot use them as a communication
+channel. In Simics, if the magic leaf node is used, then the output value of eax
+is defined to the magic number itself, i.e., eax will be set to <code>n</code>, so we
+cannot use that register either.</p>
+<p>To overcome this we use another register-edi for our communication-so we make a
+special version of the MAGIC macro that will fit our needs. This version will
+have two parameters, one for the magic parameter, and one for the character,
+chr, that we want to capture.</p>
+<pre><code>  #define MAGIC_CHAR(n, chr)                         \
+        asm volatile (                               \
+        "cpuid\n\t"                                  \
+        : "+D" (chr) /* edi as input/output */       \
+        : "a" (0x4711 | ((unsigned)(n) &lt;&lt; 16))       \
+        : "ebx", "ecx", "edx"                        \
+);
+</code></pre>
+<p>The syntax “+D (chr)” means that the chr parameter to the macro will be bound to
+the edi register. See the documentation of the cpuid instruction and GCC’s
+extended inline assembly for more information.</p>
+<p>The code in the target program can be written like this:</p>
+<pre><code>static int putmagicchar(int c)
+{
+        MAGIC_CHAR(113, c);
+        return c;
+}
+
+static bool
+captured_message(char *buf, int len)
+{
+        for (int i = 0; i &lt; len; i++) {
+                int chr = buf[i];
+                if (putmagicchar(chr) == chr)
+                        return false; // no simulation involvement
+        }
+        return true;
+}
+
+void putstr(char *buf, int len)
+{
+        if (captured_message(buf, len))
+                return;
+
+        for (int i = 0; i &lt; len; i++) {
+                putchar(buf[i]);
+        }
+}
+</code></pre>
+<p>Here, we modify the standard <code>putstr</code> function in our code—assuming this is the
+low-level output function we intend to manipulate—and add an extra if statement
+to check whether the string has already been captured. If it hasn’t, we proceed
+with the usual loop that calls <code>putchar</code> (not shown) for each character. If the
+function returns true, indicating successful capture, we skip the rest of the
+code since the string has already been handled. This allows us to avoid
+executing the <code>putchar</code> logic, which is likely complex and may involve OS-level
+operations.</p>
+<p>The special logic is controlled by the <code>captured_message</code> function. In this
+function, a similar output loop is executed, but for each character, the
+<code>putmagicchar</code> function is called. This function uses the magic instruction to
+communicate with the simulator. When the magic instruction is executed, the
+corresponding hap callback will be called if installed (see below). The callback
+can then read the input character by inspecting the <code>edi</code> register on the target
+machine. The character may be redirected to an alternate destination, such as a
+log output message.</p>
+<p>Within the callback, the <code>edi</code> value can also be modified to communicate back to
+the target program. If it is set to -1 (i.e., an illegal character), this
+signals that the character has been captured, and the loop in <code>captured_message</code>
+will continue to process the next character. Conversely, if the character (i.e.,
+<code>edi</code>) is not modified, the loop will exit and <code>captured_message</code> will return
+false, indicating that no capturing was performed and the normal output code
+should proceed.</p>
+<p>The target code cannot determine whether it is running on a simulator with an
+inactive magic instruction or on actual hardware. If the magic instruction is
+activated and the <code>cpuid</code> instruction is run in the simulator, it can be
+observed that the <code>edi</code> register has been modified—magically. This code serves
+as an illustration and does not handle the case where the magic instruction is
+disabled in the middle of a string.</p>
+<p>A corresponding callback for the magic instruction can now be defined, as shown
+below. The <code>cpu_info_t</code> variable <code>ci</code>, which is passed as user data, contains
+information about the CPU on which the callback is installed. For example, the
+<code>int_register</code> interface pointer has been cached in <code>ci-&gt;cpu.ir_iface</code> to enable
+efficient reading and writing of the edi register. This caching is performed in
+a code snippet not shown here. The callback is defined as follows:</p>
+<pre><code>void magic_cb(void *user_data, conf_object_t *cpu, void *param) {
+        cpu_info_t *ci = user_data;
+
+        // The character input to the magic instruction is placed in edi
+        int chr = ci-&gt;cpu.ir_iface-&gt;read(ci-&gt;cpu.obj, ci-&gt;cpu.edi_num);
+
+        SIM_LOG_INFO(4, ci-&gt;obj, 0, "capture char: %c", chr);
+
+        // Skip the rest of the code in the captured_message function
+        // by setting edi to -1
+        ci-&gt;cpu.ir_iface-&gt;write(ci-&gt;cpu.obj, ci-&gt;cpu.edi_num, 0xffffffff);
+}
+</code></pre>
+<p>The callback is installed with the following code and that also switches on the
+magic instruction (<code>ci-&gt;cpu.obj</code> holds the CPU object that we want to use):</p>
+<pre><code>        SIM_hap_add_callback_obj_index(
+                    "Core_Magic_Instruction",
+                    cpu_info-&gt;cpu.obj, 0, (obj_hap_func_t)magic_cb, cpu_info,
+                    113); // our magic number
+</code></pre>
+<p>This example code is available in the <code>magic_character_capture</code> extension module
+in the Base package. It is slightly more advanced than the version shown here
+and allows the captured output to be sent to another textcon object, enabling
+live updates of characters in a designated area.</p>
+<p>The reason for capturing only one character at a time, instead of an entire
+string—which might be faster—is that it is significantly simpler. There is no
+need to read from memory or handle logical-to-physical address translations.
+Additionally, capturing a full string could lead to issues if the character
+buffer crosses a page boundary where the second page is not yet mapped,
+potentially causing a page fault on the target machine. Passing a single
+character as an integer avoids these complications. If a page fault occurs on
+the target machine, the target operating system will handle it and then proceed
+to call the next character.</p>
+<p>If inline assembler is not available in your compiler—as is the case with
+Microsoft Visual C++—you may need to implement the <code>MAGIC_CHAR</code> macro as a
+function written directly in assembly language.</p>
+<p>Below is an example written in assembly, assuming the 64-bit Windows API:</p>
+<pre><code>  .code
+MagicChar proc
+    ; rcx = n (unsigned int), first input
+    ; rdx = chr (unsigned int), second input
+
+    push rbx ; save callee saved register
+    push rdi ; save callee saved register
+
+    ; Construct eax = 0x4711 | (n &lt;&lt; 16)
+    mov eax, 4711h
+    mov rbx, rcx
+    shl rbx, 16
+    or eax, ebx
+
+    ; Set edi = chr
+    mov edi, edx
+
+    cpuid
+
+    ; Return edi in eax
+    mov eax, edi
+
+    pop rdi ; restore
+    pop rbx ; restore
+    ret
+MagicChar endp
+end
+</code></pre>
+<p>This code can be used when the asm syntax is not available in the compiler or
+when you need better control over the code. A similar version for the 32-bit ABI
+can also be implemented.</p>
+<h2 id="symbolic-debugging"><a href="#symbolic-debugging">3.2.2 Symbolic Debugging</a></h2>
+<p>A vital part of a debugger’s task is to understand the system being debugged at
+a higher level than just machine instructions and memory contents. The user
+thinks in terms of processes, functions, and named variables, so the debugger
+presents a view of the software that matches these concepts. This view is even
+more important in Simics, where the user has access to the whole system and not
+only user processes. To handle this, Simics Analyzer provides a full symbolic
+debugger, which you can read about in <a href="../analyzer-user-guide/index.html">Simics Analyzer User’s
+Guide</a>.</p>
+<p>Simics provides only some primitive building blocks for basic debugging like
+<em>context objects</em>.</p>
+<h3 id="contexts"><a href="#contexts">3.2.2.1 Contexts</a></h3>
+<p>A <code>context</code> object represents a virtual address space. Each processor in the
+simulated system has a <em>current context</em>, which represents the virtual address
+space currently visible to code running on the processor. Virtual-address
+breakpoints are properties of contexts; different context objects have separate
+sets of virtual breakpoints, and by changing a processor’s current context, you
+change its set of virtual breakpoints.</p>
+<p>The correctness of the simulation does not depend on contexts in any way; the
+concept of multiple virtual address spaces is useful for <em>understanding</em> the
+simulated software, but not necessary for running it. What contexts to create
+and how to use them is entirely your business; Simics does not care.</p>
+<p>By default, every processor in a simulation cell use the same default context.
+You may create new contexts and switch between them at any time. This allows
+you, for example, to maintain separate debugging symbols and breakpoints for
+different processes in your target machine. When a context is used in this
+manner (active when and only when a certain simulated process is active), the
+context is said to <em>follow</em> the process.</p>
+<p><em>Simics Analyzer</em> will help you coordinate contexts for processes running on the
+target system.</p>
+
+<div class="chain">
+<a href="introduction-2.html">3.1 Introduction</a>
+<a href="lowlevel-software.html">3.3 Using Simics for Hardware Bring-Up and Firmware Development</a>
+</div>

@@ -1,0 +1,70 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Naming</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="comments.html">4 Comments</a>
+<a href="types.html">6 Types</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for DML</a>
+&nbsp;/&nbsp;</div><h1 id="naming"><a href="#naming">5 Naming</a></h1>
+<ul>
+<li>
+<p><strong>NN1</strong> In absence of other rules, identifiers are written in lower case
+letters, words separated by underscores.</p>
+</li>
+<li>
+<p><strong>NN2</strong> Do not append a number as a general method to create new identifiers,
+other than in very special circumstances.</p>
+<pre><code>method draw_line(int x1, int y1, int x2, int y2) // GOOD
+method invalidate_object2(conf_object_t *obj)    // BAD
+</code></pre>
+</li>
+</ul>
+<h2 id="method-names"><a href="#method-names">5.1 Method names</a></h2>
+<ul>
+<li>
+<p><strong>NM1</strong> Methods that are executed primarily for their side-effect should be
+named after what they do.
+Methods executed for their return value should be named after what they
+return.
+If the method is a predicate (returning a boolean value), it should be named
+after the condition when it returns a true value.</p>
+<pre><code>method raise_interrupt(uint8 level)
+method current_irq_level() -&gt; (float power)
+method is_enabled(int x) -&gt; (bool enabled)
+</code></pre>
+</li>
+</ul>
+<h2 id="variable-and-device-object-names"><a href="#variable-and-device-object-names">5.2 Variable and device object names</a></h2>
+<ul>
+<li><strong>NV1</strong> Variables should be named after what they contain, not from the
+variable or its type.
+The more local a variable is, the shorter can be its name.
+Use long, descriptive names for top-level names; use short names in local
+scopes.
+Names more frequently used can also be shorter.</li>
+<li><strong>NV2</strong> In particular, do not use <code>tmp</code> or <code>ptr</code> in identifiers; it is rare
+that it is needed to point out that a variable contains a temporary value or a
+pointer.</li>
+<li><strong>NV3</strong> Do not prefix names with an article, such as <code>an_object</code> or
+<code>the_score</code>.</li>
+</ul>
+<h2 id="type-names"><a href="#type-names">5.3 Type names</a></h2>
+<ul>
+<li><strong>NT1</strong> Typedef names should end in <code>_t</code>.
+Typedef structs unless only used locally.</li>
+</ul>
+<h2 id="file-names"><a href="#file-names">5.4 File names</a></h2>
+<ul>
+<li><strong>NF1</strong> In file names, words are separated by hyphens rather than underscores.</li>
+</ul>
+
+<div class="chain">
+<a href="comments.html">4 Comments</a>
+<a href="types.html">6 Types</a>
+</div>

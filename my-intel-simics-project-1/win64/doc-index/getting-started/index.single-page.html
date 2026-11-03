@@ -1,0 +1,3768 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Getting Started</title>
+
+<section class="page" id="index.html"><h1 id="index.html:getting-started"><a href="#index.html:getting-started">Getting Started</a></h1>
+</section><section class="page" id="introduction.html"><h1 id="introduction.html:introduction"><a href="#introduction.html:introduction">1 Introduction</a></h1>
+<p>This document provides an introduction to the Intel Simics product and some of
+its features. Intel Simics is a full-system simulator mainly targeting software
+development and analysis. To do so, it provides hardware and software
+inspection, dynamic system configuration, hardware modelling tools, scripting,
+and a rich set of other features. Unlike many other virtual machine products,
+the Intel Simics simulator does not focus on being a hardware replacement,
+although it can be used in that way.</p>
+<p>The introduction in this document is in the form of a few short step-by-step
+tutorials.</p>
+<h2 id="introduction.html:conventions"><a href="#introduction.html:conventions">1.1 Conventions</a></h2>
+<ul>
+<li>
+<p>Scripts, screen dumps and code fragments are presented in a <code>monospace</code> font.
+In screen dumps, user input is always presented in bold font, as in:</p>
+<pre><code class="language-simics">Welcome to the Simics prompt
+simics&gt; <strong>this is something that you should type</strong>
+</code></pre>
+</li>
+<li>
+<p>The character “/” is used to separate directories and files, for Linux. If you
+are using Windows, you should read the character as “\” instead.</p>
+</li>
+</ul>
+<h2 id="introduction.html:intel-simics-terminology"><a href="#introduction.html:intel-simics-terminology">1.2 Intel Simics Terminology</a></h2>
+<p>This section presents the terminology used throughout Intel Simics
+documentation.</p>
+<ul>
+<li><strong>Intel Simics Packages</strong> are the installable packages.
+The packages can be identified by number or by name.
+Noteworthy packages:
+<ul>
+<li>The <strong>Intel Simics Base package (#1000)</strong>, referred to as the <strong>base
+package</strong>, containing the simulator.</li>
+<li>Other packages are referred to as <strong>add-on packages</strong>, and these
+typically contain extra tools or simulated hardware targets.</li>
+</ul>
+</li>
+<li>An <strong>Intel Simics installation</strong> is a set of installed Intel Simics
+<em>packages</em>.</li>
+<li>An <strong>Intel Simics project</strong>, referred to as <strong>the project</strong>, is the workspace
+where the simulator is started. The project is configured with a set of
+associated packages, at least the <em>base package</em> and possibly some <em>add-on</em>
+packages. Besides starting the simulator, the user can create custom start
+scripts and also read documentation for all packages available to the project.</li>
+<li>The <strong>Simics Command Line Interface</strong>, referred to as the <strong>CLI</strong>, is the main
+interface to the simulator for most users and is started by default. It is
+also possible to launch the simulator in non-interactive, <em>batch</em> mode, which
+can be useful when running tests. In the CLI, both <em>Python</em> and the <em>Simics
+script language</em> are available, and can be used interchangeably.</li>
+<li>The <strong>host</strong>, or the <strong>host machine</strong> is the computer where the Intel Simics
+simulator is running.</li>
+<li>The <strong>target machine</strong> or <strong>target system</strong> is the hardware being simulated.</li>
+</ul>
+<p>To simulate a <em>target machine</em>, a <em>configuration</em> must be created.
+A <em>configuration</em> consists of <em>objects</em>, object hierarchy,
+properties, and connections between <em>objects</em>.</p>
+<p>The default way of creating a configuration is to <em>load a target</em>.
+For legacy reasons, it is also possible to create configurations by running
+CLI or Python scripts.</p>
+<p>When creating a configuration for a specific target machine, it is often
+possible to <em>customize</em> properties of the target machine. For <em>targets</em>, the
+configurable parameters are called <em>target parameters</em>. (see <a href="../simics-user-guide/script-support-in-simics.html#targets-and-parameters"><em>Simics User’s
+Guide</em></a>).</p>
+<p>A simulation session can contain multiple target machines, for example when
+simulating a network.</p>
+<p>For interaction with the target system, the simulator can show <em>graphics
+consoles</em> and <em>serial consoles</em>.</p>
+<figure id="introduction.html:simics-terminology">
+<p><img alt="" src="simics-terminology.png"></p><figcaption>Figure 1. This is an illustration of some of the
+key concepts</figcaption><p></p>
+</figure>
+</section><section class="page" id="installation.html"><h1 id="installation.html:installation"><a href="#installation.html:installation">2 Installation</a></h1>
+<p>These are installation steps that should have been followed
+before running any of the tutorials.</p>
+<ol>
+<li>The Intel Simics <em>base package</em> (package number 1000) has been installed.</li>
+<li>The <em>QSP-x86</em> package (package number 2096) has been installed. This package
+contains a simple x86 system with the <code>qsp-x86/firststeps</code> target which will
+be used in many examples.</li>
+<li>A <em>project</em> directory has been created (referred to as [project] below) which
+has the <em>QSP-x86</em> package as an add-on package.</li>
+<li>The <a href="https://grml.org" rel="noopener noreferrer" target="_top">Grml</a> live <em>full</em> ISO image from the stable <em>2025.05</em>
+release named <code>grml-full-2025.05-amd64.iso</code> has been downloaded and placed in
+the <em>project</em> directory.</li>
+</ol>
+<p>The direct download link for this image is:
+<a href="https://download.grml.org/grml-full-2025.05-amd64.iso" rel="noopener noreferrer" target="_top">https://download.grml.org/grml-full-2025.05-amd64.iso</a>.
+If the download speed is slow, it is also possible to download
+<code>grml-full-2025.05-amd64.iso</code> from one of the
+<a href="https://grml.org/download/mirrors/" rel="noopener noreferrer" target="_top">mirrors</a>.</p>
+<p>For information on how to install the simulator and create a project, see the
+<a href="../installation-guide/index.html">Installation Guide</a>.</p>
+<p>Some tutorials require that the <em>QSP Clear Linux (#4094)</em> package is
+installed and available as an add-on package in the project.
+If you don’t have this package, reading the tutorials and referenced
+manuals will still provide an overview on the subject.</p>
+</section><section class="page" id="launch-exit.html"><h1 id="launch-exit.html:launching-and-exiting"><a href="#launch-exit.html:launching-and-exiting">3 Launching and Exiting</a></h1>
+<p>This section describes how to <em>launch</em> and <em>exit</em> the simulator.</p>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the user has followed the installation steps in the
+<a href="#installation.html">installation</a> section.</p>
+</blockquote>
+<p>The screenshots below were taken on Windows, but the Linux version of the Intel
+Simics simulator behaves similarly.</p>
+<h2 id="launch-exit.html:launch-the-simulator"><a href="#launch-exit.html:launch-the-simulator">3.1 Launch the simulator</a></h2>
+<ol>
+<li>
+<p>First, let’s get a command prompt on the host machine.</p>
+<ul>
+<li><em>On a Windows host</em>, use one of the following alternatives:
+<ul>
+<li>Use the start menu and launch <strong>Command Prompt</strong>.</li>
+<li>If <strong>Windows Terminal</strong> is installed, launch this and
+open an instance of the <strong>Command Prompt</strong> profile.</li>
+<li>Press the <code>Win + r</code> keys and enter <code>cmd</code> in the popped-up window.</li>
+</ul>
+</li>
+<li><em>On a Linux host</em>, refer to the documentation of your Linux distribution
+about the instructions on how to get access to a command prompt.</li>
+</ul>
+</li>
+<li>
+<p>Once a command prompt window is available, navigate to the project directory.</p>
+<p><img alt="" src="running-simics-cli-1.png"></p>
+</li>
+<li>
+<p>To launch the simulator, and to get its command prompt just run the
+<code>simics.bat</code> batch file (on Linux, the <code>simics</code> shell script is to be used
+instead by entering the <code>./simics</code> command).</p>
+<p><img alt="" src="running-simics-cli-2.png"></p>
+<p>Simics has now been launched.</p>
+</li>
+<li>
+<p>With the CLI available, we can try running the command <code>list-packages</code>, which
+lists the packages available to the current project:
+<img alt="" src="running-simics-cli-3.png"></p>
+</li>
+</ol>
+<p>There are also <a href="#launch-exit.html:launch-options">launch options</a> available to customize what
+happens when launching the simulator.</p>
+<h2 id="launch-exit.html:exit-the-simulator"><a href="#launch-exit.html:exit-the-simulator">3.2 Exit the Simulator</a></h2>
+<p>To quit the simulator just enter the <code>quit</code> command:<br>
+<img alt="" src="running-simics-cli-12.png"></p>
+<h2 id="launch-exit.html:launch-options"><a href="#launch-exit.html:launch-options">3.3 Launch options</a></h2>
+<p>Simics has a couple launch options that can be listed with the <code>--help</code> flag:</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --help
+
+Usage: simics [options] [&lt;file&gt;|&lt;target&gt; ...] [--preset &lt;name|file&gt; ...] [&lt;param&gt;=&lt;value&gt; ...]
+Common options:
+
+  --batch-mode                quit on error or when returning to prompt
+  -e, --execute &lt;command&gt;     execute a CLI command
+  -h, --help                  print this help or list all script parameters if
+                              used with a file. All other options are ignored
+  -l, --list-targets          list available targets
+...
+</code></pre>
+<p>These are some of more commonly used options:</p>
+<ul>
+<li>
+<p><em><code>--list-targets</code> - list available targets</em><br>
+List targets available in the project and then quit.
+This can also be done from CLI with the <code>list-targets</code> command.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --list-targets
++------------------------------------+--------------------+
+|               Target               |      Package       |
++------------------------------------+--------------------+
+|qsp-x86/clear-linux                 |Quick-Start Platform|
+|qsp-x86/clear-linux-2c              |Quick-Start Platform|
+|qsp-x86/clear-linux-multi           |Quick-Start Platform|
+|qsp-x86/clear-linux-multi-no-network|Quick-Start Platform|
+|qsp-x86/clear-linux-no-network      |Quick-Start Platform|
+|qsp-x86/firststeps                  |Quick-Start Platform|
+|qsp-x86/uefi-shell                  |Quick-Start Platform|
+|qsp-x86/user-provided-linux         |Quick-Start Platform|
++------------------------------------+--------------------+
+</code></pre>
+</li>
+<li>
+<p><em>load a target</em> Specify a target to load and then continue in CLI. This is
+equivalent of first starting the simulator and from CLI run <code>load-target "qsp-x86/firststeps"</code>.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat qsp-x86/firststeps
+</code></pre>
+</li>
+<li>
+<p><em><code>--quiet</code> - launch without startup text</em><br>
+Use <code>--quiet</code> (or <code>-q</code>) to launch the simulator without the startup text.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --quiet --batch-mode
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p><em><code>--batch-mode</code> - run tasks and exit</em> With the <code>--batch-mode</code>, the simulator
+will simply run tasks from other launch options and then exit, without
+starting CLI. This can be useful when starting the simulator
+non-interactively, typically when running tests. The simulator’s exit code
+will be zero on success, otherwise non-zero.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --batch-mode
+Intel Simics Simulator 7 (build 7012 win64) © 2024 Intel Corporation
+c:\simics\project&gt;
+</code></pre>
+</li>
+</ul>
+<p>Here is a more advanced example, which starts the <code>qsp-x86/firststeps</code> target,
+runs for 0.1 seconds, prints the current time, and then quits. The two last
+steps use the <code>-e</code> option, where a command can be specified:</p>
+<pre><code>```shell
+c:\simics\project&gt;simics.bat --batch-mode qsp-x86/firststeps -e "run-seconds 0.1" -e "ptime"
+┌────────────────────────┬─────────┬─────────┬────────┐
+│       Processor        │  Steps  │ Cycles  │Time (s)│
+├────────────────────────┼─────────┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│199600000│200000000│   0.100│
+└────────────────────────┴─────────┴─────────┴────────┘
+c:\simics\project&gt;
+```
+</code></pre>
+<ul>
+<li><em><code>--stop-on-error</code></em> If there is an error when simulation is running, stop the
+simulation and interrupt the current script. If combining <code>--stop-on-error</code>
+with <code>--batch-mode</code>, an error (such as error log) will cause the simulation to
+exit with a non-zero exit code.</li>
+</ul>
+<h2 id="launch-exit.html:summary"><a href="#launch-exit.html:summary">3.4 Summary</a></h2>
+<p>To sum up, in this section we launched the simulator, tried out a command and
+exited the simulator.</p>
+</section><section class="page" id="simics-command-line-interface.html"><h1 id="simics-command-line-interface.html:command-line-interface-cli"><a href="#simics-command-line-interface.html:command-line-interface-cli">4 Command Line Interface (CLI)</a></h1>
+<p>This section focuses on some practical information related to the use of the
+CLI. Particularly, the following information is presented:</p>
+<ul>
+<li>a brief <a href="#simics-command-line-interface.html:introduction">introduction</a> to the CLI</li>
+<li>how to use <a href="#simics-command-line-interface.html:command-line-completion">command line completion</a>, also known as
+<em>tab completion</em></li>
+<li>how to use the <a href="#simics-command-line-interface.html:the-help-command">help command</a></li>
+<li>where to find <a href="#simics-command-line-interface.html:further-reading">more information</a> about the CLI</li>
+</ul>
+<p>This section doesn’t cover all available CLI commands, but here
+are some examples of what can be done with commands:</p>
+<ul>
+<li><a href="#running-simics-cli.html:create-a-target-machine">load</a> a target</li>
+<li><a href="#running-simics-cli.html:run-and-stop-the-simulation">run and stop</a> the
+simulation</li>
+<li><a href="#hardware-inspection.html">inspect</a> the state of target machines</li>
+<li><a href="#target-software-debugging.html:debugging">set breakpoints and tracepoints</a></li>
+<li><a href="#checkpoints-snapshots-.html">save and roll back to checkpoints</a></li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the user has followed the installation steps in the
+<a href="#installation.html">installation</a> section and knows how to
+<a href="#running-simics-cli.html">launch</a> the simulator.</p>
+</blockquote>
+<h2 id="simics-command-line-interface.html:introduction"><a href="#simics-command-line-interface.html:introduction">4.1 Introduction</a></h2>
+<p>As a short introduction to the functionality of the CLI:</p>
+<ul>
+<li>The CLI allows running (and combining):
+<ul>
+<li>CLI commands (which also can be run from Python)</li>
+<li>Python code (prefixed with <code>@</code> or in <code>python-mode</code>)</li>
+<li>Host shell commands (prefixed with <code>!</code> or <code>shell</code>)</li>
+<li>Most of the Intel Simics simulator interfaces can be executed as Python
+functions</li>
+</ul>
+</li>
+<li>Each executed command is saved to a <em>command history</em>.</li>
+<li>The state of objects can be inspected by accessing attributes, commands, and
+interfaces.</li>
+<li>The CLI has variables which are prefixed with <code>$</code>. The <code>$</code> prefix is used both
+when assigning and retrieving value (for example <code>$var = 1</code> or <code>echo $var</code>).</li>
+<li>There are built-in command <em>aliases</em>, but it’s also possible to create
+<em>custom</em> aliases with the <code>alias</code> command.</li>
+<li>Comments are created with <code>#</code> (# this is a comment).</li>
+</ul>
+<h3 id="simics-command-line-interface.html:cli-prompts"><a href="#simics-command-line-interface.html:cli-prompts">4.1.1 CLI Prompts</a></h3>
+<p>When launching the simulator (<code>simics.bat</code> on Windows or <code>./simics</code> on Linux),
+the CLI is started automatically. The CLI has several prompts, but here are most
+important.</p>
+<ul>
+<li><em>Simulation stopped (default)</em> The default prompt is <code>simics&gt;</code>. This also
+indicates that the simulation is not running.</li>
+<li><em>Simulation running</em> When the simulation is running, the prompt changes to
+<code>running&gt;</code>. Note that <em>most commands</em> (such as <code>stop</code>) can be issued while the
+simulation is running.</li>
+<li><em>Python Mode</em><br>
+The simulator has a Python mode for using Python interactively.
+When running the <code>python-mode</code> command, the prompt changes to <code>simics&gt;&gt;&gt;</code>.</li>
+</ul>
+<h3 id="simics-command-line-interface.html:keyboard-shortcuts"><a href="#simics-command-line-interface.html:keyboard-shortcuts">4.1.2 Keyboard Shortcuts</a></h3>
+<p>These are some shortcuts that may be useful:</p>
+<ul>
+<li><em>Control-C</em><br>
+A running simulation (<code>running&gt;</code>) can be interrupted with <em>Control-C</em>, as an
+alternative to typing <code>stop</code>.</li>
+<li><em>Arrow up</em> Put the previous command (from the <em>command history</em>) on prompt
+without having to re-type it. To see older commands, press <em>Arrow up</em> again.</li>
+<li><em>Control-R</em> Search the command history by first pressing <em>Control-R</em> and then
+type a substring to search for in the <em>command history</em>. Press <em>Control R</em>
+again to see the next matching.</li>
+<li><em>Tab</em><br>
+The <em>Tab</em> key is used for <a href="#simics-command-line-interface.html:command-line-completion">command line completion</a>.</li>
+</ul>
+<h2 id="simics-command-line-interface.html:command-line-completion"><a href="#simics-command-line-interface.html:command-line-completion">4.2 Command Line Completion</a></h2>
+<p>To simplify interactive use, the CLI implements <em>command line completion</em>, also
+known as <em>tab completion</em>. The CLI can complete commands, arguments, file names,
+and some other entities. Let’s see how command line completion works for the
+<code>load-target</code> command:</p>
+<ul>
+<li>
+<p><a href="#launch-exit.html">Launch</a> the simulator.</p>
+</li>
+<li>
+<p>Use tab-completion to complete the command <code>load-target</code> by typing only
+<code>load-t</code> and then press tab:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-t # press tab once to complete command</strong>
+simics&gt; <strong>load-target</strong>
+</code></pre>
+</li>
+<li>
+<p>To get further with command line completion, press the tab key twice. The CLI
+will print the list of parameters and flags which can be passed
+to the <code>load-target</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target # press tab twice to get arguments</strong>
+namespace =  preset =  preset_yml =  presets =  target =
+simics&gt; <strong></strong>
+</code></pre>
+</li>
+</ul>
+<p>Please note that we had to press the tab key twice. It is because the command
+completion system could not unambiguously complete the command after the tab key
+was pressed once. After the tab key is pressed again, the command completion
+system shows all possible completions.</p>
+<ul>
+<li>
+<p>Let’s proceed with our current command line entry and expand arguments that
+begin with the letter <code>t</code>. Enter <code>t</code> followed by the tab key and observe that
+the <code>target</code> argument appears:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target t # press tab to expand the 'target' argument</strong>
+simics&gt; <strong>load-target target = </strong>
+</code></pre>
+</li>
+<li>
+<p>We would like to load the target <code>qsp-x86/firststeps</code>. The command line
+completion can help with this. With the current command entry, type <code>q</code> and
+then tab once to expand all targets that begin with <code>q</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = q # press tab once to complete qsp-x86</strong>
+simics&gt; <strong>load-target target = "qsp-x86/</strong>
+</code></pre>
+</li>
+<li>
+<p>Now type <code>f</code> and then tab to expand the target named <code>qsp-x86/firststeps</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = "qsp-x86/f # press tab to complete target name</strong>
+simics&gt; <strong>load-target target = "qsp-x86/firststeps"</strong>
+</code></pre>
+</li>
+<li>
+<p>We now have the complete command for loading the <code>qsp-x86/firststeps</code> target.
+Press enter to load this target machine:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = "qsp-x86/firststeps"</strong>
+"firststeps"
+simics&gt;
+</code></pre>
+</li>
+</ul>
+<p>We have now used command line completion to load the <code>qsp-x86/firststeps</code>
+target.</p>
+<h2 id="simics-command-line-interface.html:the-help-command"><a href="#simics-command-line-interface.html:the-help-command">4.3 The help command</a></h2>
+<p>The simulator documentation can be accessed in the CLI with the <code>help</code> command.
+The <code>help</code> command provides access to the documentation for:</p>
+<ul>
+<li>commands</li>
+<li>scripts</li>
+<li>objects</li>
+<li>classes</li>
+<li>modules</li>
+<li>attributes</li>
+<li>API functions</li>
+</ul>
+<p>To try the command, enter the following command to see the documentation for the
+load-target command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help load-target</strong>
+Command load-target
+
+   Synopsis
+      load-target "target" ["namespace"] ["preset"|presets|"preset_yml"]
+...
+</code></pre>
+<p>To get the documentation for any command just run the <code>help</code> command specifying
+the command you are interested in:</p>
+<pre><code class="language-simics">simics&gt; <strong>help &lt;command-of-interest&gt;</strong>
+</code></pre>
+<p>More information on the <code>help</code> command can be obtained by reading the
+documentation for the help command itself:</p>
+<pre><code class="language-simics">simics&gt; <strong>help help</strong>
+Command help
+
+   Alias
+      h, man
+
+   Synopsis
+      help ["topic"]
+...
+</code></pre>
+<p>The <code>help-search</code> command allows you to search the documentation for a
+particular string. Here is a sample usage of the <code>help-search</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help-search python</strong>
+The text 'python' appears in the documentation
+for the following items:
+
+Command        %
+Command        &lt;bp-manager.log&gt;.break
+Command        &lt;bp-manager.log&gt;.run-until
+Command        &lt;bp-manager.log&gt;.trace
+...
+</code></pre>
+<h2 id="simics-command-line-interface.html:further-reading"><a href="#simics-command-line-interface.html:further-reading">4.4 Further Reading</a></h2>
+<p>More information about the CLI can be found in
+<a href="../simics-user-guide/index.html"><em>Simics User’s Guide</em></a>,
+section <a href="../simics-user-guide/cli.html"><em>The Command Line Interface</em></a>.</p>
+</section><section class="page" id="running-simics-cli.html"><h1 id="running-simics-cli.html:running-the-simulator"><a href="#running-simics-cli.html:running-the-simulator">5 Running the Simulator</a></h1>
+<p>This section describes how to:</p>
+<ul>
+<li>create a target machine</li>
+<li>run and stop the simulation</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the user has followed the installation steps in the
+<a href="#installation.html">installation</a> section.</p>
+</blockquote>
+<p>The screenshots below were taken on Windows, but the Linux version of the Intel
+Simics simulator behaves similarly.</p>
+<blockquote class="markdown-alert-note">
+<p>While this section deals with <em>targets</em>, there is also a legacy way of
+creating target machines using scripts described
+<a href="#using-simics-scripts.html">here</a>.</p>
+</blockquote>
+<h2 id="running-simics-cli.html:create-a-target-machine"><a href="#running-simics-cli.html:create-a-target-machine">5.1 Create a Target Machine</a></h2>
+<p>Let’s create a target machine by loading the <code>qsp-x86/firststeps</code> target.</p>
+<ol>
+<li>
+<p><a href="#launch-exit.html">Launch</a> the simulator.</p>
+</li>
+<li>
+<p>Before loading the <code>qsp-x86/firststeps</code> target, let us first verify that this
+target is available in our project. To list available targets, run
+<code>list-targets</code> and verify that you see the target <code>qsp-x86/firststeps</code> in the
+listing:</p>
+<p><img alt="" src="running-simics-cli-list-1.png"></p>
+<p>It is also possible to list targets without starting an interactive session,
+by starting the simulator with the <code>-l</code> argument.</p>
+<p><img alt="" src="running-simics-cli-list-2.png"></p>
+</li>
+</ol>
+<p>If you don’t see <code>qsp-x86/firststeps</code>, you need to make sure that you have
+installed the <code>QSP-x86</code> (#2096), and that it is available in the project as an
+add-on package. Read more about installing the simulator in the
+<a href="#installation.html">installation</a> section.</p>
+<ol>
+<li>
+<p>Now that we have verified that the <code>qsp-x86/firststeps</code> target is available,
+we will load it:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = "qsp-x86/firststeps"</strong>
+"firststeps"
+</code></pre>
+</li>
+<li>
+<p>A few new windows have popped up after a target machine has been created.
+Initially the consoles are blank, but the below screenshots are taken from a
+later time in the simulation to show something more interesting.</p>
+<ul>
+<li><strong>board.mb.sb.com[0] - serial console</strong> - Figure
+<a class="reference" href="#running-simics-cli.html:running-simics-cli-4.png">2</a> a text terminal window connected to a
+serial port of the target machine</li>
+<li><strong>board.mb.gpu.vga - graphics console</strong> - Figure
+<a class="reference" href="#running-simics-cli.html:running-simics-cli-5.png">3</a> a graphical display window connected to a
+graphical device of the target machine</li>
+<li><strong>Target Consoles</strong> - Figure <a class="reference" href="#running-simics-cli.html:running-simics-cli-5a.png">4</a><br>
+a utility window which allows showing or hiding the target consoles</li>
+</ul>
+ <figure id="running-simics-cli.html:running-simics-cli-4.png">
+ <img src="running-simics-cli-4.png" title="serial console">
+ <figcaption>Figure 2. A text terminal window connected to a serial port of the target machine</figcaption>
+ </figure>
+ <figure id="running-simics-cli.html:running-simics-cli-5.png">
+ <img src="running-simics-cli-5.png" title="graphics console">
+ <figcaption>Figure 3. A graphical display window connected to a graphical device of the target machine</figcaption>
+ </figure>
+ <figure id="running-simics-cli.html:running-simics-cli-5a.png">
+ <img src="running-simics-cli-5a.png" title="console control window">
+ <figcaption>Figure 4. A target console control window</figcaption>
+ </figure>
+</li>
+</ol>
+<h2 id="running-simics-cli.html:run-and-stop-the-simulation"><a href="#running-simics-cli.html:run-and-stop-the-simulation">5.2 Run and Stop the Simulation</a></h2>
+<p>One of the ways to start the simulation of the newly created target machine is
+to use the <code>run</code> command.</p>
+<ol>
+<li>
+<p>Start the simulation with the <code>run</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt; <strong></strong>
+</code></pre>
+</li>
+<li>
+<p>There may be messages printed in the CLI window:</p>
+<p><img alt="" src="running-simics-cli-7.png"></p>
+</li>
+</ol>
+<p>These messages are coming from models which, as messages report, may not
+simulate certain features. Many target models use a pragmatic approach and don’t
+simulate features which are not relevant for simulated machines, for example,
+thermal control. So, the messages are usually harmless.</p>
+<ol>
+<li>
+<p>As simulation progresses, the target machine will boot Linux operating system
+(this can take up to several minutes):</p>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>The login to the system is done automatically. After the login, one can
+interact with the operating system running on the target machine by running
+commands at the text console window. Here is a sample session when <code>pwd</code> and
+<code>uname -a</code> Linux commands were executed on the simulated machine after the
+login:
+<img alt="" src="running-simics-cli-9.png"></p>
+</li>
+<li>
+<p>One can stop simulation, thus pausing a target machine, by running the <code>stop</code>
+command:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>The target machine is paused now. But it can be resumed by entering the <code>run</code>
+command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+</ol>
+<p>To see other ways of starting and stopping the simulator, run <code>help</code> with
+the <code>Execution</code> category:</p>
+<pre><code class="language-simics">simics&gt; <strong>help Execution</strong>
+...
+run              start execution
+run-cycles       start execution
+run-seconds      execute for seconds
+...
+</code></pre>
+<p>For further information, see the <a href="#simics-command-line-interface.html:the-help-command">help
+command</a> section.</p>
+</section><section class="page" id="hardware-inspection.html"><h1 id="hardware-inspection.html:hardware-inspection"><a href="#hardware-inspection.html:hardware-inspection">6 Hardware Inspection</a></h1>
+<p>This section contains some examples of how to inspect processors and devices,
+when running the <code>qsp-x86/firststeps</code> target machine.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>To inspect the target machine, use the <code>list-objects</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects -local</strong>
+┌───────────────┬───────────────────┐
+│    Object     │  Component Class  │
+├───────────────┼───────────────────┤
+│board          │&lt;chassis_qsp_x86&gt;  │
+│ethernet_switch│&lt;ethernet_switch&gt;  │
+│service_node   │&lt;service_node_comp&gt;│
+└───────────────┴───────────────────┘
+┌───────────────────┬───────────────┐
+│      Object       │     Class     │
+├───────────────────┼───────────────┤
+│bp                 │&lt;bp-manager&gt;   │
+│default_sync_domain│&lt;sync_domain&gt;  │
+│params             │&lt;script-params&gt;│
+│prefs              │&lt;preferences&gt;  │
+│sim                │&lt;sim&gt;          │
+└───────────────────┴───────────────┘
+</code></pre>
+</li>
+<li>
+<p>Here we see that we have a few special objects, like the breakpoint manager
+and the <code>sim</code> object, we have the network related objects, and at the top we
+have the actual machine. We can look at the objects inside it:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects namespace = board -local</strong>
+┌────────────────┬───────────────────────┐
+│     Object     │    Component Class    │
+├────────────────┼───────────────────────┤
+│board.console   │&lt;gfx_console_comp&gt;     │
+│board.disk0     │&lt;sata_disk_comp&gt;       │
+│board.disk1     │&lt;sata_disk_comp&gt;       │
+│board.mb        │&lt;motherboard_x58_ich10&gt;│
+│board.serconsole│&lt;txt_console_comp&gt;     │
+│board.usb_disk  │&lt;usb_disk_comp&gt;        │
+└────────────────┴───────────────────────┘
+┌──────────────────┬──────────────┐
+│      Object      │    Class     │
+├──────────────────┼──────────────┤
+│board.cell        │&lt;cell&gt;        │
+│board.cell_context│&lt;context&gt;     │
+│board.cell_rec0   │&lt;recorder&gt;    │
+│board.software    │&lt;os_awareness&gt;│
+└──────────────────┴──────────────┘
+</code></pre>
+</li>
+<li>
+<p>To see the objects associated with the processor, we can again use the
+<code>list-objects</code> command. The <code>-tree</code> option displays the objects in a
+hierarchical fashion. The <code>max-depth</code> argument can restrict the depths of the
+tree.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects -show-port-objects namespace = board.mb.cpu0 -tree max-depth = 4</strong>
+┐
+├ acram[0] ┐
+│          └ [0] ┐
+│                └ port ┐
+│                       └ tags 
+├ acram_image[0] ┐
+│                └ [0] 
+├ aes_engine ┐
+│            └ port ┐
+│                   ├ ccm 
+│                   ├ cmac 
+│                   ├ ctr 
+│                   ├ gcm 
+│                   ├ gcm_ext 
+│                   ├ xcbc 
+│                   ├ xts 
+│                   └ xts_ext 
+├ apic[0] ┐
+│         └ [0] ┐
+│               ├ bank ┐
+│               │      └ apic_regs 
+│               └ port ┐
+│                      └ freq_listener 
+├ car[0] ┐
+│        └ [0] ┐
+│              └ port ┐
+│                     └ tags 
+├ car_img[0] ┐
+│            └ [0] 
+├ core[0] ┐
+│         └ [0] ┐
+│               ├ cstate_probe 
+│               ├ ctr ┐
+│               │     └ port 
+│               ├ port ┐
+│               │      ├ logical_memory_inspection 
+│               │      └ physical_memory_inspection 
+│               ├ probes ┐
+│               │        ├ uncore 
+│               │        ├ vmp_backoff 
+│               │        └ vmp_backoff_ud 
+│               ├ rsa ┐
+│               │     └ port 
+│               ├ sha ┐
+│               │     └ port 
+│               ├ tpm ┐
+│               │     └ port 
+│               ├ vmp_probes 
+│               └ vtime ┐
+│                       ├ cycles 
+│                       └ ps 
+├ crypto_sha256 ┐
+│               └ port ┐
+│                      ├ hmac 
+│                      └ smac 
+├ crypto_sha384 ┐
+│               └ port ┐
+│                      ├ hmac 
+│                      └ smac 
+├ io_default 
+├ io_image 
+├ io_ram ┐
+│        └ port ┐
+│               └ tags 
+├ mem[0] ┐
+│        └ [0] 
+├ msr[0] ┐
+│        └ [0] 
+├ ports_proxy[0] ┐
+│                └ [0] 
+├ snare[0] ┐
+│          └ [0] ┐
+│                └ port ┐
+│                       └ cache 
+├ socket 
+├ tlb[0] ┐
+│        └ [0] 
+├ tx_store[0] ┐
+│             └ [0] ┐
+│                   └ port ┐
+│                          └ tags 
+└ tx_store_img[0] ┐
+                  └ [0] 
+</code></pre>
+</li>
+<li>
+<p>To list all processors, use the <code>list-processors</code> command.
+<a id="hardware-inspection.html:current-processor"></a>
+Note the <code>*</code> to the right of <code>board.mb.cpu0.core[0][0]</code> and the last line <code>* = selected CPU</code>. In this system, there is only one processor, but in systems with
+multiple processors, the command <code>pselect</code> can be used to get the current
+processor or select another processor. More on this <a href="#hardware-inspection.html:pselect-and-cpu">here</a>.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors</strong>
+┌────────────────────────┬─┬─────────┬────────┐
+│        CPU Name        │ │CPU Class│  Freq  │
+├────────────────────────┼─┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│
+└────────────────────────┴─┴─────────┴────────┘
+* = selected CPU
+</code></pre>
+</li>
+<li>
+<p>The <code>list-processors</code> command can show information about the state of each
+processor core, to help diagnose the current state of the system. There are
+multiple switches available, use help or tab-completion to see the available
+options. The <code>-disassemble</code> option is particularly interesting, as it often
+indicates processor modes like wait states.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors -disassemble</strong>
+┌────────────────────────┬─┬─────────┬────────┬────────────────────────┐
+│        CPU Name        │ │CPU Class│  Freq  │      Disassembly       │
+├────────────────────────┼─┼─────────┼────────┼────────────────────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│cs:0x000000000000fff0 p:│
+│                        │ │         │        │0x00000fffffff0 nop     │
+└────────────────────────┴─┴─────────┴────────┴────────────────────────┘
+</code></pre>
+</li>
+<li>
+<p><a id="hardware-inspection.html:pselect-and-cpu"></a> The <strong>current processor</strong> (marked with a <code>*</code> in
+<code>list-processors</code>) is used by some global commands, for example in
+<a href="#hardware-inspection.html:pregs">print-processor-registers</a>, as the processor the command operates on.</p>
+<p>To access the current processor, use the <code>cpu</code> object alias.
+The <code>cpu</code> object alias can be used both to get the current processor, and
+to tab-expand commands, child objects and attributes of the current processor.</p>
+<pre><code class="language-simics">simics&gt; <strong>cpu</strong>
+"board.mb.cpu0.core[0][0]"
+
+simics&gt; <strong>cpu # press tab twice to expand everything starting with cpu</strong>
+cpu-&gt;  cpu-pages-dump  cpu-switch-time  cpu.  cpu.vtime.
+
+simics&gt; <strong>cpu. # press tab twice to expand child objects and commands</strong>
+cpu.aprof-views                    cpu.instruction-fetch-mode
+cpu.bp-break-control-register      cpu.instrumentation-move
+cpu.bp-break-cycle                 cpu.instrumentation-order
+...
+
+simics&gt; <strong>cpu-&gt; # press tab twice to expand attributes</strong>
+cpu-&gt;a20_inhibited
+cpu-&gt;a20mask
+cpu-&gt;access_count
+cpu-&gt;access_type_name
+cpu-&gt;activity_state
+...
+</code></pre>
+</li>
+<li>
+<p>To change the <strong>current processor</strong>, use the command <code>pselect</code>. Without
+argument this shows the current processor, just like <code>cpu</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>pselect "board.mb.cpu0.core[0][0]"</strong>
+simics&gt; <strong>pselect</strong>
+"board.mb.cpu0.core[0][0]"
+</code></pre>
+</li>
+<li>
+<p><a id="hardware-inspection.html:pregs"></a>We can inspect the registers and current execution mode of a
+processor by using the <code>print-processor-registers</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[0][0].print-processor-registers</strong>
+16-bit legacy real mode
+rax = 0x0000000000000000             r8  = 0x0000000000000000
+rcx = 0x0000000000000000             r9  = 0x0000000000000000
+rdx = 0x0000000000060670             r10 = 0x0000000000000000
+rbx = 0x0000000000000000             r11 = 0x0000000000000000
+rsp = 0x0000000000000000             r12 = 0x0000000000000000
+rbp = 0x0000000000000000             r13 = 0x0000000000000000
+rsi = 0x0000000000000000             r14 = 0x0000000000000000
+rdi = 0x0000000000000000             r15 = 0x0000000000000000
+
+rip = 0x000000000000fff0
+
+eflags = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 = 0x00000002
+         │ │ │ │ │ │   │ └─┤ │ │ │ │ │ │   │   │   └── CF
+         │ │ │ │ │ │   │   │ │ │ │ │ │ │   │   └────── PF
+         │ │ │ │ │ │   │   │ │ │ │ │ │ │   └────────── AF
+         │ │ │ │ │ │   │   │ │ │ │ │ │ └────────────── ZF
+         │ │ │ │ │ │   │   │ │ │ │ │ └──────────────── SF
+         │ │ │ │ │ │   │   │ │ │ │ └────────────────── TF
+         │ │ │ │ │ │   │   │ │ │ └──────────────────── IF
+         │ │ │ │ │ │   │   │ │ └────────────────────── DF
+         │ │ │ │ │ │   │   │ └──────────────────────── OF
+         │ │ │ │ │ │   │   └────────────────────────── IOPL
+         │ │ │ │ │ │   └────────────────────────────── NT
+         │ │ │ │ │ └────────────────────────────────── RF
+         │ │ │ │ └──────────────────────────────────── VM
+         │ │ │ └────────────────────────────────────── AC
+         │ │ └──────────────────────────────────────── VIF
+         │ └────────────────────────────────────────── VIP
+         └──────────────────────────────────────────── ID
+
+uif = 0
+</code></pre>
+</li>
+<li>
+<p>Another way to read registers of the <strong>current processor</strong> (see
+<a href="#hardware-inspection.html:current-processor">here</a>) would be to run the global command
+<code>print-processor-registers</code>.</p>
+<pre><code>simics&gt; print-processor-registers
+</code></pre>
+</li>
+<li>
+<p>Individual registers are also typically accessible. Here we also use the
+<code>output-radix</code> command that specifies the base when numbers are displayed.</p>
+<pre><code class="language-simics">simics&gt; <strong>output-radix 16</strong>
+simics&gt; <strong>%rdx</strong>
+0x60670
+</code></pre>
+</li>
+<li>
+<p>We can also inspect devices, their register banks, and individual registers.
+Information about their registers can be displayed using the
+<code>print-device-regs</code> command. For example, we can look at the DMI device.
+First, we locate it in the system.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-classes -l substr = dmi -show-port-classes</strong>
+The following classes have been registered:
+┌──────────────────────────────────────────┬──────────────────────────────────────────────────┐
+│                  Class                   │                Short description                 │
+├──────────────────────────────────────────┼──────────────────────────────────────────────────┤
+│x58-dmi                                   │Intel® X58 DMI unit                               │
+│x58-dmi.HRESET                            │                                                  │
+│x58-dmi._upstream_egress                  │                                                  │
+│x58-dmi._upstream_egress_dead_end         │                                                  │
+│x58-dmi.io_regs                           │                                                  │
+│x58-dmi.msg                               │legacy PCI INTx message to pci_interrupt converter│
+│x58-dmi.pcie_config                       │                                                  │
+│x58-dmi.phy                               │                                                  │
+│x58-dmi.upstream_ingress                  │                                                  │
+│x58-dmi.upstream_ingress_targets          │                                                  │
+│x58-dmi.upstream_ingress_targets._dead_end│                                                  │
+│x58-dmi.upstream_ingress_targets.broadcast│                                                  │
+└──────────────────────────────────────────┴──────────────────────────────────────────────────┘
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>list-objects class = x58-dmi -all</strong>
+┌──────────────────┬─────────┐
+│      Object      │  Class  │
+├──────────────────┼─────────┤
+│board.mb.nb.bridge│&lt;x58-dmi&gt;│
+└──────────────────┴─────────┘
+</code></pre>
+</li>
+<li>
+<p>Now we can inspect the banks and device registers.</p>
+<pre><code class="language-simics">simics&gt; <strong>print-device-regs bank = board.mb.nb.bridge</strong>
+ Bank: io_regs
+┌──────┬──────────────┬────┬─────┐
+│Offset│     Name     │Size│Value│
+├──────┼──────────────┼────┼─────┤
+│ 0xcf8│config_address│ 0x4│  0x0│
+│ 0xcfc│config_data   │ 0x4│  0x0│
+└──────┴──────────────┴────┴─────┘
+
+ Bank: pcie_config
+┌──────┬───────────────────┬────┬───────┐
+│Offset│       Name        │Size│ Value │
+├──────┼───────────────────┼────┼───────┤
+│   0x0│vendor_id          │ 0x2│ 0x8086│
+│   0x2│device_id          │ 0x2│ 0x3400│
+│   0x4│command            │ 0x2│    0x0│
+│   0x6│status             │ 0x2│   0x10│
+│   0x8│revision_id        │ 0x1│   0x13│
+│   0x9│class_code         │ 0x3│0x80000│
+│   0xc│cache_line_size    │ 0x1│    0x0│
+│   0xd│latency_timer      │ 0x1│    0x0│
+│   0xe│header_type        │ 0x1│    0x0│
+│   0xf│bist               │ 0x1│    0x0│
+│  0x2c│subsystem_vendor_id│ 0x2│ 0x8086│
+│  0x2e│subsystem_id       │ 0x2│    0x0│
+│  0x34│capabilities_ptr   │ 0x1│    0x0│
+│  0x3c│interrupt_line     │ 0x1│    0x0│
+│  0x3d│interrupt_pin      │ 0x1│    0x0│
+└──────┴───────────────────┴────┴───────┘
+</code></pre>
+</li>
+<li>
+<p>We can specify a pattern to only display certain registers.</p>
+<pre><code class="language-simics">simics&gt; <strong>print-device-regs bank = board.mb.nb.bridge pattern = vendor_id</strong>
+ Bank: pcie_config
+┌──────┬─────────┬────┬──────┐
+│Offset│  Name   │Size│Value │
+├──────┼─────────┼────┼──────┤
+│   0x0│vendor_id│ 0x2│0x8086│
+└──────┴─────────┴────┴──────┘
+</code></pre>
+</li>
+<li>
+<p>To obtain more information about a particular register, we can use the
+<code>print-device-reg-info</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>print-device-reg-info register = board.mb.nb.bridge.bank.pcie_config.vendor_id</strong>
+
+Vendor ID [board.mb.nb.bridge.bank.pcie_config.vendor_id]
+
+              Bits  :  0x10              
+            Offset  :  0x0               
+             Value  :  0x8086            
+        ----------                       
+        Bit Fields                       
+vendor_id @ [15:0]  :  1000000010000110  
+</code></pre>
+</li>
+</ul>
+<p>When retrieving a register value for inspection or use in further code, it is
+better to use one of the commands designed for that purpose:</p>
+<ul>
+<li><code>get-device-reg</code></li>
+<li><code>get-device-offset</code></li>
+<li><code>read-device-reg</code></li>
+<li><code>read-device-offset</code></li>
+<li><code>set-device-reg</code></li>
+<li><code>set-device-offset</code></li>
+<li><code>write-device-reg</code></li>
+<li><code>write-device-offset</code></li>
+</ul>
+<p>The command names have the following meanings:</p>
+<ul>
+<li>
+<p>Operation type:</p>
+<ul>
+<li><strong>get</strong> = do inquiry reads and should not have side-effects on the state
+of the register</li>
+<li><strong>set</strong> = do inquiry writes, change the register contents but do not
+trigger side effects</li>
+<li><strong>read</strong> and <strong>write</strong> = do normal memory operations that have side
+effects</li>
+</ul>
+</li>
+<li>
+<p>Target specification:</p>
+<ul>
+<li><strong>reg</strong> = specify the register by name
+(<strong>name.of.device.bank.registername</strong>).</li>
+<li><strong>offset</strong> = specify <strong>name.of.device.bank</strong>, and <strong>offset</strong>, and
+<strong>size</strong>.</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-simics">simics&gt; <strong>get-device-reg board.mb.nb.bridge.bank.pcie_config.device_id</strong>
+0x3400
+simics&gt; <strong>get-device-offset board.mb.nb.bridge.bank.pcie_config offset = 2 size = 2</strong>
+0x3400
+</code></pre>
+<p>To sum up, we have shown a few simple ways in which the hardware can be
+inspected. One important point is that the inspection is non-intrusive, any
+software running on the target machine cannot notice anything of our inspection.</p>
+</section><section class="page" id="documentation-and-help.html"><h1 id="documentation-and-help.html:documentation-and-help"><a href="#documentation-and-help.html:documentation-and-help">7 Documentation and Help</a></h1>
+<h2 id="documentation-and-help.html:documentation"><a href="#documentation-and-help.html:documentation">7.1 Documentation</a></h2>
+<p>To access the documentation run the <code>documentation.bat</code> (<code>documentation</code> on
+Linux) script in your project. The script will index all the documents for the
+packages associated with your project, and then it will open the documentation
+in your web browser.</p>
+<h2 id="documentation-and-help.html:the-help-system"><a href="#documentation-and-help.html:the-help-system">7.2 The Help System</a></h2>
+<p>The CLI provides a few commands that assist in exploring large simulated
+systems, and for exploring the CLI.</p>
+<p>Such a command is <code>help</code>. Use it to receive help about almost anything in the
+simulator that has a name, in particular the commands you have seen in this
+document, and which you will see in the rest of the Intel Simics documentation.</p>
+<p>Another important command is <code>help-search</code>, also known as <code>apropos</code>. It can be
+used to search the reference documentation for a particular text string.</p>
+<blockquote class="markdown-alert-note">
+<p>Both <code>help</code> and <code>apropos</code> limit their search to documentation about
+everything that is currently loaded in the simulator. This means it is
+usually best to run them after you have loaded the target system you want to
+explore.</p>
+</blockquote>
+<p>A simulation is built up by objects. Objects can provide <em>namespaced</em> commands,
+that is, commands on the format <code>&lt;object-name&gt;.&lt;command-name&gt;</code>. Different kinds
+of objects provides different namespaced commands. The <em>namespaced</em> command is
+either registered on an <em>interface</em> or on a <em>class</em>.</p>
+<p>Sometimes you know of an interesting namespaced command you want to use, for
+example the <code>input</code> command, but you don’t know which objects provide the
+command. To find those objects, first use the <code>apropos</code> command to find which
+kinds of objects that provide the command:</p>
+<pre><code class="language-simics">simics&gt; <strong>apropos input</strong>
+The text 'input' appears in the documentation
+for the following items:
+
+Command        &lt;bp-manager.con-string&gt;.wait-then-write
+Command        &lt;graphcon&gt;.grab-setup
+Command        &lt;graphcon&gt;.input
+Command        &lt;graphcon&gt;.input-file
+Command        &lt;os_awareness&gt;.find
+Command        &lt;recorder&gt;.playback-start
+Command        &lt;recorder&gt;.recorder-start
+Command        &lt;recorder&gt;.recorder-stop
+Command        &lt;textcon&gt;.input
+...
+</code></pre>
+<p>As an alternative to <code>apropos</code>, which searches all documentation for loaded
+modules, we can limit the result to only commands by using <code>list-commands</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-commands substr = input</strong>
+┌─────────────────────┬───────────────────────────┐
+│       Command       │     Short Description     │
+├─────────────────────┼───────────────────────────┤
+│&lt;graphcon&gt;.input     │send string to a console   │
+│&lt;graphcon&gt;.input-file│input a file into a console│
+│&lt;textcon&gt;.input      │send input to a console    │
+│&lt;textcon&gt;.input-file │input a file into a console│
+└─────────────────────┴───────────────────────────┘
+</code></pre>
+<p>The <code>input</code> command is provided by <code>graphcon</code> and <code>textcon</code>.
+Let’s focus on <code>textcon</code>.
+First we determine if <code>textcon</code> is a <em>interface</em> or a <em>class</em>.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-interfaces substr = textcon</strong>
+No match for substr 'textcon'  
+simics&gt; <strong>list-classes substr = textcon</strong>
+The following classes are available:
+┌───────┬─────────────────┐
+│ Class │Short description│
+├───────┼─────────────────┤
+│textcon│text console     │
+└───────┴─────────────────┘
+</code></pre>
+<p>The <code>textcon</code> clearly references a <em>class</em>. Now we can use the <code>list-objects</code>
+command to find all objects of the <code>textcon</code> class.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects class = textcon</strong>
+┌────────────────────┬─────────┐
+│       Object       │  Class  │
+├────────────────────┼─────────┤
+│board.serconsole.con│&lt;textcon&gt;│
+└────────────────────┴─────────┘
+</code></pre>
+<p>Evidently, the only <code>textcon</code> object in the target system is
+<code>board.serconsole.con</code>.</p>
+<p>From the result of <code>apropos</code> and <code>list-objects</code> we now know that there is a
+command <code>board.serconsole.con.input</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>help board.serconsole.con.input</strong>
+Command &lt;textcon&gt;.input
+
+   Synopsis
+      &lt;textcon&gt;.input "string" [-e]
+
+   Description
+      Send string to the text console.
+...
+</code></pre>
+<p>The <code>list-objects</code> command, and many other commands can handle the <em>namespace
+hierarchy</em> of objects. For example, if we know that we were looking for a
+<code>textcon</code> class hierarchically under <code>board</code>, we would use the <code>namespace</code>
+argument.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects namespace = board class = textcon</strong>
+┌────────────────────┬─────────┐
+│       Object       │  Class  │
+├────────────────────┼─────────┤
+│board.serconsole.con│&lt;textcon&gt;│
+└────────────────────┴─────────┘
+</code></pre>
+<p>These simple commands go a long way when you want to explore the Intel Simics
+simulator.</p>
+</section><section class="page" id="tutorials.html"><h1 id="tutorials.html:tutorials"><a href="#tutorials.html:tutorials">8 Tutorials</a></h1>
+<p>These tutorials show how to perform common tasks in the simulator. In the
+tutorials we use the example target system <code>qsp-x86/firststeps</code>, which is a
+simple x86 based system running <a href="https://grml.org" rel="noopener noreferrer" target="_top">Grml</a> Linux.</p>
+</section><section class="page" id="using-targets.html"><h1 id="using-targets.html:customizing-targets"><a href="#using-targets.html:customizing-targets">8.1 Customizing Targets</a></h1>
+<p>In the <a href="#running-simics-cli.html">running the simulator</a> section, we loaded a
+target which created a configuration with <em>default settings</em>. It is also
+possible to <em>customize</em> the properties of target machines by setting <em>target
+parameters</em>.</p>
+<p>In this section we demonstrate how to:</p>
+<ul>
+<li><a href="#using-targets.html:discovering-target-parameters">discover</a> <em>target parameters</em> for a target</li>
+<li><a href="#using-targets.html:setting-target-parameters">set</a> target parameters when loading a target</li>
+</ul>
+<h2 id="using-targets.html:discovering-target-parameters"><a href="#using-targets.html:discovering-target-parameters">8.1.1 Discovering Target Parameters</a></h2>
+<p>This section describes how to discover <em>target parameters</em>
+available for a specific target, in this case the <code>qsp-x86/firststeps</code> target.
+These are some of possible methods to list target parameters:</p>
+<ul>
+<li><a href="#using-targets.html:discovery-using-command-line-completion">command line completion</a></li>
+<li>the <a href="#using-targets.html:discovery-using-the-help-system">help</a> command</li>
+<li>the <a href="#using-targets.html:discovery-using-params-help"><code>params.help</code></a> command</li>
+</ul>
+<h3 id="using-targets.html:discovery-using-command-line-completion"><a href="#using-targets.html:discovery-using-command-line-completion">8.1.1.1 Discovery using Command Line Completion</a></h3>
+<p>To discover available parameters via command line completion, press the <em>tab key
+twice</em> after entering <code>load-target target = qsp-x86/firststeps</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = qsp-x86/firststeps &lt;TAB&gt;&lt;TAB&gt;</strong>
+machine:hardware:apic_bus:class =
+machine:hardware:consoles:con0:bg_color =
+machine:hardware:consoles:con0:create =
+machine:hardware:consoles:con0:fg_color =
+machine:hardware:consoles:con0:show =
+</code></pre>
+<p>This will list the available <strong>target parameters</strong>, which is useful for overview
+and as a convenience when setting parameters.</p>
+<h3 id="using-targets.html:discovery-using-the-help-system"><a href="#using-targets.html:discovery-using-the-help-system">8.1.1.2 Discovery using the Help System</a></h3>
+<p>Another way to list <em>target parameters</em>, and also to show type, description and
+default value, is to use the <code>help</code> command with <code>target:</code> as prefix:</p>
+<pre><code class="language-simics">simics&gt; <strong>help "target:qsp-x86/firststeps"</strong>
+┌───────────────────────────────┬────┬──────────────────────────────┬──────────────────────────────┐
+│Name                           │Type│Description                   │Default                       │
+├───────────────────────────────┼────┼──────────────────────────────┼──────────────────────────────┤
+│machine:hardware:memory_megs   │int │Amount of RAM in the machine, │8192                          │
+│                               │    │in MiB. The highest supported │                              │
+│                               │    │value is 65536 (64 GiB).      │                              │
+...
+</code></pre>
+<h3 id="using-targets.html:discovery-using-params-help"><a href="#using-targets.html:discovery-using-params-help">8.1.1.3 Discovery using params.help</a></h3>
+<p>The object <code>params</code> has a <code>help</code> command, which can provide information on
+targets.</p>
+<pre><code class="language-simics">simics&gt; <strong>params.help target = "qsp-x86/firststeps"</strong>
+┌───────────────────────────────┬────┬──────────────────────────────┬──────────────────────────────┐
+│Name                           │Type│Description                   │Default                       │
+├───────────────────────────────┼────┼──────────────────────────────┼──────────────────────────────┤
+│machine:hardware:memory_megs   │int │Amount of RAM in the machine, │8192                          │
+│                               │    │in MiB. The highest supported │                              │
+│                               │    │value is 65536 (64 GiB).      │                              │
+</code></pre>
+<p>To see a complete description of <code>params.help</code>, type <code>help params.help</code>.</p>
+<h2 id="using-targets.html:setting-target-parameters"><a href="#using-targets.html:setting-target-parameters">8.1.2 Setting Target Parameters</a></h2>
+<p>Let’s create a target machine with 4 cores per physical processor by setting the
+<code>num_cores</code> parameter to 4. To do that please run the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target "qsp-x86/firststeps" machine:hardware:processor:num_cores = 4</strong>
+</code></pre>
+<p>To verify that the target indeed has 4 cores, run the <code>list-processors</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors</strong>
+┌────────────────────────┬─┬─────────┬────────┐
+│        CPU Name        │ │CPU Class│  Freq  │
+├────────────────────────┼─┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[1][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[2][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[3][0]│ │x86QSP3  │2.00 GHz│
+└────────────────────────┴─┴─────────┴────────┘
+</code></pre>
+<p>It is also possible to create a file with customized values of target parameters
+in a <code>preset</code> file. This is described in <a href="../simics-user-guide/script-support-in-simics.html#preset-files">Simics User’s
+Guide</a>.</p>
+</section><section class="page" id="logging-and-tracing.html"><h1 id="logging-and-tracing.html:logging-and-tracing"><a href="#logging-and-tracing.html:logging-and-tracing">8.2 Logging and Tracing</a></h1>
+<h2 id="logging-and-tracing.html:logging"><a href="#logging-and-tracing.html:logging">8.2.1 Logging</a></h2>
+<p>Intel Simics hardware models generally output log messages for various kinds of
+events. The simulator’s log system offers a very powerful system for configuring
+which log messages to see - from which objects, at which level. The result is
+often large volumes of output. That output can be configured and sent to files
+for later inspection, as well as used in scripts to stop the simulation, or take
+other actions when a log message appears.</p>
+<p>Here we will show some logging examples when running the <code>qsp-x86/firststeps</code>
+target machine.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>The starting point is the large set of options available to the <code>log-setup</code>
+command. To check the current settings, just issue <code>log-setup</code> alone:</p>
+<pre><code class="language-simics">simics&gt; <strong>log-setup</strong>
+Time stamp      : disabled
+Picoseconds     : disabled
+Real time       : disabled
+Disassembly     : disabled
+Log to console  : enabled
+Include group   : disabled
+Include level   : disabled
+Log file        : disabled
+</code></pre>
+</li>
+<li>
+<p>All <em>objects</em> in the Intel Simics simulator, and all <em>log messages</em>, have a
+<strong>log level</strong>. The default log level is 1, which is supposed to show important
+information. Log level 2 to 4 add progressively more information. To configure
+and inspect the log level of an object, use the <code>log-level</code> object command.
+This will show or configure the log level for the object.</p>
+<pre><code class="language-simics">simics&gt; <strong>log-level board.mb.nb.bridge 2</strong>
+[board.mb.nb.bridge] Changing log level: 1 -&gt; 2
+simics&gt; <strong>log-level board.mb.nb.bridge</strong>
+Current log levels:
+
+Lvl  Object
+------------------------------------------------------
+  2  board.mb.nb.bridge
+  2  board.mb.nb.bridge.bank
+  2  board.mb.nb.bridge.bank.io_regs
+  2  board.mb.nb.bridge.bank.pcie_config
+  2  board.mb.nb.bridge.port
+  2  board.mb.nb.bridge.port.HRESET
+  2  board.mb.nb.bridge.port._upstream_egress
+  2  board.mb.nb.bridge.port._upstream_egress_dead_end
+  2  board.mb.nb.bridge.port.msg
+  2  board.mb.nb.bridge.port.phy
+  2  board.mb.nb.bridge.port.upstream_ingress
+</code></pre>
+</li>
+<li>
+<p>The log messages that are displayed are those which have a level less than or
+equal to the ones configured on the object.</p>
+<p>Each log message also has a log type, and similarly like log levels, we can
+configure which log types to display on each object:</p>
+<pre><code class="language-simics">simics&gt; <strong>log-type board.mb.nb.bridge info</strong>
+board.mb.nb.bridge:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.bank:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.bank.io_regs:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.bank.pcie_config:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.HRESET:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port._upstream_egress:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port._upstream_egress_dead_end:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.msg:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.phy:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.upstream_ingress:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+</code></pre>
+</li>
+<li>
+<p>When we run the simulation, log messages will appear based on our filtering.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 1000</strong>
+[board.mb.nb.bridge.bank.io_regs info] PCIe write 0xe0000001 to ff:0.1 offset 0x50, 4 bytes
+</code></pre>
+</li>
+<li>
+<p>It is also possible to set breakpoints on log messages. These can similarly be
+filtered on object, log type etc.</p>
+<p>To see when in virtual time a log message is printed, use <code>log-setup   -time-stamp</code>. This will print the processor that provided the virtual time for
+the message, its current instruction pointer or program counter (address of the
+instruction active when the log was printed), and its current cycle count. To
+turn it off, use <code>-no-time-stamp</code>. The <code>-pico-seconds</code> and <code>-real-time</code> are
+similar, but print picosecond resolution timestamps and real time, respectively.</p>
+<pre><code class="language-simics">simics&gt; <strong>log-setup -time-stamp</strong>
+simics&gt; <strong>bp.log.break object = board.mb.nb.bridge.bank.io_regs type = info</strong>
+Breakpoint 3: Break on 'info' log messages from board.mb.nb.bridge.bank.io_regs hierarchy
+simics&gt; <strong>run</strong>
+[board.mb.nb.bridge.bank.io_regs info] {board.mb.cpu0.core[0][0] 0xfffecbf7 136713}
+PCI read 0x0 from bus 0, device 31, function 0, register 68 (0x44, 1 bytes), PCIE address = 0xf8044
+[board.mb.nb.bridge.bank.io_regs] Breakpoint 1: board.mb.nb.bridge.bank.io_regs log message of type info
+</code></pre>
+</li>
+</ul>
+<p>To send all log outputs to a file, use <code>log-setup logfile=&lt;filename&gt;</code>. To
+overwrite an existing file, the <code>-overwrite</code> flag must be given. To stop output,
+use the command <code>log-setup -no-log-file</code>.</p>
+<h2 id="logging-and-tracing.html:tracing"><a href="#logging-and-tracing.html:tracing">8.2.2 Tracing</a></h2>
+<p>Tracing is a way to observe what is going on during the simulation. The Intel
+Simics simulator has a <em>Breakpoint Manager</em> that includes functionality for
+tracing various types of events. This means that messages (in fact, log
+messages) are printed when an event of the specified type occurs. Such a
+sequence of messages is what is known here as a <strong>trace</strong>.</p>
+<p>Here we will show some tracing examples.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>First, we can try tracing control register updates. By default, it traces
+updates on the primary processor (in this case there is only one).</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.control_register.trace -all</strong>
+3
+</code></pre>
+</li>
+<li>
+<p>Since traces are handled as breakpoints, the trace properties can be observed
+with the <code>bp.list</code> command. From <code>bp.list</code> we can see on the last line that we
+got id <code>3</code>, which will be used later when deleting the trace.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list</strong>
+┌──┬───────────────────────────────────┬───────┬───────┬────────────┬─────────┐
+│ID│           Description             │Enabled│Oneshot│Ignore count│Hit count│
+├──┼───────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 1│Clock board.mb.cpu0.core[0][0]     │ true  │ false │           0│        0│
+│  │break at time 5.0                  │       │       │            │         │
+├──┼───────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 2│Console 'board.serconsole.con'     │ true  │ false │           0│        0│
+│  │break on "root.*@grml.*#.* "       │       │       │            │         │
+│  │(regexp)                           │       │       │            │         │
+├──┼───────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 3│board.mb.cpu0.core[0][0] break on  │ true  │ false │           0│        0│
+│  │R/W of any register                │       │       │            │         │
+└──┴───────────────────────────────────┴───────┴───────┴────────────┴─────────┘
+</code></pre>
+</li>
+<li>
+<p>We run the simulation and observe the trace output where we can see that
+registers are read and written.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 1000</strong>
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] cr0 &lt;- 0x23
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] cr4 &lt;- 0x640
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] read of cr4
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] cr4 &lt;- 0x640
+</code></pre>
+</li>
+<li>
+<p>The trace output are log messages and can be controlled with the <code>log-setup</code>
+command. For example, each message can be prepended with a time-stamp,
+indicating the processor, program counter and the cycle count at the point
+where the event occurred.</p>
+<pre><code class="language-simics">simics&gt; <strong>log-setup -time-stamp</strong>
+simics&gt; <strong>c 17450</strong>
+[bp.control_register trace] {board.mb.cpu0.core[0][0] 0xffff95f3 398353} [trace:3] board.mb.cpu0.core[0][0] read of IA32_APIC_BASE
+</code></pre>
+</li>
+<li>
+<p>Here is another example where we trace memory accesses. First, we remove the
+previous trace.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.delete id = 3</strong>
+</code></pre>
+</li>
+<li>
+<p>Now we turn on tracing of all memory read accesses to a specific region.
+Again, by default this will trace accesses on the primary processor and hence
+these are virtual addresses.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.memory.trace address = 0 length = 100000 -r</strong>
+</code></pre>
+</li>
+<li>
+<p>We run the simulation again and notice a memory access.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 386_985_232 cycles</strong>
+[bp.memory trace] {board.mb.cpu0.core[0][0] 0x60837d57 387383681} [trace:5] board.cell_context 'r' access to v:0x10 len=4
+</code></pre>
+</li>
+</ul>
+<p>Several other types of events can also be traced, such as target console string
+output and hits at specific source code lines.</p>
+</section><section class="page" id="checkpoints-snapshots-.html"><h1 id="checkpoints-snapshots-.html:checkpoints-on-disk"><a href="#checkpoints-snapshots-.html:checkpoints-on-disk">8.3 Checkpoints (on-disk)</a></h1>
+<p>The Intel Simics simulator allows saving the simulation state to <em>disk</em>, thus,
+the state of all target machines for later use. We call a saved state a
+checkpoint. Other simulators may refer to a saved state as a <em>snapshot</em>. In
+Simics a <a href="#snapshots.html">snapshot</a> is also a saved state, but this only exists
+<em>in-memory</em> during a simulator session.</p>
+<p>In this section:</p>
+<ul>
+<li>how to create a checkpoint</li>
+<li>how to restore the simulation state from a checkpoint</li>
+<li>links to further information about checkpoints</li>
+</ul>
+<p>Creating a checkpoint:</p>
+<ol>
+<li>
+<p>launch the simulator and load the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>run the simulation until Linux is booted:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>stop simulation:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>create a checkpoint by running the <code>write-configuration</code> CLI command and
+specifying a destination where to store a checkpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>write-configuration "target-booted.ckpt"</strong>
+</code></pre>
+</li>
+<li>
+<p>quit the simulator:</p>
+<pre><code class="language-simics">simics&gt; <strong>quit</strong>
+</code></pre>
+</li>
+</ol>
+<p>The <code>target-booted.ckpt</code> directory created in step 4 above contains saved
+simulation state.</p>
+<p>Restoring from a checkpoint:</p>
+<ol>
+<li>
+<p>launch the simulator</p>
+</li>
+<li>
+<p>restore the checkpoint state with the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>read-configuration "target-booted.ckpt"</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>the simulation state from the <code>target-booted.ckpt</code> checkpoint has now been
+restored. We can see a text terminal window of the target machine with Linux
+prompt. We can resume simulation with the <code>run</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+</ol>
+<p>Useful information about checkpoints can be found in the documentation of the
+<code>write-configuration</code> and <code>read-configuration</code> commands (the documentation can
+be obtained from the CLI by running the <code>help</code> command like this: <code>help write-configuration</code>).</p>
+</section><section class="page" id="snapshots.html"><h1 id="snapshots.html:snapshots-in-memory"><a href="#snapshots.html:snapshots-in-memory">8.4 Snapshots (in-memory)</a></h1>
+<p>In addition to checkpoints, the Intel Simics simulator can save the state of
+simulation in memory. We refer to such saved states as snapshots. Snapshots are
+not preserved after one quits the simulator. Once snapshots have been taken it
+is possible to jump between them.</p>
+<p>In this section:</p>
+<ul>
+<li>how to take snapshots</li>
+<li>how to jump between snapshots</li>
+</ul>
+<p>Creation and use of snapshots:</p>
+<ol>
+<li>
+<p>load the <code>qsp-x86/firststeps</code> target using the <code>load-target</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>start the created target machine:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>wait until Linux has booted. When Linux has booted, a text terminal window
+connected to a serial port of the target machine will look like this:
+<img alt="" src="linux-grml-booted.png"></p>
+</li>
+</ol>
+<ol>
+<li>
+<p>stop simulation:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>take a snapshot by running the <code>take-snapshot</code> command and specifying a name
+for the snapshot:</p>
+<pre><code class="language-simics">simics&gt; <strong>take-snapshot booted</strong>
+</code></pre>
+<p>where “booted” is a name we picked for a snapshot.</p>
+</li>
+<li>
+<p>resume simulation:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>do some changes to the target machine. As an example of such changes, the
+screenshot below shows how to identify where the <code>cat</code> utility is located,
+delete it and check that it cannot be found after it has been deleted:</p>
+<p><img alt="" src="bookmarks-2.png"></p>
+</li>
+<li>
+<p>stop simulation:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>restore the simulation state to the one which was saved in step 5:</p>
+<pre><code class="language-simics">simics&gt; <strong>restore-snapshot booted</strong>
+</code></pre>
+</li>
+</ol>
+<p>where <code>restore-snapshot</code> is a command to restore the simulation state from a
+snapshot, and “booted” is the name which we gave to the snapshot created in step
+5.</p>
+<ol>
+<li>
+<p>the text terminal of the simulated machine looks now like it did before we
+deleted the <code>cat</code> utility in step 7:</p>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+</ol>
+<p>What will happen now if we run the simulation after we restored the state from
+the snapshot? By default, the simulation will just resume from the state of the
+snapshot. The input and modifications done in step 7 will not occur.</p>
+<ol>
+<li>
+<p>resume simulation by executing the <code>run</code> command and observe on the text
+terminal windows of the target machine how nothing happens, the console
+output will remain as after booted in step 3.</p>
+</li>
+<li>
+<p>stop simulation by executing the <code>stop</code> command.</p>
+</li>
+</ol>
+<p>In order to repeat input one can use a recorder to record input and then replay
+it after loading a snapshot:</p>
+<ol>
+<li>
+<p>restore the simulation state “booted” again:</p>
+<pre><code class="language-simics">simics&gt; <strong>restore-snapshot booted</strong>
+</code></pre>
+</li>
+<li>
+<p>start recording to a file using the <code>start-recording</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>start-recording file = "myrecording.rec"</strong>
+Recording of asynchronous input started
+</code></pre>
+</li>
+<li>
+<p>resume simulation with the <code>run</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>enter some input to the terminal window, in this case the same input as in
+the earlier example, step 7:</p>
+<p><img alt="" src="bookmarks-2.png"></p>
+</li>
+<li>
+<p>stop the simulation and then stop the recording with the <code>stop-recording</code>
+command:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>stop-recording</strong>
+Recording of asynchronous input stopped
+</code></pre>
+</li>
+<li>
+<p>restore the simulation state “booted” again:</p>
+<pre><code class="language-simics">simics&gt; <strong>restore-snapshot booted</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>replay the recording:</p>
+<pre><code class="language-simics">simics&gt; <strong>start-playback file = "myrecording.rec"</strong>
+Playback of recorded async input started
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+<p>The terminal input will be replayed:
+<img alt="" src="bookmarks-2.png"></p>
+<pre><code class="language-simics">simics&gt; <strong>stop</strong>
+running&gt;
+</code></pre>
+</li>
+</ol>
+<p>We can see that the same inputs were replayed with the same output as a result.</p>
+<p>The existing snapshots can be listed using the <code>list-snapshots</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-snapshots</strong>
+</code></pre>
+<p>When a snapshot is no longer needed it can be deleted using the
+<code>delete-snapshot</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>delete-snapshot booted</strong>
+</code></pre>
+</section><section class="page" id="scripting.html"><h1 id="scripting.html:writing-custom-scripts"><a href="#scripting.html:writing-custom-scripts">8.5 Writing Custom Scripts</a></h1>
+<p>In addition to interactive use, the Intel Simics simulator can also run scripts
+with <em>CLI commands</em> and/or <em>Python code</em>. This section provides some examples on
+how to write custom scripts and run them.</p>
+<p>When the situation occurs that the same commands have to be repeated, it is
+recommended to instead put these in a script.</p>
+<h2 id="scripting.html:create-and-run-a-script"><a href="#scripting.html:create-and-run-a-script">8.5.1 Create and Run a Script</a></h2>
+<p>Here we describe how to create and run a simple script.
+We will create a script in the project directory and run it.</p>
+<h3 id="scripting.html:create-the-script"><a href="#scripting.html:create-the-script">8.5.1.1 Create the script</a></h3>
+<p>Open an editor, and copy/paste/save the below lines to <code>first.simics</code> in the
+project folder.</p>
+<pre><code>echo "Script is running"
+</code></pre>
+<h3 id="scripting.html:run-the-script"><a href="#scripting.html:run-the-script">8.5.1.2 Run the script</a></h3>
+<p>This can be done in two ways:</p>
+<ul>
+<li>
+<p>Launch the simulator with the script (using <code>-q</code> to get less output).</p>
+<ul>
+<li>
+<p><em>On Windows</em></p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat -q first.simics
+Script is running
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p><em>On Linux</em></p>
+<pre><code class="language-shell">project&gt;./simics -q first.simics
+Script is running
+simics&gt;
+</code></pre>
+</li>
+</ul>
+<p>With the <code>--batch-mode</code> launch option, the simulator will exit after running the
+script (example on Linux).</p>
+<pre><code class="language-shell">project&gt;./simics -q --batch-mode first.simics
+Script is running
+project&gt;
+</code></pre>
+</li>
+<li>
+<p>From simulator CLI:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script first.simics</strong>
+Script is running
+</code></pre>
+</li>
+</ul>
+<h2 id="scripting.html:cli-script"><a href="#scripting.html:cli-script">8.5.2 CLI Script</a></h2>
+<p>Let’s say we repeatedly input the following lines on the CLI:</p>
+<pre><code>$target = "qsp-x86/firststeps"
+$run_time = 0.2
+
+echo "Load the target " + $target + " and run " + $run_time + " seconds"
+load-target "qsp-x86/firststeps"
+run-seconds $run_time
+ptime
+</code></pre>
+<p>To speed up the turnaround time, we can put these lines in a script, and run
+this script.</p>
+<ol>
+<li>
+<p>Create the script <code>run-target.simics</code> with the above commands, in the project
+folder.</p>
+</li>
+<li>
+<p><a href="#scripting.html:run-the-script">Run</a> the script <code>run-target.simics</code> and verify that the
+output from the last command, <code>ptime</code> is:</p>
+<pre><code class="language-simics">Load the target qsp-x86/firststeps and run 0.2 seconds
+┌────────────────────────┬─────────┬─────────┬────────┐
+│       Processor        │  Steps  │ Cycles  │Time (s)│
+├────────────────────────┼─────────┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│387346147│400000000│   0.200│
+└────────────────────────┴─────────┴─────────┴────────┘
+</code></pre>
+</li>
+</ol>
+<h2 id="scripting.html:python-calling-cli-commands"><a href="#scripting.html:python-calling-cli-commands">8.5.3 Python calling CLI commands</a></h2>
+<p>This is an example of a Python script which does essentially the same thing as
+<a href="#scripting.html:cli-script">CLI Script</a> example, and shows different ways of calling CLI
+commands from Python.</p>
+<ol>
+<li>
+<p>Create the script <code>run-target.py</code> with the below contents:</p>
+<pre><code>import cli
+import simics
+
+target = "qsp-x86/firststeps"
+run_time = 0.2
+
+cli.run_command(f'echo "Load the target {target} and run {run_time} seconds"')
+simics.SIM_load_target(target, None, [], [])
+cli.global_cmds.run_seconds(seconds=run_time)
+cpu = cli.current_cpu_obj()  # get the current CPU object
+print(cpu.cli_cmds.ptime())
+</code></pre>
+</li>
+</ol>
+<p>The target is loaded by calling the simulator API function
+<code>simics.SIM_load_target</code> which corresponds to what is done with the
+<code>load-target</code> command.</p>
+<ol>
+<li>
+<p><a href="#scripting.html:run-the-script">Run</a> the script <code>run-target.py</code> and verify that the output
+is:</p>
+<pre><code class="language-simics">Load the target qsp-x86/firststeps and run 0.2 seconds
+[[&lt;the x86QSP3 'board.mb.cpu0.core[0][0]'&gt;, 387346147, 400000000, 0.2]]
+</code></pre>
+<p>Note that the return value of <code>ptime</code> is printed.</p>
+</li>
+</ol>
+<p>In <code>run-target.py</code> two ways of running CLI commands from Python are
+demonstrated:</p>
+<ul>
+<li>
+<p><em>Using <code>cli.run_command</code></em></p>
+</li>
+<li>
+<p><em>Using Python functions that wrap CLI commands</em> These functions have
+underscore (<code>_</code>) where the command has dashes (<code>-</code>). Also, the name space
+location depends on if the command is <em>global</em> or if it is accessed from an
+<em>object</em>:</p>
+<ul>
+<li>
+<p><em>global commands</em> - Global commands are named <code>cli.global_cmds.*</code>, for
+example <code>cli.global_cmds.run_seconds(seconds=run_time)</code>.</p>
+</li>
+<li>
+<p><em>object commands</em> - Object commands are named <code>&lt;object&gt;.cli_cmds.*</code>, for
+example <code>cpu.cli_cmds.ptime()</code>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>The <em>function arguments</em> are documented with the Python help system.
+Note that the function arguments can be different from the command arguments.
+For the full command documentation, use the CLI <code>help</code> command.</p>
+<p>Examples of viewing help text for the <code>board.log-group</code> command:</p>
+<ul>
+<li>
+<p>Get the full command documentation.</p>
+<pre><code class="language-simics">simics&gt; <strong>help board.log-group</strong>
+Command &lt;conf_object&gt;.log-group
+
+   Synopsis
+      &lt;conf_object&gt;.log-group [-enable|-disable] ["log-group"] [-r]
+      log-group [object] [-enable|-disable] ["log-group"] [-r]
+
+   Description
+      Enable (-enable) or disable (-disable) a log-group, or show whether it is
+...
+</code></pre>
+</li>
+<li>
+<p>Get the Python function arguments.</p>
+<pre><code class="language-simics">simics&gt; <strong>@help(conf.board.cli_cmds.log_group)</strong>
+Help on function log_group in module cli_impl:
+
+log_group(*args, **kw)
+    Function to run the '&lt;conf_object&gt;.log-group' command.
+    No positional parameters are accepted.
+    The following keyword-only parameter(s) are accepted:
+    - _enable: optional, flag, default value - (flag_t, 0, None)
+    - _disable: optional, flag, default value - (flag_t, 0, None)
+    - log_group: optional, string, default value - None
+    - _r: optional, flag, default value - False...
+</code></pre>
+</li>
+</ul>
+<p>Note in the above example:</p>
+<ul>
+<li>The object <code>board</code> is accessed from Python using <code>conf.board</code>.</li>
+<li>The CLI command name <code>log-group</code> has the corresponding function named
+<code>log_group</code> (with underscore).</li>
+</ul>
+<h2 id="scripting.html:cli-script-mixed-with-python"><a href="#scripting.html:cli-script-mixed-with-python">8.5.4 CLI Script mixed with Python</a></h2>
+<p>Here follows another example script, which demonstrates scripting that combines
+CLI commands and Python:</p>
+<ol>
+<li>
+<p>Create the script <code>mix.simics</code> with the below contents:</p>
+<pre><code>@import cli
+@import conf
+@import simics
+
+@def log_cli_var(name):
+    print(f'Log the value of "{name}" from Python')
+    contents = cli.simenv[name]
+    simics.SIM_log_info(1, conf.sim, 0, f'{name} = {contents}')
+
+$a = 1
+@log_cli_var("a")
+@b = cli.simenv.a + 1
+expect ($a + 1) `b`
+</code></pre>
+<p>In the script the following is demonstrated:</p>
+<ol>
+<li>Calling Python code using <code>@</code>.</li>
+<li>Access <em>CLI variables</em> from Python using <code>cli.simenv</code>.</li>
+<li>Access <em>Python variables</em> from CLI using backticks (<code>`b`</code>).</li>
+<li>Using the simulator object <code>sim</code> from Python by prepending <code>conf.</code> to
+the object name (the <code>sim</code> object is always present).</li>
+<li>Calling of the simulator API function <code>simics.SIM_log_info</code>.</li>
+</ol>
+</li>
+<li>
+<p><a href="#scripting.html:run-the-script">Run</a> the script <code>mix.simics</code> and verify that the output is:</p>
+<pre><code class="language-simics">Log the value of "a" from Python
+[sim info] a = 1
+</code></pre>
+</li>
+</ol>
+<p>For further information about CLI, see the <a href="../simics-user-guide/script-support-in-simics.html">Simics User’s
+Guide</a>.</p>
+</section><section class="page" id="virtual-disks.html"><h1 id="virtual-disks.html:virtual-disks"><a href="#virtual-disks.html:virtual-disks">8.6 Virtual disks</a></h1>
+<p>This section gives some information about <strong>virtual storage devices</strong>.
+Particularly, a few strategies are described for preserving changes done during
+a simulation session to virtual hard disks and using these changes in other
+simulation sessions.</p>
+<p>Target machines usually have emulated storage devices attached. A typical
+example of such storage device is a virtual hard disk.</p>
+<p>The software running on the target machines reads data from and writes data to
+virtual hard disks. The actual data is stored in dedicated files on the host
+system. Such files are usually called image files, disk image files, or, simply,
+images.</p>
+<p>The Intel Simics simulator supports a few image file formats:</p>
+<ul>
+<li>the simulator’s proprietary image format <strong>CRAFF</strong> (for Compressed
+Random-Access File Format)</li>
+<li>raw image files</li>
+<li>VHDX image files</li>
+</ul>
+<p>Normally, disk image files are opened in a <em>read-only mode</em>. All changes the
+guest software does to virtual disk’s contents are accumulated in memory or in
+temporary files and are not written directly to disk image files. This means
+that any changes written to virtual hard disks during a simulation session are
+lost once a user quits the simulator. There are a few benefits in using disk
+image files in a read-only mode:</p>
+<ul>
+<li>repeatability of simulation sessions: if a simulation session with a target
+machine is started again and again then the results during each run will be
+the same. This is very useful during debugging.</li>
+<li>possibility to run simultaneously many simulation sessions using the same disk
+image file. This is useful when running a batch of test jobs validating target
+software or device models.</li>
+<li>protection against accidental wiping out of the disk contents.</li>
+</ul>
+<p>The main drawback, though, is that one needs to take additional steps to
+preserve changes done to virtual hard disks during a simulation session. Below
+we describe a few strategies how to preserve changes done to virtual hard disks
+during a simulation session and use them in other simulation sessions.</p>
+<h2 id="virtual-disks.html:saving-virtual-disks-state-with-save-persistent-state-command"><a href="#virtual-disks.html:saving-virtual-disks-state-with-save-persistent-state-command">8.6.1 Saving virtual disks’ state with save-persistent-state command</a></h2>
+<p>The changes done by target software to the contents of virtual hard disks can be
+saved for later use with the <code>save-persistent-state</code> command. Here is a sample
+session demonstrating the usage of the command:</p>
+<ol>
+<li>
+<p>launch the simulator and load the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>run the simulation until Linux is booted:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>create a file on the target system or do some other modification to the file
+system.
+As an example, the screenshot below shows how to create the <code>/disk0/test.txt</code>
+file on the target system by running the command: <code>echo 'Hello, world!' &gt; /disk0/test.txt</code></p>
+<p><img alt="" src="virtual-disks-2.png"></p>
+</li>
+<li>
+<p>now, when a file was created, shutdown a target machine by running the
+<code>shutdown now</code> command on the target machine. This is needed to ensure that a
+target operating system writes the file on the disk instead of, e.g., caching
+it in RAM of the simulated machine:</p>
+<p><img alt="" src="virtual-disks-3.png"></p>
+</li>
+<li>
+<p>stop simulation by executing the <code>stop</code> command. This step is needed because
+even though the target machine entered shutdown state, the simulator still
+continues to advance virtual time:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>save changes done to all virtual disks found in the target machine by running
+the <code>save-persistent-state</code> command, and as argument, specify the path on the
+host file system where the state is saved:</p>
+<pre><code class="language-simics">simics&gt; <strong>save-persistent-state "test_file_created.ckpt"</strong>
+</code></pre>
+</li>
+<li>
+<p>quit the simulator:</p>
+<pre><code class="language-simics">simics&gt; <strong>quit</strong>
+</code></pre>
+</li>
+</ol>
+<h2 id="virtual-disks.html:restoring-virtual-disks-state"><a href="#virtual-disks.html:restoring-virtual-disks-state">8.6.2 Restoring virtual disks’ state</a></h2>
+<p>The <code>test_file_created.ckpt</code> directory created in the previous section contains
+all modifications done to all virtual hard disks of the target machine. The
+modifications are stored in so-called differencing images which are often
+referred to as <strong>diff files</strong> in the documentation. These images only hold the
+differences to another images. A differencing image is useless by itself; it
+must always be used together with another image.</p>
+<p>Let’s run a simulation now to see how the state saved previously can be used.
+Here is a sample simulation session:</p>
+<ol>
+<li>
+<p>launch the simulator and load the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>use the <code>load-persistent-state</code> command to load any state saved previously.
+We need to do this step at the very beginning, before the simulation was
+started, since otherwise the software running on the target will be presented
+with original state, not the updated one:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-persistent-state "test_file_created.ckpt"</strong>
+</code></pre>
+</li>
+<li>
+<p>run the simulation until Linux is booted:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>check that the <code>/disk0/test.txt</code> file created during the previous session is
+present:</p>
+<p><img alt="" src="virtual-disks-5.png"></p>
+</li>
+</ol>
+<p>Since the contents of disk images are saved incrementally by default, care
+should be taken when deleting the state saved previously with the
+<code>save-persistent-state</code> command: such saved state may be referred to by the
+state saved later.</p>
+<p>To sum up, the typical usage scenario for the <code>save-persistent-state</code> and
+<code>load-persistent-state</code> commands is:</p>
+<ol>
+<li>start simulator and load the target <code>qsp-x86/firststeps</code></li>
+<li>use the <code>load-persistent-state</code> command to load, if you already have it, the
+state saved previously with the <code>save-persistent-state</code> command</li>
+<li>start simulation to boot the machine</li>
+<li>do any modifications to the target machine</li>
+<li>shutdown the target machine</li>
+<li>stop simulation</li>
+<li>save the state of virtual disks with the <code>save-persistent-state</code> command</li>
+</ol>
+<p>Please note that even though the saved states are saved incrementally and thus
+depend on each other one needs to run the <code>load-persistent-state</code> command only
+once with the state one wants to load.</p>
+<p>Useful information about the <code>save-persistent-state</code> and <code>load-persistent-state</code>
+commands can be found in their documentation. The documentation can be obtained
+from CLI by running the <code>help</code> command like this:
+<code>help save-persistent-state</code>.</p>
+<h2 id="virtual-disks.html:saving-a-complete-disk-image"><a href="#virtual-disks.html:saving-a-complete-disk-image">8.6.3 Saving a complete disk image</a></h2>
+<p>The approach described above may result in multiple saved incremental states
+which are hard to manage. The Intel Simics simulator allows dumping the contents
+of a whole virtual disk to a new disk image file. This file can be later used as
+a new disk image for the target machine.</p>
+<p>There are several ways to dump a new disk image from a virtual disk. We will use
+the <code>save-persistent-state</code> command and its <code>-independent-state</code> flag.</p>
+<p>Sample session:</p>
+<ol>
+<li>
+<p>launch the simulator and load the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>(optional) if there is any state saved previously with the
+<code>save-persistent-state</code> command you want to load, load it with the
+<code>load-persistent-state</code> command. In this session we load the
+<code>test_file_created.ckpt</code> state saved in the previous section:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-persistent-state "test_file_created.ckpt"</strong>
+</code></pre>
+</li>
+<li>
+<p>run the simulation until Linux is booted:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>create a file on the target system or do some other modification to the file
+system. Since we have already loaded the <code>test_file_created.ckpt</code> state at
+step 2 above, there is already a <code>/disk0/test.txt</code> on the target machine. As
+an example, let’s create an additional file called <code>/disk0/test2.txt</code>:</p>
+<p><code>echo 'Hello, world2!' &gt; /disk0/test2.txt</code></p>
+<p><img alt="" src="virtual-disks-6.png"></p>
+</li>
+<li>
+<p>now, when we are done with all changes we wanted to do, shutdown a target
+machine by running the <code>shutdown now</code> command on the target machine. This is
+needed to ensure that target operating system writes the file on the disk
+instead of, e.g., caching it in RAM of the simulated machine:
+<img alt="" src="virtual-disks-7.png"></p>
+</li>
+<li>
+<p>stop simulation by executing the <code>stop</code> command. This step is needed because
+even though the target machine entered shutdown state, the simulator still
+continues to advance virtual time:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>save disks by running the <code>save-persistent-state</code> command with the
+<code>-independent-state</code> flag and specifying a destination where on the host
+system to keep the files. This operation may take some time as disk images
+are quite large:</p>
+<pre><code class="language-simics">simics&gt; <strong>save-persistent-state -independent-state "my_independent_state.ickpt"</strong>
+</code></pre>
+</li>
+<li>
+<p>quit the simulator:</p>
+<pre><code class="language-simics">simics&gt; <strong>quit</strong>
+</code></pre>
+</li>
+</ol>
+<p>The <code>my_independent_state.ickpt</code> directory created on step 7 above contains,
+among other things, disk images of all hard disks of the target machine. The
+<code>-independent-state</code> flag used with the command ensures that the disk image are
+not differencing images (or, in other words, diff files) but the complete images
+which contain the contents of the whole disk.</p>
+<p>By inspecting the contents of the <code>my_independent_state.ickpt</code> directory we can
+find there the <code>board.disk0.hd_image.craff</code> file. This file is the disk image
+containing the data from the <code>board.disk0</code> virtual disk object. The next section
+shows how one can start a target machine with this disk image.</p>
+<h2 id="virtual-disks.html:using-own-disk-image"><a href="#virtual-disks.html:using-own-disk-image">8.6.4 Using own disk image</a></h2>
+<p>Target systems often accept target parameters which can be used to specify a
+disk image for the target machine to use. We will now find out which target
+parameter to use, and set this to the
+<code>my_independent_state.ickpt/board.disk0.hd_image.craff</code> image.</p>
+<ol>
+<li>
+<p>launch the simulator without loading a target.</p>
+</li>
+<li>
+<p>use the <code>params.help</code> command and filter out parameters that contain <code>disk</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>params.help target = "qsp-x86/firststeps" substr = disk</strong>
+┌───────────────────┬────┬────────────────────────┬────────────────────────┐
+│Name               │Type│Description             │Default                 │
+├───────────────────┼────┼────────────────────────┼────────────────────────┤
+│machine:hardware:  │file│Disk image file for the │^machine:software:linux:│
+│storage:disk0:image│    │machine_name.disk0      │empty_image             │
+│                   │    │virtual                 │                        │
+│                   │    │disk. Files in craff    │                        │
+│                   │    │(Simics own file        │                        │
+│                   │    │format), VHDX, and raw  │                        │
+│                   │    │formats                 │                        │
+│                   │    │are supported.          │                        │
+│                   │    │                        │                        │
+├───────────────────┼────┼────────────────────────┼────────────────────────┤
+│machine:hardware:  │file│Disk image file for the │^machine:software:linux:│
+│storage:disk1:image│    │machine_name.disk0      │auxiliary_image         │
+│                   │    │virtual                 │                        │
+│                   │    │disk. Files in craff    │                        │
+│                   │    │(Simics own file        │                        │
+│                   │    │format), VHDX, and raw  │                        │
+│                   │    │formats                 │                        │
+│                   │    │are supported.          │                        │
+│                   │    │                        │                        │
+└───────────────────┴────┴────────────────────────┴────────────────────────┘
+</code></pre>
+</li>
+<li>
+<p>we will use the <code>machine:hardware:storage:disk0:image</code> parameter to set our
+image:</p>
+<pre><code class="language-simics">simics&gt; <strong>$img = my_independent_state.ickpt/board.disk0.hd_image.craff</strong>
+simics&gt; <strong>load-target qsp-x86/firststeps machine:hardware:storage:disk0:image = $img</strong>
+</code></pre>
+</li>
+<li>
+<p>to check that parameter was correctly assigned, use <code>params.list</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>params.list substr = disk0</strong>
+┌────────────────────────────────────┬────┬───────────────────────────────────────┐
+│Name                                │Type│Value                                  │
+├────────────────────────────────────┼────┼───────────────────────────────────────┤
+│firststeps:machine:hardware:storage:│file│my_independent_state.ickpt/board.disk0.│
+│disk0:image                         │    │hd_image.craff                         │
+└────────────────────────────────────┴────┴───────────────────────────────────────┘
+</code></pre>
+</li>
+<li>
+<p>run the simulation until Linux is booted:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+</li>
+<li>
+<p>check that both files are present in <code>/disk0</code>:</p>
+<p><img alt="" src="virtual-disks-8.png"></p>
+</li>
+</ol>
+</section><section class="page" id="transfer-data.html"><h1 id="transfer-data.html:networking-and-getting-data-into-the-simulated-system"><a href="#transfer-data.html:networking-and-getting-data-into-the-simulated-system">8.7 Networking and getting data into the simulated system</a></h1>
+<p>There are several situations when it is necessary and/or useful to let the
+simulated target machine interact with the host system, or even other systems
+accessible to the host via networking. Probably the most common situation is the
+need to transfer files between the target and the host.</p>
+<p>To summarize the available methods of transferring files between the target
+system and host machine:</p>
+<ul>
+<li>
+<p>With special software running <em>on the target</em> which communicates with the
+simulator, it is possible to transfer data between the target and the host
+while the target is running. Examples of this are:</p>
+<ul>
+<li>The Intel Simics agent, which can transfer files but also provides other
+kinds of interaction with the target system. A tutorial for the agent is
+available <a href="#transfer-data-simics-agent.html">here</a>.</li>
+<li>The Intel SimicsFS, which is a file system based on
+<a href="https://www.kernel.org/doc/html/next/filesystems/fuse.html" rel="noopener noreferrer" target="_top">FUSE</a>. Read
+more about <em>Intel SimicsFS</em> in <a href="../simics-user-guide/managedisks.html#using-simicsfs-with-fuse"><em>Simics User’s
+Guide</em></a>.</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>Using these method may require the extra steps of building and transferring
+the special software to the target system.</p>
+</blockquote>
+</li>
+<li>
+<p>With disk images, for example and USB disk, files can be transferred.
+A tutorial on this is available <a href="#transfer-data-usb.html">here</a>.
+See also the section about how to use <a href="#virtual-disks.html">virtual disks</a>.</p>
+</li>
+<li>
+<p>If the target system has <em>networking support</em>, either a <a href="#transfer-data-ftp.html">simulated
+network</a> can be used, or the target system can be
+connected to a <em>real network</em>, and use, for example
+<a href="#transfer-data-napt-http.html">HTTP</a> or <a href="#transfer-data-ssh.html">SSH/SCP</a> for the
+transfer.</p>
+</li>
+</ul>
+<p>For further information, see:</p>
+<ul>
+<li><a href="../simics-user-guide/managedisks.html">Simics User’s Guide</a></li>
+<li><a href="../ethernet-networking/index.html">Ethernet Networking Technology Guide</a></li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>In the tutorials, it is recommended to <em>start with the
+<a href="#transfer-data-preparation.html">preparation</a></em> section, which will save time by
+using a checkpoint where Linux has booted.</p>
+</blockquote>
+</section><section class="page" id="transfer-data-preparation.html"><h1 id="transfer-data-preparation.html:preparation"><a href="#transfer-data-preparation.html:preparation">8.7.1 Preparation</a></h1>
+<p>Most tutorials in this section require a <code>qsp-x86/firststeps</code> target machine
+where Linux has reached the login prompt, and that the <em>simulation is stopped</em>.</p>
+<p>If the checkpoint <code>target-booted.ckpt</code> has been created (see the
+<a href="#checkpoints-snapshots-.html">checkpoints</a> section), it is possible to save time
+and launch the simulator directly from this checkpoint (<em>Alt 1</em>), otherwise
+start the <code>qsp-x86/firststeps</code> target (<em>Alt 2</em>).</p>
+<ul>
+<li>
+<p><em>Alt 1</em> - use the ‘target-booted.ckpt’ checkpoint if this is available (see
+the <a href="#checkpoints-snapshots-.html">checkpoints</a> section)</p>
+<pre><code class="language-simics">$ <strong>./simics target-booted.ckpt</strong>
+</code></pre>
+</li>
+<li>
+<p><em>Alt 2</em> - launch the simulator with the <code>qsp-x86/firststeps</code> target and run
+until <em>Linux prompt</em>. For this, we use the target parameter
+<code>machine:software:simics:stop_after_login</code> which allows <em>stopping</em> the
+simulation after Linux has booted and user has been logged in.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps machine:software:simics:stop_after_login=TRUE</strong>
+simics&gt; <strong>run</strong>
+running&gt;
+...
+running&gt; <strong>stop # after seeing login prompt</strong>
+simics&gt; <strong>write-configuration "target-booted.ckpt"</strong>
+</code></pre>
+</li>
+</ul>
+<p>After stopping, write a checkpoint <code>target-booted.ckpt</code>, and use <em>Alt 1</em> for
+later steps in the tutorial to avoid having to wait for Linux to boot.</p>
+<blockquote class="markdown-alert-note">
+<p>After having followed the above preparation steps, Linux should have booted
+and the simulator should have stopped.</p>
+</blockquote>
+</section><section class="page" id="transfer-data-simics-agent.html"><h1 id="transfer-data-simics-agent.html:using-the-intel-simics-agent"><a href="#transfer-data-simics-agent.html:using-the-intel-simics-agent">8.7.2 Using the Intel Simics Agent</a></h1>
+<p>File transfer can be done in several ways. The preferred method is to use the
+<em>Intel Simics Agent</em>, which is a piece of software that must be present on the
+target machine. The <code>qsp-x86/firststeps</code> target comes with the agent already on
+disk.</p>
+<p>For other targets, if the agent is not present, it must be transferred to the
+target machine using one of the methods described later. The agent is
+preferred since it is the fastest and least intrusive method.</p>
+<p>The steps required to configure the <em>agent</em> can be summarized as:</p>
+<ol>
+<li>
+<p><strong>in the simulator</strong>:<br>
+Start the <em>agent manager</em>.
+The <em>agent manager</em> is a single global manager in the simulator, used to
+manage all connections to all agents on all targets.
+The agent manager is started with the<br>
+<code>start-agent-manager</code> command.</p>
+</li>
+<li>
+<p><strong>on the target</strong>:<br>
+Start the <code>simics-agent</code> on the target.</p>
+</li>
+<li>
+<p><strong>in the simulator</strong>: Connect the <em>agent manager</em> with the <em>agent</em> with the
+<code>&lt;agent_manager&gt;.connect-to-agent</code> command. After connecting, an <em>agent
+handle</em> will be created, which is a Simics object which can be used access
+the target.</p>
+</li>
+</ol>
+<p>Here is an example of using the agent for transferring files, using the
+<code>qsp-x86/firststeps</code> target.</p>
+<ul>
+<li>
+<p>Follow the <a href="#transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+</li>
+<li>
+<p>Start the <em>simulation</em> and, from the target console, start <code>simics-agent</code> as a
+background process.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+<pre><code class="language-simics"># <strong>simics-agent &amp;</strong>
+[1] 2638
+grml, v1.5, Feb 21 2023 14:13:26 
+</code></pre>
+</li>
+<li>
+<p>Stop the simulation.</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>Start the <em>agent manager</em> from the CLI.
+The manager object will get the default name of <code>agent_manager</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>start-agent-manager</strong>
+'agent_manager' is created and enabled.
+</code></pre>
+</li>
+<li>
+<p>Now we can connect the <em>agent manager</em> to the <em>agent</em> running on the target. A
+connection between the agent manager and a specific agent is represented by an
+<em>agent handle</em>. We specify the name <code>agent0</code> for the agent handle.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent_manager.connect-to-agent name = agent0</strong>
+</code></pre>
+</li>
+<li>
+<p>Upload the file <code>config.mk</code> in the projects to <code>/tmp</code> in the target. The
+<code>agent0.run-until-job</code> provides a way to run until the upload finishes, and
+can be useful when scripting, even though not strictly necessary in this
+example.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent0.upload from = ./config.mk to = /tmp/</strong>
+agent0:job 1 (upload config.mk)
+simics&gt; <strong>agent0.run-until-job 1</strong>
+agent0:job 1 (upload config.mk) finished
+</code></pre>
+</li>
+<li>
+<p>Observe that the file is available in <code>/tmp/config.mk</code> in the target. This can
+be done by starting the simulator, and typing <code>ls /tmp/config.mk</code> in the
+target console, but we will instead use the <code>agent0.list-files</code> command to
+list files under <code>/tmp</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent0.list-files target-dir = /tmp</strong>
+agent0:job 2 (ls /tmp)
+simics&gt; <strong>agent0.run-until-job 2</strong>
+...
+config.mk
+agent0:job 2 (ls /tmp) finished
+...
+</code></pre>
+</li>
+<li>
+<p>Similarly, we can use the agent handle to transfer a file from the target to
+the host.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent0.download -overwrite from = "/tmp/config.mk" to = /tmp</strong>
+agent0:job 3 (download config.mk)
+simics&gt; <strong>agent0.run-until-job 3</strong>
+agent0:job 3 (download config.mk) finished
+</code></pre>
+</li>
+</ul>
+<p>Note that the agent operations are necessarily asynchronous, which is why we
+must wait for them to finish. However, there is no need to wait after each
+command; several commands can be queued up before a wait is issued.</p>
+<p>In the example, we only started the simulation to allow starting <code>simics-agent</code>
+in the target machine, and while waiting for agent operations to complete,
+using <code>&lt;agent_handle&gt;.run-until-job</code>.</p>
+<p>An alternative method is to keep the simulation <em>running</em>. With this method, the
+requested agent operations will start directly, and
+<code>&lt;agent_handle&gt;.run-until-job</code> or <code>&lt;agent_handle&gt;.status</code> may only be required
+to await or check completion of the operation. This method (work with a running
+simulator) can be convenient for interactive work.</p>
+<p>The agent can also perform other operations, such as</p>
+<ul>
+<li>Print target file contents (<code>agent0.print-file</code>)</li>
+<li>Run arbitrary target (shell) commands (<code>agent0.run</code>)</li>
+<li>Retrieve output of the commands (<code>agent0.get-captured-output</code>)</li>
+</ul>
+<p>To see other available commands, run <code>help agent0</code> or use the tab-completion by
+typing <code>agent0.</code> followed by two tabs:</p>
+<pre><code class="language-simics">agent0 # press tab twice to expand all commands
+agent0.agent-poll-interval  agent0.log-group
+agent0.agent-quit           agent0.log-level
+agent0.agent-restart        agent0.ls
+agent0.cd                   agent0.print-file
+agent0.change-directory     agent0.print-working-directory
+agent0.delete-handle        agent0.pwd
+agent0.discard-jobs         agent0.run
+agent0.download             agent0.run-until-job
+agent0.download-dir         agent0.status
+agent0.get-captured-output  agent0.target-time
+agent0.info                 agent0.upload
+agent0.list-files           agent0.upload-dir
+agent0.list-jobs            agent0.wait-for-job
+</code></pre>
+</section><section class="page" id="transfer-data-usb.html"><h1 id="transfer-data-usb.html:using-disk-images"><a href="#transfer-data-usb.html:using-disk-images">8.7.3 Using disk images</a></h1>
+<p>There are other methods for transferring data in and out of the simulation. If
+the agent is not already present on the target machine, one of them must
+be used first to copy the agent software.</p>
+<ul>
+<li><em>USB</em> - from a USB disk image, a virtual USB disk can be created and connected
+to the target machine.</li>
+<li><em>SATA</em> - from a disk image, typically in CRAFF format, a virtual hard disk can
+be created and connected to the target machine.</li>
+</ul>
+<p>Here is an example of <em>transferring the agent</em> to the target using USB.</p>
+<ul>
+<li>
+<p>Follow the <a href="#transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+</li>
+<li>
+<p>Create and connect a virtual USB disk using the <em>agent</em> disk images
+provided in <em>base package</em>.</p>
+<pre><code class="language-simics">simics&gt; <strong>$usb_img = "%simics%/targets/common/images/simics_agent_binaries.img"</strong>
+simics&gt; <strong>load-module usb-comp</strong>
+simics&gt; <strong>new-usb-disk-comp file = $usb_img name = usb_disk</strong>
+simics&gt; <strong>usb_disk.connect-to board</strong>
+Connecting usb_disk.usb_host to board.mb.sb.usb_port[10]
+</code></pre>
+</li>
+<li>
+<p>Start the simulation:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>Next we need to find the device in Linux so that it can be mounted.
+We do this by looking for
+<code>usb-Vtech_Turbo_Disk_tm__200435132207e9526048-0:0-part1</code>.
+under <code>/dev/disk/by-id</code> using the target console.</p>
+  <!--- readlink does not produce /dev/sdd1 in doc test, so no matching --->
+<pre><code class="language-simics"># <strong>readlink -f /dev/disk/by-id/usb-Vtech_Turbo_Disk_tm__200435132207e9526048-0:0-part1</strong>
+/dev/sdd1
+</code></pre>
+<p>We see that the device corresponding to the USB disk is <code>/dev/sdd1</code>.</p>
+</li>
+<li>
+<p>Now we can mount it the USB disk, and copy <code>/media/simics_agent_x86_linux64</code>
+to the target machine.</p>
+<pre><code class="language-simics"># <strong>mount /dev/sdd1 /media</strong>
+# <strong>find /media -name simics_agent_x86_linux64</strong>
+/media/simics_agent_x86_linux64
+# <strong>cp /media/simics_agent_x86_linux64 .</strong>
+# <strong>ls ./simics_agent_x86_linux64</strong>
+</code></pre>
+</li>
+</ul>
+</section><section class="page" id="transfer-data-ftp.html"><h1 id="transfer-data-ftp.html:using-the-service-node"><a href="#transfer-data-ftp.html:using-the-service-node">8.7.4 Using the Service Node</a></h1>
+<p>Intel Simics simulator is a full system simulator, which can also simulate a
+network of machines. It includes a feature called the <em>service node</em> which acts
+like a separate machine on the simulated network, with its own IP address. The
+service node can expose common useful network services, such as DHCP, DNS, NTP
+as well as an FTP server that facilitates connecting to the host system and
+transfer files.</p>
+<p>Here is an example of transferring the agent to the target machine over
+FTP.</p>
+<ul>
+<li>
+<p>Follow the <a href="#transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+</li>
+<li>
+<p>Start the simulation</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>Notice that the service node and the target machine are set up in the service
+node DNS. The IP and MAC addresses are internal to the simulated network.</p>
+<pre><code class="language-simics">running&gt; <strong>service_node.sn.list-host-info</strong>
+┌───────────┬───────────────────┬─────────────────┐
+│    IP     │    name.domain    │       MAC       │
+├───────────┼───────────────────┼─────────────────┤
+│10.10.0.1  │simics0.network.sim│20:20:20:20:20:00│
+│10.10.0.100│board.network.sim  │00:17:a0:00:00:00│
+└───────────┴───────────────────┴─────────────────┘
+</code></pre>
+</li>
+<li>
+<p>From the target console, we can also verify that the DNS is working by
+querying the service node IP.</p>
+<pre><code class="language-simics"># 
+# 
+# <strong>host simics0</strong>
+simics0.network.sim has address 10.10.0.1
+# 
+</code></pre>
+</li>
+<li>
+<p>Now we can set up the service node FTP server by specifying its root directory
+on the host.</p>
+<pre><code class="language-simics">running&gt; <strong>$img_dir = "%simics%/targets/common/images"</strong>
+running&gt; <strong>service_node.set-ftp-directory dir = $img_dir</strong>
+</code></pre>
+</li>
+<li>
+<p>Now we can run an FTP client on the target to copy the agent to the target
+machine, and unpack it.</p>
+<pre><code class="language-simics"># <strong>lftpget ftp://simics0/simics_agent_binaries.zip</strong>
+# <strong>unzip -q simics_agent_binaries.zip</strong>
+# <strong>ls ./simics_agent_x86_linux64</strong>
+./simics_agent_x86_linux64
+</code></pre>
+</li>
+</ul>
+<p>With the agent now running on the target machine, we can now proceed as in the
+earlier section if we want to transfer other files.</p>
+</section><section class="page" id="transfer-data-napt-http.html"><h1 id="transfer-data-napt-http.html:use-napt-network-and-http"><a href="#transfer-data-napt-http.html:use-napt-network-and-http">8.7.5 Use NAPT network and HTTP</a></h1>
+<p>In this section we demonstrate transferring data from the host to the target
+using regular networking.</p>
+<p>Intel Simics simulator can let the target machine connect to any network that
+the host system has access to. This can be achieved in several ways, where
+<strong>NAPT</strong> is the simplest option. The simulator then acts similarly like a
+regular home router, performing network address translation between the
+simulated network and the network that the host is connected to. The service
+node DNS server can also act as a proxy for real DNS.</p>
+<ul>
+<li>
+<p>Follow the <a href="#transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+<pre><code class="language-simics"># 
+# 
+</code></pre>
+</li>
+<li>
+<p>Enable real time mode, to avoid network timeouts. This makes sure that the
+simulator will not run the simulation faster than real time.</p>
+<pre><code class="language-simics">simics&gt; <strong>enable-real-time-mode</strong>
+Real-time mode enabled.
+</code></pre>
+</li>
+<li>
+<p>Connect to real network using NAPT.</p>
+<pre><code class="language-simics">simics&gt; <strong>connect-real-network-napt ethernet-link = ethernet_switch</strong>
+NAPT enabled with gateway 10.10.0.1/24 on link ethernet_switch.link.
+NAPT enabled with gateway fe80::2220:20ff:fe20:2000/64 on link ethernet_switch.link.
+</code></pre>
+</li>
+<li>
+<p>Set up a simple HTTP server on the host. This command can naturally also be
+executed in any host shell, but here we use the <code>shell</code> command from within
+CLI.</p>
+<pre><code class="language-simics">simics&gt; <strong>$python = (lookup-file "%simics%/bin/mini-python")</strong>
+simics&gt; <strong>$imgs = (lookup-file "%simics%/targets/common/images")</strong>
+simics&gt; <strong>shell -bg ($python + " -m http.server --directory " + $imgs)</strong>
+</code></pre>
+</li>
+<li>
+<p>For easier access of the host system from the target, we add the host IP
+address to the service node DNS.</p>
+<pre><code class="language-simics">simics&gt; <strong>service_node.sn.add-host name = "host0" ip = (sim-&gt;host_ipv4)</strong>
+Adding host info for IP 10.123.242.138: host0.network.sim
+</code></pre>
+</li>
+<li>
+<p>Start the simulation.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>Before downloading the agent, we will demonstrate how to enable real DNS and
+test that it works. First enable real DNS from CLI.</p>
+<pre><code class="language-simics">running&gt; <strong>service_node.enable-real-dns</strong>
+Real DNS enabled.
+</code></pre>
+<p>Test the DNS from the target console.</p>
+<pre><code class="language-simics"># <strong>host www.intel.com</strong>
+www.intel.com has address 104.81.114.201
+Host www.intel.com not found: 4(NOTIMP)
+Host www.intel.com not found: 4(NOTIMP)
+</code></pre>
+</li>
+<li>
+<p>Download the <code>simics_agent_binaries.zip</code> from the host using curl in the
+target console.</p>
+<pre><code class="language-simics"># curl -s http://host0:8000/simics_agent_binaries.zip \
+     --output simics_agent_binaries.zip
+</code></pre>
+</li>
+<li>
+<p>On the target machine, we can verify that the file has been transferred.</p>
+<pre><code class="language-simics"># <strong>ls simics_agent_binaries.zip</strong>
+simics_agent_binaries.zip
+# <strong>unzip -q simics_agent_binaries.zip</strong>
+# <strong>ls ./simics_agent_x86_linux64</strong>
+./simics_agent_x86_linux64
+</code></pre>
+</li>
+</ul>
+<p>In this example we only connected to the host itself, but in fact the same
+technique can be used to connect to any other system that the host can access.
+Also note that the HTTP server we open on the host will be accessible by any web
+browser.</p>
+</section><section class="page" id="transfer-data-ssh.html"><h1 id="transfer-data-ssh.html:using-port-forwarding-and-ssh"><a href="#transfer-data-ssh.html:using-port-forwarding-and-ssh">8.7.6 Using Port Forwarding and SSH</a></h1>
+<p>Using port forwarding, the target can also be accessed from the host, and
+potentially from any system that can access the host, so this should be used
+with care. Here is an example of setting up portforwarding that could allow
+transferring files between the target and the the host.</p>
+<ul>
+<li>
+<p>Follow the <a href="#transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+</li>
+<li>
+<p>Enable real time mode, to avoid network timeouts.</p>
+<pre><code class="language-simics">simics&gt; <strong>enable-real-time-mode</strong>
+Real-time mode enabled.
+</code></pre>
+</li>
+<li>
+<p>Inspect the service node DNS to find the IP address of the target machine.</p>
+<pre><code class="language-simics">simics&gt; <strong>service_node.sn.list-host-info</strong>
+┌───────────┬───────────────────┬─────────────────┐
+│    IP     │    name.domain    │       MAC       │
+├───────────┼───────────────────┼─────────────────┤
+│10.10.0.1  │simics0.network.sim│20:20:20:20:20:00│
+│10.10.0.100│board.network.sim  │00:17:a0:00:00:00│
+└───────────┴───────────────────┴─────────────────┘
+</code></pre>
+</li>
+<li>
+<p>Set up port forwarding to the target. By default, this opens a few ports on
+the host corresponding to FTP, SSH, Telnet and HTTP, and connects them to the
+target. Other ports can also be opened by specifying parameters to the
+command.</p>
+<pre><code class="language-simics">simics&gt; <strong>connect-real-network target-ip = 10.10.0.100</strong>
+NAPT enabled with gateway 10.10.0.1/24 on link ethernet_switch.link.
+NAPT enabled with gateway fe80::2220:20ff:fe20:2000/64 on link ethernet_switch.link.
+Host TCP port 4021 -&gt; 10.10.0.100:21
+Host TCP port 4022 -&gt; 10.10.0.100:22
+Host TCP port 4023 -&gt; 10.10.0.100:23
+Host TCP port 4080 -&gt; 10.10.0.100:80
+Warning: This can expose the target system on the host local network.
+Real DNS enabled at 10.10.0.1/24 on link ethernet_switch.link.
+Real DNS enabled at fe80::2220:20ff:fe20:2000/64 on link ethernet_switch.link.
+</code></pre>
+</li>
+<li>
+<p>With port forwarding enabled, the simulated target can be accessed from the
+host using standard network tools. The <code>connect-real-network</code> command above
+set up the following port forwards:</p>
+<table><thead><tr><th>Service</th><th>Functionality</th><th>Access (localhost)</th><th>Destination (target)</th></tr></thead><tbody>
+<tr><td>SSH</td><td>Remote login</td><td>localhost:4022</td><td>10.10.0.100:22</td></tr>
+<tr><td>Telnet</td><td>Remote login</td><td>localhost:4023</td><td>10.10.0.100:23</td></tr>
+<tr><td>SCP</td><td>File transfer</td><td>localhost:4022</td><td>10.10.0.100:22</td></tr>
+<tr><td>FTP</td><td>File transfer</td><td>localhost:4021</td><td>10.10.0.100:21</td></tr>
+</tbody></table>
+<p>So <code>ssh</code> to localhost on port 4022 will be redirected to port 22 on the simulated target (10.10.0.100).</p>
+<p>These tools require:</p>
+<ul>
+<li>The respective client tools (<code>ssh</code>, <code>telnet</code>, <code>scp</code>, <code>ftp</code>) to be installed on the host</li>
+<li>Support for the protocol/service in the target operating system (<code>sshd</code>, <code>ftpd</code>, etc.)</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p><strong>SSH Authentication</strong> must be configured for the following examples to work,
+and the <code>qsp-x86/firststeps</code> target’s Linux image has no default password.
+A simple way to allow SSH login would be to add a user, and set a password
+(<code>adduser someuser</code>).</p>
+</blockquote>
+<p>Once authentication is configured, you can transfer a file using <code>scp</code>:</p>
+<pre><code class="language-shell">$ scp -P 4022 myfile.txt someuser@localhost:/home/
+</code></pre>
+<p>Or log in to the target via SSH:</p>
+<pre><code class="language-shell">$ ssh -p 4022 someuser@localhost
+</code></pre>
+<p>A recommended first file to transfer is the Simics Agent.
+The Simics Agent binaries can be located with the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>lookup-file "%simics%/targets/common/images/simics_agent_binaries.zip"</strong>
+"C:\\Simics\\packages\\simics-7.75.0\\targets\\common\\images\\simics_agent_binaries.zip"
+</code></pre>
+<p>After the Simics Agent is available on the target, it provides additional functionality
+beyond file transfer;
+see <a href="#transfer-data-simics-agent.html">Using the Simics Agent</a>.</p>
+<p>Using port forwarding, you can also connect to other network services available
+on the target, such as web servers (port 4080 forwards to HTTP port 80).</p>
+</li>
+</ul>
+</section><section class="page" id="target-software-debugging.html"><h1 id="target-software-debugging.html:debugging-target-software"><a href="#target-software-debugging.html:debugging-target-software">8.8 Debugging Target Software</a></h1>
+<p>The Intel Simics simulator comes with a built-in command line debugger for
+debugging the target software. This section describes how to get started with
+the Simics debugger. We start off with an example of debugging a Linux kernel
+module, then go through</p>
+<ul>
+<li>how to set up and enable the debugger,</li>
+<li>how to select debug contexts,</li>
+<li>what debugger commands are available, and</li>
+<li>how to break on a source line or function.</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the <em>QSP Clear Linux (#4094)</em> package has been
+installed.</p>
+</blockquote>
+<p>For further information on <em>debugging</em> see <a href="../analyzer-user-guide/index.html">Analyzer User’s
+Guide</a>.</p>
+<p>To follow the examples in this section it is recommended to launch the simulator
+the <code>targets/qsp-x86/qsp-clear-linux-pcie-demo.simics</code> script:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-command-file targets/qsp-x86/qsp-clear-linux-pcie-demo.simics</strong>
+</code></pre>
+<h2 id="target-software-debugging.html:example-of-debugging-a-kernel-module"><a href="#target-software-debugging.html:example-of-debugging-a-kernel-module">8.8.1 Example of debugging a kernel module</a></h2>
+<p>This example demonstrates how to debug a custom built kernel module. We use the
+<code>simics-pcie-demo-driver</code> module, which is included in the <code>QSP-x86</code> package.
+The example comes with both a kernel module binary and source code for that.</p>
+<p>To locate the installation directory with the example files, run the following
+command:</p>
+<pre><code class="language-simics">simics&gt; <strong>lookup-file "%simics%/targets/qsp-x86/target-source/simics-pcie-demo-driver"</strong>
+</code></pre>
+<p>In this example we use the Linux tracker. This tool, which is part of the OS
+Awareness feature, allows keeping track of Linux tasks and processes. The
+tracker can provide symbol mappings of kernel modules to the debugger, which is
+the feature we will use in this example.</p>
+<h3 id="target-software-debugging.html:configuring-the-linux-tracker"><a href="#target-software-debugging.html:configuring-the-linux-tracker">8.8.1.1 Configuring the Linux tracker</a></h3>
+<p>This section describes the steps needed to configure the Linux tracker for
+kernel module debugging.</p>
+<p>Create a target machine and start simulation:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script targets/qsp-x86/qsp-clear-linux-pcie-demo.simics</strong>
+simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+<p>Let the simulation run until Linux has booted, and the kernel module has been
+inserted. The simulation is stopped automatically by the script at this point.</p>
+<p>Once the system has booted, we can configure the Linux tracker using symbol
+information for the current kernel. The tracker accepts symbols in two formats.</p>
+<ul>
+<li>Either the kernel image as an ELF binary with debug information, usually named
+<code>vmlinux</code>, or</li>
+<li>plain text symbols such as <code>/proc/kallsyms</code> from the target system or
+<code>System.map</code> from the kernel compilation.</li>
+</ul>
+<p>In this example we will extract <code>kallsyms</code> from the target system and use that
+as symbols.</p>
+<pre><code class="language-simics">simics&gt; <strong>matic0.download /proc/kallsyms cl-kallsyms</strong>
+matic0:job 5 (download kallsyms)
+simics&gt; <strong>matic0.run-until-job</strong>
+matic0:job 5 (download kallsyms) finished
+simics&gt; <strong>machine.software.tracker.detect-parameters symbol-file = cl-kallsyms -load param-file = cl.params kernel-modules = TRUE</strong>
+[machine.software.tracker.tracker_obj info] Detecting settings using 2 processor(s)
+[machine.software.tracker.tracker_obj info] Successfully detected parameters
+Saved autodetected parameters to cl.params
+simics&gt; <strong>machine.software.enable-tracker</strong>
+OSA control enabled.
+</code></pre>
+<p>The next time we use the Linux tracker with the same kernel we can re-use the
+same parameters again, by loading the detected parameters using the
+<code>load-parameters</code> command followed by <code>enable-tracker</code>.</p>
+<p>In order for kernel module debugging to work, a path where to find kernel
+modules on local disk must be set:</p>
+<pre><code class="language-simics">simics&gt; <strong>machine.software.tracker.set-kernel-modules-path path = "%simics%/targets/qsp-x86/target-source/simics-pcie-demo-driver"</strong>
+</code></pre>
+<p>The kernel module binaries on local disk must match the ones running in the
+target kernel.</p>
+<h3 id="target-software-debugging.html:adding-path-maps"><a href="#target-software-debugging.html:adding-path-maps">8.8.1.2 Adding path maps</a></h3>
+<p>The kernel module was built under <code>/root/swbuild</code>, but the source files on local
+host are located under <code>targets/qsp-x86/target-source/simics-pcie-demo-driver</code>.
+To allow the debugger to find the source files, set the following path map:</p>
+<pre><code class="language-simics">simics&gt; <strong>add-pathmap-entry /root/swbuild/ "%simics%/targets/qsp-x86/target-source/simics-pcie-demo-driver/"</strong>
+</code></pre>
+<h3 id="target-software-debugging.html:debugging"><a href="#target-software-debugging.html:debugging">8.8.1.3 Debugging</a></h3>
+<p>Enable the debugger:</p>
+<pre><code class="language-simics">simics&gt; <strong>enable-debugger</strong>
+Debugger enabled.
+</code></pre>
+<p>Set a breakpoint on a function in the module. This will trigger once the drivers
+file device gets some input.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.source_location.break chari_write -once</strong>
+Breakpoint 8: 0x8 (planted)
+</code></pre>
+<p>Start the simulation:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p>Then output a string to the file device by writing to it from the Linux shell,
+using the serial console:</p>
+<pre><code class="language-simics">simics@cl-qsp ~ $ <strong>sudo bash -c 'echo 01 &gt; /dev/simics_pcie_demo_driver'</strong>
+</code></pre>
+<p>The simulation should stop with the following output:</p>
+<pre><code class="language-simics">[tcf] Breakpoint 8 on execution in context machine.mb.cpu0.core[0][0]
+</code></pre>
+<p>At this point the current stack frame can be checked using the <code>frame</code> command.
+We can see that the simulation stopped at <code>chari_write</code> and that the <em>buffer</em>
+contains <code>"01"</code> as written to the device.</p>
+<pre><code class="language-simics">simics&gt; <strong>frame</strong>
+#0 0xffffffffc00741e1 in chari_write(filep=(struct file *) 0xffff8881f201ec00, ubuffer=(const char *) 0x20564d0 "01\n", len=3, offset=(loff_t *) 0xffffc900013d3ef0) at /root/swbuild/simics-pcie-demo-driver.c:365
+
+simics&gt; <strong>list</strong>
+     363      charsleft = (int)len;
+     364  
+-&gt;   365      char* buffer = (char *) __get_free_page(GFP_KERNEL);
+     366      if (!buffer)
+     367          return -ENOMEM;
+</code></pre>
+<p>Set a breakpoint on <em>line 380</em> and advance the simulation to that point:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.source_line.break filename = "simics-pcie-demo-driver.c" line-number = 380 -once</strong>
+Breakpoint 9: 0x9 (planted)
+simics&gt; <strong>run</strong>
+[tcf] Breakpoint 9 on execution in context machine.mb.cpu0.core[0][0]
+chari_write(filep, ubuffer, len=3, offset) at /root/swbuild/simics-pcie-demo-driver.c:380
+380	    while(charsleft &gt;= 2) {
+</code></pre>
+<p>Stepping in the code is done with the <code>step-into</code>, <code>step-over</code> and <code>step-out</code>
+commands.</p>
+<pre><code class="language-simics">simics&gt; <strong>step-into</strong>
+chari_write(filep, ubuffer, len=3, offset) at /root/swbuild/simics-pcie-demo-driver.c:382
+382	        switch(buffer[0]) {
+</code></pre>
+<p>Note that when step is completed the stack frame and current line will be
+displayed. As the input was <code>"01"</code> the first switch statement should end up at
+<code>'0'</code> and the second at <code>'1'</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>step-into</strong>
+383                 case '0': led_no=0; break;
+simics&gt; <strong>step-into</strong>
+397             switch(buffer[1]) {
+simics&gt; <strong>step-into</strong>
+399                 case '1': brightness=1; break;
+simics&gt; <strong>step-into</strong>
+408             hw_update_led_state(led_no,brightness);
+simics&gt; <strong>step-into</strong>
+hw_update_led_state(led_no=0, brightness=1)
+ at /root/swbuild/simics-pcie-demo-driver/simics-pcie-demo-driver.c:147
+    147             if( (led_no&lt;0) || (led_no&gt;5)) {
+</code></pre>
+<p>The program enters another stack frame. Run <code>stack-trace</code> to see the current
+stack trace:</p>
+<pre><code class="language-simics">simics&gt; <strong>stack-trace maxdepth = 2</strong>
+#0 0xffffffffc00741a0 in hw_update_led_state(led_no=0, brightness=1) at /root/swbuild/simics-pcie-demo-driver.c:147
+#1 0xffffffffc00746a3 in chari_write(filep, ubuffer, len=3, offset) at /root/swbuild/simics-pcie-demo-driver.c:408
+</code></pre>
+<p>Inspect symbols in the current frame with the <code>sym-value</code> and <code>sym-type</code>
+commands:</p>
+<pre><code class="language-simics">simics&gt; <strong>sym-value brightness</strong>
+1
+simics&gt; <strong>sym-type brightness</strong>
+int
+</code></pre>
+<p>Change symbol values using the <code>sym-write</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>sym-write brightness 0</strong>
+brightness = 0
+</code></pre>
+<p>Step out to return to the outer function <code>chari_write</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>step-out</strong>
+chari_write(filep, buffer=(const char *) 0xfaf4d0 "01\n", len=3, offset) at /root/swbuild/simics-pcie-demo-driver/simics-pcie-demo-driver.c:412
+412	        buffer    += 2;
+</code></pre>
+<p>Now step to the end of <code>chari_write</code>. The while loop should complete after the
+first iteration.</p>
+<pre><code class="language-simics">simics&gt; <strong>step-into</strong>
+380	    while(charsleft &gt;= 2) {
+simics&gt; <strong>step-into</strong>
+415      free_page((unsigned long) buffer);
+simics&gt; <strong>step-over</strong>
+416      return len;
+</code></pre>
+<p>We check the return value <code>len</code>, before returning, and see that the function
+claims that 3 bytes have been consumed.</p>
+<pre><code class="language-simics">simics&gt; <strong>sym-value len</strong>
+3
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>The kernel module used in this example is compiled with some optimizations,
+meaning that some variables are optimized out and some code paths can appear
+strange when stepping.</p>
+</blockquote>
+<h2 id="target-software-debugging.html:setting-up-and-enabling-the-debugger"><a href="#target-software-debugging.html:setting-up-and-enabling-the-debugger">8.8.2 Setting up and enabling the debugger</a></h2>
+<p>The first step in order to use the debugger is to enable it:</p>
+<pre><code class="language-simics">simics&gt; <strong>enable-debugger</strong>
+</code></pre>
+<p>Then symbol files, with debug information, for the target software need to be
+added in order for debugging to work.</p>
+<pre><code class="language-simics">simics&gt; <strong>add-symbol-file &lt;binary to debug&gt;</strong>
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>add-symbol-file "%simics%/targets/qsp-x86/images/debug_example"</strong>
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>OS Awareness trackers can provide symbol files to the debugger instead of
+having to add them using the command.</p>
+</blockquote>
+<p>In case the source files are not present in the same location as they were
+compiled, a path map is needed for the debugger to locate the source:</p>
+<pre><code class="language-simics">simics&gt; <strong>add-pathmap-entry &lt;compilation path&gt; &lt;local disk path&gt;</strong>
+</code></pre>
+<p>When the debugger is enabled and the simulations stops the current stack frame
+will be displayed, under the condition that there is a valid symbol file added
+for the current debug context and address.</p>
+<pre><code class="language-simics">simics&gt; <strong>add-pathmap-entry /tmp .</strong>
+</code></pre>
+<h2 id="target-software-debugging.html:debug-contexts"><a href="#target-software-debugging.html:debug-contexts">8.8.3 Debug Contexts</a></h2>
+<p>A <em>debug context</em> represents something that can be debugged, such as:</p>
+<ul>
+<li>a hardware concept, like a processor,</li>
+<li>a process, or</li>
+<li>a thread or similar operating system concept.</li>
+</ul>
+<p>The <code>debug-context</code> command can be used to see current debug context or specify
+a different one.</p>
+<pre><code class="language-simics">simics&gt; <strong>debug-context</strong>
+dbg0 (the x86QSP3 machine.mb.cpu0.core[0][0])
+simics&gt; <strong>debug-context object = "machine.mb.cpu0.core[1][0]"</strong>
+dbg1 (the x86QSP3 machine.mb.cpu0.core[1][0])
+</code></pre>
+<p>To see available debug context, use the <code>list-debug-contexts</code> command, which
+optionally can take <em>context-query</em> as argument.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-debug-contexts</strong>
+Fully Qualified Name        | Fully Qualified Name
+----------------------------+---------------------------
+/machine                    | /machine/mb.cpu0.mem[0][0]
+/machine/mb.cpu0.core[0][0] | /machine/mb.cpu0.mem[1][0]
+/machine/mb.cpu0.core[1][0] | 
+</code></pre>
+<p>The <em>context-query</em> argument can be used to match a subset of contexts. To list
+contexts directly under root:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-debug-contexts context-query="/*"</strong>
+Fully Qualified Name
+--------------------
+/machine
+</code></pre>
+<p>To match specific processor:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-debug-contexts context-query="/machine/'mb.cpu0.core[1][0]'"</strong>
+Fully Qualified Name
+---------------------------
+/machine/mb.cpu0.core[1][0]
+</code></pre>
+<p>A <em>context query</em> is a method to specify a subset of debug contexts, by
+specifying context properties and what values to match. The default property is
+<em>name</em>.</p>
+<p>The forward slashes in the context names are separators. A query consists of a
+sequence of parts separated by forward slashes. Two wildcards exist, <em>*</em> and
+<em>**</em>, where one asterisk is used to match any context and two asterisks
+matches any sequence of contexts.</p>
+<p>Many debugger related commands, such as <code>add-symbol-file</code> and
+<code>add-pathmap-entry</code>, take <em>context-query</em> as an argument to limit what contexts
+it applies to. Leaving the argument out, means matching all possible debug
+contexts.</p>
+<p>As example, for a symbol file to only apply for a specific processor then
+<code>add-symbol-file</code> should be called with the <em>context-query</em> argument to match
+the processor name.</p>
+<pre><code class="language-simics">simics&gt; <strong>add-symbol-file context-query="/machine/'mb.cpu0.core[1][0]'" &lt;symbol file&gt;</strong>
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Extra quotation is added around the processor name. This is needed when the
+context name contains special characters, such as dots and brackets.</p>
+</blockquote>
+<h2 id="target-software-debugging.html:debugger-commands"><a href="#target-software-debugging.html:debugger-commands">8.8.4 Debugger commands</a></h2>
+<p>There are debugger commands available for investigating the current state, most
+of them start with the <code>sym-</code> prefix. Here follows some examples of debugger
+commands:</p>
+<dl>
+<dt id="target-software-debugging.html:dt:sym-value"><a href="#target-software-debugging.html:dt:sym-value">sym-value</a></dt>
+<dd>Evaluate an expression in the current
+stack frame, such as getting the value of a variable.</dd>
+<dt id="target-software-debugging.html:dt:sym-source"><a href="#target-software-debugging.html:dt:sym-source">sym-source</a></dt>
+<dd>Get the source file and line for an address or a function.</dd>
+<dt id="target-software-debugging.html:dt:sym-function"><a href="#target-software-debugging.html:dt:sym-function">sym-function</a></dt>
+<dd>Get the function for an address.</dd>
+<dt id="target-software-debugging.html:dt:sym-address"><a href="#target-software-debugging.html:dt:sym-address">sym-address</a></dt>
+<dd>Get the address of a line or symbol.</dd>
+<dt id="target-software-debugging.html:dt:stack-trace"><a href="#target-software-debugging.html:dt:stack-trace">stack-trace</a></dt>
+<dd>Display the current stack trace with
+addresses, functions, and source lines.</dd>
+<dt id="target-software-debugging.html:dt:frame"><a href="#target-software-debugging.html:dt:frame">frame</a></dt>
+<dd>Select or display the current stack frame.</dd>
+<dt id="target-software-debugging.html:dt:up-down"><a href="#target-software-debugging.html:dt:up-down">up, down</a></dt>
+<dd>Moves the current stack frame up or down one or more levels.</dd>
+<dt id="target-software-debugging.html:dt:list"><a href="#target-software-debugging.html:dt:list">list</a></dt>
+<dd>Lists source code, defaults to showing source at current location.</dd>
+</dl>
+<p>To find out more about these commands, use the <code>help</code> command, for example:</p>
+<pre><code class="language-simics">simics&gt; <strong>help sym-value</strong>
+Command sym-value
+
+   Synopsis
+      sym-value "expression"
+...
+</code></pre>
+<h2 id="target-software-debugging.html:breaking-on-a-source-line-or-function"><a href="#target-software-debugging.html:breaking-on-a-source-line-or-function">8.8.5 Breaking on a source line or function</a></h2>
+<p>It is possible to stop the simulation when a specific source line or function is
+hit. To set a breakpoint on a source line use the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.source_line.break filename = foo.c line-number = 10</strong>
+</code></pre>
+<p>And in a similar way for a function:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.source_location.break foo</strong>
+</code></pre>
+<p>After setting such breakpoints, the simulation will stop once the source line
+<code>foo.c:10</code> or the function <code>foo</code> is hit.</p>
+<h2 id="target-software-debugging.html:debugging-summary"><a href="#target-software-debugging.html:debugging-summary">8.8.6 Debugging Summary</a></h2>
+<p>This concludes this tutorial, in which we have learned how to use debugger
+commands to</p>
+<ul>
+<li>break on a function or source line,</li>
+<li>step in source code,</li>
+<li>show stack traces,</li>
+<li>and investigate and update variables.</li>
+</ul>
+</section><section class="page" id="breakpoints.html"><h1 id="breakpoints.html:using-breakpoints"><a href="#breakpoints.html:using-breakpoints">8.9 Using Breakpoints</a></h1>
+<p>Besides the <em>source code</em> or <em>address</em> breakpoints demonstrated in the
+<a href="#target-software-debugging.html">debugging</a> section, the Intel Simics simulator
+provides several other types of breakpoints:</p>
+<h2 id="breakpoints.html:overview-of-breakpoints"><a href="#breakpoints.html:overview-of-breakpoints">8.9.1 Overview of Breakpoints</a></h2>
+<p>These are some examples of breakpoints:</p>
+<ul>
+<li><em>Hardware events</em>
+<ul>
+<li><em>memory access</em> - break when an address range is accessed</li>
+<li><em>register access</em> - break when a device, bank, or special purpose register
+is accessed</li>
+<li><em>target serial console</em> - break when a string is output</li>
+<li><em>target graphics console</em> - break when a bitmap is shown</li>
+<li><em>exceptions/interrupt</em> - break when there is an exception or interrupt</li>
+</ul>
+</li>
+<li><em>Simulation</em>
+<ul>
+<li><em>time</em> - break after a specified number of seconds, cycles, or steps</li>
+<li><em>logs</em> - break on a specific log message</li>
+</ul>
+</li>
+<li><em>Target software</em>
+<ul>
+<li><em>processes/threads</em> - break when a process or thread becomes active or
+inactive</li>
+<li><em>magic instruction</em> - break when a magic instruction is executed</li>
+</ul>
+</li>
+</ul>
+<h2 id="breakpoints.html:finding-breakpoint-commands"><a href="#breakpoints.html:finding-breakpoint-commands">8.9.2 Finding Breakpoint Commands</a></h2>
+<p>To list breakpoint related commands, use the <code>help</code> command the <code>Breakpoints</code>
+category:</p>
+<pre><code class="language-simics">simics&gt; <strong>help category:Breakpoints</strong>
+...
+&lt;bp-manager.time&gt;.break           set time breakpoint
+&lt;bp-manager.time&gt;.run-until       run until specified time
+&lt;bp-manager.time&gt;.trace           enable tracing of time points
+&lt;bp-manager.time&gt;.wait-for        wait for specified time
+...
+</code></pre>
+<p>In the shortened list of break commands above, note that there are different
+command types:</p>
+<ul>
+<li><code>break</code> - create a breakpoint</li>
+<li><code>run-until</code> - set a temporary breakpoint and run until this (or some other
+reason to stop) triggers</li>
+<li><code>trace</code> - trace when the break condition is true</li>
+<li><code>wait-for</code> - command specific to <code>script-branches</code> not described in this
+manual (see <a href="../simics-user-guide/script-support-in-simics.html#script-branches"><em>Simics User’s
+Guide</em></a>)</li>
+</ul>
+<h2 id="breakpoints.html:the-breakpoint-manager"><a href="#breakpoints.html:the-breakpoint-manager">8.9.3 The Breakpoint Manager</a></h2>
+<p>Most breakpoint commands are implemented by the <a href="../simics-user-guide/debug.html#the-breakpoint-manager">breakpoint
+manager</a>, which is an
+object named <code>bp</code>. To list the different breakpoint types that the <em>breakpoint
+manager</em> implements, use <code>bp.list-types</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list-types</strong>
+┌───────────────────┬────────────────────────────────────────┐
+│     Provider      │            Breakpoint type             │
+├───────────────────┼────────────────────────────────────────┤
+│bp.bank            │device access                           │
+│bp.console_string  │target console string output breakpoints│
+│bp.control_register│control register access breakpoints     │
+│bp.cycle           │cycle queue breakpoints                 │
+│bp.cycle_event     │cycle event breakpoints                 │
+│bp.exception       │exception breakpoints                   │
+│bp.gfx             │graphics console output breakpoints     │
+│bp.hap             │hap occurrence breakpoints              │
+│bp.log             │log message breakpoints                 │
+│bp.magic           │magic breakpoints                       │
+│bp.memory          │memory access breakpoints               │
+│bp.notifier        │notifier trigger breakpoints            │
+│bp.os_awareness    │OS Awareness breakpoints                │
+│bp.source_line     │source code line breakpoints            │
+│bp.source_location │source code location breakpoints        │
+│bp.step            │step queue breakpoints                  │
+│bp.step_event      │step event breakpoints                  │
+│bp.time            │virtual time breakpoints                │
+└───────────────────┴────────────────────────────────────────┘
+</code></pre>
+<p>A breakpoint created with <code>bp.&lt;type&gt;.break</code> is assigned a <em>breakpoint identity</em>,
+and this identity can be used to inspect or manipulate that specific breakpoint.
+These are some common commands:</p>
+<ul>
+<li><code>bp.delete</code>
+delete a specific or all breakpoints</li>
+<li><code>bp.disable</code> / <code>bp.enable</code>
+disable or enable a specific or all breakpoints</li>
+<li><code>bp.ignore-count</code>
+ignore first <code>x</code> number of breakpoint triggers</li>
+<li><code>bp.show</code>
+show all information about a breakpoint</li>
+<li><code>bp.list</code>
+show brief information about all breakpoints</li>
+<li><code>bp.test-trigger</code>
+manually trigger a breakpoint</li>
+</ul>
+<h2 id="breakpoints.html:breakpoint-examples"><a href="#breakpoints.html:breakpoint-examples">8.9.4 Breakpoint Examples</a></h2>
+<p>Here follow a few examples of how to use breakpoints.</p>
+<h3 id="breakpoints.html:execution-breakpoint"><a href="#breakpoints.html:execution-breakpoint">8.9.4.1 Execution Breakpoint</a></h3>
+<p>In this example, we set an execution breakpoint on a memory address.</p>
+<ul>
+<li>
+<p>Launch of the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-shell">./simics qsp-x86/firststeps
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>Disassemble a couple of addresses:</p>
+<pre><code class="language-simics">simics&gt; <strong>disassemble count = 2</strong>
+cs:0x000000000000fff0 p:0x00000fffffff0  nop
+cs:0x000000000000fff1 p:0x00000fffffff1  nop
+</code></pre>
+<p>Apparently, we will reach the address <code>p:0xfffffff1</code>.
+Let’s set an execution breakpoint on this address.</p>
+</li>
+<li>
+<p>Set an execution breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.memory.break -x address = p:0xfffffff1</strong>
+Breakpoint 3: break on 'x' access to 0xfffffff1 in board.mb.cpu0.mem[0][0]
+</code></pre>
+</li>
+</ul>
+<p>The breakpoint got the breakpoint identifier 3, probably since the target itself
+has created breakpoints.</p>
+<ul>
+<li>
+<p>Check the status of the breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.show 3</strong>
+Breakpoint 3 (board.mb.cpu0.mem[0][0] break matching (addr=0xfffffff1, len=1, access=x))
+========================================================================================
+
+            Enabled : True
+       Ignore Count : 0
+             Object : board.mb.cpu0.mem[0][0]
+            Planted : True
+    Provider/Action : bp.memory/break
+           Region-0 : phys-x   0x00000000fffffff1 0x00000000fffffff1
+            Oneshot : False
+</code></pre>
+</li>
+</ul>
+<p>From this, we can see that the breakpoint is planted on the memory object
+<code>board.mb.cpu0.mem[0][0]</code>, has a length of <code>1</code>, is <em>enabled</em> and has been
+<em>planted</em>.</p>
+<ul>
+<li>
+<p>Run the simulation and observe that the breakpoint triggers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+[board.mb.cpu0.mem[0][0]] Breakpoint 3: board.mb.cpu0.mem[0][0] 'x' access to p:0xfffffff1
+simics&gt; <strong>disassemble</strong>
+cs:0x000000000000fff1 p:0x00000fffffff1  nop
+</code></pre>
+</li>
+</ul>
+<p>The breakpoint text and <code>disassemble</code> reveals that we have reached the
+0xfffffff1 address.</p>
+<ul>
+<li>
+<p>We can also list information about all breakpoints, and can see that the
+breakpoint has triggered once (<code>Hit count</code>):</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list</strong>
+┌──┬─────────────────────────────────────┬───────┬───────┬────────────┬─────────┐
+│ID│            Description              │Enabled│Oneshot│Ignore count│Hit count│
+├──┼─────────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 1│Clock board.mb.cpu0.core[0][0] break │ true  │ false │           0│        0│
+│  │at time 5.0                          │       │       │            │         │
+├──┼─────────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 2│Console 'board.serconsole.con' break │ true  │ false │           0│        0│
+│  │on "root.*@grml.*#.* " (regexp)      │       │       │            │         │
+├──┼─────────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 3│board.mb.cpu0.mem[0][0] break        │ true  │ false │           0│        1│
+│  │matching (addr=0xfffffff1, len=1,    │       │       │            │         │
+│  │access=x)                            │       │       │            │         │
+└──┴─────────────────────────────────────┴───────┴───────┴────────────┴─────────┘
+</code></pre>
+</li>
+<li>
+<p>Delete the breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.delete id = 3</strong>
+</code></pre>
+</li>
+</ul>
+<h3 id="breakpoints.html:exception-breakpoint"><a href="#breakpoints.html:exception-breakpoint">8.9.4.2 Exception Breakpoint</a></h3>
+<p>In this example, we will write an illegal instruction, and break on the
+exception that is raised when executing the illegal instruction.</p>
+<ul>
+<li>
+<p>Launch of the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-shell">./simics qsp-x86/firststeps
+simics&gt;
+</code></pre>
+<p>From the earlier <a href="#breakpoints.html:execution-breakpoint">example</a>, we know that the address
+p:0x0fffffff1 will be executed.</p>
+</li>
+<li>
+<p>Write an illegal instruction <code>UD2</code> (<code>0F 0B</code>) to the physical address
+<code>0xfffffff1</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>set address=0xfffffff1 value=0x0b0f size=2 -l</strong>
+</code></pre>
+<p>We can now check the written instruction:</p>
+<pre><code class="language-simics">simics&gt; <strong>da address = p:0xfffffff1</strong>
+p:0x00000fffffff1  ud2
+</code></pre>
+</li>
+<li>
+<p>Plant an exception breakpoint:</p>
+<p>We will now use <code>bp.exception.break</code> to add an exception breakpoint on all
+(<code>-all</code>) exceptions.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.exception.break -all</strong>
+Breakpoint 3: Break on any exception for the following objects:
+board.mb.cpu0.core[0][0]
+</code></pre>
+</li>
+</ul>
+<p>We got breakpoint identity <code>3</code> and the breakpoint was planted on
+<code>board.mb.cpu0.core[0][0]</code></p>
+<ul>
+<li>
+<p>Run the simulation until the breakpoint triggers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+[board.mb.cpu0.core[0][0]] Breakpoint 3: board.mb.cpu0.core[0][0] Invalid_Opcode_Exception(6) exception triggered
+</code></pre>
+</li>
+</ul>
+<p>The exception that triggered the breakpoint was <code>Invalid_Opcode_Exception(6)</code>.</p>
+<ul>
+<li>
+<p>Verify that the breakpoint has triggered by observing the <code>Hit count</code> value:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.show 3</strong>
+Breakpoint 3 (Break on any exception on the following objects:
+board.mb.cpu0.core[0][0])
+==============================================================
+
+            Enabled : True
+       Ignore Count : 0
+             Object : board.mb.cpu0.core[0][0]
+            Planted : True
+    Provider/Action : bp.exception/break
+            Oneshot : False
+
+Hit Counts:
+    hits : 1
+</code></pre>
+</li>
+</ul>
+<h3 id="breakpoints.html:log-breakpoint"><a href="#breakpoints.html:log-breakpoint">8.9.4.3 Log Breakpoint</a></h3>
+<p>In this example, we will plant a temporary (<code>-once</code>) log breakpoint that
+triggers when the object <code>board.mb.sb</code>, or one of its child objects, logs an
+<code>info</code> log that contains the string <code>lower</code>. The selection of child objects is
+achieved with the <code>-recursive</code> flag.</p>
+<ul>
+<li>
+<p>Launch of the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-shell">./simics qsp-x86/firststeps
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>Plant the breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.log.break type = info object = board.mb.sb -recursive substr = "lower" -once</strong>
+Breakpoint 3: Break on 'info' log messages matching 'lower' from board.mb.sb hierarchy
+</code></pre>
+</li>
+<li>
+<p>Observe the breakpoint properties:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.show 3</strong>
+Breakpoint 3 (Break on info log messages matching 'lower' from board.mb.sb hierarchy)
+=====================================================================================
+
+            Enabled : True
+       Ignore Count : 0
+             Object : board.mb.sb
+            Planted : True
+    Provider/Action : bp.log/break
+            Oneshot : True
+
+Hit Counts:
+    hits : 0
+</code></pre>
+</li>
+<li>
+<p>To make sure that the <code>info</code> log is produced (so that our breakpoint is
+triggered), raise the log level to 3 on our <code>board.mb.sb</code> object and all of
+its child objects:</p>
+<pre><code class="language-simics">simics&gt; <strong>log-level object = board.mb.sb -r level = 3</strong>
+[board.mb.sb] Changing log level recursively: 1 -&gt; 3
+</code></pre>
+</li>
+<li>
+<p>Run the simulation until the breakpoint triggers:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+[board.mb.sb.lpc info] pin smi_pin lowered
+[board.mb.sb.lpc] Breakpoint 3: board.mb.sb.lpc log message of type info matching 'lower'
+@assert conf.board.mb.sb.lpc.log_buffer[-1][-1][-1][0] == "pin smi_pin lowered:"
+</code></pre>
+</li>
+</ul>
+<p>The breakpoint was triggered by the object <code>board.mb.sb.lpc</code> with the log
+message <code>[board.mb.sb.lpc info] pin smi_pin lowered</code>.</p>
+<ul>
+<li>
+<p>Since the breakpoint was temporary (<code>-once</code>), the breakpoint should now have
+been automatically deleted:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list</strong>
+┌──┬────────────────────────────────┬───────┬───────┬────────────┬─────────┐
+│ID│          Description           │Enabled│Oneshot│Ignore count│Hit count│
+├──┼────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 1│Clock board.mb.cpu0.core[0][0]  │ true  │ false │           0│        0│
+│  │break at time 5.0               │       │       │            │         │
+├──┼────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 2│Console 'board.serconsole.con'  │ true  │ false │           0│        0│
+│  │break on "root.*@grml.*#.* "    │       │       │            │         │
+│  │(regexp)                        │       │       │            │         │
+└──┴────────────────────────────────┴───────┴───────┴────────────┴─────────┘
+</code></pre>
+</li>
+</ul>
+</section><section class="page" id="code-coverage-of-target-software.html"><h1 id="code-coverage-of-target-software.html:code-coverage-of-target-software"><a href="#code-coverage-of-target-software.html:code-coverage-of-target-software">8.10 Code Coverage of Target Software</a></h1>
+<p>The Intel Simics simulator provides a tool for <em>code coverage</em> using binaries
+with debug information.</p>
+<p>This section will describe how to get started with code coverage feature. It
+will start with an example of code coverage for a kernel module, then provide
+info about</p>
+<ul>
+<li>how to set up code coverage,</li>
+<li>collecting coverage,</li>
+<li>generating reports, and</li>
+<li>combining code coverage from multiple runs.</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the <em>QSP Clear Linux (#4094)</em> package has been
+installed.</p>
+</blockquote>
+<p>For further information on <em>code coverage</em> see <a href="../analyzer-user-guide/index.html">Analyzer User’s
+Guide</a>.</p>
+<h2 id="code-coverage-of-target-software.html:code-coverage-example"><a href="#code-coverage-of-target-software.html:code-coverage-example">8.10.1 Code Coverage Example</a></h2>
+<h3 id="code-coverage-of-target-software.html:setup"><a href="#code-coverage-of-target-software.html:setup">8.10.1.1 Setup</a></h3>
+<p>This section reuses the setup from the
+<a href="#target-software-debugging.html:example-of-debugging-a-kernel-module">debugging</a>
+section to demonstrate code coverage of a kernel module. The tracker parameters
+file <code>cl.params</code>, from that example is needed to run this example.</p>
+<p>Launch the simulator with the same script as before:</p>
+<p><code>%simics%/targets/qsp-x86/qsp-clear-linux-pcie-demo.simics</code></p>
+<p>Then run the following commands from the previous example:</p>
+<pre><code class="language-simics">simics&gt; <strong>machine.software.load-parameters cl.params</strong>
+simics&gt; <strong>machine.software.enable-tracker</strong>
+OSA control enabled.
+simics&gt; <strong>machine.software.tracker.set-kernel-modules-path path = "%simics%/targets/qsp-x86/target-source/simics-pcie-demo-driver"</strong>
+simics&gt; <strong>add-pathmap-entry "/root/swbuild" "%simics%/targets/qsp-x86/target-source/simics-pcie-demo-driver"</strong>
+</code></pre>
+<h3 id="code-coverage-of-target-software.html:collecting-code-coverage"><a href="#code-coverage-of-target-software.html:collecting-code-coverage">8.10.1.2 Collecting Code Coverage</a></h3>
+<p>Before starting the simulation, start collecting coverage for all Linux tracker
+Kernel nodes:</p>
+<pre><code class="language-simics">simics&gt; <strong>collect-coverage context-query="/**/Kernel/**" name="kernel_module" -running</strong>
+kernel_module is collecting coverage for /**/Kernel/**
+</code></pre>
+<p>Start the simulation and run until the system is booted and the simulation
+stops. Note that the simulation is slower when the Linux tracker and code
+coverage is used.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+  ...
+  Autologin as "simics" was done on "machine.mb.sb.com[0] - serial console".
+  Setting new inspection object: machine.mb.cpu0.core[1][0]
+simics&gt; <strong></strong>
+</code></pre>
+<p>This script automatically runs <code>insmod</code> when the Linux shell is reached and then
+stops the simulation.</p>
+<p>The output from the serial console should be:</p>
+<pre><code>simics@cl-qsp ~ $ sudo insmod simics-pcie-demo-driver.ko
+simics@cl-qsp ~ $ 
+</code></pre>
+<p>At this point the driver should be loaded. Output a HTML report for collected
+coverage up to this point of time:</p>
+<pre><code class="language-simics">simics&gt; <strong>kernel_module.html-report kernel-module-loaded-html report-name = "Kernel module loaded"</strong>
+Saving HTML report to: kernel-module-loaded-html
+Report contains 28 errors
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>The errors are because of missing binaries for other kernel modules that the
+tracker has found. More detailed information about errors can be found in the
+HTML report.</p>
+</blockquote>
+<p>Before we examine the report, we will input a string to the driver’s character
+device to see how that changes coverage.</p>
+<p>Start the simulation:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p>Enter the following in the serial console and wait for the shell to return to
+prompt:</p>
+<pre><code class="language-simics">simics@cl-qsp ~ $ <strong>sudo bash -c 'echo 21 &gt; /dev/simics_pcie_demo_driver'</strong>
+</code></pre>
+<p>Stop the simulation again:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+</code></pre>
+<p>Then output another HTML report, using the same code coverage object:</p>
+<pre><code class="language-simics">simics&gt; <strong>kernel_module.html-report kernel-module-after-input-html report-name="Kernel module after input"</strong>
+Saving HTML report to: kernel-module-after-input-html
+Report contains 28 errors
+</code></pre>
+<p>Before quitting the simulator, we will save a raw report for use in a later
+example:</p>
+<pre><code class="language-simics">simics&gt; <strong>kernel_module.save kernel-module-after-input.raw</strong>
+</code></pre>
+<p>Now it is time to examine the two reports. We open the reports
+<code>kernel-module-loaded-html/index.html</code> and
+<code>kernel-module-after-input-html/index.html</code> using a web browser.</p>
+<p>We should see the following output in the first report:</p>
+<p><img alt="" src="cc-loaded-src-summary.png"></p>
+<p>In the second report we can see that the lines covered increased by <em>one</em> line,
+when the string <code>"21"</code> was written to the device.</p>
+<p><img alt="" src="cc-after-input-src-summary.png"></p>
+<p>The report shows the number of lines executed and the amount executable, for the
+whole binary and per source directory. The most interesting directory is
+<code>simics-pcie-demo-driver</code>. This contains the source of the driver. We can follow
+the link to see the source files under that directory.</p>
+<p><img alt="" src="cc-loaded-src-dir.png"></p>
+<p>We can follow the links per source file to get detailed information about
+coverage for a certain source file. That source file pages have the following
+color codings.</p>
+<ul>
+<li>Green - Executed line</li>
+<li>Red - Executable line, but not executed</li>
+<li>White - Non-executable line, such as comment or line that is optimized out.</li>
+</ul>
+<p>The left column shows the line number of the source file.</p>
+<p>In the first report we see for example that <code>hw_update_led_state</code>, on line
+<em>136</em>, executed and that the <em>led_no</em> values are inside the expected range. We
+can see that the assignment of <code>led_offsets</code> was optimized out. For the lines
+with the <code>pr_err</code> function call we see that only the first line is marked as
+executable. That is commonly how multi-line function calls will be displayed as
+only the first line is considered executable.</p>
+<p><img alt="" src="cc-hw-update-led-state.png"></p>
+<p>We can compare the two saved HTML reports to find what extra line was run when
+we wrote the string <code>"21"</code> to the device driver. The difference is in the
+<code>chari_write</code> function.</p>
+<p><img alt="" src="cc-loaded-switch-1.png"> <em>chari_write first switch statement, <strong>before</strong>
+writing 21 to device.</em> <img alt="" src="cc-loaded-switch-2.png"> <em>chari_write second switch
+statement, <strong>before</strong> writing 21 to device.</em> <img alt="" src="cc-after-input-switch-1.png">
+<em>chari_write first switch statement, <strong>after</strong> writing 21 to device.</em></p>
+<p>We see that <code>case '2'</code> has run in the first switch statement. This matches the
+first character of the input. All other lines in the report are unchanged after
+the input.</p>
+<blockquote class="markdown-alert-note">
+<p>The driver had already received an input <code>"01"</code> in the first report. The
+script we use is written to test the driver by inputting that value to the
+device.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>There are a lot of <em>unknown addresses</em> under a tab in the HTML report. These
+correspond to instructions that run where there is no mapping added. In this
+example every executed address that is not part of a kernel module, such as
+boot loader and main kernel code, will be unknown.</p>
+</blockquote>
+<h2 id="code-coverage-of-target-software.html:setting-up-code-coverage"><a href="#code-coverage-of-target-software.html:setting-up-code-coverage">8.10.2 Setting up code coverage</a></h2>
+<p>In order for code coverage to work, <em>symbol files</em> have to be added in the same
+way as in the
+<a href="#target-software-debugging.html:setting-up-and-enabling-the-debugger">debugging</a>
+section. Either use the <code>add-symbol-file</code> command or configure a tracker to add
+symbol files for use with code coverage. In the example above the Linux tracker
+was configured to add symbol files for kernel modules.</p>
+<h2 id="code-coverage-of-target-software.html:collecting-coverage"><a href="#code-coverage-of-target-software.html:collecting-coverage">8.10.3 Collecting coverage</a></h2>
+<p>To start collecting code coverage use the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>collect-coverage context-query=&lt;query&gt; name=mycov</strong>
+</code></pre>
+<p>This will return a code coverage object which is used for outputting reports.
+Once collection is started, run the simulation for the desired time to collect
+code coverage for. Then output a report output. Learn more about controlling the
+scope of <em>what is collected</em> in the
+<a href="#target-software-debugging.html:debug-contexts">context-queries</a> section.</p>
+<h2 id="code-coverage-of-target-software.html:outputting-reports"><a href="#code-coverage-of-target-software.html:outputting-reports">8.10.4 Outputting reports</a></h2>
+<p>The code coverage object returned from collect-coverage has a few commands for
+outputting reports in different formats.</p>
+<ul>
+<li><code>&lt;code_coverage&gt;.html-report</code>
+<pre><code class="language-simics">simics&gt; <strong>mycov.html-report &lt;output dir&gt;</strong>
+</code></pre>
+</li>
+</ul>
+<p>Outputs a HTML report with index under <code>&lt;output dir&gt;/index.html</code>. The main page
+contains source code coverage in total and for each directory that contains
+source files. Coverage of each source file is output with executable and
+executed lines, under the circumstance that the source files can be found on the
+host.</p>
+<p>There is also a <em>Disassembly</em> page that displays each symbol file and its
+instruction level coverage. Instruction coverage is also displayed per function
+in the module. We do not go into details about the <em>Disassembly</em> page in this
+tutorial.
+<code>simics test code-coverage-commands      |&gt; mycov.html-report mycov-html     </code></p>
+<ul>
+<li><code>&lt;code_coverage&gt;.lcov-output</code>
+<pre><code class="language-simics">simics&gt; <strong>mycov.lcov-output &lt;output dir&gt;</strong>
+</code></pre>
+</li>
+</ul>
+<p>Outputs the report in <em>LCOV</em> tracefile format, one per module, in the specified
+directory. The output is compatible with the format that is output by the <code>lcov</code>
+tool for <em>GNU GCOV</em> code coverage. For example HTML reports can then be
+generated using the <code>genhtml</code> tool.
+<code>simics test code-coverage-commands      |&gt; mycov.lcov-output mycov-lcov     </code></p>
+<ul>
+<li><code>&lt;code_coverage&gt;.save</code>
+<pre><code class="language-simics">simics&gt; <strong>mycov.save &lt;raw report&gt;</strong>
+</code></pre>
+</li>
+</ul>
+<p>Outputs the report in a raw format. This can later be loaded using the
+<code>load-coverage</code> command or used for combining reports with the
+<code>&lt;code_coverage&gt;.add-report</code> command. We will not go into details about the raw
+format here.
+<code>simics test code-coverage-commands      |&gt; mycov.save mycov.raw     </code></p>
+<h2 id="code-coverage-of-target-software.html:combining-code-coverage-reports"><a href="#code-coverage-of-target-software.html:combining-code-coverage-reports">8.10.5 Combining Code Coverage Reports</a></h2>
+<p>The Intel Simics code coverage feature allows combining two or more raw reports
+into one report. This allows running the same binaries, but with different code
+paths, to get a full picture of the combined coverage. For example combining
+code coverage of many tests in a suite.</p>
+<p>We will continue the <a href="#code-coverage-of-target-software.html:collecting-code-coverage">earlier example</a>, were we saved
+a raw report named <code>kernel-module-after-input</code>.</p>
+<p>Relaunch the simulator and repeat the same steps as in the <a href="#code-coverage-of-target-software.html:collecting-code-coverage">earlier
+example</a>, with the exception that the string that is
+passed to the device this time should be <code>"a0"</code>.</p>
+<p>Run the simulation until the system is booted, the kernel module is inserted and
+the simulation stops. Then start the simulation again:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p>Enter the following in the serial console:</p>
+<pre><code class="language-simics">simics@cl-qsp ~ $ <strong>sudo bash -c 'echo a0 &gt; /dev/simics_pcie_demo_driver'\n</strong>
+</code></pre>
+<p>Once the Linux shell reaches prompt, stop the simulation:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+</code></pre>
+<p>Then add the previous report using the <code>add-report</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>kernel_module.add-report kernel-module-after-input.raw</strong>
+Adding report from input file: kernel-module-after-input.raw
+</code></pre>
+<p>Before outputting the combined report to HTML we should combine mappings that
+match the same symbol file, but are loaded at different addresses. Unless the
+simulation target is fully deterministic, it is likely that the kernel modules
+are loaded at different addresses on the second run.</p>
+<pre><code class="language-simics">simics&gt; <strong>kernel_module.stop</strong>
+simics&gt; <strong>kernel_module.combine-mappings</strong>
+26 mappings were removed
+</code></pre>
+<p>Output a new HTML report with the combined coverage.</p>
+<pre><code class="language-simics">simics&gt; <strong>kernel_module.html-report kernel-module-combined-html report-name="Kernel module combined"</strong>
+Saving HTML report to: kernel-module-combined-html&lt;/pre&gt;
+</code></pre>
+<p>Check the summary in the report to see that coverage has increased by <em>two
+lines</em> from when only <code>"21"</code> had been input.</p>
+<p><img alt="" src="cc-combined-src-summary.png"></p>
+<p>Check the source code coverage of the <code>write_chari</code> function to see that the two
+switch statements have one more executed line each.</p>
+<p><img alt="" src="cc-combined-switch-1.png"> <em>chari_write first switch statement, <strong>after</strong>
+combining reports.</em> <img alt="" src="cc-combined-switch-2.png"> <em>chari_write second switch
+statement, <strong>after</strong> combining reports.</em></p>
+<p>To increase coverage we can repeat the example with varied inputs.</p>
+<p>We can choose to start collecting coverage after the system had been booted to
+get faster boot time, as driver initialization should be the same between runs.
+A third option is to launch the simulator with a checkpoint with the booted
+system and driver loaded, then start collecting at that point.</p>
+<h2 id="code-coverage-of-target-software.html:code-coverage-summary"><a href="#code-coverage-of-target-software.html:code-coverage-summary">8.10.6 Code Coverage Summary</a></h2>
+<p>That concludes the code coverage tutorial, where we have learned how to</p>
+<ul>
+<li>use the Linux tracker to provide symbol files to code coverage,</li>
+<li>start collecting coverage,</li>
+<li>output code coverage reports in different formats,</li>
+<li>interpret the HTML report, and</li>
+<li>combine reports from multiple runs.</li>
+</ul>
+</section><section class="page" id="instrumentation.html"><h1 id="instrumentation.html:instrumentation"><a href="#instrumentation.html:instrumentation">8.11 Instrumentation</a></h1>
+<p>The instrumentation framework in the Intel Simics simulator has powerful ways to
+inspect the simulation. It is built on four core concepts:</p>
+<ul>
+<li><strong>Providers</strong>. Instrumentation providers provide information about what is
+happening in the model and are usually things like processors and devices. Any
+part of the simulated system can provide access for instrumentation tools.
+Each model can implement instrumentation in their own way, and target modelers
+can add instrumentation to any model that they build.</li>
+<li><strong>Tools</strong>. Instrumentation tools take the data from the providers and turn it
+into useful information. Tools are provided as part of the simulator and can
+also be created by a user.</li>
+<li><strong>Connections</strong>. Connections connect providers to tools and can be
+individually enabled and disabled to control when data is sent from a provider
+to a tool.</li>
+<li><strong>Filters</strong>. Filters control the collection of data (by enabling and disabling
+connections) and are used to restrict data collection based on model state
+like the currently running process, the current processor mode, and similar.</li>
+</ul>
+<p>At the CLI, it is the tools and filters that are manipulated. To see a list of
+available tools:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-instrumentation-tools substr = bank</strong>
+┌──────────────────────┬──────────────────┬──────────────────────────────┐
+│ Tool create command  │    Tool class    │         Description          │
+├──────────────────────┼──────────────────┼──────────────────────────────┤
+│new-bank-coverage-tool│bank_coverage_tool│register bank coverage tool   │
+│new-bank-patch-tool   │bank_patch_tool   │device access miss repair tool│
+└──────────────────────┴──────────────────┴──────────────────────────────┘
+</code></pre>
+<p>Here is an example of using instrumentation to compare user and supervisor mode
+instruction occurrences.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>Boot the target machine.</p>
+</li>
+<li>
+<p>Create two histogram tools and connect them to all processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-instruction-histogram name = user_instr -connect-all</strong>
+Created user_instr (connected to 1 processor)
+simics&gt; <strong>new-instruction-histogram name = kernel_instr -connect-all</strong>
+Created kernel_instr (connected to 1 processor)
+</code></pre>
+</li>
+<li>
+<p>Create filters and add them to the tools.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-cpu-mode-filter name = usermode mode = user</strong>
+Created filter usermode with mode user
+simics&gt; <strong>new-cpu-mode-filter name = kernelmode mode = supervisor</strong>
+Created filter kernelmode with mode supervisor
+simics&gt; <strong>user_instr.add-filter filter = usermode</strong>
+Added filter to 1 connections
+simics&gt; <strong>kernel_instr.add-filter filter = kernelmode</strong>
+Added filter to 1 connections
+</code></pre>
+</li>
+<li>
+<p>Run the simulation to collect data from the providers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 4 s</strong>
+</code></pre>
+</li>
+<li>
+<p>Display the resulting histograms.</p>
+<pre><code class="language-simics">simics&gt; <strong>user_instr.histogram max = 15</strong>
+┌─────────┬────────┬─────────┬───────┬───────────┐
+│  Row #  │mnemonic│  Count  │Count% │Accumulated│
+│         │        │         │       │  Count%   │
+├─────────┼────────┼─────────┼───────┼───────────┤
+│        1│mov     │ 74431950│ 27.92%│     27.92%│
+│        2│cmp     │ 20333464│  7.63%│     35.55%│
+│        3│je      │ 18982710│  7.12%│     42.67%│
+│        4│test    │ 18797112│  7.05%│     49.72%│
+│        5│add     │ 12986951│  4.87%│     54.59%│
+│        6│jne     │ 12782328│  4.79%│     59.39%│
+│        7│push    │ 10515298│  3.94%│     63.33%│
+│        8│lea     │ 10361459│  3.89%│     67.22%│
+│        9│pop     │ 10205940│  3.83%│     71.05%│
+│       10│movzx   │  9693122│  3.64%│     74.68%│
+│       11│sub     │  7820308│  2.93%│     77.62%│
+│       12│and     │  4972726│  1.87%│     79.48%│
+│       13│xor     │  4508248│  1.69%│     81.17%│
+│       14│jmp     │  3906701│  1.47%│     82.64%│
+│       15│movdqa  │  3689700│  1.38%│     84.02%│
+├─────────┼────────┼─────────┼───────┼───────────┤
+│# 15/168 │        │         │       │           │
+│Sum (all)│        │266583848│100.00%│           │
+│Sum shown│        │223988017│ 84.02%│           │
+└─────────┴────────┴─────────┴───────┴───────────┘
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>kernel_instr.histogram max = 15</strong>
+┌─────────┬────────┬──────────┬───────┬───────────┐
+│  Row #  │mnemonic│  Count   │Count% │Accumulated│
+│         │        │          │       │  Count%   │
+├─────────┼────────┼──────────┼───────┼───────────┤
+│        1│mov     │2747417440│ 35.53%│     35.53%│
+│        2│cmp     │ 740447387│  9.57%│     45.10%│
+│        3│add     │ 530128799│  6.86%│     51.96%│
+│        4│sub     │ 506635388│  6.55%│     58.51%│
+│        5│lea     │ 495702616│  6.41%│     64.92%│
+│        6│movzx   │ 487324022│  6.30%│     71.22%│
+│        7│shr     │ 332129405│  4.29%│     75.52%│
+│        8│ja      │ 287604576│  3.72%│     79.23%│
+│        9│jb      │ 191377121│  2.47%│     81.71%│
+│       10│imul    │ 172981917│  2.24%│     83.95%│
+│       11│jne     │ 144473609│  1.87%│     85.81%│
+│       12│sar     │ 129264054│  1.67%│     87.49%│
+│       13│and     │ 127789648│  1.65%│     89.14%│
+│       14│xor     │ 122961175│  1.59%│     90.73%│
+│       15│shl     │ 103638197│  1.34%│     92.07%│
+├─────────┼────────┼──────────┼───────┼───────────┤
+│# 15/121 │        │          │       │           │
+│Sum (all)│        │7733208915│100.00%│           │
+│Sum shown│        │7119875354│ 92.07%│           │
+└─────────┴────────┴──────────┴───────┴───────────┘
+</code></pre>
+</li>
+</ul>
+<p>Here is another example of using instrumentation to show exception occurrences.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>Create the histogram tool and connect it to all processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-exception-histogram name = exc_hist -connect-all</strong>
+Created exc_hist (connected to 1 processor)
+</code></pre>
+</li>
+<li>
+<p>Run the simulation to collect data from the providers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 60 s</strong>
+</code></pre>
+</li>
+<li>
+<p>Display the resulting histogram.</p>
+<pre><code class="language-simics">simics&gt; <strong>exc_hist.histogram</strong>
+┌─────┬────────────────────────────┬──────┬───────┬───────────┐
+│Row #│         Exception          │Count │Count% │Accumulated│
+│     │                            │      │       │  Count%   │
+├─────┼────────────────────────────┼──────┼───────┼───────────┤
+│    1│Page_Fault_Exception        │297468│ 94.43%│     94.43%│
+│    2│Interrupt_33                │ 12871│  4.09%│     98.52%│
+│    3│Interrupt_42                │  2564│  0.81%│     99.33%│
+│    4│Interrupt_37                │   971│  0.31%│     99.64%│
+│    5│Interrupt_64                │   754│  0.24%│     99.88%│
+│    6│Interrupt_34                │   157│  0.05%│     99.93%│
+│    7│General_Protection_Exception│    60│  0.02%│     99.95%│
+│    8│NMI                         │    51│  0.02%│     99.97%│
+│    9│Interrupt_48                │    40│  0.01%│     99.98%│
+│   10│Interrupt_236               │    30│  0.01%│     99.99%│
+│   11│Interrupt_39                │    22│  0.01%│    100.00%│
+│   12│Interrupt_35                │     9│  0.00%│    100.00%│
+│   13│INT3                        │     1│  0.00%│    100.00%│
+│   14│Interrupt_36                │     1│  0.00%│    100.00%│
+├─────┼────────────────────────────┼──────┼───────┼───────────┤
+│Sum  │                            │314999│100.00%│           │
+└─────┴────────────────────────────┴──────┴───────┴───────────┘
+</code></pre>
+</li>
+</ul>
+<p>Source code for instrumentation tools is in</p>
+<pre><code>    src/extensions/instruction-histogram
+    src/extensions/exception-histogram
+    src/extensions/cpu-mode-filter
+</code></pre>
+<p>in the base package.</p>
+</section><section class="page" id="cache-model.html"><h1 id="cache-model.html:using-a-cache-model"><a href="#cache-model.html:using-a-cache-model">8.12 Using a cache model</a></h1>
+<p>Let us now show a simple example of how to use a simple cache model. By default,
+the Intel Simics simulator does not model any cache system. It uses its own
+memory system to achieve high speed simulation and modelling a hardware cache
+model would only slow it down. However, via the instrumentation framework, the
+flow of memory operations coming from the processor can be captured, and this
+allows modelling caches.</p>
+<p>Here is an example of using instrumentation to connect a simple cache model.</p>
+<ul>
+<li>
+<p>Start with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>Create the cache tool and connect it to all processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-simple-cache-tool name = cachetool -connect-all</strong>
+Created cachetool (connected to 1 provider)
+</code></pre>
+</li>
+<li>
+<p>Create caches on the processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>(cachetool.add-l1d-cache name = l1d line-size = 64 sets = 64 ways = 12 -ip-read-prefetcher prefetch-additional = 1)</strong>
+Created cache board.mb.cpu0.cache[0].l1d
+simics&gt; <strong>(cachetool.add-l1i-cache name = l1i line-size = 64 sets = 64 ways = 8)</strong>
+Created cache board.mb.cpu0.cache[0].l1i
+simics&gt; <strong>(cachetool.add-l2-cache name = l2 line-size = 64 sets = 1024 ways = 20 -prefetch-adjacent prefetch-additional = 4)</strong>
+Created cache board.mb.cpu0.cache[0].l2
+simics&gt; <strong>(cachetool.add-l3-cache name = l3 line-size = 64 sets = 8192 ways = 12)</strong>
+Created cache board.mb.cpu0.l3
+</code></pre>
+</li>
+<li>
+<p>Run the simulation.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 55 s</strong>
+</code></pre>
+</li>
+<li>
+<p>Display one of the cache statistics.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.cache[0].l1d.print-statistics</strong>
+┌─────┬───────────────────────────────────┬──────────┬─────┐
+│Row #│              Counter              │  Value   │  %  │
+├─────┼───────────────────────────────────┼──────────┼─────┤
+│    1│read accesses                      │3008859511│     │
+│    2│read misses                        │  36862357│ 1.23│
+│    3│write accesses                     │1459380293│     │
+│    4│write misses                       │  16132103│ 1.11│
+│    5│prefetch accesses                  │  66601575│     │
+│    6│prefetch misses                    │  40928644│61.45│
+│    7│prefetched lines used              │  17449124│26.20│
+│    8│prefetch instructions              │   6317961│     │
+│    9│evicted lines (total)              │  93922336│     │
+│   10│evicted modified lines             │  31215791│33.24│
+│   11│entire cache flushes (invd, wbinvd)│        12│     │
+│   12│uncachable read accesses           │ 112466598│     │
+│   13│uncachable write accesses          │  73099098│     │
+└─────┴───────────────────────────────────┴──────────┴─────┘
+</code></pre>
+</li>
+</ul>
+<p>Source code for cache model is in the base package under:
+<code>src/extensions/simple-cache-tool</code>.</p>
+</section><section class="page" id="next-steps.html"><h1 id="next-steps.html:next-steps"><a href="#next-steps.html:next-steps">9 Next Steps</a></h1>
+<p>This <em>Getting Started</em> document only provides a short introduction of the Simics
+product and all its capabilities. Other documents describe the Simics
+functionality in more detail. <a href="../simics-user-guide/index.html">Simics User’s
+Guide</a> covers the basic feature set of the
+product. <a href="../analyzer-user-guide/index.html">Analyzer User’s Guide</a> describes
+the tools used for software debugging and analysis. Similarly, the <a href="../model-builder-user-guide/index.html">Model
+Builder User’s Guide</a> covers model
+development and configuration for Simics. There are also <em>reference manuals</em>
+that provide details on commands, interfaces, and API functions.</p>
+</section><section class="page" id="using-simics-scripts.html"><h1 id="using-simics-scripts.html:using-legacy-scripts-to-create-configurations"><a href="#using-simics-scripts.html:using-legacy-scripts-to-create-configurations">A Using Legacy Scripts to Create Configurations</a></h1>
+<p>This section describes a legacy method of creating configurations by using Intel
+Simics scripts, referred to as <em>scripts</em> in this section for brevity.</p>
+<p>Modern configurations are created with <a href="#running-simics-cli.html">targets</a> and are
+customized using <strong>target parameters</strong>, but since all models have not been
+converted, it may be good to know how scripts are used.</p>
+<p>To distinguish between legacy scripts and modern targets:</p>
+<ul>
+<li><em>modern targets</em>:
+<ul>
+<li>can be listed with the <code>list-targets</code> command</li>
+<li>are implemented in <code>targets/*/*.target.yml</code> files</li>
+<li>have parameter in <em>YAML</em> format</li>
+<li>are loaded with the <code>load-target</code> command</li>
+</ul>
+</li>
+<li><em>legacy scripts</em>:
+<ul>
+<li>are not listed by the <code>list-targets</code> command</li>
+<li>are typically implemented in <code>targets/*/*.simics</code> files which
+contain a <code>decl</code> list of parameters.</li>
+<li>are loaded with the <code>run-command-file</code> command.</li>
+</ul>
+</li>
+</ul>
+<p>The following tasks are explained:</p>
+<ul>
+<li>how to pass arguments to scripts</li>
+<li>how to discover which parameters are accepted by scripts</li>
+</ul>
+<p>Intel Simics scripts can accept parameters. There are a few ways to discover
+which parameters, if any, are accepted by the script:</p>
+<ul>
+<li>via command line completion</li>
+<li>via the help system</li>
+</ul>
+<p>To discover available parameters via command line completion, press the <strong>tab
+key</strong> twice after entering the string:  <em>run-command-file
+targets\qsp-x86\firststeps.simics</em></p>
+<pre><code class="language-simics">simics&gt; <strong>run-script targets\qsp-x86\firststeps.simics &lt;TAB&gt;&lt;TAB&gt;</strong>
+</code></pre>
+<p>As a result, command line completion should show available parameters for the
+script:</p>
+<p><img alt="" src="using-simics-scripts-1.png"></p>
+<p>The <code>help</code> command also allows finding out which parameters are accepted by a
+script as well as to see documentation for the parameters. To discover available
+parameters for the <code>targets\qsp-x86\firststeps.simics</code> script just run this
+command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help targets\qsp-x86\firststeps.simics</strong>
+</code></pre>
+<p>As a result, script description will be printed together with a long list of
+accepted parameters. Here is the beginning of the output:</p>
+<p><img alt="" src="using-simics-scripts-2.png"></p>
+<p>Let’s create a target machine with 4 cores per physical processor by setting the
+<code>num_cores</code> parameter to 4. To do that please run the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script targets\qsp-x86\firststeps.simics num_cores = 4</strong>
+</code></pre>
+<p>To verify that the target indeed has 4 cores, run the <code>list-processors</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors</strong>
+┌────────────────────────┬─┬─────────┬────────┐
+│        CPU Name        │ │CPU Class│  Freq  │
+├────────────────────────┼─┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[1][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[2][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[3][0]│ │x86QSP3  │2.00 GHz│
+└────────────────────────┴─┴─────────┴────────┘
+</code></pre>
+</section>

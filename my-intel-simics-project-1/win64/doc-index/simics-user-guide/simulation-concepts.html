@@ -1,0 +1,80 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1.2 Simulation Concepts</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="afos-introduction.html">1.1 Introduction</a>
+<a href="feature-overview.html">2 Feature Overview</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="introduction.html">1 Introduction</a>
+&nbsp;/&nbsp;</div><h1 id="simulation-concepts"><a href="#simulation-concepts">1.2 Simulation Concepts</a></h1>
+<h2 id="the-limits-of-simulation"><a href="#the-limits-of-simulation">1.2.1 The Limits of Simulation</a></h2>
+<p>Simics is a system-level instruction set simulator. This means that:</p>
+<ul>
+<li>Simics models the target system at the level of individual instructions,
+executing them one at a time.</li>
+<li>Simics models the binary interface to hardware in sufficient detail that any
+software that runs on the real hardware will also run on Simics.</li>
+</ul>
+<p>In practice, what this means is that there is no code that is too
+“low-level”—Simics can run, and debug, any kind of software: firmware, hardware
+drivers, operating systems, user-level applications, whatever. There are some
+caveats, though:</p>
+<ul>
+<li>Simics’s model of time is rather simple; for example, it assumes by default
+that all instructions take the same amount of time to run. It is not difficult
+to write a program that uses this fact to detect the difference between Simics
+and real hardware. However, this is seldom a problem with real-world software.</li>
+</ul>
+<p>You can read more about Simics and time in the <a href="../understanding-simics-timing/index.html">Understanding Simics
+Timing</a> application note.</p>
+<ul>
+<li>The hardware models must be detailed enough. Models of nontrivial pieces of
+hardware do not typically model all functions and details of that hardware, so
+it is possible to write a program that detects the difference between Simics
+and real hardware by probing unimplemented functions. However, any given piece
+of software can be accommodated by extending the hardware models to cover the
+missing functions.</li>
+</ul>
+<p>You can read more about hardware modeling in the <a href="../model-builder-user-guide/index.html">Model Builder User’s
+Guide</a>.</p>
+<h2 id="non-intrusive-inspection-and-debugging"><a href="#non-intrusive-inspection-and-debugging">1.2.2 Non-intrusive Inspection and Debugging</a></h2>
+<p>Simics has powerful built-in inspection and debugging facilities. These include:</p>
+<ul>
+<li>Inspecting registers, memory, and hardware state.</li>
+<li>Modifying register and memory contents, and hardware state.</li>
+<li>Setting (and triggering) breakpoints and watchpoints.</li>
+<li>Powerful scripting support for all of this.</li>
+</ul>
+<p>Because these are implemented in the simulator, no debugging software needs to
+be on the target at all. As a result, the debugging machinery is completely
+invisible to the target (and thus to any software running on it).</p>
+<h2 id="simulated-time"><a href="#simulated-time">1.2.3 Simulated Time</a></h2>
+<p>One of the most powerful properties of full-system simulation is that time
+inside the simulation and time in the real world are two completely different
+things. This brings a number of substantial benefits:</p>
+<ul>
+<li>You can pause the simulation at any time, and the software running in the
+simulation simply <em>cannot</em> detect this. This allows you to inspect (and
+optionally modify) the state even at points where real hardware would be
+unable to stop.</li>
+<li>You can save the state of the simulation to disk (this is called a
+<em>checkpoint</em>), and start again from that point at any time, any number of
+times.</li>
+<li>The simulation is completely deterministic. Every time you start from the same
+state (such as a checkpoint), the <em>exact</em> same thing will happen. This can be
+tremendously useful when hunting down certain types of bugs.</li>
+</ul>
+<p>These advantages apply to the entire simulated system, whether it is a single
+target machine or an entire network.</p>
+
+<div class="chain">
+<a href="afos-introduction.html">1.1 Introduction</a>
+<a href="feature-overview.html">2 Feature Overview</a>
+</div>

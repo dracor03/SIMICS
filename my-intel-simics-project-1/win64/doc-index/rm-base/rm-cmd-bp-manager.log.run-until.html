@@ -1,0 +1,45 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.log.run-until</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.log.break.html">bp.log.break</a>
+<a href="rm-cmd-bp-manager.log.trace.html">bp.log.trace</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.log.run-until"></a>
+<h1 id="bp-manager.log.run-until"><a href="#bp-manager.log.run-until">bp.log.run-until</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.log&gt;.run-until</b> [<i>object</i>] [-regexp] [<i>"substr"</i>] [<i>type</i>] [-recursive] [<i>timeout</i>] [<i>timeout-rt</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Run the simulation until a specified log message is emitted. The <i>type</i>, and <i>substr</i> arguments can be used to run until log messages matching certain conditions are emitted. The <i>object</i> argument of the command can be used to only consider log messages on a certain object. The <i>substr</i> argument is a string to look for. It is interpreted as a regular expression, as defined by the <tt>re</tt> module in Python, if the <tt>-regexp</tt> flag is specified.
+<p>
+When used in an expression, the commands returns a list with the following information: [&lt;clock-object&gt;, &lt;seconds&gt;, &lt;cycles&gt;, &lt;log-level&gt;, &lt;log-type&gt;, &lt;log-group&gt;, &lt;object&gt;, &lt;message&gt;]. The first three entries form a time stamp for when the log entry was generated.
+</p><p>
+Note that the log level must be set high enough for the message to be generated or it will not be found. If <tt>-recursive</tt> is used, not only the object, but the objects hierarchically below the object will be considered when adding the breakpoint. If <i>timeout</i> is a positive number, the command will run for at most that many seconds of virtual time.
+</p><p>
+If <i>timeout-rt</i> is a positive number, the command will run for at most that many seconds of real time.
+</p><p>
+A time-out will be signaled by throwing a CLI exception, which can be captured using try/except in order to take specific action, or to let it pass unhandled. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.log.break.html">bp.log.break</a>
+<a href="rm-cmd-bp-manager.log.trace.html">bp.log.trace</a>
+</div>

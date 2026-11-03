@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;vtune_measurement&gt;.start</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-vtune_measurement.save-folded-stacks.html">&lt;vtune_measurement&gt;.save-folded-stacks</a>
+<a href="rm-cmd-vtune_measurement.status.html">&lt;vtune_measurement&gt;.status</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="vtune_measurement.start"></a>
+<h1 id="vtune_measurement.start"><a href="#vtune_measurement.start">&lt;vtune_measurement&gt;.start</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;vtune_measurement&gt;.start</b> [<i>collect</i>] [<i>output-dir</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Start VTune measurements. The <i>collect</i> argument is optional and defaults to 'hotspots' which identifies the most time consuming functions and lines of source code. There are other types of analyses that can be used, use tab-completion to see the list it is unsure how well these works and the result needs to be examined inside vtune-gui. The <i>output-dir</i> can optionally specify where VTune will save its tempory files containing the profile information. If not set, the current working directory will be used. To prevent file name collisions, an additional unique vtune_xyz directory will be created for each session.
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.vtune-measurement.html">vtune-measurement</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-vtune_measurement.stop.html">&lt;vtune_measurement&gt;.stop</a>, 
+<a href="rm-cmd-vtune_measurement.summary.html">&lt;vtune_measurement&gt;.summary</a>, 
+<a href="rm-cmd-vtune_measurement.module-profile.html">&lt;vtune_measurement&gt;.module-profile</a>, 
+<a href="rm-cmd-vtune_measurement.profile.html">&lt;vtune_measurement&gt;.profile</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-vtune_measurement.save-folded-stacks.html">&lt;vtune_measurement&gt;.save-folded-stacks</a>
+<a href="rm-cmd-vtune_measurement.status.html">&lt;vtune_measurement&gt;.status</a>
+</div>

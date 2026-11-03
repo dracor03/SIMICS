@@ -1,0 +1,781 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Transactions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-logging.html">Logging</a>
+<a href="dev-api-memory-transactions.html">Memory Transactions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Transactions</h1>
+<h2 id="ATOM_flags"><a href="#ATOM_flags">ATOM_flags, ATOM_data, ATOM_size, ATOM_initiator, ATOM_completion, ATOM_list_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>ATOM_flags, ATOM_data, ATOM_size, ATOM_initiator, ATOM_completion, ATOM_list_end — transaction atom’s constructor</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+static inline atom_t ATOM_flags(transaction_flags_t val);
+static inline atom_t ATOM_data(uint8 *val);
+static inline atom_t ATOM_size(uint32 val);
+static inline atom_t ATOM_initiator(conf_object_t *val);
+static inline atom_t ATOM_completion(transaction_completion_t val);
+static inline atom_t ATOM_list_end(int val);
+</code></pre>
+<h2>Description</h2>
+<p>The functions construct transaction atoms.</p>
+<p><code>ATOM_flags</code> returns a transaction atom specifying transaction flags (see description of <a href="dev-api-types-transactions.html#transaction_flags_t"><code>transaction_flags_t</code></a> for information about available transaction flags).</p>
+<p><code>ATOM_data</code> returns a transaction atom that holds the pointer to a buffer that is used to get the data from (for write transactions) to store the data to (for read and instruction fetch transactions).</p>
+<p><code>ATOM_size</code> returns a transaction atom that holds the size of a transaction.</p>
+<p><code>ATOM_initiator</code> returns a transaction atom that holds the initiator of a transaction.</p>
+<p><code>ATOM_completion</code> creates a completion atom - a special atom that holds a callback that is invoked when a transaction is completed asynchronously.</p>
+<p><code>ATOM_list_end</code> returns a special atom that should end the list of transaction atoms. One can use the <code>ATOM_LIST_END</code> macro instead.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+<h2>Example</h2>
+<p>Sample C code to create a 1-byte read transaction:</p>
+<pre><code class="language-c">
+    uint8 val;
+    atom_t atoms[] = {
+        // the flags atom value specifies the transaction type:
+        // - 0 defines a read transaction
+        // - Sim_Transaction_Write - a write transaction
+        // - Sim_Transaction_Fetch - an instruction fetch transaction
+        ATOM_flags(0),
+
+        ATOM_data(&amp;val),
+        ATOM_size(sizeof val),
+        ATOM_initiator(obj),
+        ATOM_LIST_END
+    };
+    transaction_t t = { atoms };
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a>, <a href="dev-api-types-transactions.html#transaction_flags_t"><code>transaction_flags_t</code></a>, <a href="dev-api-types-transactions.html#transaction_completion_t"><code>transaction_completion_t</code></a></p>
+</section>
+<h2 id="SIM_complete_transaction"><a href="#SIM_complete_transaction">SIM_complete_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_complete_transaction — complete a deferred transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_complete_transaction(transaction_t *t, exception_type_t status);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_complete_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_complete_transaction</code> completes a previously deferred transaction <code>t</code> using the exception status <code>status</code>. The transaction <code>t</code> must be the return value of a previous call to <a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a> or a transaction passed to <a href="dev-api-transactions.html#SIM_defer_owned_transaction"><code>SIM_defer_owned_transaction</code></a>.</p>
+<p>If the transaction <code>t</code> has not been monitored, then the completion code is stored in an internal transaction field until the transaction is monitored with <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_transaction</code></a> or <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_chained_transaction</code></a>, at which time the completion callback is invoked using the stored completion code.</p>
+<p>Note that <code>SIM_complete_transaction</code> is normally only used to complete asynchronous transactions. Synchronous transactions are completed by returning the appropriate return code directly from the <code>issue</code> method.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a>, <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_transaction</code></a>, <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_chained_transaction</code></a>, <a href="dev-api-transactions.html#SIM_poll_transaction"><code>SIM_poll_transaction</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_defer_owned_transaction"><a href="#SIM_defer_owned_transaction">SIM_defer_owned_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_defer_owned_transaction — defer transaction completion using an existing transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+transaction_t *
+SIM_defer_owned_transaction(transaction_t *t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_defer_owned_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p>When a transaction cannot be completed immediately in the <code>issue</code> method of the <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a> interface, then the completion can be deferred to a later time by calling <a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a> which allocates a new transaction. One alternative is calling <code>SIM_defer_owned_transaction</code> which allows the caller to allocate the deferred transaction explicitly, in which case provides a heap-allocated transaction <code>t</code> which is linked to the transaction which should be deferred through its <code>prev</code> field. The provided transaction should have an <code>owner</code> and a <a href="dev-api-transactions.html#ATOM_flags"><code>completion</code></a> atoms, which are used when the deferred transaction is completed.</p>
+<p>When a transaction is deferred, the status code <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Deferred</code></a> must be returned from the <code>issue</code> method of the <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a> interface.</p>
+<h2>Return Value</h2>
+<p>The transaction <code>t</code>, or <code>NULL</code> if the transaction was issued synchronously and cannot be deferred. When a transaction cannot be deferred, the <code>issue</code> method may choose to return the error status <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Async_Required</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_defer_transaction"><a href="#SIM_defer_transaction">SIM_defer_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_defer_transaction — defer transaction completion</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+transaction_t *
+SIM_defer_transaction(conf_object_t *obj, transaction_t *t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_defer_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p>When a transaction cannot be completed immediately in the <code>issue</code> method of the <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a> interface, then the completion can be deferred to a later time by calling <code>SIM_defer_transaction</code> with the transaction as a parameter.</p>
+<p>The <code>SIM_defer_transaction</code> function returns a new transaction pointer which is guaranteed to be available until it is completed with a call to <a href="dev-api-transactions.html#SIM_complete_transaction"><code>SIM_complete_transaction</code></a>. When a transaction is deferred, the status code <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Deferred</code></a> must be returned from the <code>issue</code> method of the <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a> interface.</p>
+<h2>Return Value</h2>
+<p>Deferred transaction, or <code>NULL</code> if the transaction was issued synchronously and cannot be deferred. When a transaction cannot be deferred, the <code>issue</code> method may choose to return the error status <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Async_Required</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_transaction_bytes"><a href="#SIM_get_transaction_bytes">SIM_get_transaction_bytes, SIM_get_transaction_bytes_offs, SIM_get_transaction_value_le, SIM_get_transaction_value_be</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_transaction_bytes, SIM_get_transaction_bytes_offs, SIM_get_transaction_value_le, SIM_get_transaction_value_be — get transaction data payload</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_get_transaction_bytes(const transaction_t *t, buffer_t buf);
+
+void
+SIM_get_transaction_bytes_offs(const transaction_t *t, unsigned offs,
+                               buffer_t buf, bool zerofill_holes);
+
+uint64
+SIM_get_transaction_value_le(const transaction_t *t);
+
+uint64
+SIM_get_transaction_value_be(const transaction_t *t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_transaction_bytes(...)
+simics.SIM_get_transaction_bytes_offs(...)
+simics.SIM_get_transaction_value_le(...)
+simics.SIM_get_transaction_value_be(...)
+</code></pre>
+<h2>Description</h2>
+<p>Copy the data payload from a transaction to the provided buffer <code>buf</code>. The size of the buffer must match the size of the transaction.</p>
+<p><code>SIM_get_transaction_bytes_offs</code> retrieves the bytes of the transaction which starts at offset <code>offs</code>. The sum of the offset and the buffer size must not exceed the transaction size.</p>
+<p><code>SIM_get_transaction_value_le</code> returns the value obtained when the transaction buffer is interpreted as an encoded little endian integer. The size of the transaction must not exceed 8 for this function to be used.</p>
+<p><code>SIM_get_transaction_value_be</code> returns the value obtained when the transaction buffer is interpreted as an encoded big endian integer.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_get_transaction_id"><a href="#SIM_get_transaction_id">SIM_get_transaction_id</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_transaction_id — obtain checkpoint ID for a deferred a transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+int64
+SIM_get_transaction_id(transaction_t *t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_transaction_id(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_get_transaction_id</code> function is used by objects that checkpoint the transaction state. The returned ID uniquely identifies the transaction and should be stored in a checkpoint together with the relevant state that the object keeps for the transaction. The same ID should then be given to <a href="dev-api-transactions.html#SIM_reconnect_transaction"><code>SIM_reconnect_transaction</code></a> during checkpoint load.</p>
+<p>This function must only be called on a deferred transaction.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-transactions.html#SIM_reconnect_transaction"><code>SIM_reconnect_transaction</code></a></p>
+</section>
+<h2 id="SIM_inspect_address_routing"><a href="#SIM_inspect_address_routing">SIM_inspect_address_routing</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_inspect_address_routing — track the route of a transaction through memory hierarchy</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_inspect_address_routing(const map_target_t *NOTNULL mt,
+                            transaction_t *NOTNULL t,
+                            uint64 addr,
+                            bool (*NOTNULL callback)(
+                                    const map_target_t *mt,
+                                    const transaction_t *t,
+                                    uint64 addr,
+                                    uint64 base,
+                                    uint64 start,
+                                    uint64 size,
+                                    access_t access,
+                                    translation_flags_t flags,
+                                    lang_void *data),
+                            lang_void *data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_inspect_address_routing(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function allows to track the route of a transaction through memory hierarchy. The route is traced as if the transaction <code>t</code> was issued at the address <code>addr</code> to the destination represented by the map target <code>mt</code>. Note that when this function is used the endpoint of the transaction will not be accessed.</p>
+<p>The transaction <code>t</code> can be of any type: a read, a write, or an instruction fetch. Please note that the type of the transaction may affect its path through memory hierarchy. The size of the transaction <code>t</code> is ignored: when accesses are done larger transactions may be split depending on how the memory mapping are set up; no such splitting is occurred while the transaction route is traced with <code>SIM_inspect_address_routing</code>. It is allowed to use transactions with zero size.</p>
+<p>The <code>callback</code> callback will be called for every device (memory spaces and translator objects) encountered on the transaction’s route to the destination as well as for the destination device (this is usually a device implementing the <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a> interface or the <a href="model-to-model-interfaces.html#io_memory_interface_t"><code>io_memory</code></a> interface). The first invocation of <code>callback</code> is done with the <code>mt</code> argument itself.</p>
+<p>The arguments passed to the callback are:</p>
+<ul>
+<li><code>mt</code> is a map target representing an intermediate device or the endpoint. If nothing is mapped then <code>NULL</code> (or <code>None</code> in Python) value is passed. The map target value should not be cached but it can be inspected</li>
+<li><code>t</code> is usually the original transaction, but it can be also a new transaction in the case when additional atoms were appended to the original transaction via the transaction chaining (see, e.g., the documentation for the <a href="model-to-model-interfaces.html#transaction_translator_interface_t"><code>transaction_translator</code></a> interface)</li>
+<li><code>addr</code> is address inside the intermediate device or the endpoint where the transaction is sent</li>
+<li><code>base</code>, <code>start</code>, <code>size</code>, <code>access</code>, and <code>flags</code> arguments describe the mapping which led to the <code>mt</code> map target. These arguments (except for <code>access</code>) are the same as the fields of the <a href="dev-api-types-transactions.html#translation_t"><code>translation_t</code></a> structure. Please refer to the <a href="dev-api-types-transactions.html#translation_t"><code>translation_t</code></a>’s documentation for their description. The <code>access</code> argument is a bitmask specifying access types. The bit corresponding to the type of the <code>t</code> transaction is always set. Other access bits may also be set optionally. But the latter is not guaranteed even if read/write/execute accesses are routed similarly</li>
+<li><code>data</code> is the <code>data</code> argument passed to <code>SIM_inspect_address_routing</code></li>
+</ul>
+<p>The <code>callback</code> callback may return false to stop inspection. I.e. if the false value is returned <code>callback</code> will not be invoked any more.</p>
+<h2>Return Value</h2>
+<p>The function returns false if <code>callback</code> returned false in order to stop the inspection. Otherwise, true is returned.</p>
+<h2>Example</h2>
+<pre><code># The following example shows how one can determine
+# the destination of a read transaction sent from a CPU object:
+
+import conf, simics
+
+def get_destination(memory_space, address):
+    '''Example function returning destination object for the access
+    sent to address in the memory space memory_space.'''
+    mt = simics.SIM_new_map_target(memory_space, None, None)
+    t = simics.transaction_t()  # read transaction of zero size
+    l = [None]  # data for the callback
+
+    def callback(mt, t, addr, base, start, size, access, flags, l):
+        l[0] = (simics.SIM_map_target_object(mt)
+                if mt is not None
+                else None)
+        return True
+
+    simics.SIM_inspect_address_routing(mt, t, address, callback, l)
+
+    # We free mt here but it can be saved and reused if needed.
+    # Transaction t can also be reused.
+    simics.SIM_free_map_target(mt)
+    return l[0]
+
+# Please specify here CPU object and address you are interested in:
+cpu = simics.SIM_get_processor(0)
+address_of_access = 0x1000
+
+dest = get_destination(
+    cpu.iface.processor_info_v2.get_physical_memory(),
+    address_of_access)
+
+print("Destination: ",
+      dest.name if dest is not None else "'nothing is mapped'")
+</code></pre>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_inspect_breakpoints"><a href="#SIM_inspect_breakpoints">SIM_inspect_breakpoints</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_inspect_breakpoints — find out breakpoints that a transaction would trigger</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_inspect_breakpoints(
+        const map_target_t *NOTNULL mt,
+        transaction_t *NOTNULL t,
+        uint64 start,
+        uint64 end,
+        bool (*NOTNULL callback)(
+                conf_object_t *trigger_object,
+                breakpoint_set_t bp_set,
+                const transaction_t *t,
+                uint64 start,
+                uint64 end,
+                lang_void *data),
+        lang_void *data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_inspect_breakpoints(...)
+</code></pre>
+<h2>Description</h2>
+<p>The function allows to find out the breakpoints that would be triggered if a transaction <code>t</code> would be sent to the address range inside the map target <code>mt</code>. The address range is specified by the <code>start</code> and <code>end</code> arguments and includes both start and end of the range. Only breakpoints matching the transaction <code>t</code>’s type (i.e., a read, a write, or an instruction fetch) are reported. The size of the transaction <code>t</code> is ignored and can be zero.</p>
+<p>For all matching breakpoints Simics invokes <code>callback</code>. The <code>callback</code> function may be called multiple times: with different <code>trigger_object</code> objects. The <code>callback</code> function gets the following two arguments that describe the breakpoints:</p>
+<ul>
+<li><code>trigger_object</code> is the object implementing the <a href="model-to-simulator-interfaces.html#breakpoint_trigger_interface_t"><code>breakpoint_trigger</code></a> interface. The interface is used during simulation to signal that an access triggers a breakpoint</li>
+<li><code>bp_set</code> is a set of breakpoints. The breakpoints match the transaction <code>t</code>’s type and intersect the [<code>start</code>, <code>end</code>] range within the <code>mt</code> map target. <code>Bp_set</code> should only be used inside <code>callback</code>. Data ownership is preserved by the caller (i.e., Simics)</li>
+</ul>
+<p>Auxiliary information is provided to <code>callback</code> via the following arguments:</p>
+<ul>
+<li><code>t</code> is usually the original transaction, but it can be also a new transaction in the case when additional atoms were appended to the original transaction via the transaction chaining (see, e.g., the documentation for the <a href="model-to-model-interfaces.html#transaction_translator_interface_t"><code>transaction_translator</code></a> interface)</li>
+<li><code>callback</code>’s <code>start</code> and <code>end</code> arguments specify an address range inside the <code>trigger_object</code> Simics object where the accesses to the requested address range inside the <code>mt</code> map target would go. The size of the range reported to <code>callback</code> may be smaller than the size of the requested range. This may occur, e.g., when different parts of the original address range are translated to different destinations based the memory mappings of the simulated machine</li>
+<li><code>callback</code>’s <code>data</code> is the <code>data</code> argument passed to <code>SIM_inspect_breakpoints</code></li>
+</ul>
+<p>The <code>callback</code> function may return <code>false</code> to stop searching for breakpoints. I.e. if the <code>false</code> value is returned <code>callback</code> will not be invoked any more even if more breakpoints are present.</p>
+<p>The <code>SIM_inspect_breakpoints</code> function is an inspection function: the endpoint of the transaction is never accessed when the function is used.</p>
+<h2>Return Value</h2>
+<p>The function returns <code>false</code> if <code>callback</code> returned false in order to stop the inspection. Otherwise, <code>true</code> is returned.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_issue_read_transaction"><a href="#SIM_issue_read_transaction">SIM_issue_read_transaction, SIM_issue_write_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_issue_read_transaction, SIM_issue_write_transaction — functions for issuing <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a> transactions</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE exception_type_t
+SIM_issue_read_transaction(
+        map_target_t *NOTNULL mt, uint64 addr, buffer_t buf,
+        bool inquiry, conf_object_t *initiator);
+
+FORCE_INLINE exception_type_t
+SIM_issue_write_transaction(
+        map_target_t *NOTNULL mt, uint64 addr, bytes_t bytes,
+        bool inquiry, conf_object_t *initiator);
+</code></pre>
+<h2>Description</h2>
+<p>These functions provide a simple way to issue read and write <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a> transactions in C code. In Python, please use the <a href="dev-api-transactions.html#SIM_issue_transaction"><code>SIM_issue_transaction</code></a> function.</p>
+<p>The functions have the following parameters:</p>
+<ul>
+<li>
+<p><code>mt</code> specifies the destination to send a transaction to.</p>
+</li>
+<li>
+<p><code>addr</code> is the address used to issue a transaction.</p>
+</li>
+<li>
+<p>The <code>SIM_issue_read_transaction</code>’s <code>buf</code> parameter has <a href="dev-api-types-generic.html#buffer_t"><code>buffer_t</code></a> type and specifies a writable buffer for storing the read data. The <code>data.data</code> field points to the host memory where the results should be stored. The <code>data.len</code> field specifies the number of bytes to read.</p>
+</li>
+<li>
+<p>The <code>SIM_issue_write_transaction</code>’s <code>bytes</code> parameter is of <a href="dev-api-types-generic.html#bytes_t"><code>bytes_t</code></a> type and provides the data that should be written. The <code>data.data</code> field points to the buffer holding the data that should be written. The <code>data.len</code> field specifies the number of bytes to write.</p>
+</li>
+<li>
+<p><code>inquiry</code> specifies whether the transaction should have the <code>Sim_Transaction_Inquiry</code> flag set. The flag signifies that side effects normally triggered by the transaction should be suppressed. Examples of side effects include triggering breakpoints and clearing “read-to-clear” device registers.</p>
+</li>
+<li>
+<p><code>initiator</code> specifies the object issuing a transaction. It may be <code>NULL</code>. The value is used for setting the initiator atom of the transaction.</p>
+</li>
+</ul>
+<p>These functions don’t support the case when a model needs to provide custom atoms in <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a> transactions. For such cases as well as when using Python the <a href="dev-api-transactions.html#SIM_issue_transaction"><code>SIM_issue_transaction</code></a> function should be used.</p>
+<h2>Return Value</h2>
+<p>Status of the issued transaction, usually <code>Sim_PE_No_Exception</code> or <code>Sim_PE_IO_Not_Taken</code>. See the <a href="dev-api-types-generic.html#exception_type_t"><code>exception_type_t</code></a>’s documentation for more information.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>    /* Sample C code that reads an 8-byte little-endian value. If in the
+       simulated hardware the endpoint stores values in big-endian format then
+       macros from &lt;simics/util/swabber.h&gt; can be used for conversion. */
+
+    uint64 value = -1;  // variable to read data into
+    exception_type_t ex =
+        SIM_issue_read_transaction(mt,
+                                   addr,
+                                   (buffer_t) {
+                                       .data = (uint8 *)&amp;value,
+                                       .len = sizeof value,
+                                   },
+                                   false,  /* inquiry flag */
+                                   obj     /* initiator */);
+
+    if (ex == Sim_PE_No_Exception) {
+        /* Read was successful: 'value' contains valid data. */
+        SIM_LOG_INFO(4, obj, 0, "Read '%#llx' at %#llx", value, addr);
+    } else {
+        /* Read operation was not successful. There is no valid data
+           in 'value'. Put any error handling code here. */
+        SIM_LOG_ERROR(obj, 0, "Read at %#llx failed", addr);
+    }
+</code></pre>
+<pre><code>    /* Sample C code that writes an 8-byte little-endian value. If in the
+       simulated hardware the endpoint stores values in big-endian format then
+       macros from &lt;simics/util/swabber.h&gt; can be used for conversion. */
+
+    uint64 write_value = 1;  // Data to write. '1' is written in this example.
+    SIM_LOG_INFO(4, obj, 0, "Writing '%#llx' at %#llx", write_value, addr);
+    exception_type_t ex =
+        SIM_issue_write_transaction(mt,
+                                    addr,
+                                    (bytes_t) {
+                                        .data = (uint8 *)&amp;write_value,
+                                        .len = sizeof write_value,
+                                    },
+                                    false,  /* inquiry flag */
+                                    obj     /* initiator */ );
+
+    if (ex == Sim_PE_No_Exception) {
+        /* Write was successful. */
+    } else {
+        /* Write operation was not successful.
+           Put any error handling code here. */
+        SIM_LOG_ERROR(obj, 0, "Write at %#llx failed", addr);
+    }
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#exception_type_t"><code>exception_type_t</code></a>, <a href="dev-api-types-generic.html#map_target_t"><code>map_target_t</code></a>, <a href="dev-api-transactions.html#SIM_issue_transaction"><code>SIM_issue_transaction</code></a>, <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a></p>
+</section>
+<h2 id="SIM_issue_transaction"><a href="#SIM_issue_transaction">SIM_issue_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_issue_transaction — issue transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+exception_type_t
+SIM_issue_transaction(const map_target_t *NOTNULL mt,
+                      transaction_t *NOTNULL t, uint64 addr);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_issue_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_issue_transaction</code> issues the transaction <code>t</code> with the address <code>addr</code> to the destination represented by the map target <code>mt</code>. In Python, the <code>mt</code> argument can also be a <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a>.</p>
+<h2>Return Value</h2>
+<p>The function returns <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Deferred</code></a> if the transaction was deferred for completion at a some later time. The corresponding pseudo exception is returned if the transaction completed directly (normally <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_No_Exception</code></a> or <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_IO_Not_Taken</code></a>).</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#exception_type_t"><code>exception_type_t</code></a>, <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a>, <a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a>, <a href="dev-api-translators.html#SIM_free_map_target"><code>SIM_free_map_target</code></a>, <a href="dev-api-transactions.html#SIM_issue_read_transaction"><code>SIM_issue_read_transaction</code></a>, <a href="dev-api-transactions.html#SIM_issue_read_transaction"><code>SIM_issue_write_transaction</code></a>, <a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a>, <a href="dev-api-transactions.html#SIM_complete_transaction"><code>SIM_complete_transaction</code></a>, <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_transaction</code></a>, <a href="dev-api-transactions.html#SIM_transaction_wait"><code>SIM_transaction_wait</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_monitor_transaction"><a href="#SIM_monitor_transaction">SIM_monitor_transaction, SIM_monitor_chained_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_monitor_transaction, SIM_monitor_chained_transaction — monitor a transaction for deferred completion</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+exception_type_t
+SIM_monitor_transaction(transaction_t *t, exception_type_t ex);
+
+exception_type_t
+SIM_monitor_chained_transaction(transaction_t *t, exception_type_t ex);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_monitor_transaction(...)
+simics.SIM_monitor_chained_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_monitor_transaction</code> function monitors an asynchronously issued transaction for completion. A transaction is asynchronously issued if it has a <a href="dev-api-transactions.html#ATOM_flags"><code>completion</code></a> atom with a callback which is not <code>NULL</code>. The function should be called after the transaction has been issued, and the <code>ex</code> status code should be the return value from function used to <code>issue</code> the transaction, for example the <code>issue</code> method of the <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a> interface.</p>
+<p>If <code>ex</code> equals <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Deferred</code></a>, then <code>SIM_monitor_transaction</code> will check if the transaction has in fact been completed already, and in that case, immediately invoke the completion callback. If the transaction is still uncompleted, then it will be marked as monitored and a subsequent call to <a href="dev-api-transactions.html#SIM_complete_transaction"><code>SIM_complete_transaction</code></a> will immediately complete the transaction by invoking the completion callback.</p>
+<p>If <code>ex</code> is not equal to <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Deferred</code></a>, then the transaction has been completed synchronously, and the completion callback is called using <code>ex</code> as the completion status.</p>
+<p>Note that it is illegal to call <code>SIM_monitor_transaction</code> for transactions that do not have a valid <a href="dev-api-transactions.html#ATOM_flags"><code>completion</code></a> callback.</p>
+<p><code>SIM_monitor_chained_transaction</code> is similar to <code>SIM_monitor_transaction</code> except that when a deferred transaction is completed, its parent transaction will be completed too.</p>
+<h2>Return Value</h2>
+<p>Exception code returned by the completion function, or <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Deferred</code></a> if the transaction is monitored for completion at a later time.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a>, <a href="dev-api-transactions.html#SIM_complete_transaction"><code>SIM_complete_transaction</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_poll_transaction"><a href="#SIM_poll_transaction">SIM_poll_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_poll_transaction — check if a transaction has completed</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+exception_type_t
+SIM_poll_transaction(transaction_t *t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_poll_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_poll_transaction</code> function checks if the transaction <code>t</code> is marked as completed, in which case the associated status code is returned and the completion status for the transaction is cleared. If the transaction is uncompleted, then <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Deferred</code></a> is returned.</p>
+<p>It is illegal to call <code>SIM_poll_transaction</code> on a transaction which is monitored for completion using e.g. the <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_transaction</code></a> function.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-transactions.html#SIM_complete_transaction"><code>SIM_complete_transaction</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_reconnect_transaction"><a href="#SIM_reconnect_transaction">SIM_reconnect_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_reconnect_transaction — register that a deferred transaction has been restored</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_reconnect_transaction(transaction_t *t, int64 id);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_reconnect_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_reconnect_transaction</code> function is used by objects that checkpoint the transaction state. It should be called when the relevant state has been read from a checkpoint.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-transactions.html#SIM_get_transaction_id"><code>SIM_get_transaction_id</code></a></p>
+</section>
+<h2 id="SIM_register_python_atom_type"><a href="#SIM_register_python_atom_type">SIM_register_python_atom_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_register_python_atom_type — register an atom type which takes plain Python objects</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_register_python_atom_type(const char *NOTNULL name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_register_python_atom_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>Register an atom type named <code>name</code>. The atom type can be used from Python and can hold any Python object.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_replace_transaction"><a href="#SIM_replace_transaction">SIM_replace_transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_replace_transaction — replace transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_replace_transaction(transaction_t *t_old, transaction_t *t_new);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_replace_transaction(...)
+</code></pre>
+<h2>Description</h2>
+<p>Replace a transaction <code>t_old</code> with a new transaction <code>t_new</code>.</p>
+<p>A transaction which has been issued and is deferred by some downstream device can be replaced with a different transaction by initiator. This is mostly useful when a transaction is allocated on the stack and it turns out that the transaction is not completed synchronously, in which case <code>SIM_replace_transaction</code> can be used to move the transaction to e.g. the heap.</p>
+<p>This function ensures that the deferred transaction is properly linked with the <code>t_new</code> transaction. It is the caller’s responsibility to fill in the contents of the new transaction, including the <code>prev</code> pointer.</p>
+<p>It is illegal to replace a transaction which has been monitored.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_transaction_bytes"><a href="#SIM_set_transaction_bytes">SIM_set_transaction_bytes, SIM_set_transaction_bytes_offs, SIM_set_transaction_value_le, SIM_set_transaction_value_be, SIM_set_transaction_bytes_constant</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_transaction_bytes, SIM_set_transaction_bytes_offs, SIM_set_transaction_value_le, SIM_set_transaction_value_be, SIM_set_transaction_bytes_constant — set transaction data payload</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_set_transaction_bytes(const transaction_t *t, bytes_t bytes);
+
+void
+SIM_set_transaction_bytes_offs(const transaction_t *t, unsigned offs,
+                               bytes_t bytes);
+
+void
+SIM_set_transaction_value_le(const transaction_t *t, uint64 value);
+
+void
+SIM_set_transaction_value_be(const transaction_t *t, uint64 value);
+
+void
+SIM_set_transaction_bytes_constant(const transaction_t *t, uint8 value);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_transaction_bytes(...)
+simics.SIM_set_transaction_bytes_offs(...)
+simics.SIM_set_transaction_value_le(...)
+simics.SIM_set_transaction_value_be(...)
+simics.SIM_set_transaction_bytes_constant(...)
+</code></pre>
+<h2>Description</h2>
+<p>Set the data payload of a transaction to the contents provided by <code>bytes</code>. The number of provided bytes must match the transaction size exactly.</p>
+<p>The <code>SIM_set_transaction_bytes_offs</code> function sets some bytes of the transaction starting at offset <code>offs</code>. The sum of the offset and the number of provided bytes must not exceed the transaction size.</p>
+<p>The <code>SIM_set_transaction_value_le</code> function sets the transaction bytes to the little endian representation of  <code>value</code>. The size of the transaction must not exceed 8 for this function to be used. Similarly, <code>SIM_set_transaction_value_be</code> sets the transaction bytes to the big endian representation of the provided value. If the transaction is smaller than 8 bytes the functions will truncate the representation of the value.</p>
+<p>The <code>SIM_set_transaction_bytes_constant</code> function can be used when an endpoint wants to set all transaction bytes to <code>value</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_transaction_flags"><a href="#SIM_transaction_flags">SIM_transaction_flags, SIM_transaction_is_fetch, SIM_transaction_is_write, SIM_transaction_is_read, SIM_transaction_is_inquiry</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_transaction_flags, SIM_transaction_is_fetch, SIM_transaction_is_write, SIM_transaction_is_read, SIM_transaction_is_inquiry — return transaction type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+transaction_flags_t
+SIM_transaction_flags(const transaction_t *NOTNULL t);
+
+bool
+SIM_transaction_is_fetch(const transaction_t *NOTNULL t);
+
+bool
+SIM_transaction_is_write(const transaction_t *NOTNULL t);
+
+bool
+SIM_transaction_is_read(const transaction_t *NOTNULL t);
+
+bool
+SIM_transaction_is_inquiry(const transaction_t *NOTNULL t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_transaction_flags(...)
+simics.SIM_transaction_is_fetch(...)
+simics.SIM_transaction_is_write(...)
+simics.SIM_transaction_is_read(...)
+simics.SIM_transaction_is_inquiry(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_transaction_flags</code> returns a <a href="dev-api-types-transactions.html#transaction_flags_t"><code>transaction_flags_t</code></a> bitmap describing transaction type. Most of the flags can be queried using specific accessors.</p>
+<p>The <code>SIM_transaction_is_fetch</code> function returns <code>true</code> if the transaction is an instruction fetch.</p>
+<p>The <code>SIM_transaction_is_read</code> function returns <code>true</code> if the transaction is a read operation.</p>
+<p>The <code>SIM_transaction_is_write</code> function returns <code>true</code> if the transaction is a write operation.</p>
+<p>The <code>SIM_transaction_is_inquiry</code> function returns <code>true</code> if the transaction is an inquiry operation.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_transaction_initiator"><a href="#SIM_transaction_initiator">SIM_transaction_initiator</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_transaction_initiator — return transaction initiator</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+conf_object_t *
+SIM_transaction_initiator(const transaction_t *t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_transaction_initiator(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return the initiator of the transaction.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_transaction_is_deferrable"><a href="#SIM_transaction_is_deferrable">SIM_transaction_is_deferrable</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_transaction_is_deferrable — check if a transaction can be deferred for later completion</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_transaction_is_deferrable(const transaction_t *NOTNULL t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_transaction_is_deferrable(...)
+</code></pre>
+<h2>Description</h2>
+<p>The function allows to check whether a transaction can be deferred (with the <a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a> or <a href="dev-api-transactions.html#SIM_defer_owned_transaction"><code>SIM_defer_owned_transaction</code></a> function) for later completion which is done with a call to <a href="dev-api-transactions.html#SIM_complete_transaction"><code>SIM_complete_transaction</code></a>.</p>
+<p>Usually, this function is not needed since <a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a> and <a href="dev-api-transactions.html#SIM_defer_owned_transaction"><code>SIM_defer_owned_transaction</code></a> return <code>NULL</code> for transactions that cannot be deferred.</p>
+<h2>Return Value</h2>
+<p><code>false</code> if the transaction was issued synchronously and cannot be deferred. Otherwise, <code>true</code>. When a transaction cannot be deferred, endpoint’s <code>issue</code> method of the <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a> interface may choose to return the error status <a href="dev-api-types-generic.html#exception_type_t"><code>Sim_PE_Async_Required</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_transaction_size"><a href="#SIM_transaction_size">SIM_transaction_size</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_transaction_size — return transaction size</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+unsigned
+SIM_transaction_size(const transaction_t *NOTNULL t);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_transaction_size(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return the size of the transaction, in bytes.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_transaction_wait"><a href="#SIM_transaction_wait">SIM_transaction_wait</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_transaction_wait — wait for transaction completion</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+exception_type_t
+SIM_transaction_wait(transaction_t *t, exception_type_t ex);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_transaction_wait(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_transaction_wait</code> waits until an issued transaction has completed.</p>
+<p>The function may only be invoked for transactions which have a <a href="dev-api-transactions.html#ATOM_flags"><code>completion</code></a> atom containing a <code>NULL</code> pointer. The <code>NULL</code> pointer means that the initiator will wait for transaction completion using this function. Moreover, <code>SIM_transaction_wait</code> must always be called after a transaction has been issued with a <code>NULL</code> completion callback.</p>
+<p>The <code>ex</code> argument should be the return value of the function or method used to issue the transaction.</p>
+<p><code>SIM_transaction_wait</code> will not return until the transaction has completed. While waiting, a different user-level thread will be activated, which allows simulated time to advance.</p>
+<p>Note that the simulator cannot create a checkpoint while a call to the <code>SIM_transaction_wait</code> is in progress. See <a href="../rm-base/rm-class-transaction-ckpt.html#dt:transaction-wait-all-completed"><code>transaction-wait-all-completed</code></a> for more information related to checkpointing and <code>SIM_transaction_wait</code>.</p>
+<p>Transaction wait is not supported from all contexts. When unsupported, the transaction will appear to be issued synchronously.</p>
+<h2>Return Value</h2>
+<p>Completion status of the transaction</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="dev-api-logging.html">Logging</a>
+<a href="dev-api-memory-transactions.html">Memory Transactions</a>
+</div>

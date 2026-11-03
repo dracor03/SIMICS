@@ -1,0 +1,265 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ich10_lan_v2</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_hpe_timer.html">ich10_hpe_timer</a>
+<a href="rm-class-ich10_lpc.html">ich10_lpc</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ich10_lan_v2"><a href="#ich10_lan_v2">ich10_lan_v2</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Gigabit Ethernet Controller in Intel® ICH10.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, ieee_802_3_mac, ieee_802_3_mac_v3, io_memory, pci_device
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:aes_gcm-optional"><a href="#dt:aes_gcm-optional">aes_gcm (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: gcm_cipher
+</dd>
+<dt id="dt:chipset_config-optional"><a href="#dt:chipset_config-optional">chipset_config (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: int_register
+</dd>
+<dt id="dt:expansion_rom-optional"><a href="#dt:expansion_rom-optional">expansion_rom (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: rom
+</dd>
+<dt id="dt:mii-required"><a href="#dt:mii-required">mii (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: mii_management
+</dd>
+<dt id="dt:pci_bus-required"><a href="#dt:pci_bus-required">pci_bus (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory, pci_bus
+</dd>
+<dt id="dt:phy-required"><a href="#dt:phy-required">phy (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: ieee_802_3_phy_v2
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-csr"><a href="#dt:bank-csr">bank.csr</a></dt>
+<dd>
+<a href="rm-class-ich10_lan_v2.html#ich10_lan_v2.csr">ich10_lan_v2.csr</a>
+</dd>
+<dt id="dt:bank-io_mapped"><a href="#dt:bank-io_mapped">bank.io_mapped</a></dt>
+<dd>
+<a href="rm-class-ich10_lan_v2.html#ich10_lan_v2.io_mapped">ich10_lan_v2.io_mapped</a>
+</dd>
+<dt id="dt:bank-pci_config"><a href="#dt:bank-pci_config">bank.pci_config</a></dt>
+<dd>
+<a href="rm-class-ich10_lan_v2.html#ich10_lan_v2.pci_config">ich10_lan_v2.pci_config</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_lan_v2.html#ich10_lan_v2.HRESET">ich10_lan_v2.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_lan_v2.html#ich10_lan_v2.SRESET">ich10_lan_v2.SRESET</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ich10_lan_v2.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ich10_lan_v2.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:aes_gcm"><a href="#dt:aes_gcm">
+<i>aes_gcm</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>connect to the AES-GCM crypto engine
+<p>
+Required interfaces: <tt>gcm_cipher</tt>.</p></dd>
+<dt id="dt:chipset_config"><a href="#dt:chipset_config">
+<i>chipset_config</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Chipset configuration registers
+<p>
+Required interfaces: <tt>int_register</tt>.</p></dd>
+<dt id="dt:config_registers"><a href="#dt:config_registers">
+<i>config_registers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[i*]</code>
+<br>The PCI configuration registers, each 32 bits in size.</dd>
+<dt id="dt:context"><a href="#dt:context">
+<i>context</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>TCP/IP context</dd>
+<dt id="dt:eeprom"><a href="#dt:eeprom">
+<i>eeprom</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{64}]</code>
+<br>EEPROM (for mac address)</dd>
+<dt id="dt:expansion_rom_size"><a href="#dt:expansion_rom_size">
+<i>expansion_rom_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the expansion ROM mapping.</dd>
+<dt id="dt:ext_interrupt_raised"><a href="#dt:ext_interrupt_raised">
+<i>ext_interrupt_raised</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Extended Interrupt Output State</dd>
+<dt id="dt:flash"><a href="#dt:flash">
+<i>flash</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Connection to the SPI interface in the ICH</dd>
+<dt id="dt:flash_func"><a href="#dt:flash_func">
+<i>flash_func</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Function number of GbE SPI flash program register bank in the SPI</dd>
+<dt id="dt:interrupt_raised"><a href="#dt:interrupt_raised">
+<i>interrupt_raised</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Interrupt Output State</dd>
+<dt id="dt:legacy_interrupt_raised"><a href="#dt:legacy_interrupt_raised">
+<i>legacy_interrupt_raised</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Legacy Interrupt Output State</dd>
+<dt id="dt:mac_address"><a href="#dt:mac_address">
+<i>mac_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>MAC address ('XX:XX:XX:XX:XX:XX' string)</dd>
+<dt id="dt:mii"><a href="#dt:mii">
+<i>mii</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>connect to external PHY for MDIO access
+<p>
+Required interfaces: <tt>mii_management</tt>.</p></dd>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>The PCI bus this device is connected to, implementing the <tt>pci-bus</tt> interface.
+<p>
+Required interfaces: <tt>io_memory</tt>, <tt>pci_bus</tt>.</p></dd>
+<dt id="dt:phy"><a href="#dt:phy">
+<i>phy</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>connects to external PHY
+<p>
+Required interfaces: <tt>ieee_802_3_phy_v2</tt>.</p></dd>
+<dt id="dt:phy_address"><a href="#dt:phy_address">
+<i>phy_address</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address of attached external PHY</dd>
+<dt id="dt:tx_descriptor"><a href="#dt:tx_descriptor">
+<i>tx_descriptor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[id]</code>
+<br>Current transmit descriptor</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ich10-lan-v2.html">ich10-lan-v2</a>
+</section>
+<h2 id="ich10_lan_v2.HRESET"><a href="#ich10_lan_v2.HRESET">ich10_lan_v2.HRESET</a></h2>
+<h2 id="ich10_lan_v2.SRESET"><a href="#ich10_lan_v2.SRESET">ich10_lan_v2.SRESET</a></h2>
+<h2 id="ich10_lan_v2.csr"><a href="#ich10_lan_v2.csr">ich10_lan_v2.csr</a></h2>
+<h2 id="ich10_lan_v2.io_mapped"><a href="#ich10_lan_v2.io_mapped">ich10_lan_v2.io_mapped</a></h2>
+<h2 id="ich10_lan_v2.pci_config"><a href="#ich10_lan_v2.pci_config">ich10_lan_v2.pci_config</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_hpe_timer.html">ich10_hpe_timer</a>
+<a href="rm-class-ich10_lpc.html">ich10_lpc</a>
+</div>

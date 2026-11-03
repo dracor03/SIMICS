@@ -1,0 +1,826 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.4 Configuration and Checkpointing</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="script-support-in-simics.html">2.3 Simics Scripting Environment</a>
+<a href="managedisks.html">2.5 Moving Data in and out of the Simulation</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="feature-overview.html">2 Feature Overview</a>
+&nbsp;/&nbsp;</div><h1 id="configuration-and-checkpointing"><a href="#configuration-and-checkpointing">2.4 Configuration and Checkpointing</a></h1>
+<p>Simics includes a <em>configuration system</em> used to describe the state of the
+simulated machines.</p>
+<p>Simics’s configuration system is object-oriented: a simulated machine is
+represented as a set of <em>objects</em> that interact when the simulated time
+advances. Typically, processors, memories and devices are modeled as objects.
+Each object is defined by a number of properties that are called <em>attributes</em>. A
+processor object, for example, will have an attribute called <code>freq_mhz</code> to
+define its clock frequency (in MHz).</p>
+<p>Simics’s configuration system is flexible: it is possible to create and delete
+objects dynamically, as well as access the attributes of all objects for reading
+and writing at any time.</p>
+<p>Simics’s configuration system allows its elements to be saved so that a complete
+simulated machine state can be written to a set of files. This set of files is
+called a <em>checkpoint</em>.</p>
+<p>This chapter describes the Simics configuration system as well as the different
+layers built on top of it to handle more specific tasks:</p>
+<ul>
+<li>Checkpoints: how a simulated state is saved and restored via checkpointing;</li>
+<li>Inspection: how the simulated state can be examined and changed during
+simulation;</li>
+<li>Start Scripts: the components and scripts used to define the initial state of
+a machine in the examples provided with Simics.</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>Not all kinds of connections with real network, or with real file systems,
+will continue to work properly if you pause the simulation for a shorter or
+lengthier time. This applies to most stateful connections, for example NFS,
+TCP, etc.
+For the same reason, not all kinds of connections with the real world can be
+saved in a checkpoint and successfully restored at a later time. Hence, make a
+habit to disconnect such services before pausing the simulation, or before
+saving a checkpoint.</p>
+</blockquote>
+<h2 id="basics"><a href="#basics">2.4.1 Basics</a></h2>
+<p>As mentioned above, Simics’s configuration system is object-oriented. A Simics
+object is instantiated from a Simics <em>class</em>. The core of Simics defines some
+useful classes, but most of the classes (processors, device models, statistic
+gathering extensions) are provided by <em>modules</em> that are loaded by the simulator
+when requested.</p>
+<p>For example, the <code>x86-public64</code> module defines, among others, the <code>x86QSP3</code>
+class. Note that a module may define several classes. Since modules advertise
+the classes they define, Simics can load modules transparently as objects are
+instantiated.</p>
+<p>A class defines <em>attributes</em> that represent both the static and dynamic state of
+the instantiated objects. The static state includes information that does not
+change during the simulation (like a version number in a register) while the
+dynamic state covers the part of the device that are affected by the simulation
+(registers, internal state, buffers, etc.).</p>
+<p>Let us take the example of an x86QSP3 processor and have a closer look at how it
+can be configured using attributes:</p>
+<ul>
+<li>We can create an object instantiated from the class <code>x86QSP3</code>. Let us call it
+<code>cpu0</code>.</li>
+<li>The attribute <code>freq_mhz</code> can be set to 1500. It defines the processor clock
+frequency (in MHz).</li>
+<li>The attribute <code>physical_memory</code> can be set to a memory space object, such as
+<code>phys_mem0</code>. This attribute points to the object that will answer to the
+memory accesses coming from the processor.</li>
+</ul>
+<p>As you noticed, attributes may be of various types. A complete description is
+available in the next section.</p>
+<h2 id="checkpointing"><a href="#checkpointing">2.4.2 Checkpointing</a></h2>
+<p>Simics’s configuration system can save the complete state of a simulation in a
+portable way. This functionality is known as <em>checkpointing</em>, and the set of
+files that represent the elements of the systems are called a <em>checkpoint</em>.</p>
+<p>Saving and restoring a checkpoint can be done from the command line with the
+<code>write-configuration</code> and <code>read-configuration</code> commands.</p>
+<p>A checkpoint consists of the following files, collected under a directory:</p>
+<ul>
+<li>A main <em>configuration file</em>, named <code>config</code>. This is a text representation of
+the objects present in the system.</li>
+<li>Optional image files (described in section <a class="reference" href="#images">2.4.2.3</a>), named after each
+respective image object.</li>
+</ul>
+<p>Below is a portion of a checkpoint file showing an object. Saved objects are
+always represented as <code>OBJECT</code> <em>object-name</em> <code>TYPE</code> <em>class-name</em> <code>{</code>
+<em>attributes</em> <code>}</code>. In this case we have an instance of the <code>DEC21143</code> class (fast
+Ethernet LAN controller interfacing the PCI bus) named <code>dec0</code>. The attribute
+<code>pci_bus</code> is used to connect the device to the PCI bus.</p>
+<pre><code>OBJECT dec0 TYPE DEC21143 {
+        queue: cpu0
+        component: eth_adapter_cmp0
+        component_slot: "dec"
+        object_id: "dec0"
+        build_id: 0xbb9
+        pci_bus: pci_bus0
+        ...
+}
+OBJECT ... TYPE ... {
+...
+</code></pre>
+<p>Objects are saved in the main checkpoint file in no specific order.</p>
+<h3 id="compatibility"><a href="#compatibility">2.4.2.1 Compatibility</a></h3>
+<p>Simics maintains checkpoint compatibility with older versions, i.e. it is always
+possible to continue using checkpoints created in a previous version of Simics
+when upgrading to a new version. Compatibility is always maintained for one
+major version older than the oldest of the supported API versions. For
+checkpoints older than that, load the checkpoint with a newer version of Simics
+and create a new checkpoint.</p>
+<p>The opposite is not true. Trying to load a checkpoint created in a newer version
+of Simics than the local version will typically not work. The same restriction
+may apply even between minor Simics releases. For example, a checkpoint created
+with Simics 3.2.2 is not guaranteed to load correctly in the older Simics 3.2.1
+release.</p>
+<h3 id="attributes"><a href="#attributes">2.4.2.2 Attributes</a></h3>
+<p>The short example of the <code>dec0</code> description only uses a few types of attribute
+values: strings, objects, and hexadecimal integers. The possible attribute types
+are:</p>
+<dl>
+<dt id="dt:string"><a href="#dt:string">string</a></dt>
+<dd>Strings are enclosed in double quotes, with
+C-style control characters: <code>"a string\n"</code></dd>
+<dt id="dt:integer"><a href="#dt:integer">integer</a></dt>
+<dd>Integers can be in hexadecimal (<code>0xfce2</code>) or
+signed decimal (<code>-17</code>) notation.</dd>
+<dt id="dt:boolean"><a href="#dt:boolean">boolean</a></dt>
+<dd>One of <code>TRUE</code> and <code>FALSE</code>.</dd>
+<dt id="dt:floating-point"><a href="#dt:floating-point">floating-point</a></dt>
+<dd>Specified in decimal (<code>1.0e-2</code>) or
+hexadecimal (<code>0x5.a21p-32</code>) style, just like in C.</dd>
+<dt id="dt:object"><a href="#dt:object">object</a></dt>
+<dd>The name of a configuration object: <code>cpu0</code>.</dd>
+<dt id="dt:list"><a href="#dt:list">list</a></dt>
+<dd>Comma-separated list of any attribute values,
+enclosed in parentheses. Example: <code>("a string", 4711, (1, 2, 3), cpu0)</code></dd>
+<dt id="dt:dictionary"><a href="#dt:dictionary">dictionary</a></dt>
+<dd>The format is a comma-separated list of
+key/value pairs, like in: <code>{ "master-cpu" : cpu0, "slave-cpu" : cpu1 }</code>. The
+key should be a string, integer or object, while the value can be of any
+attribute type. Dictionaries are typically used to save Python dictionaries in
+a checkpoint. Keys must be unique, although Simics does not enforce this.</dd>
+</dl>
+<p>Each attribute belongs to one of the following categories. Note that only
+attributes of the first two categories are saved in checkpoints.</p>
+<dl>
+<dt id="dt:required"><a href="#dt:required">Required</a></dt>
+<dd>Required attributes must be set when
+creating an object. They are saved in checkpoints. If you edit a checkpoint,
+you should never remove a required attribute—Simics will complain and refuse
+to load the checkpoint if you do.</dd>
+<dt id="dt:optional"><a href="#dt:optional">Optional</a></dt>
+<dd>If no other value is provided, optional
+attributes take their default value when the object is created. They are saved
+in checkpoints, but if you edit them out they will revert to their default
+value when the checkpoint is loaded.</dd>
+<dt id="dt:pseudo"><a href="#dt:pseudo">Pseudo</a></dt>
+<dd>Pseudo attributes are not saved in
+checkpoints and usually contain read-only information that does not change, or
+that is calculated when the attribute is accessed. Pseudo attributes are in
+some cases used to trigger state changes in the object when written.</dd>
+</dl>
+<h3 id="images"><a href="#images">2.4.2.3 Images</a></h3>
+<p>Simics implements a special class called <code>image</code> for objects that potentially
+need to save a huge amount of state, like memories and disks. An image
+represents a big amount of raw data using pages and compression to minimize disk
+usage.</p>
+<p>To save space and time, images do not necessarily save their entire state every
+time a checkpoint is written. They can work in several ways:</p>
+<ul>
+<li>Images can save their state <em>incrementally</em>. At each checkpoint, an image
+saves the difference between its current state and the previously saved state
+(either the previous checkpoint or the initial state). This is the default
+behavior implemented by Simics. This allows several checkpoints to be saved
+and restored using the same base image and a series of difference files.</li>
+<li>Images can save their entire current state in the checkpoint. This results in
+an <em>independent checkpoint</em>, which does not depend on the base image or on
+earlier checkpoints, and can therefore be easily moved around or shared.
+However, independent checkpoints are typically much larger than incremental
+ones, and can be time consuming to save.</li>
+<li>Images can be used as <em>read-write</em> media. In that case the file representing
+the data is always up to date to the current state. However, this prevents the
+image from being used in a previously saved incremental checkpoint or initial
+state, since its contents are modified as the simulation advances. When images
+are used in this way, only independent checkpoints can be saved.</li>
+</ul>
+<p>It is important to understand that when used in incremental mode, images create
+<em>dependencies</em> between checkpoints. A checkpoint can only be loaded if all
+previous checkpoints are intact.</p>
+<p>As an example, let us have a look at an assumed disk image:</p>
+<pre><code>...
+}
+OBJECT disk0_image TYPE image {
+        ...
+	files: (("tango1-fedora5.craff", "ro", 0, 0x4c5abc000, 0),
+                ("disk0_image.craff", "ro", 0, 0x4c5abc000, 0))
+        ...
+}
+...
+</code></pre>
+<p>The checkpointed image is based on the file <code>tango1-fedora5.craff</code>, on top of
+which is added the file <code>disk0_image.craff</code> that contains the difference between
+the checkpoint and the initial state.</p>
+<p>Files like <code>disk0_image.craff</code> are often called <em>diff files</em> because they
+contain the difference between the new state and the previous state.</p>
+<h4 id="image-search-path"><a href="#image-search-path">2.4.2.3.1 Image Search Path</a></h4>
+<p><em>This section contains more in-depth explanations about image handling that you
+may skip when reading this guide for the first time</em>.</p>
+<p>When successive incremental checkpoints are saved, an image object may become
+dependent on several diff files present in different directories. To keep track
+of all files, Simics stores in the checkpoint a <em>checkpoint path</em> list that
+contains the absolute directory paths where image files may be found. Image file
+names are then saved as <code>%n%\filename</code> where <code>%n%</code> represents the number of the
+entry in the checkpoint path, counting from zero.</p>
+<blockquote class="markdown-alert-note">
+<p>Simics’s checkpoint path is different from Simics’s search path (see section
+<a class="reference" href="cli.html#simics-s-search-path">2.2.4</a>), although both will be used when looking for
+image files, as show below.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>Independent checkpoints do not affect the checkpoint path.</p>
+</blockquote>
+<p>To summarize, when loading a checkpoint or a new configuration, Simics looks for
+images in the following way:</p>
+<ul>
+<li>
+<p>If the filename does not contain any path information (like <code>image.craff</code>) or
+contains a relative path (like <code>test\image.craff</code>), the file is looked up
+<em>first</em> from the checkpoint directory, <em>then</em> from all the path entries in
+Simics’s search path, <em>in order</em> (see also section
+<a class="reference" href="cli.html#simics-s-search-path">2.2.4</a> for more information).</p>
+<dl>
+<dt id="dt:windows-example"><a href="#dt:windows-example">Windows example</a></dt>
+<dd>If Simics’s search path
+contains <code>[project]\targets\qsp-x86\</code> and the checkpoint is located in
+<code>C:\checkpoints</code>, Simics will look for the file <code>test\image.craff</code> in the
+following places:
+<ol>
+<li><code>C:\checkpoints\test\image.craff</code></li>
+<li><code>[project]\targets\qsp-x86\test\image.craff</code></li>
+</ol>
+</dd>
+<dt id="dt:linux-example"><a href="#dt:linux-example">Linux example</a></dt>
+<dd>If Simics’s search path contains
+<code>[project]/targets/qsp-x86/</code> and the checkpoint is located in
+<code>/home/joe/checkpoints/</code>, Simics will look for the file
+<code>test/image.craff</code> in the following places:
+<ol>
+<li><code>/home/joe/checkpoints/test/image.craff</code></li>
+<li><code>[project]/targets/qsp-x86/test/image.craff</code></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li>
+<p>If the filename contains a checkpoint path marker (<code>%n%</code>), the marker is
+translated using Simics’s checkpoint path and the file is looked up in the
+corresponding path.</p>
+<dl>
+<dt id="dt:windows-example-2"><a href="#dt:windows-example-2">Windows example</a></dt>
+<dd>If Simics’s checkpoint path
+contains <code>C:\checkpoints\c1;C:\checkpoints\c2</code>, the file <code>%1%/image.craff</code>
+will be translated into <code>C:\checkpoints\c2\image.craff</code>.</dd>
+<dt id="dt:linux-example-2"><a href="#dt:linux-example-2">Linux example</a></dt>
+<dd>If Simics’s checkpoint path
+contains <code>/home/joe/c1:/home/joe/c2</code>, the file <code>%1%/image.craff</code> will be
+translated into <code>/home/joe/c2/image.craff</code>.</dd>
+</dl>
+</li>
+<li>
+<p>If the filename contains an absolute path the file path is used as is.</p>
+<dl>
+<dt id="dt:windows-example-3"><a href="#dt:windows-example-3">Windows example</a></dt>
+<dd><code>C:\checkpoints\image.craff</code></dd>
+<dt id="dt:linux-example-3"><a href="#dt:linux-example-3">Linux example</a></dt>
+<dd><code>/home/joe/image.craff</code></dd>
+</dl>
+</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>The reason why Simics’s search path is involved in the process is that it
+makes writing new configurations easier. Adding a path to the place where all
+initial images are located allows you to just specify the image names.</p>
+</blockquote>
+<h3 id="saving-and-restoring-persistent-data"><a href="#saving-and-restoring-persistent-data">2.4.2.4 Saving and Restoring Persistent Data</a></h3>
+<p>As an alternative to checkpointing, Simics allows you to only save the
+<em>persistent</em> state of a machine, i.e., data that survive when the machine is
+powered-down. This typically consists of disk images and flash memory or NVRAM
+contents. A persistent data checkpoint is handled exactly like any other
+checkpoint and contains the same file set, but only objects containing
+persistent data are saved. This persistent data checkpoint can be loaded on top
+of a corresponding configuration later on.</p>
+<p>The commands <code>save-persistent-state</code> and <code>load-persistent-state</code> respectively
+save and load the persistent data in a configuration.</p>
+<blockquote class="markdown-alert-note">
+<p>These commands are often used to save the state and reboot a machine after the
+disk contents have been modified. Remember that the target OS <strong>might have
+cached disk contents in memory</strong>. In order to have a clean disk that can be
+used at boot, you should synchronize the disk, for example by running <code>init 0</code>
+on a Linux target system, or shutting down the operating system, before you
+issue the <code>save-persistent-state</code> command.</p>
+</blockquote>
+<p>Another option is to use the command <code>enable-writable-persistent-state</code>. It
+saves a persistent state and also switches all saved files to be writable, so
+that the images are used in read-write mode, as described in section
+<a class="reference" href="#images">2.4.2.3</a>. All changes to the images done during the simulation are then
+automatically written to these files, without the need to explicitly save the
+state.</p>
+<p>This command can also load a state which already exists, created by this
+command. It is meant to be used in a Simics script and facilitates easy handling
+of the persistent states, either creating a new state or loading an existing
+state.</p>
+<p>The states created by <code>enable-writable-persistent-state</code> can be loaded using
+<code>load-persistent-state</code>, if read-write mode is no longer desired. States created
+by <code>save-persistent-state</code> are generally not usable by
+<code>enable-writable-persistent-state</code>, since it may not be possible to make them
+writable.</p>
+<h3 id="modifying-checkpoints"><a href="#modifying-checkpoints">2.4.2.5 Modifying Checkpoints</a></h3>
+<p>Checkpoints are usually created by saving a configuration inside Simics, but it
+is possible to edit or even create checkpoints yourself. It may even be required
+to edit file paths in a checkpoint file if it is relocated.</p>
+<p>Because a minimal checkpoint only has to include required attributes, <em>creating
+a checkpoint from scratch</em> works relatively well for small configurations. We
+suggest you use an existing checkpoint as a starting point if you wish to do
+that. Note that more advanced layers have been built on top of the configuration
+system to make the creation of a new machine much easier. Refer to section
+<a class="reference" href="#ready-to-run-configurations">2.4.6</a> for more information.</p>
+<p><em>Modifying checkpoints</em> require some extra care. Adding or removing devices may
+confuse the operating system, which does not expect devices to appear or
+disappear while the system is running, and cause it to crash.</p>
+<p>Changing the processor frequency may be enough to confuse the operating system.
+Many operating systems check the CPU frequency at boot time, and base their
+waiting loops and timing on the value they got. Saving a checkpoint and changing
+the frequency after boot may affect the simulation and confuse the system.
+Devices that use processor frequency to trigger events at specific times may
+also behave strangely when the frequency suddenly changes.</p>
+<h3 id="merging-checkpoints"><a href="#merging-checkpoints">2.4.2.6 Merging Checkpoints</a></h3>
+<p>If you want to make an incremental checkpoint independent from all previous
+checkpoints, for example to distribute it, you can use the small
+<code>checkpoint-merge</code> program in <code>[simics]\bin</code> from your system command line. It
+merges the checkpoint with all its ancestors to create a checkpoint that has no
+dependencies. Specify the checkpoint you want to distribute as the first
+parameter and the name of the new stand-alone checkpoint as the second. This
+tool can be used in both Linux and Windows environments.</p>
+<p>Note that the merged checkpoint still depends on the base image. This differs
+from independent checkpoints, which are completely standalone.</p>
+<h2 id="inspecting-the-configuration"><a href="#inspecting-the-configuration">2.4.3 Inspecting the Configuration</a></h2>
+<p>Object attributes that are of type <code>integer</code>, <code>string</code> or <code>object</code> are directly
+accessible at the <em>command line</em> with the notation <code>object-&gt;attribute</code>:</p>
+<pre><code class="language-simics"># reading the EAX register in an x86 processor
+simics&gt; <strong>cpu0-&gt;eax</strong>
+0
+# writing a new value to EAX
+simics&gt; <strong>cpu0-&gt;eax = 10</strong>
+simics&gt; <strong>cpu0-&gt;eax</strong>
+10
+simics&gt;
+</code></pre>
+<p>More information about the command line and scripting is available in chapter
+<a class="reference" href="script-support-in-simics.html">2.3</a>.</p>
+<p>Finally, objects and attributes (of all types) are also available when
+<em>scripting Simics directly in Python</em>. Configuration objects are available under
+the <code>conf</code> namespace:</p>
+<pre><code class="language-simics"># reading the EAX register in an x86 processor
+simics&gt; <strong>@conf.cpu0.eax</strong>
+0
+# writing a new value to EAX
+simics&gt; <strong>@conf.cpu0.eax = 10</strong>
+simics&gt; <strong>@conf.cpu0.eax</strong>
+10
+simics&gt;
+</code></pre>
+<p>More information about scripting Simics in Python is available in chapter
+<a class="reference" href="script-support-in-simics.html">2.3</a>.</p>
+<h2 id="components"><a href="#components">2.4.4 Components</a></h2>
+<p>All machines in <code>[simics]\targets\architecture</code> use components to create
+configurations. A component is typically the smallest hardware unit that can be
+used when configuring a real machine, and examples include motherboards, PCI
+cards, hard disks, and backplanes. Components are usually implemented in Simics
+using several configuration objects and can also contain subcomponents.</p>
+<p>Components are intended to reduce the large configuration space provided by
+Simics’s objects and attributes, by only allowing combinations that match real
+hardware. This greatly simplifies the creation of different systems by catching
+many misconfigurations.</p>
+<p>Components themselves are also configuration objects in Simics. But to avoid
+confusion, they will always be referred to as components and the objects
+implementing the actual functionality will be called objects.</p>
+<h3 id="component-definitions"><a href="#component-definitions">2.4.4.1 Component Definitions</a></h3>
+<p>The <em>component</em> is the basic building block in the component system. When a
+component is created, it is in a <em>non-instantiated</em> state. At this stage only
+the component itself exists, not the configuration objects that will implement
+the actual functionality. Once a complete configuration has been created, all
+included components can be <em>instantiated</em>. When this happens, all objects are
+created and their attributes are set.</p>
+<p>Components are connected to each other with <em>connectors</em>. Each connector has a
+<em>connector type</em> which tells what kind of connector it is and a <em>direction</em>,
+which can be <em>up</em>, <em>down</em>, or <em>any</em>. A connector is either required or optional.
+If it is optional it does not need to be connected to anything. Unless a
+connector is specified as <em>hotpluggable</em> it cannot be connected or disconnected
+after the component is instantiated. If a connection is hotpluggable it must be
+optional.</p>
+<p>Connectors can be connected to each other in <em>connections</em>. Each connection
+connects an <em>up</em> connector with a <em>down</em> connector. A connection can also
+include an <em>any</em> connector. If an <em>any</em> connector is connected to an <em>up</em>
+connector it works exactly like a <em>down</em> connector and if it is connected to a
+<em>down</em> connector it works exactly like an <em>up</em> connector. The connections in the
+system must not form a cycle. You can think of the components and connections in
+the system as a directed acyclic graph with the components as the vertices and
+the connections as the edges.</p>
+<p>Each connected subgraph in the set of components is called a <em>component
+hierarchy</em>.</p>
+<p>A component <em>A</em> is said to be <em>above</em> a component <em>B</em> if it can be reached
+through up connectors in one or more steps from component <em>B</em>. Analogously,
+component <em>A</em> is said to be <em>below</em> a component <em>B</em> if <em>B</em> is above <em>A</em>.</p>
+<p>A <em>root</em> is a component without any components above it. A component’s roots are
+the roots which are above it.</p>
+<p>A component where the <code>top_level</code> attribute returns true is a <em>top-level</em>
+component. It is often a motherboard, backplane or system chassis. It must be a
+root.</p>
+<p>A <em>standalone</em> component is a component without any required connectors. A
+typical example is a hotplug device, such as a PC Card (PCMCIA) or an Ethernet
+link.</p>
+<p>To instantiate a set of components, each component which is not standalone or
+top-level must have a top-level component as a root.</p>
+<p>Components are also <em>namespaces</em> and can be nested in a <em>namespace hierarchy</em>,
+which is separate from the component hierarchy. The root of the hierarchy is the
+<em>global namespace</em>, and this is the only namespace which is not a component.
+Each configuration object (including components) lives in a namespace. The
+object is a <em>child</em> of the namespace and the namespace is the <em>parent</em> of the
+object. The other objects in the namespace are <em>siblings</em> of the object.</p>
+<h3 id="importing-component-commands"><a href="#importing-component-commands">2.4.4.2 Importing Component Commands</a></h3>
+<p>Components in Simics are grouped by machine architecture, or by type, into
+several modules. Before a component can be used in Simics, the corresponding
+component module has to be loaded. When the component module is loaded, CLI
+commands for creating components are added to the front end. The most common
+modules, that are not architecture specific, are <code>memory-comp</code>, <code>pci-comp</code>,
+<code>std-comp</code>, <code>console-components</code>. To import all modules that are used by the
+<code>QSP-Simple</code> machine, issue the following commands:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module std-comp</strong>
+simics&gt; <strong>load-module memory-comp</strong>
+simics&gt; <strong>load-module console-components</strong>
+simics&gt; <strong>load-module x58-ich10-comp</strong>
+simics&gt; <strong>load-module x86-public64-comp</strong>
+</code></pre>
+<h3 id="creating-components"><a href="#creating-components">2.4.4.3 Creating Components</a></h3>
+<p>The <code>create-&lt;component&gt;</code> command is used to create non-instantiated components.
+There is one create command for each component class. The arguments to the
+create command represent attributes in the component. Standalone components can
+be created both non-instantiated and instantiated. To create instantiated
+components, there are <code>new-</code> commands, similar to the <code>create-</code> commands.</p>
+<p>The following code creates a non-instantiated ‘motherboard_x58_ich10’
+component , called ‘motherboard0’</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module x58-ich10-comp</strong>
+simics&gt; <strong>create-motherboard-x58-ich10</strong>
+Created non-instantiated 'motherboard_x58_ich10' component 'motherboard0'
+</code></pre>
+<h3 id="connectors"><a href="#connectors">2.4.4.4 Connectors</a></h3>
+<p>A connector provides a means for a component to connect to other components.
+Connectors have a defined direction: <em>up</em>, <em>down</em>, or <em>any</em>. The direction is
+<em>up</em> if it needs an existing hierarchy to connect to; for example, the PCI-bus
+connector in a PCI device must connect to a PCI slot. A connector has a <em>down</em>
+direction if it extends the hierarchy downwards; for example, a PCI slot is a
+connection downward from a board to a PCI device. There are also non-directed
+connectors, with direction <em>any</em>. You can only connect an <em>up</em> to a <em>down</em>
+connector or to an <em>any</em> connector, and similar for <em>down</em> connectors.
+Connectors with the <em>any</em> direction cannot be connected together.</p>
+<p>Many connectors have to be connected before the component is instantiated, while
+others can be empty. A standalone component, as described above, may have all
+connectors empty.</p>
+<p>A <em>hotplug</em> connector supports connect and disconnect after instantiation. Other
+connectors can only be connected, or left unconnected, when the configuration is
+created and may not be modified after that point. A <em>multi</em> connector supports
+connections to several other connectors. Creating <em>multi</em> connectors should be
+avoided, it is often better to dynamically create non-<em>multi</em> connectors when
+new connectors are needed.</p>
+<p>It is not possible to connect instantiated components with non-instantiated
+ones. The reason is that the instantiated component expects the other to have
+all objects already created, and need to access some of them to finish the
+connection.</p>
+<p>The <code>info</code> command of a component lists all connectors and some information
+about them:</p>
+<pre><code class="language-simics">simics&gt; <strong>motherboard0.info</strong>
+Information about motherboard0 [class motherboard_x58_ich10]
+============================================================
+
+Slots:
+      dimm[0] : motherboard0.dimm[0]
+      dimm[1] : motherboard0.dimm[1]
+      dimm[2] : motherboard0.dimm[2]
+      dimm[3] : motherboard0.dimm[3]
+           nb : motherboard0.nb
+    reset_bus : motherboard0.reset_bus
+           sb : motherboard0.sb
+    socket[0] : motherboard0.socket[0]
+    socket[1] : motherboard0.socket[1]
+    socket[2] : motherboard0.socket[2]
+    socket[3] : motherboard0.socket[3]
+    socket[4] : motherboard0.socket[4]
+    socket[5] : motherboard0.socket[5]
+    socket[6] : motherboard0.socket[6]
+    socket[7] : motherboard0.socket[7]
+
+Connectors:
+      dimm[0] : mem-bus              down
+      dimm[1] : mem-bus              down
+      dimm[2] : mem-bus              down
+      dimm[3] : mem-bus              down
+    reset_bus : x86-reset-bus        down
+    socket[0] : x86-apic-processor   down
+    socket[1] : x86-apic-processor   down
+    socket[2] : x86-apic-processor   down
+    socket[3] : x86-apic-processor   down
+    socket[4] : x86-apic-processor   down
+    socket[5] : x86-apic-processor   down
+    socket[6] : x86-apic-processor   down
+    socket[7] : x86-apic-processor   down
+
+</code></pre>
+<p>The board has four slots for memory modules, one north bridge, one reset bus,
+one south bridge, eight sockets. All slots are not listed as <em>hotplug</em> since
+they have to be inserted when the machine is configured initially.</p>
+<p>Since the machine needs a CPU, we also add a x86QSP3 processor to our example. A
+CLI variable is used to hold the name of the processor component.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module x86-public64-comp</strong>
+simics&gt; <strong>$cpu = (create-processor-x86QSP3 freq_mhz = 2000)</strong>
+simics&gt; <strong>connect motherboard0.socket[0] $cpu.socket</strong>
+</code></pre>
+<p>To enable input and output for the simulated machine, the following commands
+create a serial text console and connect it to the <code>serial[0]</code> connector of the
+south bridge.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module console-components</strong>
+simics&gt; <strong>connect motherboard0.sb.serial[0] (create-txt-console-comp).serial</strong>
+</code></pre>
+<p>Since the machine needs some memory to run, we also add a memory module to our
+example. A CLI variable is used to hold the name of the memory component.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module memory-comp</strong>
+simics&gt; <strong>$dimm = (create-simple-memory-module memory_megs = 2048)</strong>
+simics&gt; <strong>connect motherboard0.dimm[0] $dimm.mem_bus</strong>
+</code></pre>
+<h3 id="instantiation"><a href="#instantiation">2.4.4.5 Instantiation</a></h3>
+<p>When a component hierarchy has been created, it can be instantiated using the
+<code>instantiate-components</code> command. This command will look for all
+non-instantiated top-level components and instantiate all components below them.
+The <code>instantiate-components</code> command can also be given a specific component as
+argument. Then only that component will be instantiated, including its hierarchy
+if it is a top-level component.</p>
+<pre><code class="language-simics">simics&gt; <strong>instantiate-components</strong>
+</code></pre>
+<p>If there are unconnected connectors left that may not be empty, the command will
+return with an error.</p>
+<p>When the instantiation is ready, all object and attributes have been created and
+initialized. In our example, a text console window should have opened. The
+hardware of the simulated motherboard is now properly configured, but since no
+software is loaded, it will not show any output on the console if the machine is
+started.</p>
+<h3 id="inspecting-component-configurations"><a href="#inspecting-component-configurations">2.4.4.6 Inspecting Component Configurations</a></h3>
+<p>The <code>list-components</code> command prints a list of all components in the system. All
+connectors are included, and information about existing connections between
+them.</p>
+<p>The <code>info</code> namespace command provides static information about a component, such
+as the slots and a list of connectors.</p>
+<p>The <code>status</code> namespace command provides dynamic information about a component,
+such as attribute values and a list of all current connections. The output from
+status in the example:</p>
+<pre><code class="language-simics">simics&gt; <strong>motherboard0.status</strong>
+Status of motherboard0 [class motherboard_x58_ich10]
+====================================================
+
+Setup:
+         Top component : none
+          Instantiated : True
+
+Attributes:
+                  acpi : True
+                  bios : 
+       break_on_reboot : False
+           mac_address : 20:20:20:20:20:20
+              rtc_time : 2008-06-05 23:52:01
+             spi_flash : 
+          system_clock : False
+    system_clock_class : clock
+
+Connections:
+               dimm[0] : dimm0:mem_bus
+             socket[0] : processor0:socket
+</code></pre>
+<h3 id="accessing-objects-from-components"><a href="#accessing-objects-from-components">2.4.4.7 Accessing Objects from Components</a></h3>
+<p>When doing more advanced configuration of a machine, it may be necessary to
+access configuration objects and their attributes directly. Each object in a
+component has a slot name that can be used for accessing the object. A list of
+slot names, and their mappings to actual configuration object names, is
+available from the output of the component’s <code>info</code> command. The next example
+prints the <code>frequency</code> attribute from the <code>core</code> object.</p>
+<pre><code class="language-simics">simics&gt; <strong>processor0.core[0][0]-&gt;frequency</strong>
+[20000000, 1]
+</code></pre>
+<p>Accessing objects of non-instantiated components is not possible, since they do
+not have any associated configuration objects. But it is possible to access the
+<code>pre_conf_object</code>s of a non-instantiated component from Python. The following
+example works both for instantiated and non-instantiated components:</p>
+<pre><code class="language-simics">simics&gt; <strong>@print(conf.processor0.core[0][0].cpuid_stepping)</strong>
+8
+</code></pre>
+<p>Remember that not all configuration object attributes are available on a
+<code>pre_conf_object</code>. Only attributes that have been assigned by the component
+during initialization exists.</p>
+<h3 id="available-components"><a href="#available-components">2.4.4.8 Available Components</a></h3>
+<p>The <em>Target Guide</em> for each architecture lists and describes all components that
+are available.</p>
+<h2 id="object-name"><a href="#object-name">2.4.5 Object Name</a></h2>
+<p>An object can be identified using more than one name. This section describes the
+different ways of identifying an object.</p>
+<p>All objects have a name that is used when printing log messages, writing
+checkpoints, in CLI commands, etc. The <code>SIM_object_name</code> function returns this
+object name. This name will be referred to as the <em>object name</em> in this section,
+even though an object can have several names for identification.</p>
+<p>The object name is the name the object is given when created, or the objects
+location in the hierarchy.</p>
+<p>An object can be given a name when created. The <code>SIM_create_object</code>,
+<code>SIM_add_configuration</code>, or <code>SIM_set_configuration</code> functions takes the object
+name as argument. The given name can be a string without dots “foo”, a string
+with dots “cmp0.foo”, an empty string “”, or None. This section will describe
+how the given name affects the object name.</p>
+<p>An object’s <em>hierarchical location</em> is defined by its <code>component</code> and
+<code>component_slot</code> attributes. The hierarchical location for an object is the name
+of the <code>component</code> that the object’s <code>component</code> attribute points at, and the
+component’s <code>component_slot</code> attribute string, concatenated with a dot. For
+example, an object that belongs to a component named “cmp0” with the slot name
+“bar” has the hierarchical location “cmp0.bar”.</p>
+<p>All objects that reside in a slot in a component have valid <code>component</code> and
+<code>component_slot</code> attributes. It is the component’s responsibility that the
+attributes are valid. The attributes are set when an object is added to a slot.
+A name that contains dots is a hierarchical location.</p>
+<p>All objects also have an ID. The <code>SIM_object_id</code> function returns the object ID
+as a string. The object ID is unique, never changes, and will be saved in
+checkpoints. The object ID will not change even if the object is moved around in
+the hierarchy or is given a new name.</p>
+<p>The object name and object ID are always unique. Creating an object and giving
+it a name that already exist will generate an error.</p>
+<p>If the given name is a hierarchical location, an object will be added to that
+hierarchical location even if the <code>component</code> and <code>component_slot</code> attributes
+are not set. Simics will extract the component name and slot name from the given
+name. This information is then used when looking up the component and adding the
+object to the slot via the <code>component</code> interface. An object given the name
+“cmp0.cmp1.foo” belongs to the component “cmp0.cmp1” and has the slot name
+“foo”. Note that the component “cmp1” in this example belongs to the component
+“cmp0”.</p>
+<p>An object given a name without dots, e.g., “foo”, will get a name that is the
+hierarchical location of the object if the <code>component</code> and <code>component_slot</code>
+attributes are valid. Otherwise it will get the name “foo”, which means that the
+object does not reside in any slot in a component. The object will also get an
+automatically assigned unique object ID, unless <code>legacy_object_id</code> is set. In
+that case the object name is used as object ID.</p>
+<p>An object given a name with dots “cmp0.foo” gets the name “cmp0.foo” or, if it
+is put in the slot “bar”, the name “cmp0.bar”, its hierarchical location, and an
+object ID of the form “obj_XYZ”.</p>
+<p>An object given an empty name “”, or None, will get a hierarchical location as
+name, if the <code>component</code> and <code>component_slot</code> attributes are valid, otherwise a
+name of the form “obj_XYZ”. The object ID will always be of the form
+“obj_XYZ”, identical to the object name if <code>component</code> and <code>component_slot</code>
+attributes are invalid.</p>
+<table><thead><tr><th><strong>Given Name</strong></th><th><strong>Name (Slot = None)</strong></th><th><strong>Name (Slot = bar)</strong></th><th><strong>ID</strong></th><th><strong>Name After Move</strong></th></tr></thead><tbody>
+<tr><td>foo</td><td>foo</td><td>cmp0.bar</td><td>obj_XYZ</td><td>cmp1.smurf</td></tr>
+<tr><td>cmp0.foo</td><td>cmp0.foo</td><td>cmp0.bar</td><td>obj_XYZ</td><td>cmp1.smurf</td></tr>
+<tr><td>None</td><td>obj_XYZ</td><td>cmp0.bar</td><td>obj_XYZ</td><td>cmp1.smurf</td></tr>
+</tbody></table>
+<p>The <em>given name</em> is the name that the user has provided. <em>Name</em> is the name the
+object gets when created, depending on if <code>component</code> and <code>component_slot</code> are
+set: <em>Slot = None</em> when they are not set; <em>Slot = bar</em> when they are set and
+<code>component_slot</code> is <em>bar</em>. <em>ID</em> is the unique object ID. <em>Name After Move</em> is
+the name the object gets after being moved to <em>cmp1</em> to a slot named <em>smurf</em>.</p>
+<h2 id="ready-to-run-configurations"><a href="#ready-to-run-configurations">2.4.6 Ready-to-run Configurations</a></h2>
+<p>Simics includes many customizable ready-to-run configurations. Because
+checkpoint files are by definition static, these example configurations are not
+checkpoint-based, but rather built on <em>components</em> and <em>scripts</em> to generate a
+working simulated machine.</p>
+<p>The example configurations are located in separate directories for each system
+<em>architecture</em>: <code>[simics]\targets\architecture</code>. Each of these directories
+contains a number of Simics scripts (i.e., files containing Simics commands):</p>
+<dl>
+<dt id="dt:machine-common-simics"><a href="#dt:machine-common-simics"><code>&lt;machine&gt;-common.simics</code></a></dt>
+<dd>
+<p>Scripts that define a
+complete simulated machine, i.e., both hardware and software, that can be run
+by Simics directly. Each <code>common</code> script uses the corresponding
+<code>-system.include</code> script to define the hardware, and the <code>-setup.include</code>
+script for software configuration. The <code>-common.simics</code> scripts may add
+additional hardware in some cases.</p>
+<p><em>These are the files you want to use to start the standard example machines in
+this directory.</em></p>
+<p>&lt;machine&gt; in the script name is either a Linux machine name, or a some other
+name that defines the hardware/software combination.</p>
+</dd>
+<dt id="dt:machine-feature-common-simics"><a href="#dt:machine-feature-common-simics"><code>&lt;machine&gt;-&lt;feature&gt;-common.simics</code></a></dt>
+<dd>
+<p>A script that
+extends the <code>-common.simics</code> script with a new feature. Many minor features,
+such as the processor frequency, can be controlled using parameters to the
+<code>common</code> script, but features that are mutually exclusive are added as
+separate scripts. Typical examples are scripts that add different diff-files
+to the same disk image in the system setup.</p>
+</dd>
+<dt id="dt:architecture-variant-system-include"><a href="#dt:architecture-variant-system-include"><code>&lt;architecture-variant&gt;-system.include</code></a></dt>
+<dd>
+<p>A script
+that defines the hardware of a machine. This script can be shared by several
+simulated machines that are based on the same hardware. The hardware setup is
+typically configurable using some standard parameters.</p>
+</dd>
+<dt id="dt:machine-setup-include"><a href="#dt:machine-setup-include"><code>&lt;machine&gt;-setup.include</code></a></dt>
+<dd>
+<p>A script that defines the
+software and possibly configures the machine to run the selected software, for
+example setting boot path, and scripting automatic login.</p>
+</dd>
+</dl>
+<p>The example configurations are designed to work with the disk images distributed
+with Simics. The machines are described in the <em>Target Guide</em> corresponding to
+each architecture.</p>
+<p>Several machines may be defined for a given architecture, and thus the
+corresponding architecture directory will contain several
+<code>machine-common.simics</code> scripts.</p>
+<h3 id="customizing-the-configurations"><a href="#customizing-the-configurations">2.4.6.1 Customizing the Configurations</a></h3>
+<p>There are several ways to customize the examples provided with Simics. They are
+listed below ordered by how simple they are to use.</p>
+<dl>
+<dt id="dt:parameters"><a href="#dt:parameters">Parameters</a></dt>
+<dd>
+<p>The machine scripts distributed with
+Simics can be modified by setting parameters (CLI variables) before the script
+is actually run. This is the easiest way to change the default configuration.
+Parameters can typically be used to change properties such as the amount of
+memory, the number of processors and the primary MAC address. The available
+parameters are listed in each <em>Target Guide</em>.</p>
+<p>Setting parameters before the script is run can be done in two fashions:</p>
+<ol>
+<li>
+<p>Use the startup flag <code>-e</code>. The flag must be repeated for each parameter
+to set. An example on Windows:</p>
+<pre><code>$ simics.bat -e '$freq_mhz = 2000' -e '$host_name = "target0"' targets/qsp-x86/firststeps.simics
+</code></pre>
+<p>An example on Linux:</p>
+<pre><code>$ ./simics -e '$freq_mhz = 2000' -e '$host_name = "target0"' targets/qsp-x86/firststeps.simics
+</code></pre>
+</li>
+<li>
+<p>Launch Simics without any script, set the parameters at CLI, and run the
+CLI command <code>run-script</code>. An example identical to the one above:</p>
+<pre><code class="language-simics">$ simics.bat 
+simics&gt; <strong>$freq_mhz = 2000</strong>
+simics&gt; <strong>$host_name = "target0"</strong>
+simics&gt; <strong>run-script targets/qsp-x86/firststeps.simics</strong>
+</code></pre>
+</li>
+</ol>
+</dd>
+<dt id="dt:scripts"><a href="#dt:scripts">Scripts</a></dt>
+<dd>
+<p>A simulated machine is defined by several
+scripts, as described above. By replacing the <code>-common.simics</code> file with a
+user defined script, the system can be configured more in detail while
+keeping the machine definition provided by the <code>-system.include</code> file.
+Similarly the <code>-setup.include</code> can be replaced to configure different
+software on the same machine.</p>
+</dd>
+<dt id="dt:components"><a href="#dt:components">Components</a></dt>
+<dd>
+<p>Components represents real hardware
+items such as PCI cards, motherboards, and disks. Using components to
+configure a machine provides freedom to set up the simulated machine in any
+way that is supported by the architecture. The <code>-system.include</code> files use
+components to create their machine definitions. A complete description of
+components is provided earlier in this chapter.</p>
+</dd>
+<dt id="dt:objects-and-attributes"><a href="#dt:objects-and-attributes">Objects and Attributes</a></dt>
+<dd>
+<p>A component is implemented
+by one or more configuration objects in Simics, and each object has several
+attributes describing it. Configuring machines on the object and attribute
+level is <em>not</em> supported in Simics, and such configurations may not work in
+future versions.</p>
+</dd>
+</dl>
+<p>Below is another example of a simple configuration based on <code>QSP-x86</code>, that uses
+parameters to configure two machines slightly differently that both run in the
+same Simics session.</p>
+<pre><code class="language-simics">simics&gt; <strong>$freq_mhz = 2000</strong>
+simics&gt; <strong>$host_name = "target0"</strong>
+simics&gt; <strong>run-script "%script%/firststeps.simics"</strong>
+
+simics&gt; <strong>$freq_mhz = 3000</strong>
+simics&gt; <strong>$host_name = "target1"</strong>
+simics&gt; <strong>run-script "%script%/firststeps.simics"</strong>
+</code></pre>
+<h3 id="adding-devices-to-existing-configurations"><a href="#adding-devices-to-existing-configurations">2.4.6.2 Adding Devices to Existing Configurations</a></h3>
+<p>The parameters available for each predefined machine allows the user to do minor
+modifications. It is also possible to extend the ready-to-run configurations
+with additional components without creating new machine setups from scratch.</p>
+<p>Since the machine setup scripts are located in the read-only master installation
+of Simics, they should not be modified. User files that add new components
+should instead be placed in the corresponding <code>[project]\targets\architecture</code>
+directory.</p>
+<p>Here is a short example of how to extend the <code>QSP-x86</code> to add a SATA disk:</p>
+<pre><code class="language-simics"># Add disk2
+simics&gt; <strong>$disk2 = (create-sata-disk-comp $system.disk2 size = $disk2_size)</strong>
+simics&gt; <strong>connect $system.mb.sb.sata_slot[2] $disk2.sata_slot</strong>
+
+simics&gt; <strong>instantiate-components</strong>
+</code></pre>
+<p>Notice, that script requires you to provide a disk image and a valid disk size.
+Essentially the script will run another script, <code>firststeps.simics</code>, which will
+create an instantiated <code>QSP-x86</code> machine, then a SCSI disk is created and
+connected to that machine, and finally the new disk is instantiated.</p>
+<p>It is possible to add many devices to an instantiated Simics machine in a
+similar manner. In the case a device must be added to the target machine before
+instantiation, write a script as described above.</p>
+
+<div class="chain">
+<a href="script-support-in-simics.html">2.3 Simics Scripting Environment</a>
+<a href="managedisks.html">2.5 Moving Data in and out of the Simulation</a>
+</div>

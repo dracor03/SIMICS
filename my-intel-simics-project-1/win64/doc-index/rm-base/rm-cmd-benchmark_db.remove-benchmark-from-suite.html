@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;benchmark_db&gt;.remove-benchmark-from-suite</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.remove-benchmark.html">&lt;benchmark_db&gt;.remove-benchmark</a>
+<a href="rm-cmd-benchmark_db.remove-host.html">&lt;benchmark_db&gt;.remove-host</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="benchmark_db.remove-benchmark-from-suite"></a>
+<h1 id="benchmark_db.remove-benchmark-from-suite"><a href="#benchmark_db.remove-benchmark-from-suite">&lt;benchmark_db&gt;.remove-benchmark-from-suite</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;benchmark_db&gt;.remove-benchmark-from-suite</b> <i>"suite-name"</i> (<i>"benchmark-name"</i> ... | list of <i>"benchmark-name"</i>) <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ To a specified <i>suite-name</i> remove one or more <i>benchmark-name</i> from it.
+<p>
+Important note: Removing a benchmark from a suite affects the suite's calculated score, just as adding one does.
+</p><p>
+For example, if the removed benchmark had shown greater improvement compared to others in the suite, the overall score will decrease. This is because the suite's score reflects the relative performance of all included benchmarks. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.benchmark-database.html">benchmark-database</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.remove-benchmark.html">&lt;benchmark_db&gt;.remove-benchmark</a>
+<a href="rm-cmd-benchmark_db.remove-host.html">&lt;benchmark_db&gt;.remove-host</a>
+</div>

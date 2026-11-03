@@ -1,0 +1,558 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>frags_t</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-version-copyright.html">Version and Copyright</a>
+<a href="dev-api-alloc.html">Dynamic Memory Management</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>frags_t</h1>
+<h2 id="FRAGS_INIT"><a href="#FRAGS_INIT">FRAGS_INIT</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>FRAGS_INIT — frags_t initializer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// not available in DML
+
+FRAGS_INIT;
+</code></pre>
+<h2>Description</h2>
+<p>An <code>frags_t</code> initializer that can be used in variable declarations.</p>
+</section>
+<h2 id="frags_add"><a href="#frags_add">frags_add</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_add — add data to a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+frags_add(frags_t *buf, const void *data, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>Append the new data <code>data</code> of size <code>len</code> to <code>buf</code>. A <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> can hold up to 8 data fragments.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8 new_data[2] = { 7, 8 };
+frags_add(&amp;foo, new_data, sizeof(new_data));
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_init_add"><code>frags_init_add</code></a>, <a href="dev-api-frags-t.html#frags_init_add_from_frags"><code>frags_init_add_from_frags</code></a>, <a href="dev-api-frags-t.html#frags_add_from_frags"><code>frags_add_from_frags</code></a></p>
+</section>
+<h2 id="frags_add_from_frags"><a href="#frags_add_from_frags">frags_add_from_frags</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_add_from_frags — append an existing <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> to another</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+frags_add_from_frags(frags_t *dst, const frags_t *src,
+                     size_t offset, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>Append <code>len</code> bytes of the data at offset <code>offset</code> in <code>src</code> to <code>dst</code>.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>frags_add_from_frags(&amp;foo, &amp;bar, 4, frags_len(&amp;bar) - 4);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_init_add"><code>frags_init_add</code></a>, <a href="dev-api-frags-t.html#frags_add"><code>frags_add</code></a>, <a href="dev-api-frags-t.html#frags_init_add_from_frags"><code>frags_init_add_from_frags</code></a></p>
+</section>
+<h2 id="frags_extract"><a href="#frags_extract">frags_extract</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_extract — extract the contents of a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void frags_extract(const frags_t *buf, void *vdst);
+</code></pre>
+<h2>Description</h2>
+<p>Copy the whole contents of <code>buf</code> to <code>vdst</code>. The destination buffer <code>vdst</code> should be large enough to contain all data in <code>buf</code>.</p>
+<p>This function is completely equivalent to <a href="dev-api-frags-t.html#frags_extract_slice"><code>frags_extract_slice()</code></a> with an <code>offset</code> and a <code>length</code> covering the whole contents of the <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a>, and is provided for convenience.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8 all_data[frags_len(&amp;foo)];
+frags_extract(&amp;foo, all_data);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_extract_8"><code>frags_extract_8</code></a>, <a href="dev-api-frags-t.html#frags_extract_slice"><code>frags_extract_slice</code></a>, <a href="dev-api-frags-t.html#frags_extract_alloc"><code>frags_extract_alloc</code></a>, <a href="dev-api-frags-t.html#frags_extract_slice_alloc"><code>frags_extract_slice_alloc</code></a></p>
+</section>
+<h2 id="frags_extract_8"><a href="#frags_extract_8">frags_extract_8, frags_extract_be16, frags_extract_le16, frags_extract_be32, frags_extract_le32, frags_extract_be64, frags_extract_le64</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_extract_8, frags_extract_be16, frags_extract_le16, frags_extract_be32, frags_extract_le32, frags_extract_be64, frags_extract_le64 — extract a value</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+uint8 frags_extract_8(const frags_t *buf, size_t offset);
+uint16 frags_extract_be16(const frags_t *buf, size_t offset);
+uint16 frags_extract_le16(const frags_t *buf, size_t offset);
+uint32 frags_extract_be32(const frags_t *buf, size_t offset);
+uint32 frags_extract_le32(const frags_t *buf, size_t offset);
+uint64 frags_extract_be64(const frags_t *buf, size_t offset);
+uint64 frags_extract_le64(const frags_t *buf, size_t offset);
+</code></pre>
+<h2>Description</h2>
+<p>Extract a 8, 16, 32 or 64 bits value in either big-endian (<code>_be</code>) or little-endian (<code>_le</code>) format from the contents of the <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> <code>buf</code> at offset <code>offset</code>.</p>
+<h2>Return Value</h2>
+<p>Extracted value</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8  val8  = frags_extract_8(&amp;frame, 1);
+uint16 val16 = frags_extract_be16(&amp;frame, 2);
+uint32 val32 = frags_extract_le32(&amp;frame, 4);
+uint32 val64 = frags_extract_be64(&amp;frame, 8);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_extract"><code>frags_extract</code></a>, <a href="dev-api-frags-t.html#frags_extract_slice"><code>frags_extract_slice</code></a></p>
+</section>
+<h2 id="frags_extract_alloc"><a href="#frags_extract_alloc">frags_extract_alloc</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_extract_alloc — return a copy of the contents of a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void *frags_extract_alloc(const frags_t *buf);
+</code></pre>
+<h2>Description</h2>
+<p>Return an allocated copy of the contents of <code>buf</code>. The buffer returned is allocated with <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC()</code></a>, and its ownership is passed to the caller, which should free it when appropriate.</p>
+<p>This function is equivalent to allocating a buffer of the correct size with <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC()</code></a> followed by a call to <a href="dev-api-frags-t.html#frags_extract"><code>frags_extract()</code></a>, and is provided for convenience.</p>
+<h2>Return Value</h2>
+<p>A newly allocated copy of the contents</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8 *all = frags_extract_alloc(&amp;foo);
+/* ... */
+MM_FREE(all);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_extract"><code>frags_extract</code></a>, <a href="dev-api-frags-t.html#frags_extract_slice"><code>frags_extract_slice</code></a>, <a href="dev-api-frags-t.html#frags_extract_slice_alloc"><code>frags_extract_slice_alloc</code></a></p>
+</section>
+<h2 id="frags_extract_slice"><a href="#frags_extract_slice">frags_extract_slice</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_extract_slice — extract a slice of a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void frags_extract_slice(const frags_t *buf, void *vdst, size_t offset,
+                         size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>Copy a slice of size <code>len</code>, starting at offset <code>offset</code>, of the contents of <code>buf</code>, to <code>vdst</code>. The destination buffer <code>vdst</code> should be able to contain at least <code>len</code> bytes.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8 some_data[16];
+frags_extract_slice(&amp;foo, some_data, 4, 16);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_extract_8"><code>frags_extract_8</code></a>, <a href="dev-api-frags-t.html#frags_extract"><code>frags_extract</code></a>, <a href="dev-api-frags-t.html#frags_extract_alloc"><code>frags_extract_alloc</code></a>, <a href="dev-api-frags-t.html#frags_extract_slice_alloc"><code>frags_extract_slice_alloc</code></a></p>
+</section>
+<h2 id="frags_extract_slice_alloc"><a href="#frags_extract_slice_alloc">frags_extract_slice_alloc</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_extract_slice_alloc — return a partial copy of the contents of a frags_t</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void *frags_extract_slice_alloc(const frags_t *buf, size_t offset, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>Return an allocated copy of a slice of size <code>len</code>, starting at offset <code>offset</code>, of the contents of <code>buf</code>. The return value is allocated with <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC()</code></a>, and its ownership is passed to the caller, which should free it when appropriate.</p>
+<p>This function is equivalent to allocating a buffer of the correct size with <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC()</code></a> followed by a call to <a href="dev-api-frags-t.html#frags_extract_slice"><code>frags_extract_slice()</code></a>, and is provided for convenience.</p>
+<h2>Return Value</h2>
+<p>A newly allocated, partial copy of the data</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8 *slice = frags_extract_slice_alloc(&amp;foo, 4, 16);
+/* ... */
+MM_FREE(slice);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_extract"><code>frags_extract</code></a>, <a href="dev-api-frags-t.html#frags_extract_slice"><code>frags_extract_slice</code></a>, <a href="dev-api-frags-t.html#frags_extract_alloc"><code>frags_extract_alloc</code></a></p>
+</section>
+<h2 id="frags_init"><a href="#frags_init">frags_init</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_init — initialize a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void frags_init(frags_t *buf);
+</code></pre>
+<h2>Description</h2>
+<p>Initialize the <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> <code>buf</code>. An alternative is to use the <a href="dev-api-frags-t.html#FRAGS_INIT"><code>FRAGS_INIT</code></a> constant value.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>/* Initialization with frags_init() */
+frags_t bar;
+frags_init(&amp;bar);
+</code></pre>
+<pre><code>/* Initialization with FRAGS_INIT */
+frags_t foo = FRAGS_INIT;
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_init_add"><code>frags_init_add</code></a></p>
+</section>
+<h2 id="frags_init_add"><a href="#frags_init_add">frags_init_add</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_init_add — initialize a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> with an initial value</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+frags_init_add(frags_t *buf, const void *data, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>Initialize the <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> <code>buf</code> and set it to represent the initial data <code>data</code> of size <code>len</code>.</p>
+<p>This function is exactly equivalent to using <a href="dev-api-frags-t.html#frags_init"><code>frags_init()</code></a>, followed by <a href="dev-api-frags-t.html#frags_add"><code>frags_add()</code></a>, and is provided for convenience.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>frags_t baz;
+uint8 data[5] = { 0, 1, 2, 3, 4 };
+frags_init_add(&amp;baz, data, sizeof(data));
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_init"><code>frags_init</code></a>, <a href="dev-api-frags-t.html#frags_add"><code>frags_add</code></a></p>
+</section>
+<h2 id="frags_init_add_from_frags"><a href="#frags_init_add_from_frags">frags_init_add_from_frags</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_init_add_from_frags — initialize a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> from another</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+frags_init_add_from_frags(frags_t *dst, const frags_t *src,
+                          size_t offset, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>Initialize <code>dst</code> and set its initial value to the data of size <code>len</code> starting at offset <code>offset</code> in <code>src</code>.</p>
+<p>This function is exactly equivalent to using <a href="dev-api-frags-t.html#frags_init"><code>frags_init()</code></a>, followed by <a href="dev-api-frags-t.html#frags_add_from_frags"><code>frags_add_from_frags()</code></a>, and is provided for convenience.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>frags_t bat;
+ASSERT(frags_len(&amp;foo) &gt; 16);
+frags_init_add_from_frags(&amp;bat, &amp;foo, 16, frags_len(&amp;foo) - 16);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_init_add"><code>frags_init_add</code></a>, <a href="dev-api-frags-t.html#frags_add"><code>frags_add</code></a>, <a href="dev-api-frags-t.html#frags_add_from_frags"><code>frags_add_from_frags</code></a></p>
+</section>
+<h2 id="frags_it"><a href="#frags_it">frags_it</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_it — return an iterator</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE frags_it_t
+frags_it(const frags_t *buf, size_t offset, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>Return an iterator on the fragments that compose the data in <code>buf</code>, starting from offset <code>offset</code> and up to a length of <code>len</code>. To iterate on all the data in <code>buf</code>, <code>offset</code> should be set to 0 and <code>len</code> to the value returned by <a href="dev-api-frags-t.html#frags_len"><code>frags_len()</code></a>.</p>
+<h2>Return Value</h2>
+<p>An iterator on the fragments covering the desired data range</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>unsigned sum = 0;
+for (frags_it_t it = frags_it(&amp;foo, 0, frags_len(&amp;foo));
+     !frags_it_end(it);
+     it = frags_it_next(it)) {
+        unsigned f_len = frags_it_len(it);
+        const uint8 *f_data = frags_it_data(it);
+
+        for (int i=0; i&lt;f_len; i++)
+                sum += f_data[i];
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_it_end"><code>frags_it_end</code></a>, <a href="dev-api-frags-t.html#frags_it_next"><code>frags_it_next</code></a>, <a href="dev-api-frags-t.html#frags_it_len"><code>frags_it_len</code></a>, <a href="dev-api-frags-t.html#frags_it_data"><code>frags_it_data</code></a></p>
+</section>
+<h2 id="frags_it_data"><a href="#frags_it_data">frags_it_data</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_it_data — return the data of the current fragment</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE const uint8 *
+frags_it_data(frags_it_t it);
+</code></pre>
+<h2>Description</h2>
+<p>Return a pointer to the data of the current fragment pointed by the iterator <code>it</code>.</p>
+<h2>Return Value</h2>
+<p>The data of the current fragment</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>unsigned sum = 0;
+for (frags_it_t it = frags_it(&amp;foo, 0, frags_len(&amp;foo));
+     !frags_it_end(it);
+     it = frags_it_next(it)) {
+        unsigned f_len = frags_it_len(it);
+        const uint8 *f_data = frags_it_data(it);
+
+        for (int i=0; i&lt;f_len; i++)
+                sum += f_data[i];
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_it"><code>frags_it</code></a>, <a href="dev-api-frags-t.html#frags_it_end"><code>frags_it_end</code></a>, <a href="dev-api-frags-t.html#frags_it_next"><code>frags_it_next</code></a>, <a href="dev-api-frags-t.html#frags_it_len"><code>frags_it_len</code></a></p>
+</section>
+<h2 id="frags_it_end"><a href="#frags_it_end">frags_it_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_it_end — return whether an iterator is finished</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+frags_it_end(frags_it_t it);
+</code></pre>
+<h2>Description</h2>
+<p>Return <code>true</code> when the iterator <code>it</code> does not have any next fragment to return at the next call of <a href="dev-api-frags-t.html#frags_it_next"><code>frags_it_next()</code></a>, and <code>false</code> otherwise.</p>
+<h2>Return Value</h2>
+<p><code>true</code> if the iterator is finished, <code>false</code> otherwise.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>unsigned sum = 0;
+for (frags_it_t it = frags_it(&amp;foo, 0, frags_len(&amp;foo));
+     !frags_it_end(it);
+     it = frags_it_next(it)) {
+        unsigned f_len = frags_it_len(it);
+        const uint8 *f_data = frags_it_data(it);
+
+        for (int i=0; i&lt;f_len; i++)
+                sum += f_data[i];
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_it"><code>frags_it</code></a>, <a href="dev-api-frags-t.html#frags_it_next"><code>frags_it_next</code></a>, <a href="dev-api-frags-t.html#frags_it_len"><code>frags_it_len</code></a>, <a href="dev-api-frags-t.html#frags_it_data"><code>frags_it_data</code></a></p>
+</section>
+<h2 id="frags_it_len"><a href="#frags_it_len">frags_it_len</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_it_len — return the length of the current fragment</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE size_t
+frags_it_len(frags_it_t it);
+</code></pre>
+<h2>Description</h2>
+<p>Return the length of the current fragment pointed by the iterator <code>it</code>.</p>
+<h2>Return Value</h2>
+<p>The length of the current fragment</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>unsigned sum = 0;
+for (frags_it_t it = frags_it(&amp;foo, 0, frags_len(&amp;foo));
+     !frags_it_end(it);
+     it = frags_it_next(it)) {
+        unsigned f_len = frags_it_len(it);
+        const uint8 *f_data = frags_it_data(it);
+
+        for (int i=0; i&lt;f_len; i++)
+                sum += f_data[i];
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_it"><code>frags_it</code></a>, <a href="dev-api-frags-t.html#frags_it_end"><code>frags_it_end</code></a>, <a href="dev-api-frags-t.html#frags_it_next"><code>frags_it_next</code></a>, <a href="dev-api-frags-t.html#frags_it_data"><code>frags_it_data</code></a></p>
+</section>
+<h2 id="frags_it_next"><a href="#frags_it_next">frags_it_next</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_it_next — return the next fragment’s iterator</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE frags_it_t
+frags_it_next(frags_it_t it);
+</code></pre>
+<h2>Description</h2>
+<p>Return an iterator pointing at the next data fragment. This function should only be called if <code>frags_end(it)</code> returns <code>false</code>.</p>
+<h2>Return Value</h2>
+<p>An iterator on the next fragment</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>unsigned sum = 0;
+for (frags_it_t it = frags_it(&amp;foo, 0, frags_len(&amp;foo));
+     !frags_it_end(it);
+     it = frags_it_next(it)) {
+        unsigned f_len = frags_it_len(it);
+        const uint8 *f_data = frags_it_data(it);
+
+        for (int i=0; i&lt;f_len; i++)
+                sum += f_data[i];
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_it"><code>frags_it</code></a>, <a href="dev-api-frags-t.html#frags_it_end"><code>frags_it_end</code></a>, <a href="dev-api-frags-t.html#frags_it_len"><code>frags_it_len</code></a>, <a href="dev-api-frags-t.html#frags_it_data"><code>frags_it_data</code></a></p>
+</section>
+<h2 id="frags_len"><a href="#frags_len">frags_len</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_len — return the total data length</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE size_t frags_len(const frags_t *buf);
+</code></pre>
+<h2>Description</h2>
+<p>Return the total length of the data represented by <code>buf</code>.</p>
+<h2>Return Value</h2>
+<p>The total data length</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>unsigned len = frags_len(&amp;foo);
+</code></pre>
+</section>
+<h2 id="frags_prefix"><a href="#frags_prefix">frags_prefix</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_prefix — prefix a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> with a header</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE frags_t
+frags_prefix(const void *header, size_t header_len, const frags_t *body);
+</code></pre>
+<h2>Description</h2>
+<p>Create a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> composed of the header <code>header</code> of size <code>header_len</code>, followed by the contents of the <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> <code>body</code>.</p>
+<p>This function is equivalent to a sequence of <a href="dev-api-frags-t.html#frags_init"><code>frags_init()</code></a>, <a href="dev-api-frags-t.html#frags_add"><code>frags_add()</code></a>, <a href="dev-api-frags-t.html#frags_add_from_frags"><code>frags_add_from_frags()</code></a> to build a new fragment containing the prefix. It is provided for convenience.</p>
+<h2>Return Value</h2>
+<p>A new <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> including <code>header</code> and <code>body</code></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8 eth_header[14] = { 0 };
+frags_t packet = frags_prefix(eth_header, sizeof(eth_header), &amp;foo);
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_suffix"><code>frags_suffix</code></a>, <a href="dev-api-frags-t.html#frags_add_from_frags"><code>frags_add_from_frags</code></a></p>
+</section>
+<h2 id="frags_suffix"><a href="#frags_suffix">frags_suffix</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_suffix — append a suffix to a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE frags_t
+frags_suffix(const frags_t *body, void *header, size_t header_len);
+</code></pre>
+<h2>Description</h2>
+<p>Create a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> composed of the contents of the <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> <code>body</code>, followed by the data <code>header</code> of size <code>header_len</code>.</p>
+<p>This function is equivalent to a sequence of <a href="dev-api-frags-t.html#frags_init"><code>frags_init()</code></a>, <a href="dev-api-frags-t.html#frags_add_from_frags"><code>frags_add_from_frags()</code></a>, <a href="dev-api-frags-t.html#frags_add"><code>frags_add()</code></a> to build a new fragment containing the suffix. It is provided for convenience.</p>
+<h2>Return Value</h2>
+<p>A new <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> including <code>body</code> and <code>header</code></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<pre><code>uint8 eth_checksum[4] = { 0 };
+frags_t frame = frags_suffix(&amp;foo, eth_checksum, sizeof(eth_checksum));
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-frags-t.html#frags_prefix"><code>frags_prefix</code></a>, <a href="dev-api-frags-t.html#frags_add_from_frags"><code>frags_add_from_frags</code></a></p>
+</section>
+<h2 id="frags_t"><a href="#frags_t">frags_t, frags_it_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>frags_t, frags_it_t — encapsulate a data packet</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct frags frags_t;
+typedef struct frags_it frags_it_t;
+</code></pre>
+<h2>Description</h2>
+<p>These types encapsulate a data packet, for use by models that send and receive data, such as network devices.</p>
+<p>The structures should never be used directly. Only use the accessor functions.</p>
+</section>
+<div class="chain">
+<a href="dev-api-version-copyright.html">Version and Copyright</a>
+<a href="dev-api-alloc.html">Dynamic Memory Management</a>
+</div>

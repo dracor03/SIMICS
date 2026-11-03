@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>print-blueprint-state</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-print.html">print</a>
+<a href="rm-cmd-print-device-access-stats.html">print-device-access-stats</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="print-blueprint-state"></a>
+<a name="pbs"></a>
+<h1 id="print-blueprint-state"><a href="#print-blueprint-state">print-blueprint-state</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>print-blueprint-state</b> [<i>"state"</i>] [<i>"field"</i>] [<i>"pat"</i>] [-b] [-i] [-show-unbound] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Inspect blueprint state. If <i>state</i> is specified, limit output to blueprint state of the specified type. The <i>field</i> argument can be used to restrict the output to just include the specified field.
+<p>
+As an alternative/complement to <i>state</i>, it is possible to specify <i>pat</i> which selects all state that match the specified substring. This is for instance useful to select state defined in a specific node.
+</p><p>
+If the <tt>-b</tt> flag is specified, then all state bound to a specific namespace node are listed. Conversely, the <tt>-i</tt> flag lists all state subscription points.
+</p><p>
+If the <tt>-show-unbound</tt> flag is specified, then unbound states are shown (hidden by default). 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.blueprints.html">blueprints</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-list-blueprint-params.html">list-blueprint-params</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-print.html">print</a>
+<a href="rm-cmd-print-device-access-stats.html">print-device-access-stats</a>
+</div>

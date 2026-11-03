@@ -1,0 +1,1097 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Link Library API</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="link-api.html">Link Library API</a>
+<a href="link_components.html">Link Component API</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="link-api.html">Link Library API</a>
+&nbsp;/&nbsp;</div>
+<h1>Link Library API</h1>
+<h2 id="SIMLINK_config_remove_value"><a href="#SIMLINK_config_remove_value">SIMLINK_config_remove_value</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_config_remove_value — remove a link configuration parameter</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_config_remove_value(conf_object_t *link, const char *key);
+</code></pre>
+<h2>Description</h2>
+<p>Make sure that all link objects representing <code>link</code> in the simulation receive a configuration message to remove the configuration parameter <code>key</code>.</p>
+<p>Note that this function may delay the transmission if it is not possible to send the configuration message yet. The message will be buffered and send when possible. The ordering of configuration messages is kept when buffering them.</p>
+<p>All link objects representing <code>link</code> in the simulation will be called via the <code>remove_config_value()</code> function declared in <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a>, including the one initiating the message.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>, where the ID of the endpoints present on the link is kept as a configuration parameter:</p>
+<pre><code>static void
+ser_link_ep_deinit(conf_object_t *ep)
+{
+        char ep_id[19];
+        snprintf(ep_id, sizeof(ep_id), "ep%llx", SIMLINK_endpoint_id(ep));
+        SIMLINK_config_remove_value(SIMLINK_endpoint_link(ep), ep_id);
+        SIMLINK_endpoint_disconnect(ep);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_config_update_value"><code>SIMLINK_config_update_value</code></a>, <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a></p>
+</section>
+<h2 id="SIMLINK_config_update_value"><a href="#SIMLINK_config_update_value">SIMLINK_config_update_value</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_config_update_value — update a link configuration parameter</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_config_update_value(conf_object_t *link, const char *key,
+                            const frags_t *value);
+</code></pre>
+<h2>Description</h2>
+<p>Make sure that all link objects representing <code>link</code> in the simulation will receive a configuration message for the new <code>value</code> of the configuration parameter <code>key</code>. Both <code>key</code> and <code>value</code> are completely link-specific and transported as-is to all objects.</p>
+<p>Note that this function may delay the transmission if it is not possible to send the configuration message yet. The message will be buffered and send when possible. The ordering of configuration messages is kept when buffering them.</p>
+<p>All link objects representing <code>link</code> in the simulation will be called via the <code>update_config_value()</code> function declared in <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a>, including the one initiating the message.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-eth-switch-link.html"><code>eth-switch-link</code></a>, where the ID of all snooper endpoints present on the link are sent as a configuration parameter so they are included even when a packet can be sent directly to the receiver.</p>
+<pre><code>static void
+snoop_ep_finalize(conf_object_t *ep)
+{
+        ep_finalize(ep);
+
+        /* Tell all endpoints that there's a new snoop in town. */
+        char ep_id[17];
+        snprintf(ep_id, sizeof(ep_id), "%llx", SIMLINK_endpoint_id(ep));
+        frags_t value;
+        frags_init(&amp;value); /* empty value, just to put the
+                               key in the database */
+        SIMLINK_config_update_value(
+                SIMLINK_endpoint_link(ep), ep_id, &amp;value);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_config_remove_value"><code>SIMLINK_config_remove_value</code></a>, <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_clock"><a href="#SIMLINK_endpoint_clock">SIMLINK_endpoint_clock</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_clock — return endpoint’s clock</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+conf_object_t *
+SIMLINK_endpoint_clock(const conf_object_t *ep_obj);
+</code></pre>
+<h2>Description</h2>
+<p>Return the endpoint <code>ep</code>’s associated clock object. It will be either the clock object corresponding to the device connected to the endpoint, or the clock chosen when using the endpoint for snooping.</p>
+<h2>Return Value</h2>
+<p>The associated clock object. This function might return <code>NULL</code> if the device associated to an endpoint does not have its queue attribute set. This indicates a configuration problem, as the device would be unable to send or receive link messages.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_device"><code>SIMLINK_endpoint_device</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_dev_name"><a href="#SIMLINK_endpoint_dev_name">SIMLINK_endpoint_dev_name</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_dev_name — return the name of the device or snooper to which an endpoint is connected</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+const char *
+SIMLINK_endpoint_dev_name(const conf_object_t *ep_obj, buffer_t scratch);
+</code></pre>
+<h2>Description</h2>
+<p>Return the name of the device or snooper to which the endpoint <code>ep</code> is connected. This function takes an additional <code>scratch</code> parameter that is meant to provide space for putting together the answer when necessary, without allocating any memory. If <code>scratch</code> is used by <code>SIMLINK_endpoint_dev_name()</code> but is not long enough, the name will be truncated.</p>
+<p>This function is provided for logging purposes.</p>
+<h2>Return Value</h2>
+<p>The name of the device or snooper the endpoint is connected to</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-eth-hub-link.html"><code>eth-hub-link</code></a>, to print the name of the device or snooper to which a frame is delivered:</p>
+<pre><code>#define BUFFER_T(buf) (buffer_t){ .len = sizeof(buf), .data = buf }
+
+static void
+deliver_hub(conf_object_t *ep, const link_message_t *msgdata)
+{
+        uint8 buf[1000];
+        SIM_LOG_INFO(3, ep, 0, "delivering to %s",
+                     SIMLINK_endpoint_dev_name(ep, BUFFER_T(buf)));
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_is_device"><code>SIMLINK_endpoint_is_device</code></a>, <a href="link-library-api.html#SIMLINK_endpoint_device"><code>SIMLINK_endpoint_device</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_device"><a href="#SIMLINK_endpoint_device">SIMLINK_endpoint_device</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_device — return the device to which an endpoint is connected</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+conf_object_t *
+SIMLINK_endpoint_device(const conf_object_t *ep_obj);
+</code></pre>
+<h2>Description</h2>
+<p>Return the device to which the endpoint <code>ep</code> is connected. If the endpoint is not connected to a device, this function will trigger an assertion failure. This can be checked with <a href="link-library-api.html#SIMLINK_endpoint_is_device"><code>SIMLINK_endpoint_is_device()</code></a>.</p>
+<h2>Return Value</h2>
+<p>The device to which the endpoint is connected</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a>:</p>
+<pre><code>static void
+deliver(conf_object_t *ep, const link_message_t *lm)
+{
+        const datagram_link_message_t *m =
+                (const datagram_link_message_t *)lm;
+        conf_object_t *dev = SIMLINK_endpoint_device(ep);
+        const char *port = SIMLINK_endpoint_port(ep);
+        const datagram_link_interface_t *dli =
+                SIM_c_get_port_interface(dev, "datagram_link", port);
+        if (dli)
+                dli-&gt;receive(dev, m-&gt;payload);
+        else
+                SIM_LOG_ERROR(ep, 0, "Device does not implement"
+                              " datagram_link interface");
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_is_device"><code>SIMLINK_endpoint_is_device</code></a>, <a href="link-library-api.html#SIMLINK_endpoint_dev_name"><code>SIMLINK_endpoint_dev_name</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_disconnect"><a href="#SIMLINK_endpoint_disconnect">SIMLINK_endpoint_disconnect</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_disconnect — disconnect an endpoint object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_endpoint_disconnect(conf_object_t *ep_obj);
+</code></pre>
+<h2>Description</h2>
+<p>Disconnect the endpoint object <code>ep_obj</code> from its link. This function is intended to be called in the <code>pre_delete_instance()</code> method of an endpoint class. It should never be called in other circumstances, as endpoint objects should <em>not</em> be reused. Note that once the endpoint has been disconnected, it cannot be used for calls to Link Library API functions that takes an endpoint as argument.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>:</p>
+<pre><code>static void
+ser_link_ep_deinit(conf_object_t *ep)
+{
+        char ep_id[19];
+        snprintf(ep_id, sizeof(ep_id), "ep%llx", SIMLINK_endpoint_id(ep));
+        SIMLINK_config_remove_value(SIMLINK_endpoint_link(ep), ep_id);
+        SIMLINK_endpoint_disconnect(ep);
+}
+</code></pre>
+</section>
+<h2 id="SIMLINK_endpoint_finalize"><a href="#SIMLINK_endpoint_finalize">SIMLINK_endpoint_finalize</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_finalize — finalize an endpoint object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_endpoint_finalize(conf_object_t *ep_obj);
+</code></pre>
+<h2>Description</h2>
+<p>Finalize the endpoint object <code>ep_obj</code>. This function is intended to be called in the <code>finalize_instance()</code> method of an endpoint class.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>:</p>
+<pre><code>static void
+ser_link_ep_finalize(conf_object_t *ep)
+{
+        SIMLINK_endpoint_finalize(ep);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_init"><code>SIMLINK_endpoint_init</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_id"><a href="#SIMLINK_endpoint_id">SIMLINK_endpoint_id</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_id — return endpoint’s ID</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+uint64
+SIMLINK_endpoint_id(const conf_object_t *ep);
+</code></pre>
+<h2>Description</h2>
+<p>Return the endpoint <code>ep</code>’s ID.</p>
+<h2>Return Value</h2>
+<p>The endpoint ID</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>In <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>, the endpoints IDs are kept as configuration values so they are known in all link objects:</p>
+<pre><code>static void
+ser_link_ep_deinit(conf_object_t *ep)
+{
+        char ep_id[19];
+        snprintf(ep_id, sizeof(ep_id), "ep%llx", SIMLINK_endpoint_id(ep));
+        SIMLINK_config_remove_value(SIMLINK_endpoint_link(ep), ep_id);
+        SIMLINK_endpoint_disconnect(ep);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_find_endpoint_by_id"><code>SIMLINK_find_endpoint_by_id</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_init"><a href="#SIMLINK_endpoint_init">SIMLINK_endpoint_init</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_init — initialize an endpoint object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_endpoint_init(conf_object_t *obj, bool snoop);
+</code></pre>
+<h2>Description</h2>
+<p>Initialize the endpoint object <code>obj</code>. Whether the endpoint is connected to a device or a snooper function is determined by the <code>snoop</code> parameter. This function is intended to be called in the <code>init_object()</code> method of an endpoint class.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a>:</p>
+<pre><code>static void *
+datagram_link_endpoint_init(conf_object_t *obj)
+{
+        datagram_link_endpoint_t *dlep =
+                (datagram_link_endpoint_t *)obj;
+        SIMLINK_endpoint_init(&amp;dlep-&gt;obj, false);
+        return dlep;
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_register_endpoint_class"><code>SIMLINK_register_endpoint_class</code></a>, <a href="link-library-api.html#SIMLINK_register_snoop_endpoint_class"><code>SIMLINK_register_snoop_endpoint_class</code></a>, <a href="link-library-api.html#SIMLINK_endpoint_finalize"><code>SIMLINK_endpoint_finalize</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_is_device"><a href="#SIMLINK_endpoint_is_device">SIMLINK_endpoint_is_device</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_is_device — return whether an endpoint is connected to a device</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+bool
+SIMLINK_endpoint_is_device(const conf_object_t *ep);
+</code></pre>
+<h2>Description</h2>
+<p>Return whether the endpoint <code>ep</code> is connected to a device (as opposed to a link snooper).</p>
+<h2>Return Value</h2>
+<p><code>true</code> if the endpoint is connected to a device, <code>false</code> otherwise</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-eth-switch-link.html"><code>eth-switch-link</code></a>, where frames are delivered either to a device endpoint or to a snoop endpoint, using different methods:</p>
+<pre><code>static void
+switch_deliver_frame(conf_object_t *link, conf_object_t *ep,
+                     vlan_tag_t vlan_tag, uint64 src_epid,
+                     const frags_t *frame)
+{
+        eth_frame_crc_status_t crc_status = Eth_Frame_CRC_Match;
+
+        if (SIMLINK_endpoint_is_device(ep)) {
+                switch_ep_t *swep = (switch_ep_t *)ep;
+                if (frags_len(frame) &gt; 12) {
+                        uint8 src_mac[6];
+                        frags_extract_slice(frame, src_mac, 6, 6);
+                        learn(link, swep, vlan_tag, src_mac, src_epid);
+                }
+                swep-&gt;cep.ifc-&gt;frame(SIMLINK_endpoint_device(ep), frame,
+                                     crc_status);
+        } else {
+                snoop_ep_t *snoop = (snoop_ep_t *)ep;
+                deliver_to_snoop(snoop-&gt;snoop_fun, snoop-&gt;user_data,
+                                 SIMLINK_endpoint_clock(ep), frame,
+                                 crc_status);
+        }
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_device"><code>SIMLINK_endpoint_device</code></a>, <a href="link-library-api.html#SIMLINK_endpoint_port"><code>SIMLINK_endpoint_port</code></a></p>
+</section>
+<h2 id="SIMLINK_endpoint_link"><a href="#SIMLINK_endpoint_link">SIMLINK_endpoint_link</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_link — return endpoint’s link</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+conf_object_t *
+SIMLINK_endpoint_link(const conf_object_t *ep);
+</code></pre>
+<h2>Description</h2>
+<p>Return the link object to which the endpoint <code>ep</code> is connected.</p>
+<h2>Return Value</h2>
+<p>The link object</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>In <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>, an endpoint needs to check the maximum size of its buffer by querying its link object:</p>
+<pre><code>static void
+deliver(conf_object_t *ep, const link_message_t *msgd)
+{
+        ser_link_endpoint_t *slep = (ser_link_endpoint_t *)ep;
+        ser_link_impl_t *slink = (ser_link_impl_t *)SIMLINK_endpoint_link(ep);
+        ser_link_message_t *msg = (ser_link_message_t *)msgd;
+        switch (msg-&gt;msgtype) {
+</code></pre>
+</section>
+<h2 id="SIMLINK_endpoint_port"><a href="#SIMLINK_endpoint_port">SIMLINK_endpoint_port</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_endpoint_port — return the device’s port to which an endpoint is connected</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+const char *
+SIMLINK_endpoint_port(const conf_object_t *ep_obj);
+</code></pre>
+<h2>Description</h2>
+<p>Return the device’s port to which the endpoint <code>ep</code> is connected. If the endpoint is not connected to a device, this function will trigger an assertion failure. This can be checked with <a href="link-library-api.html#SIMLINK_endpoint_is_device"><code>SIMLINK_endpoint_is_device()</code></a>.</p>
+<p>The port returned might be <code>NULL</code>, which means that the device is implementing a classic interface rather than a port interface.</p>
+<h2>Return Value</h2>
+<p>The device’s port to which the endpoint is connected, or <code>NULL</code> if no port is used</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>, where a pointer to the interface to call for delivery is kept in the endpoint structure:</p>
+<pre><code>static void
+ser_link_ep_finalize(conf_object_t *ep)
+{
+        SIMLINK_endpoint_finalize(ep);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_is_device"><code>SIMLINK_endpoint_is_device</code></a>, <a href="link-library-api.html#SIMLINK_endpoint_device"><code>SIMLINK_endpoint_device</code></a></p>
+</section>
+<h2 id="SIMLINK_finalize"><a href="#SIMLINK_finalize">SIMLINK_finalize</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_finalize — finalize a link object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_finalize(conf_object_t *obj);
+</code></pre>
+<h2>Description</h2>
+<p>Finalize the link object <code>obj</code>. This function is intended to be called in the <code>finalize_instance()</code> method of a link class.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>:</p>
+<pre><code>static void
+datagram_link_finalize(conf_object_t *obj)
+{
+        SIMLINK_finalize(obj);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_init"><code>SIMLINK_init</code></a></p>
+</section>
+<h2 id="SIMLINK_find_endpoint_by_id"><a href="#SIMLINK_find_endpoint_by_id">SIMLINK_find_endpoint_by_id</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_find_endpoint_by_id — return an endpoint object given its ID</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+conf_object_t *
+SIMLINK_find_endpoint_by_id(conf_object_t *link, uint64 id);
+</code></pre>
+<h2>Description</h2>
+<p>Return the endpoint object with the ID <code>id</code> if the endpoint is connected to the link <code>link</code>, or <code>NULL</code> otherwise.</p>
+<h2>Return Value</h2>
+<p>Endpoint object, or <code>NULL</code> if not found</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_id"><code>SIMLINK_endpoint_id</code></a></p>
+</section>
+<h2 id="SIMLINK_init"><a href="#SIMLINK_init">SIMLINK_init</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_init — initialize a link object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_init(conf_object_t *obj, const link_type_t *type);
+</code></pre>
+<h2>Description</h2>
+<p>Initialize the link object <code>obj</code>. The link specific functions that will be called from the link library are gathered in the <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a> <code>type</code> argument. This function is intended to be called in the <code>init_object()</code> method of a link.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>:</p>
+<pre><code>static const link_type_t ser_link_type = {
+        .msg_to_attr = msg_to_attr,
+        .msg_from_attr = msg_from_attr,
+        .free_msg = free_message,
+        .marshal = marshal,
+        .unmarshal = unmarshal,
+        .deliver = deliver,
+        .update_config_value = link_config_value_updated,
+        .remove_config_value = link_config_value_removed,
+        .device_changed = ser_link_ep_device_changed
+};
+
+static conf_object_t *
+ser_link_alloc(conf_class_t *cls)
+{
+        ser_link_impl_t *slink = MM_ZALLOC(1, ser_link_impl_t);
+        return &amp;slink-&gt;obj;
+}
+
+static void *
+ser_link_init(conf_object_t *obj)
+{
+        ser_link_impl_t *slink = (ser_link_impl_t *)obj;
+        SIMLINK_init(&amp;slink-&gt;obj, &amp;ser_link_type);
+        slink-&gt;buffer_size = 10; /* a reasonable default value? */
+        slink-&gt;connection_warning = false;
+        return obj;
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_register_class"><code>SIMLINK_register_class</code></a>, <a href="link-library-api.html#SIMLINK_finalize"><code>SIMLINK_finalize</code></a>, <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a></p>
+</section>
+<h2 id="SIMLINK_init_library"><a href="#SIMLINK_init_library">SIMLINK_init_library</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_init_library — initialize the link library</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_init_library();
+</code></pre>
+<h2>Description</h2>
+<p>Initialize the link library. This function is meant to be called in the <code>init_local()</code> function of a module linked to the library.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a>:</p>
+<pre><code>void
+init_local()
+{
+        // The link library must always be initialised first.
+        SIMLINK_init_library();
+</code></pre>
+</section>
+<h2 id="SIMLINK_init_message"><a href="#SIMLINK_init_message">SIMLINK_init_message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_init_message — initialize a link message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_init_message(link_message_t *msg);
+</code></pre>
+<h2>Description</h2>
+<p>Initialize the generic part of a link message.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a>:</p>
+<pre><code>static link_message_t *
+new_datagram_message(const uint8 *data, size_t len)
+{
+        datagram_link_message_t *m = MM_MALLOC(1, datagram_link_message_t);
+        SIMLINK_init_message(&amp;m-&gt;common);
+        uint8 *d = MM_MALLOC(len, uint8);
+        memcpy(d, data, len);
+        m-&gt;payload = (bytes_t){.data = d, .len = len};
+        return &amp;m-&gt;common;
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#link_type_t"><code>link_type_t</code></a></p>
+</section>
+<h2 id="SIMLINK_pre_delete"><a href="#SIMLINK_pre_delete">SIMLINK_pre_delete</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_pre_delete — clean-up before link deletion</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_pre_delete(conf_object_t *obj);
+</code></pre>
+<h2>Description</h2>
+<p>Performs clean-up operations before a link object can be safely deleted. This function is intended to be called in the <code>pre_delete_instance()</code> method of a link class.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>:</p>
+<pre><code>static void
+ser_link_deinit(conf_object_t *obj)
+{
+        SIMLINK_pre_delete(obj);
+}
+</code></pre>
+</section>
+<h2 id="SIMLINK_register_class"><a href="#SIMLINK_register_class">SIMLINK_register_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_register_class — register a link class</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_register_class(conf_class_t *cls);
+</code></pre>
+<h2>Description</h2>
+<p>Complete the class <code>cls</code> with the necessary attributes and interfaces to be a usable link class. This function is meant to be called after <code>cls</code> has been obtained from <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class</code></a>.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>:</p>
+<pre><code>void
+init_local()
+{
+        SIMLINK_init_library();
+
+        const class_info_t link_cls_funcs = {
+                .alloc = ser_link_alloc,
+                .init = ser_link_init,
+                .finalize = ser_link_finalize,
+                .deinit = ser_link_deinit,
+                .dealloc = ser_link_dealloc,
+                .short_desc = "model of serial link",
+                .description = "Serial link"
+        };
+        conf_class_t *link_cls = SIM_create_class("ser-link-impl",
+                                                    &amp;link_cls_funcs);
+        SIMLINK_register_class(link_cls);
+        SIM_register_attribute(
+                link_cls, "buffer_size", get_link_buffer_size,
+                set_link_buffer_size, Sim_Attr_Optional, "i",
+                "The number of characters that the link may buffer. Must"
+                " be at least one.");
+
+        const class_info_t ep_cls_funcs = {
+                .alloc = ser_link_ep_alloc,
+                .init = ser_link_ep_init,
+                .finalize = ser_link_ep_finalize,
+                .deinit = ser_link_ep_deinit,
+                .dealloc = ser_link_ep_dealloc,
+                .short_desc =  "serial link endpoint",
+                .description = "Serial link endpoint"
+        };
+        conf_class_t *ep_cls = SIM_create_class("ser-link-endpoint",
+                                                  &amp;ep_cls_funcs);
+        SIMLINK_register_endpoint_class(ep_cls, "[s]|[si]");
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_init"><code>SIMLINK_init</code></a>, <a href="link-library-api.html#SIMLINK_finalize"><code>SIMLINK_finalize</code></a></p>
+</section>
+<h2 id="SIMLINK_register_endpoint_class"><a href="#SIMLINK_register_endpoint_class">SIMLINK_register_endpoint_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_register_endpoint_class — register a link endpoint class</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_register_endpoint_class(conf_class_t *cls, const char *msg_type);
+</code></pre>
+<h2>Description</h2>
+<p>Complete the class <code>cls</code> with the necessary attributes and interfaces to be a usable link endpoint class. This function is meant to be called after <code>cls</code> has been obtained from <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class</code></a>.</p>
+<p><code>msg_type</code> is a string defining the type of the attribute representing a link message, as returned by <code>msg_to_attr()</code> in <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a>.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a>:</p>
+<pre><code>void
+init_local()
+{
+        SIMLINK_init_library();
+
+        const class_info_t link_cls_funcs = {
+                .alloc = ser_link_alloc,
+                .init = ser_link_init,
+                .finalize = ser_link_finalize,
+                .deinit = ser_link_deinit,
+                .dealloc = ser_link_dealloc,
+                .short_desc = "model of serial link",
+                .description = "Serial link"
+        };
+        conf_class_t *link_cls = SIM_create_class("ser-link-impl",
+                                                    &amp;link_cls_funcs);
+        SIMLINK_register_class(link_cls);
+        SIM_register_attribute(
+                link_cls, "buffer_size", get_link_buffer_size,
+                set_link_buffer_size, Sim_Attr_Optional, "i",
+                "The number of characters that the link may buffer. Must"
+                " be at least one.");
+
+        const class_info_t ep_cls_funcs = {
+                .alloc = ser_link_ep_alloc,
+                .init = ser_link_ep_init,
+                .finalize = ser_link_ep_finalize,
+                .deinit = ser_link_ep_deinit,
+                .dealloc = ser_link_ep_dealloc,
+                .short_desc =  "serial link endpoint",
+                .description = "Serial link endpoint"
+        };
+        conf_class_t *ep_cls = SIM_create_class("ser-link-endpoint",
+                                                  &amp;ep_cls_funcs);
+        SIMLINK_register_endpoint_class(ep_cls, "[s]|[si]");
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_finalize"><code>SIMLINK_endpoint_finalize</code></a></p>
+</section>
+<h2 id="SIMLINK_register_snoop_endpoint_class"><a href="#SIMLINK_register_snoop_endpoint_class">SIMLINK_register_snoop_endpoint_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_register_snoop_endpoint_class — register a link snoop endpoint class</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_register_snoop_endpoint_class(conf_class_t *cls);
+</code></pre>
+<h2>Description</h2>
+<p>Complete the class <code>cls</code> with the necessary attributes and interfaces to be a usable link snoop endpoint class. This function is meant to be called after <code>cls</code> has been obtained from <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class()</code></a>.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from the new Ethernet links:</p>
+<pre><code>void
+init_local()
+{
+        SIMLINK_init_library();
+        init_eth_hub_link();
+        init_eth_cable_link();
+        init_eth_switch_link();
+	init_ethernet_crc_table();
+
+        const class_info_t snoop_ep_cls_funcs = {
+                .alloc = snoop_ep_alloc,
+                .init = snoop_ep_init,
+                .finalize = ep_finalize,
+                .deinit = snoop_ep_deinit,
+                .dealloc = snoop_ep_dealloc,
+                .description = "Ethernet link snoop endpoint",
+                .short_desc = "an Ethernet link snoop endpoint",
+                .kind = Sim_Class_Kind_Pseudo,
+        };
+        snoop_ep_cls = SIM_create_class("eth-link-snoop-endpoint",
+                                          &amp;snoop_ep_cls_funcs);
+        SIMLINK_register_snoop_endpoint_class(snoop_ep_cls);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_endpoint_finalize"><code>SIMLINK_endpoint_finalize</code></a></p>
+</section>
+<h2 id="SIMLINK_send_message"><a href="#SIMLINK_send_message">SIMLINK_send_message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_send_message — send a link message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_send_message(conf_object_t *src_ep_obj,
+                  uint64 dst_id, link_message_t *msg);
+</code></pre>
+<h2>Description</h2>
+<p>Send a message <code>msg</code> from the endpoint <code>src_ep_obj</code> to the destination ID <code>dst_id</code>. The destination may be any valid endpoint ID on the link or <code>LINK_BROADCAST_ID</code>, which will send the message to all endpoints on the link except the sender.</p>
+<p>It is important to note that the ownership of the message <code>msg</code> is passed to the link library when calling <code>SIMLINK_send_message()</code>. When returning, <code>msg</code> may have been already deallocated and should not be used anymore.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a>:</p>
+<pre><code>static void
+receive(conf_object_t *NOTNULL ep, bytes_t msg)
+{
+        SIMLINK_send_message(ep, LINK_BROADCAST_ID,
+                             new_datagram_message(msg.data, msg.len));
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_send_message_multi"><code>SIMLINK_send_message_multi</code></a>, <a href="link-library-api.html#link_message_t"><code>link_message_t</code></a>, <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a></p>
+</section>
+<h2 id="SIMLINK_send_message_multi"><a href="#SIMLINK_send_message_multi">SIMLINK_send_message_multi</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_send_message_multi — send a link message to multiple recipients</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+void
+SIMLINK_send_message_multi(conf_object_t *src_ep_obj, unsigned num_dsts,
+                           const uint64 *dst_ids, link_message_t *msg);
+</code></pre>
+<h2>Description</h2>
+<p>Send a message <code>msg</code> from the endpoint <code>src_ep_obj</code> to the destinations IDs <code>dst_ids</code>. The length of the <code>dst_ids</code> list is provided by <code>num_dsts</code>. Each destination should be a valid endpoint ID on the link. It is <em>not</em> allowed to be <code>LINK_BROADCAST_ID</code>.</p>
+<p>It is important to note that the ownership of the message <code>msg</code> is passed to the link library when calling <code>SIMLINK_send_message_multi()</code>. When returning, <code>msg</code> may have been already deallocated and should not be used anymore.</p>
+<h2>Return Value</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Example</h2>
+<p>Example from <a href="../rm-base/rm-class-signal_link_impl.html"><code>signal_link_impl</code></a>, which keeps a list of endpoints to send to and specifically directs its messages to the appropriate endpoints:</p>
+<pre><code>static void
+send_message(signal_link_endpoint_t *slep, link_message_t *msg)
+{
+        signal_link_t *slink =
+                (signal_link_t *)SIMLINK_endpoint_link(&amp;slep-&gt;obj);
+        int num_dsts = ht_num_entries_int(&amp;slink-&gt;receivers);
+        uint64 dst_ids[num_dsts];
+        memset(dst_ids, 0, num_dsts * sizeof(uint64));
+        int i = 0;
+        HT_FOREACH_INT(&amp;slink-&gt;receivers, it)
+                dst_ids[i++] = ht_iter_int_key(it);
+        SIMLINK_send_message_multi(&amp;slep-&gt;obj, num_dsts, dst_ids, msg);
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#SIMLINK_send_message"><code>SIMLINK_send_message</code></a>, <a href="link-library-api.html#link_message_t"><code>link_message_t</code></a>, <a href="link-library-api.html#link_type_t"><code>link_type_t</code></a></p>
+</section>
+<h2 id="SIMLINK_snoop_endpoint_create"><a href="#SIMLINK_snoop_endpoint_create">SIMLINK_snoop_endpoint_create</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIMLINK_snoop_endpoint_create — create a snoop endpoint object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+conf_object_t *
+SIMLINK_snoop_endpoint_create(conf_class_t *cls, conf_object_t *link,
+                              conf_object_t *clock,
+                              attr_value_t attrs);
+</code></pre>
+<h2>Description</h2>
+<p>This method returns an already created snoop endpoint object. It is meant to be used when implementing a <a href="model-to-model-interfaces.html#ethernet_snoop_interface_t"><code>ethernet_snoop</code></a> or <a href="model-to-model-interfaces.html#ethernet_vlan_snoop_interface_t"><code>ethernet_vlan_snoop</code></a> interface, where endpoints can not be created using components as it is usually done. <code>SIMLINK_snoop_endpoint_create()</code> takes as arguments the class of the snoop endpoint object <code>cls</code>, the link object <code>link</code>, and a list of attributes to set, in the same form as provided to <a href="sim-api-configuration.html#SIM_create_object"><code>SIM_create_object()</code></a>.</p>
+<h2>Return Value</h2>
+<p>A snoop endpoint object</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>Example from the new Ethernet links:</p>
+<pre><code>static conf_object_t *
+default_attach_snoop(conf_object_t *obj, conf_object_t *clock,
+                     ethernet_link_snoop_t snoop_fun, lang_void *user_data)
+{
+        common_link_t *clink = (common_link_t *)obj;
+        attach_snoop_helper(clink, clock);
+        attr_value_t attrs = SIM_make_attr_list(0);
+        snoop_ep_t *snoop = (snoop_ep_t *)SIMLINK_snoop_endpoint_create(
+                snoop_ep_cls, &amp;clink-&gt;obj, clock, attrs);
+        SIM_attr_free(&amp;attrs);
+        snoop-&gt;snoop_fun = snoop_fun;
+        snoop-&gt;user_data = user_data;
+        return &amp;snoop-&gt;cep.obj;
+}
+</code></pre>
+</section>
+<h2 id="link_message_t"><a href="#link_message_t">link_message_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>link_message_t — generic part of a link message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+typedef struct {
+        atomic_counter_t refcount;
+} link_message_t;
+</code></pre>
+<h2>Description</h2>
+<p>Generic part of a link message. This structure should always be the first member of the link message data structure, so that the link library can access the generic part with a simple cast.</p>
+<h2>Example</h2>
+<p>The <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a> example defines its link message in the following way:</p>
+<pre><code>typedef struct {
+        link_message_t common;               /* should always be first */
+        /* The actual data in the message - in our case an allocated
+           byte string owned by this structure. */
+        bytes_t payload;
+} datagram_link_message_t;
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#link_type_t"><code>link_type_t</code></a>, <a href="link-library-api.html#SIMLINK_init_message"><code>SIMLINK_init_message</code></a></p>
+</section>
+<h2 id="link_type_t"><a href="#link_type_t">link_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>link_type_t — functions to be defined by a specific link implementation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/liblink.h&gt; // in C
+import "simics/devs/liblink.dml"; // in DML
+
+typedef struct {
+        attr_value_t (*msg_to_attr)(conf_object_t *link,
+                                    const link_message_t *msg);
+        link_message_t *(*msg_from_attr)(conf_object_t *link,
+                                         attr_value_t attr);
+        void (*free_msg)(conf_object_t *link, link_message_t *msg);
+
+        void (*marshal)(conf_object_t *link, const link_message_t *msg,
+                        void (*finish)(void *data, const frags_t *msg),
+                        void *finish_data);
+        link_message_t *(*unmarshal)(conf_object_t *link,
+                                     const frags_t *msg);
+
+        void (*deliver)(conf_object_t *ep, const link_message_t *msg);
+
+        void (*update_config_value)(conf_object_t *link, const char *key,
+                                    const frags_t *value);
+        void (*remove_config_value)(conf_object_t *link, const char *key);
+        void (*device_changed)(conf_object_t *ep, conf_object_t *old_dev);
+} link_type_t;
+</code></pre>
+<h2>Description</h2>
+<p>Functions to be defined by the specific link implementation.</p>
+<p>These functions can be classified in four groups:</p>
+<h3>Message Links Manipulation</h3>
+<p>The first five functions are related to the link-specific messages.</p>
+<p>All five functions can be called in any execution context and should be thread-safe. They all take the link object as argument, in case it contains information necessary to perform the operation. As the link object is shared between the cells in which it is connected, it should not be modified during execution. Mutable state should be kept in the endpoint objects instead.</p>
+<p><code>msg_to_attr()</code> transforms the message <code>msg</code> into an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> value. It is used to checkpoint in-flight messages waiting to be delivered. The value returned will be passed unchanged as argument <code>attr</code> to <code>msg_from_attr()</code> when loading a checkpoint with pending link messages. Neither function is expected to return an error, although <code>msg_from_attr()</code> is allowed to return NULL when translating a message it does not care to restore. This can be useful to keep checkpoint compatibility with older versions of the same link that do not always have the same message protocol.</p>
+<p>Using the <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a> as an example, the <code>datagram-link</code> message is defined as:</p>
+<pre><code>typedef struct {
+        link_message_t common;               /* should always be first */
+        /* The actual data in the message - in our case an allocated
+           byte string owned by this structure. */
+        bytes_t payload;
+} datagram_link_message_t;
+</code></pre>
+<p><code>msg_to_attr()</code> and <code>msg_from_attr()</code> are thus defined as:</p>
+<pre><code>static attr_value_t
+msg_to_attr(conf_object_t *link, const link_message_t *lm)
+{
+        const datagram_link_message_t *m =
+                (const datagram_link_message_t *)lm;
+        return SIM_make_attr_data(m-&gt;payload.len, m-&gt;payload.data);
+}
+</code></pre>
+<pre><code>static link_message_t *
+msg_from_attr(conf_object_t *link, attr_value_t attr)
+{
+        return new_datagram_message(SIM_attr_data(attr),
+                                    SIM_attr_data_size(attr));
+}
+</code></pre>
+<p><code>free_msg()</code> is called when the message <code>msg</code> has been delivered to all its destinations and is no longer needed. All memory allocated for <code>msg</code> is expected to be freed, including <code>msg</code> itself. The <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a> defines <code>free_msg()</code> as:</p>
+<pre><code>static void
+free_msg(conf_object_t *link, link_message_t *lm)
+{
+        datagram_link_message_t *m = (datagram_link_message_t *)lm;
+        MM_FREE((uint8 *)m-&gt;payload.data);
+        m-&gt;payload.data = nullptr;
+        MM_FREE(m);
+}
+</code></pre>
+<p><code>marshal()</code> is called when the message <code>msg</code> should be transmitted over a distributed simulation. Its purpose is to serialize the message into a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> representation. Rather than returning the marshaled message, <code>marshal()</code> takes the <code>finish</code> and <code>finish_data</code> arguments, that it is expected to call once the message has been marshaled.</p>
+<p>The reason behind this mechanism is that it allows <code>marshal()</code> to perform its operations with a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> variable allocated on the stack, and thus to skip any heap allocation when sending the message. In case memory was allocated anyway, it should be freed just after <code>finish</code> has returned.</p>
+<pre><code>static void
+marshal(conf_object_t *link, const link_message_t *lm,
+        void (*finish)(void *data, const frags_t *msg),
+        void *finish_data)
+{
+        const datagram_link_message_t *m =
+                (const datagram_link_message_t *)lm;
+
+        /* Our message just consists of a byte string,
+           so this is very easy. */
+        frags_t buf;
+        frags_init_add(&amp;buf, m-&gt;payload.data, m-&gt;payload.len);
+        finish(finish_data, &amp;buf);
+}
+</code></pre>
+<p><code>unmarshal()</code> does the opposite of <code>marshal()</code>: it takes a serialized <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a> representation of the message called <code>data</code> and returns a newly allocated link message.</p>
+<pre><code>static link_message_t *
+unmarshal(conf_object_t *link, const frags_t *data)
+{
+        size_t len = frags_len(data);
+        uint8 bytes[len];
+        frags_extract(data, bytes);
+        return new_datagram_message(bytes, len);
+}
+</code></pre>
+<h3>Endpoint Configuration</h3>
+<p>Link endpoints are created as needed by the link component. Depending on how they are created, they may not know yet which device they are connected to, so it might not be possible yet, for example, to cache the device’s communication interface in the endpoint’s <code>finalize()</code> function. Additionally, there are cases where the device the endpoint talks to may be changed, such as when inserting a probe object to listen to the traffic.</p>
+<p>In all of these cases, the <code>device_changed()</code> callback will be called when the endpoint’s device attribute is changed <em>and</em> the endpoint has reached to finalize phase. In that callback, the new device can be obtained via <a href="link-library-api.html#SIMLINK_endpoint_device"><code>SIMLINK_endpoint_device()</code></a> and additional operations, such as interface caching, can be safely performed. The old device the endpoint was connected to is provided for convenience as an argument to <code>device_changed()</code>.</p>
+<p>Note that if no device related operations are necessary, this callback may be left unimplemented.</p>
+<p>The <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a> implementation of <code>device_changed</code> is the following:</p>
+<pre><code>static void
+ser_link_ep_device_changed(conf_object_t *ep, conf_object_t *old_dev)
+{
+        ser_link_endpoint_t *slep = (ser_link_endpoint_t *)ep;
+        slep-&gt;serial_ifc = SIM_c_get_port_interface(
+                SIMLINK_endpoint_device(ep), SERIAL_DEVICE_INTERFACE,
+                SIMLINK_endpoint_port(ep));
+
+        if (!old_dev) {
+                char ep_id[19];
+                snprintf(ep_id, sizeof(ep_id), "ep%llx",
+                         SIMLINK_endpoint_id(ep));
+                frags_t value;
+                frags_init(&amp;value);
+                SIMLINK_config_update_value(SIMLINK_endpoint_link(ep),
+                                            ep_id, &amp;value);
+        }
+}
+</code></pre>
+<h3>Message Delivery</h3>
+<p>Messages are delivered to the link by calling the <code>deliver()</code> function. The arguments of <code>deliver()</code> are the endpoint <code>ep</code> that received the message and the message <code>msg</code> itself. The implementation of <code>deliver()</code> is expected to call the correct device’s function to deliver the message.</p>
+<p>Note that <code>deliver()</code> can be called in any execution context and should be thread-safe. The link object is shared between the cells in which it is connected, and should not be modified during execution. Mutable state should be kept in the endpoint objects instead.</p>
+<p>The <a href="../rm-base/rm-class-datagram_link_impl.html"><code>datagram_link_impl</code></a> implementation of <code>deliver()</code> is the following:</p>
+<pre><code>static void
+deliver(conf_object_t *ep, const link_message_t *lm)
+{
+        const datagram_link_message_t *m =
+                (const datagram_link_message_t *)lm;
+        conf_object_t *dev = SIMLINK_endpoint_device(ep);
+        const char *port = SIMLINK_endpoint_port(ep);
+        const datagram_link_interface_t *dli =
+                SIM_c_get_port_interface(dev, "datagram_link", port);
+        if (dli)
+                dli-&gt;receive(dev, m-&gt;payload);
+        else
+                SIM_LOG_ERROR(ep, 0, "Device does not implement"
+                              " datagram_link interface");
+}
+</code></pre>
+<h3>Configuration</h3>
+<p>The last two functions of <code>link_type_t</code> are taking care of the link configuration itself. In the same way messages needs to be marshaled when sent over a network, the global link configuration needs to be agreed upon when running the simulation in several processes.</p>
+<p><code>update_config_value()</code> is called whenever a configuration parameter has been added or updated. The configuration parameter’s name is provided as <code>key</code> and its new value as <code>value</code>, encoded as a <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a>.</p>
+<p><code>remove_config_value()</code> is called whenever the configuration value <code>key</code> has been removed.</p>
+<p>The interpretation of the link configuration messages is link specific. The only configuration parameter that is defined by the link library itself is <code>goal_latency</code>. This is handled entirely internally, although with the same mechanism as exposed here. Configuration changes are initiated by the link objects themselves with the Link Library API functions <a href="link-library-api.html#SIMLINK_config_update_value"><code>SIMLINK_config_update_value()</code></a> and <a href="link-library-api.html#SIMLINK_config_remove_value"><code>SIMLINK_config_remove_value()</code></a>.</p>
+<p>Note that the link object that initiates the configuration change is also called back via <code>update_config_value()</code> and <code>remove_config_value()</code>. Note also that the configuration changes may be buffered and sent later if they are initiated too soon for the configuration message to propagate.</p>
+<p>Configuration changes should only be initiated while in Global Context, so the two configuration functions above will only be called in Global Context. This allows them to modify properties of the link object itself without needing to care about thread safety.</p>
+<p>As an example, here is how <a href="../rm-base/rm-class-ser-link-impl.html"><code>ser-link-impl</code></a> defines these two functions. The serial link keeps track of all endpoints connected to it by saving their ID as a configuration parameter. It also uses a configurable buffer size.</p>
+<p>Finally, it is important to note that these two callbacks may be called from a non-execution thread. They should call the Simics API only via <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback()</code></a>. This includes calling the <a href="dev-api-logging.html#SIM_LOG_INFO"><code>SIM_log_*</code></a> functions.</p>
+<pre><code>static void
+link_config_value_updated(conf_object_t *link, const char *key,
+                          const frags_t *msg)
+{
+        ser_link_impl_t *slink = (ser_link_impl_t *)link;
+        if (strncmp(key, "ep", 2) == 0) {
+                uint64 ep_id = strtoull(key + 2, nullptr, 16);
+                SIM_LOG_INFO(4, &amp;slink-&gt;obj, 0,
+                             "Add endpoint: 0x%llx", ep_id);
+                ht_update_int(&amp;slink-&gt;endpoints, ep_id, nullptr);
+        } else if (strcmp(key, "buffer_size") == 0) {
+                slink-&gt;buffer_size = frags_extract_be32(msg, 0);
+        } else {
+                ASSERT(false);
+        }
+
+        slink-&gt;connection_warning = false;
+}
+</code></pre>
+<pre><code>static void
+link_config_value_removed(conf_object_t *link, const char *key)
+{
+        ser_link_impl_t *slink = (ser_link_impl_t *)link;
+        if (strncmp(key, "ep", 2) == 0) {
+                uint64 ep_id = strtoull(key + 2, nullptr, 16);
+                SIM_LOG_INFO(4, &amp;slink-&gt;obj, 0,
+                             "Remove endpoint: 0x%llx", ep_id);
+                ht_remove_int(&amp;slink-&gt;endpoints, ep_id);
+        } else {
+                ASSERT(false);
+        }
+}
+</code></pre>
+<h2>See Also</h2>
+<p><a href="link-library-api.html#link_message_t"><code>link_message_t</code></a>, <a href="link-library-api.html#SIMLINK_init"><code>SIMLINK_init</code></a></p>
+</section>
+<div class="chain">
+<a href="link-api.html">Link Library API</a>
+<a href="link_components.html">Link Component API</a>
+</div>

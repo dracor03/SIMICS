@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-time-server</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-tcf-exec-tracer.html">new-tcf-exec-tracer</a>
+<a href="rm-cmd-new-tracer-tool.html">new-tracer-tool</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-time-server"></a>
+<h1 id="new-time-server"><a href="#new-time-server">new-time-server</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-time-server</b> [<i>port</i>] [<i>"name"</i>] [-poll] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Create a new time server object. If <i>port</i> is specified, it will start listening on that TCP port (if 0 is specified an arbitrary port will be used). Connections can also be set up after the command has run, using the sub-objects <tt>.tcp</tt>, <tt>.unix_socket</tt> (on Linux) or <tt>.named_pipe</tt> on Windows. The <i>name</i> argument is optional and the name of the created object will be returned.
+<p>
+With the <tt>-poll</tt> flag the time-server will periodically poll the time and return the polled value in queries. Otherwise, the time server will always return the current time in queries. Polled mode offers better performance when the time server is queried at a high frequency, but does not support events.
+</p><p>
+Connected clients can query the virtual time, install alarm events that are triggered after a certain amount of virtual time, or install keepalive events that trigger at a periodic rate (real time).
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.time-server.html">time-server</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-tcf-exec-tracer.html">new-tcf-exec-tracer</a>
+<a href="rm-cmd-new-tracer-tool.html">new-tracer-tool</a>
+</div>

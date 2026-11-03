@@ -1,0 +1,724 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Memory Transactions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-transactions.html">Transactions</a>
+<a href="dev-api-translators.html">Device Translators</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Memory Transactions</h1>
+<h2 id="SIM_arm_mem_trans_from_generic"><a href="#SIM_arm_mem_trans_from_generic">SIM_arm_mem_trans_from_generic, SIM_mips_mem_trans_from_generic, SIM_ppc_mem_trans_from_generic, SIM_x86_mem_trans_from_generic, SIM_pci_mem_trans_from_generic</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_arm_mem_trans_from_generic, SIM_mips_mem_trans_from_generic, SIM_ppc_mem_trans_from_generic, SIM_x86_mem_trans_from_generic, SIM_pci_mem_trans_from_generic — convert generic transaction to CPU specific</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+struct arm_memory_transaction *
+SIM_arm_mem_trans_from_generic(generic_transaction_t *NOTNULL mop);
+
+#include &lt;simics/arch/mips.h&gt; // in C
+import "simics/arch/mips.dml"; // in DML
+
+struct mips_memory_transaction *
+SIM_mips_mem_trans_from_generic(generic_transaction_t *NOTNULL mop);
+
+#include &lt;simics/arch/ppc.h&gt; // in C
+import "simics/arch/ppc.dml"; // in DML
+
+struct ppc_memory_transaction *
+SIM_ppc_mem_trans_from_generic(generic_transaction_t *NOTNULL mop);
+
+#include &lt;simics/arch/x86.h&gt; // in C
+import "simics/arch/x86.dml"; // in DML
+
+struct x86_memory_transaction *
+SIM_x86_mem_trans_from_generic(generic_transaction_t *NOTNULL mop);
+
+#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+struct pci_memory_transaction *
+SIM_pci_mem_trans_from_generic(generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_arm_mem_trans_from_generic(...)
+simics.SIM_mips_mem_trans_from_generic(...)
+simics.SIM_ppc_mem_trans_from_generic(...)
+simics.SIM_x86_mem_trans_from_generic(...)
+simics.SIM_pci_mem_trans_from_generic(...)
+</code></pre>
+<h2>Description</h2>
+<p>Converts a pointer to a generic memory transaction into a pointer to a CPU specific memory transaction. The generic memory transaction must be part of a CPU specific one for this function to succeed. The pointer returned will be the same the input pointer if conversion is allowed, and <code>nullptr</code> on failure.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Type</strong> Thrown if the generic transaction is not part of a CPU specific transaction.</p>
+<h2>Return Value</h2>
+<p>New memory transaction pointer, or <code>nullptr</code> on error.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_c_get_mem_op_value_buf"><a href="#SIM_c_get_mem_op_value_buf">SIM_c_get_mem_op_value_buf, SIM_get_mem_op_value_buf, SIM_get_mem_op_value_cpu, SIM_get_mem_op_value_le, SIM_get_mem_op_value_be</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_c_get_mem_op_value_buf, SIM_get_mem_op_value_buf, SIM_get_mem_op_value_cpu, SIM_get_mem_op_value_le, SIM_get_mem_op_value_be — get value for a memory operation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_c_get_mem_op_value_buf(const generic_transaction_t *NOTNULL mop,
+                           uint8 *NOTNULL dst);
+
+attr_value_t
+SIM_get_mem_op_value_buf(const generic_transaction_t *NOTNULL mop);
+
+uint64
+SIM_get_mem_op_value_cpu(const generic_transaction_t *NOTNULL mop);
+
+uint64
+SIM_get_mem_op_value_le(const generic_transaction_t *NOTNULL mop);
+
+uint64
+SIM_get_mem_op_value_be(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_mem_op_value_buf(...)
+simics.SIM_get_mem_op_value_cpu(...)
+simics.SIM_get_mem_op_value_le(...)
+simics.SIM_get_mem_op_value_be(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns load or store value for a memory transaction. If the data size is 8 bytes or less the <code>SIM_get_mem_op_value_be</code> and <code>SIM_get_mem_op_value_le</code> functions can be used. For reads/writes larger than 8 bytes, the functions <code>SIM_c_get_mem_op_value_buf</code> or <code>SIM_get_mem_op_value_buf</code> should be used to get the data.</p>
+<p>If your model is compiled with one of the <code>DEVICE_IS_LITTLE_ENDIAN</code>, <code>DEVICE_IS_BIG_ENDIAN</code> pre-processor defines, then the <code>SIM_get_mem_op_value</code> function can be used as an alias to the <code>SIM_get_mem_op_value_le</code> and <code>SIM_get_mem_op_value_be</code> versions.</p>
+<p>The <code>SIM_c_get_mem_op_value_buf</code> function is only available from C/C++. It places the data into the buffer pointed to by <code>dst</code>. No endian conversion is performed, i.e. data is returned in target endianness. There is no alignment requirement on the <code>dst</code> parameter.</p>
+<h2>Warning</h2>
+<p>When called from a memory-hierarchy (timing-model) only store values can be retrieved, since the load has not yet performed. To get the load value, a <em>snoop-device</em> should be used.</p>
+<h2>Return Value</h2>
+<p><code>SIM_c_get_mem_op_value_buf</code> returns nothing. The out parameter <code>dst</code> is filled with the data buffer of the memory transaction. <code>SIM_get_mem_op_value_buf</code> returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> (type data) containing the data buffer of the memory transaction. <code>SIM_get_mem_op_value_be</code> returns the zero-extended value in host endian order (interpreted as big endian) for the memory transaction. <code>SIM_get_mem_op_value_le</code> returns the zero-extended value in host endian order (interpreted as little endian). <code>SIM_get_mem_op_value_cpu</code> interprets the data in the default endian order for the initiating processor. This function can only be used for processor initiated memory operations. It is recommended that one of the other functions are used instead.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Memory</strong> Thrown if the size of the operation is illegal.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_c_set_mem_op_value_buf"><a href="#SIM_c_set_mem_op_value_buf">SIM_c_set_mem_op_value_buf, SIM_set_mem_op_value_buf, SIM_set_mem_op_value_cpu, SIM_set_mem_op_value_le, SIM_set_mem_op_value_be</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_c_set_mem_op_value_buf, SIM_set_mem_op_value_buf, SIM_set_mem_op_value_cpu, SIM_set_mem_op_value_le, SIM_set_mem_op_value_be — set value for a memory operation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_c_set_mem_op_value_buf(generic_transaction_t *NOTNULL mop,
+                           const uint8 *NOTNULL src);
+
+void
+SIM_set_mem_op_value_buf(generic_transaction_t *NOTNULL mop,
+                         attr_value_t value);
+
+void
+SIM_set_mem_op_value_cpu(generic_transaction_t *NOTNULL mop, uint64 value);
+
+void
+SIM_set_mem_op_value_le(generic_transaction_t *NOTNULL mop, uint64 value);
+
+void
+SIM_set_mem_op_value_be(generic_transaction_t *NOTNULL mop, uint64 value);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_mem_op_value_buf(...)
+simics.SIM_set_mem_op_value_cpu(...)
+simics.SIM_set_mem_op_value_le(...)
+simics.SIM_set_mem_op_value_be(...)
+</code></pre>
+<h2>Description</h2>
+<p>Set the value returned to the requester of a memory operation. If the data size is 8 bytes or less the <code>SIM_set_mem_op_value_be</code> and <code>SIM_set_mem_op_value_le</code> functions can be used. For sizes larger than 8 bytes, the functions <code>SIM_c_set_mem_op_value_buf</code> or <code>SIM_set_mem_op_value_buf</code> should be used to set the data as an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of data type.</p>
+<p>If your model is compiled with one of the <code>DEVICE_IS_LITTLE_ENDIAN</code>, <code>DEVICE_IS_BIG_ENDIAN</code> pre-processor defines, then the <code>SIM_set_mem_op_value</code> function can be used as an alias to the <code>SIM_set_mem_op_value_le</code> and <code>SIM_set_mem_op_value_be</code> versions.</p>
+<p><code>SIM_c_set_mem_op_value_buf</code> is only available from C/C++, it operates on data in target endian order. There is no alignment requirement on the <code>buf</code> parameter.</p>
+<p><code>SIM_set_mem_op_value_be</code> takes data in host endian order and sets it in big-endian.</p>
+<p><code>SIM_set_mem_op_value_le</code> takes data in host endian order and sets it in little-endian.</p>
+<p><code>SIM_set_mem_op_value_cpu</code> takes data in host endian order and sets it in the default endian order for the initiating processor. This function can only be used for processor initiated memory operations. It is recommended that one of the other functions are used instead.</p>
+<p>The functions that set the memory operation based on a value will truncate the representation of that value if the memory operation is smaller than 8 bytes.</p>
+<h2>Warning</h2>
+<p>These functions cannot be called from a <em>timing-model</em> since the real operation will overwrite the value set. They should instead be used from a <em>snoop-device</em>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Memory</strong> Thrown if the size of the operation is illegal.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_mem_op_page_cross"><a href="#SIM_get_mem_op_page_cross">SIM_get_mem_op_page_cross</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_mem_op_page_cross — detect transaction split</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE unsigned
+SIM_get_mem_op_page_cross(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_mem_op_page_cross(...)
+</code></pre>
+<h2>Description</h2>
+<p>If a memory transaction was split because it straddled an MMU page, return 1 if it is the first part and 2 for the second. If the transaction was not split, return zero.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_mem_op_size"><a href="#SIM_get_mem_op_size">SIM_get_mem_op_size</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_mem_op_size — get transaction size</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE unsigned
+SIM_get_mem_op_size(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_mem_op_size(...)
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve the size, in bytes, of a memory transaction.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_mem_op_type"><a href="#SIM_get_mem_op_type">SIM_get_mem_op_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_mem_op_type — get type of transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE mem_op_type_t
+SIM_get_mem_op_type(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_mem_op_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function returns the type of the memory transaction.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a>, <a href="dev-api-memory-transactions.html#SIM_set_mem_op_type"><code>SIM_set_mem_op_type</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_mem_op_type_name"><a href="#SIM_get_mem_op_type_name">SIM_get_mem_op_type_name</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_mem_op_type_name — get name of memory operation type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+const char *
+SIM_get_mem_op_type_name(mem_op_type_t type);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_mem_op_type_name(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns a string describing <code>type</code> or <code>NULL</code> if unknown.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_make_mem_op_write"><a href="#SIM_make_mem_op_write">SIM_make_mem_op_write, SIM_make_mem_op_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_mem_op_write, SIM_make_mem_op_read — create a memory transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+generic_transaction_t
+SIM_make_mem_op_write(physical_address_t addr, bytes_t data,
+                      bool inquiry, conf_object_t *initiator);
+
+generic_transaction_t
+SIM_make_mem_op_read(physical_address_t addr, buffer_t buffer,
+                     bool inquiry, conf_object_t *initiator);
+</code></pre>
+<h2>Description</h2>
+<p>Create and return a memory transaction for writing <code>data</code> to <code>addr</code>, or reading from <code>addr</code> into <code>buffer</code>. The number of bytes to transfer is specified by <code>data</code> and <code>buffer</code> respectively. The <code>initiator</code> is the object issuing the transaction; it may be <code>nullptr</code>.</p>
+<p>These functions do not actually perform any memory operation; they just construct the <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a> that can be used in other calls.</p>
+<p>The <code>buffer</code> argument must refer to an allocated buffer, and <code>data</code> must contain valid data. They must remain valid and allocated during the life-time of the returned value.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_mem_op_ensure_future_visibility"><a href="#SIM_mem_op_ensure_future_visibility">SIM_mem_op_ensure_future_visibility</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_ensure_future_visibility — request transaction visibility</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_mem_op_ensure_future_visibility(generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_ensure_future_visibility(...)
+</code></pre>
+<h2>Description</h2>
+<p>Request that future accesses from the same virtual address (using a granularity given by the <code>min_cacheline_size</code> processor attribute) will be seen by the memory hierarchy. Otherwise, the simulator may cache accesses to this address for performance so that they are not seen by the memory model.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_atomic"><a href="#SIM_mem_op_is_atomic">SIM_mem_op_is_atomic</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_atomic — detect transaction atomicity</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_atomic(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_atomic(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return true if the transaction was part of an atomic instruction (usually a read followed by a write), false otherwise.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_control"><a href="#SIM_mem_op_is_control">SIM_mem_op_is_control</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_control — transaction control predicates</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_control(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_control(...)
+</code></pre>
+<h2>Description</h2>
+<p>Checks whether <code>mem_op</code>  is a control transaction (one that does not actually transfer any data, such as cache control operations).</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_data"><a href="#SIM_mem_op_is_data">SIM_mem_op_is_data, SIM_mem_op_is_instruction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_data, SIM_mem_op_is_instruction — transaction data/instruction predicates</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_data(const generic_transaction_t *NOTNULL mop);
+
+FORCE_INLINE bool
+SIM_mem_op_is_instruction(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_data(...)
+simics.SIM_mem_op_is_instruction(...)
+</code></pre>
+<h2>Description</h2>
+<p>These functions check whether <code>mem_op</code> is a data or an instruction transaction. Currently, the only transactions that are instruction transactions are instruction fetches.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_from_cache"><a href="#SIM_mem_op_is_from_cache">SIM_mem_op_is_from_cache</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_from_cache — Cache initiated transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_from_cache(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_from_cache(...)
+</code></pre>
+<h2>Description</h2>
+<p>Checks whether <code>mem_op</code> is sent from a cache timing model.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_from_cpu"><a href="#SIM_mem_op_is_from_cpu">SIM_mem_op_is_from_cpu</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_from_cpu — CPU initiated transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_from_cpu(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_from_cpu(...)
+</code></pre>
+<h2>Description</h2>
+<p>Checks whether <code>mem_op</code> is sent from a processor.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_from_cpu_arch"><a href="#SIM_mem_op_is_from_cpu_arch">SIM_mem_op_is_from_cpu_arch</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_from_cpu_arch — CPU initiated transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_from_cpu_arch(const generic_transaction_t *NOTNULL mop,
+                            ini_type_t arch);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_from_cpu_arch(...)
+</code></pre>
+<h2>Description</h2>
+<p>Checks whether <code>mem_op</code> is sent from a processor of a specific architecture.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_from_device"><a href="#SIM_mem_op_is_from_device">SIM_mem_op_is_from_device</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_from_device — Device initiated transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_from_device(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_from_device(...)
+</code></pre>
+<h2>Description</h2>
+<p>Checks whether <code>mem_op</code> is sent from a device.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_prefetch"><a href="#SIM_mem_op_is_prefetch">SIM_mem_op_is_prefetch</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_prefetch — transaction control predicates</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_prefetch(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_prefetch(...)
+</code></pre>
+<h2>Description</h2>
+<p>Checks whether <code>mem_op</code> is prefetch transaction.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_is_read"><a href="#SIM_mem_op_is_read">SIM_mem_op_is_read, SIM_mem_op_is_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_is_read, SIM_mem_op_is_write — transaction read/write predicates</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_is_read(const generic_transaction_t *NOTNULL mop);
+
+FORCE_INLINE bool
+SIM_mem_op_is_write(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_is_read(...)
+simics.SIM_mem_op_is_write(...)
+</code></pre>
+<h2>Description</h2>
+<p>These functions check whether <code>mem_op</code> is a read or a write transaction.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_mem_op_may_stall"><a href="#SIM_mem_op_may_stall">SIM_mem_op_may_stall</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_mem_op_may_stall — detect transaction stall possibility</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_mem_op_may_stall(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_mem_op_may_stall(...)
+</code></pre>
+<h2>Description</h2>
+<p>If true, the simulator will allow the transaction to stall execution. When false, a memory hierarchy must not attempt any stalling.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_mem_op_exception"><a href="#SIM_set_mem_op_exception">SIM_set_mem_op_exception, SIM_get_mem_op_exception</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_mem_op_exception, SIM_get_mem_op_exception — get/set transaction exception</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_set_mem_op_exception(generic_transaction_t *NOTNULL mop,
+                         exception_type_t exc);
+
+FORCE_INLINE exception_type_t
+SIM_get_mem_op_exception(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_mem_op_exception(...)
+simics.SIM_get_mem_op_exception(...)
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve or change the transaction exception. If set to a value other than <code>Sim_PE_No_Exception</code>, the transaction will be interrupted and an exception will be taken.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_mem_op_initiator"><a href="#SIM_set_mem_op_initiator">SIM_set_mem_op_initiator, SIM_get_mem_op_initiator, SIM_get_mem_op_ini_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_mem_op_initiator, SIM_get_mem_op_initiator, SIM_get_mem_op_ini_type — get/set transaction initiator</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_set_mem_op_initiator(generic_transaction_t *NOTNULL mop,
+                         ini_type_t type, conf_object_t *obj);
+
+FORCE_INLINE conf_object_t *
+SIM_get_mem_op_initiator(const generic_transaction_t *NOTNULL mop);
+
+FORCE_INLINE ini_type_t
+SIM_get_mem_op_ini_type(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_mem_op_initiator(...)
+simics.SIM_get_mem_op_initiator(...)
+simics.SIM_get_mem_op_ini_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve or change the transaction initiator type and object. These two parameters must agree.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_mem_op_inquiry"><a href="#SIM_set_mem_op_inquiry">SIM_set_mem_op_inquiry, SIM_get_mem_op_inquiry</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_mem_op_inquiry, SIM_get_mem_op_inquiry — get/set transaction inquiry flag</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_set_mem_op_inquiry(generic_transaction_t *NOTNULL mop, bool inquiry);
+
+FORCE_INLINE bool
+SIM_get_mem_op_inquiry(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_mem_op_inquiry(...)
+simics.SIM_get_mem_op_inquiry(...)
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve or change the transaction inquiry flag. An inquiry read has no side-effects. An inquiry write has no other side-effect than changing the bytes at the specified address and size.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_mem_op_physical_address"><a href="#SIM_set_mem_op_physical_address">SIM_set_mem_op_physical_address, SIM_get_mem_op_physical_address, SIM_set_mem_op_virtual_address, SIM_get_mem_op_virtual_address</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_mem_op_physical_address, SIM_get_mem_op_physical_address, SIM_set_mem_op_virtual_address, SIM_get_mem_op_virtual_address — get or set transaction address</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_set_mem_op_physical_address(generic_transaction_t *NOTNULL mop,
+                                physical_address_t pa);
+
+FORCE_INLINE physical_address_t
+SIM_get_mem_op_physical_address(const generic_transaction_t *NOTNULL mop);
+
+FORCE_INLINE void
+SIM_set_mem_op_virtual_address(generic_transaction_t *NOTNULL mop,
+                               logical_address_t va);
+
+FORCE_INLINE logical_address_t
+SIM_get_mem_op_virtual_address(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_mem_op_physical_address(...)
+simics.SIM_get_mem_op_physical_address(...)
+simics.SIM_set_mem_op_virtual_address(...)
+simics.SIM_get_mem_op_virtual_address(...)
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve or set the physical or virtual (logical) addresses of a memory transaction.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_mem_op_reissue"><a href="#SIM_set_mem_op_reissue">SIM_set_mem_op_reissue</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_mem_op_reissue — request transaction reissue</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_set_mem_op_reissue(generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_mem_op_reissue(...)
+</code></pre>
+<h2>Description</h2>
+<p>Request that the transaction will be re-issued if a non-zero stall time is returned from a memory hierarchy. Otherwise, the memory model will not see the transaction again.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_mem_op_type"><a href="#SIM_set_mem_op_type">SIM_set_mem_op_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_mem_op_type — set type of transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_set_mem_op_type(generic_transaction_t *NOTNULL mop, mem_op_type_t type);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_mem_op_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function sets the type of the memory transaction.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a>, <a href="dev-api-memory-transactions.html#SIM_get_mem_op_type"><code>SIM_get_mem_op_type</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_mem_op_user_data"><a href="#SIM_set_mem_op_user_data">SIM_set_mem_op_user_data, SIM_get_mem_op_user_data</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_mem_op_user_data, SIM_get_mem_op_user_data — get/set transaction user data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_set_mem_op_user_data(generic_transaction_t *NOTNULL mop,
+                         void *data);
+
+FORCE_INLINE void *
+SIM_get_mem_op_user_data(const generic_transaction_t *NOTNULL mop);
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve or change user data associated with the transaction. This data is not touched by Simics in any way and its handling and interpretation is left to the user. It can be used to pass information from a timing model to a snoop device, but the data does not survive across a stall.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="dev-api-transactions.html">Transactions</a>
+<a href="dev-api-translators.html">Device Translators</a>
+</div>

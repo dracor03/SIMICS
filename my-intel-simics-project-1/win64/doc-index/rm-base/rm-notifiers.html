@@ -1,0 +1,327 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 Notifiers</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-xed_histogram_connection.html">xed_histogram_connection</a>
+<a href="rm-haps.html">7 Haps</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;</div><h1 id="notifiers">6 <a href="#notifiers">Notifiers</a></h1>
+<article class="not-numbered">
+<h2 id="after-snapshot-restore"><a href="#after-snapshot-restore">Global Notifier after-snapshot-restore</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Notifier triggered after a snapshot is loaded.</section>
+<h2 id="before-snapshot-restore"><a href="#before-snapshot-restore">Global Notifier before-snapshot-restore</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+Notifier triggered before a snapshot is loaded.</section>
+<h2 id="global-message"><a href="#global-message">Global Notifier global-message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+Notifier used by SIM_trigger_global_message</section>
+<h2 id="global-object-delete"><a href="#global-object-delete">Global Notifier global-object-delete</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-4">
+<a href="#description-4">Description</a>
+</h2>
+Notifier triggered while objects are being deleted.</section>
+<h2 id="global-objects-finalized"><a href="#global-objects-finalized">Global Notifier global-objects-finalized</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-5">
+<a href="#description-5">Description</a>
+</h2>
+Notifier triggered when new objects have been finalized.</section>
+<h2 id="snapshot-created"><a href="#snapshot-created">Global Notifier snapshot-created</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-6">
+<a href="#description-6">Description</a>
+</h2>
+Notifier triggered when a snapshot is created.</section>
+<h2 id="snapshot-deleted"><a href="#snapshot-deleted">Global Notifier snapshot-deleted</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-7">
+<a href="#description-7">Description</a>
+</h2>
+Notifier triggered when a snapshot is deleted.</section>
+<h2 id="bank-register-value-change"><a href="#bank-register-value-change">bank-register-value-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-8">
+<a href="#description-8">Description</a>
+</h2>
+Notifier that is triggered when bank register value changes.
+<h2 id="classes">
+<a href="#classes">Classes</a>
+</h2>
+<a href="rm-class-sample_device_cxx_after_bank.html#sample_device_cxx_after_bank.SampleAfterBank">sample_device_cxx_after_bank.SampleAfterBank</a>, 
+<a href="rm-class-sample_device_cxx_bank_by_code.html#sample_device_cxx_bank_by_code.SampleBank">sample_device_cxx_bank_by_code.SampleBank</a>, 
+<a href="rm-class-sample_device_cxx_bank_by_data.html#sample_device_cxx_bank_by_data.b">sample_device_cxx_bank_by_data.b</a>, 
+<a href="rm-class-sample_dma_device_cpp.html#sample_dma_device_cpp.regs">sample_dma_device_cpp.regs</a>, 
+<a href="rm-class-x2apic_v2.html#x2apic_v2.ApicBankPort">x2apic_v2.ApicBankPort</a>
+</section>
+<h2 id="benchmark-failure"><a href="#benchmark-failure">benchmark-failure</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-2">
+<a href="#classes-2">Classes</a>
+</h2>
+<a href="rm-class-benchmark_monitor.html#benchmark_monitor">benchmark_monitor</a>
+</section>
+<h2 id="benchmark-start"><a href="#benchmark-start">benchmark-start</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-3">
+<a href="#classes-3">Classes</a>
+</h2>
+<a href="rm-class-benchmark_monitor.html#benchmark_monitor">benchmark_monitor</a>
+</section>
+<h2 id="benchmark-stop"><a href="#benchmark-stop">benchmark-stop</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-4">
+<a href="#classes-4">Classes</a>
+</h2>
+<a href="rm-class-benchmark_monitor.html#benchmark_monitor">benchmark_monitor</a>
+</section>
+<h2 id="benchmark-success"><a href="#benchmark-success">benchmark-success</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-5">
+<a href="#classes-5">Classes</a>
+</h2>
+<a href="rm-class-benchmark_monitor.html#benchmark_monitor">benchmark_monitor</a>
+</section>
+<h2 id="cell-change"><a href="#cell-change">cell-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-9">
+<a href="#description-9">Description</a>
+</h2>
+Notifier that is triggered after the object's cell was changed.
+<h2 id="classes-6">
+<a href="#classes-6">Classes</a>
+</h2>Triggered by instances of all classes.
+</section>
+<h2 id="cell-thread-change"><a href="#cell-thread-change">cell-thread-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-7">
+<a href="#classes-7">Classes</a>
+</h2>
+<a href="rm-class-sim.html#sim">sim</a>
+</section>
+<h2 id="controller-changes"><a href="#controller-changes">controller-changes</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-8">
+<a href="#classes-8">Classes</a>
+</h2>
+<a href="rm-class-simics_nvme_controller.html#simics_nvme_controller">simics_nvme_controller</a>
+</section>
+<h2 id="freerunning-mode-change"><a href="#freerunning-mode-change">freerunning-mode-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-10">
+<a href="#description-10">Description</a>
+</h2>
+Notifier that is triggered when freerunning mode is enabled or disabled. The new enabled/disabled state is available through the freerun interface.
+<h2 id="classes-9">
+<a href="#classes-9">Classes</a>
+</h2>
+<a href="rm-class-freerun-extension.html#freerun-extension">freerun-extension</a>
+</section>
+<h2 id="frequency-change"><a href="#frequency-change">frequency-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-11">
+<a href="#description-11">Description</a>
+</h2>
+Notifier that is triggered when frequency changes. New frequency can be read via the frequency interface of the object.
+<h2 id="classes-10">
+<a href="#classes-10">Classes</a>
+</h2>
+<a href="rm-class-async-bridge.html#async-bridge">async-bridge</a>, 
+<a href="rm-class-clock.html#clock">clock</a>, 
+<a href="rm-class-co-engine.html#co-engine">co-engine</a>, 
+<a href="rm-class-co-execute.html#co-execute">co-execute</a>, 
+<a href="rm-class-cycle-counter.html#cycle-counter">cycle-counter</a>, 
+<a href="rm-class-legacy-clock-extension.html#legacy-clock-extension">legacy-clock-extension</a>, 
+<a href="rm-class-ps-clock.html#ps-clock">ps-clock</a>, 
+<a href="rm-class-sample-risc.html#sample-risc">sample-risc</a>, 
+<a href="rm-class-sample_notifier_dml.html#sample_notifier_dml">sample_notifier_dml</a>, 
+<a href="rm-class-vtime.html#vtime">vtime</a>
+</section>
+<h2 id="graphcon-close"><a href="#graphcon-close">graphcon-close</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-11">
+<a href="#classes-11">Classes</a>
+</h2>
+<a href="rm-class-graphcon.html#graphcon">graphcon</a>
+</section>
+<h2 id="graphcon-open"><a href="#graphcon-open">graphcon-open</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-12">
+<a href="#classes-12">Classes</a>
+</h2>
+<a href="rm-class-graphcon.html#graphcon">graphcon</a>
+</section>
+<h2 id="map-change"><a href="#map-change">map-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-12">
+<a href="#description-12">Description</a>
+</h2>
+Notifier that is triggered after map was changed.
+<h2 id="classes-13">
+<a href="#classes-13">Classes</a>
+</h2>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+</section>
+<h2 id="namespace-changes"><a href="#namespace-changes">namespace-changes</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-14">
+<a href="#classes-14">Classes</a>
+</h2>
+<a href="rm-class-simics_nvme_controller.html#simics_nvme_controller">simics_nvme_controller</a>
+</section>
+<h2 id="object-delete"><a href="#object-delete">object-delete</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-13">
+<a href="#description-13">Description</a>
+</h2>
+Notifier that is triggered just before Simics object is deleted.
+<h2 id="classes-15">
+<a href="#classes-15">Classes</a>
+</h2>Triggered by instances of all classes.
+</section>
+<h2 id="osa_processors"><a href="#osa_processors">osa_processors</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-16">
+<a href="#classes-16">Classes</a>
+</h2>
+<a href="rm-class-os_awareness.html#os_awareness">os_awareness</a>
+</section>
+<h2 id="pref-change"><a href="#pref-change">pref-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-17">
+<a href="#classes-17">Classes</a>
+</h2>
+<a href="rm-class-preferences.html#preferences">preferences</a>
+</section>
+<h2 id="queue-change"><a href="#queue-change">queue-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-14">
+<a href="#description-14">Description</a>
+</h2>
+Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.
+<h2 id="classes-18">
+<a href="#classes-18">Classes</a>
+</h2>Triggered by instances of all classes.
+</section>
+<h2 id="sample-notifier-reset"><a href="#sample-notifier-reset">sample-notifier-reset</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-19">
+<a href="#classes-19">Classes</a>
+</h2>
+<a href="rm-class-sample_device_cxx_notifier.html#sample_device_cxx_notifier">sample_device_cxx_notifier</a>
+</section>
+<h2 id="state-change"><a href="#state-change">state-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-15">
+<a href="#description-15">Description</a>
+</h2>
+Notifier that is triggered when DML device state changes.
+<h2 id="classes-20">
+<a href="#classes-20">Classes</a>
+</h2>
+<a href="rm-class-AM79C960.html#AM79C960">AM79C960</a>, 
+<a href="rm-class-DEC21140A-dml.html#DEC21140A-dml">DEC21140A-dml</a>, 
+<a href="rm-class-DS12887.html#DS12887">DS12887</a>, 
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2">accel_vga_v2</a>, 
+<a href="rm-class-dm9161.html#dm9161">dm9161</a>, 
+<a href="rm-class-echo.html#echo">echo</a>, 
+<a href="rm-class-empty_device_dml.html#empty_device_dml">empty_device_dml</a>, 
+<a href="rm-class-generic_eth_phy.html#generic_eth_phy">generic_eth_phy</a>, 
+<a href="rm-class-generic_spi_flash.html#generic_spi_flash">generic_spi_flash</a>, 
+<a href="rm-class-generic_spi_flash.html#generic_spi_flash">generic_spi_flash</a>, 
+<a href="rm-class-goldfish-rtc.html#goldfish-rtc">goldfish-rtc</a>, 
+<a href="rm-class-i210.html#i210">i210</a>, 
+<a href="rm-class-i210_v2.html#i210_v2">i210_v2</a>, 
+<a href="rm-class-i2c_wire.html#i2c_wire">i2c_wire</a>, 
+<a href="rm-class-i3c_bus.html#i3c_bus">i3c_bus</a>, 
+<a href="rm-class-i82571EB_v2.html#i82571EB_v2">i82571EB_v2</a>, 
+<a href="rm-class-intel-io-apic.html#intel-io-apic">intel-io-apic</a>, 
+<a href="rm-class-legacy-upstream-pcie-adapter.html#legacy-upstream-pcie-adapter">legacy-upstream-pcie-adapter</a>, 
+<a href="rm-class-pcie-downstream-port.html#pcie-downstream-port">pcie-downstream-port</a>, 
+<a href="rm-class-pcie-downstream-port-legacy.html#pcie-downstream-port-legacy">pcie-downstream-port-legacy</a>, 
+<a href="rm-class-pcie-endpoint-shim-frontend.html#pcie-endpoint-shim-frontend">pcie-endpoint-shim-frontend</a>, 
+<a href="rm-class-pcie-port-shim-frontend.html#pcie-port-shim-frontend">pcie-port-shim-frontend</a>, 
+<a href="rm-class-sample-i3c-target.html#sample-i3c-target">sample-i3c-target</a>, 
+<a href="rm-class-sample-pcie-ats-endpoint.html#sample-pcie-ats-endpoint">sample-pcie-ats-endpoint</a>, 
+<a href="rm-class-sample-pcie-ats-prs-dma.html#sample-pcie-ats-prs-dma">sample-pcie-ats-prs-dma</a>, 
+<a href="rm-class-sample-pcie-device.html#sample-pcie-device">sample-pcie-device</a>, 
+<a href="rm-class-sample-pcie-flattened-portal-bridge.html#sample-pcie-flattened-portal-bridge">sample-pcie-flattened-portal-bridge</a>, 
+<a href="rm-class-sample-pcie-root-complex-ats.html#sample-pcie-root-complex-ats">sample-pcie-root-complex-ats</a>, 
+<a href="rm-class-sample_device_dml.html#sample_device_dml">sample_device_dml</a>, 
+<a href="rm-class-sample_device_pkg_prio.html#sample_device_pkg_prio">sample_device_pkg_prio</a>, 
+<a href="rm-class-sample_dma_device.html#sample_dma_device">sample_dma_device</a>, 
+<a href="rm-class-sample_i2c_device.html#sample_i2c_device">sample_i2c_device</a>, 
+<a href="rm-class-sample_notifier_dml.html#sample_notifier_dml">sample_notifier_dml</a>, 
+<a href="rm-class-sample_pci_device.html#sample_pci_device">sample_pci_device</a>, 
+<a href="rm-class-sample_pcie_sriov_device.html#sample_pcie_sriov_device">sample_pcie_sriov_device</a>, 
+<a href="rm-class-sample_timer_device.html#sample_timer_device">sample_timer_device</a>, 
+<a href="rm-class-simics-uefi.html#simics-uefi">simics-uefi</a>, 
+<a href="rm-class-simics_nvme_controller.html#simics_nvme_controller">simics_nvme_controller</a>, 
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch">standard-pcie-switch</a>, 
+<a href="rm-class-transaction_splitter.html#transaction_splitter">transaction_splitter</a>, 
+<a href="rm-class-usb_tablet.html#usb_tablet">usb_tablet</a>, 
+<a href="rm-class-virtio-mmio-entropy.html#virtio-mmio-entropy">virtio-mmio-entropy</a>, 
+<a href="rm-class-virtio-pcie-sriov-blk.html#virtio-pcie-sriov-blk">virtio-pcie-sriov-blk</a>, 
+<a href="rm-class-virtio_mmio_blk.html#virtio_mmio_blk">virtio_mmio_blk</a>, 
+<a href="rm-class-virtio_mmio_fs.html#virtio_mmio_fs">virtio_mmio_fs</a>, 
+<a href="rm-class-virtio_mmio_net.html#virtio_mmio_net">virtio_mmio_net</a>, 
+<a href="rm-class-virtio_pcie_blk.html#virtio_pcie_blk">virtio_pcie_blk</a>, 
+<a href="rm-class-virtio_pcie_fs.html#virtio_pcie_fs">virtio_pcie_fs</a>, 
+<a href="rm-class-virtio_pcie_net.html#virtio_pcie_net">virtio_pcie_net</a>
+</section>
+<h2 id="textcon-close"><a href="#textcon-close">textcon-close</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-21">
+<a href="#classes-21">Classes</a>
+</h2>
+<a href="rm-class-textcon.html#textcon">textcon</a>
+</section>
+<h2 id="textcon-open"><a href="#textcon-open">textcon-open</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-22">
+<a href="#classes-22">Classes</a>
+</h2>
+<a href="rm-class-textcon.html#textcon">textcon</a>
+</section>
+<h2 id="timestamp-change"><a href="#timestamp-change">timestamp-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-23">
+<a href="#classes-23">Classes</a>
+</h2>
+<a href="rm-class-accel-vga.html#accel-vga">accel-vga</a>
+</section>
+<h2 id="transaction-wait-all-completed"><a href="#transaction-wait-all-completed">transaction-wait-all-completed</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-24">
+<a href="#classes-24">Classes</a>
+</h2>
+<a href="rm-class-transaction-ckpt.html#transaction-ckpt">transaction-ckpt</a>
+</section>
+<h2 id="uefi-module-added"><a href="#uefi-module-added">uefi-module-added</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="classes-25">
+<a href="#classes-25">Classes</a>
+</h2>
+<a href="rm-class-uefi_fw_tracker.html#uefi_fw_tracker">uefi_fw_tracker</a>
+</section>
+</article>
+<div class="chain">
+<a href="rm-class-xed_histogram_connection.html">xed_histogram_connection</a>
+<a href="rm-haps.html">7 Haps</a>
+</div>

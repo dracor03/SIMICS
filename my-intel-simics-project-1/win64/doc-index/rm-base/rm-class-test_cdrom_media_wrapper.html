@@ -1,0 +1,53 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>test_cdrom_media_wrapper</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-terminal_frontend.html">terminal_frontend</a>
+<a href="rm-class-test_generic_message_device.html">test_generic_message_device</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="test_cdrom_media_wrapper"><a href="#test_cdrom_media_wrapper">test_cdrom_media_wrapper</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Test device for ISO9660 image CD-ROM support
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:cdrom-optional"><a href="#dt:cdrom-optional">cdrom (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: cdrom_media
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.test-cdrom-media-wrapper.html">test-cdrom-media-wrapper</a>
+</section>
+<div class="chain">
+<a href="rm-class-terminal_frontend.html">terminal_frontend</a>
+<a href="rm-class-test_generic_message_device.html">test_generic_message_device</a>
+</div>

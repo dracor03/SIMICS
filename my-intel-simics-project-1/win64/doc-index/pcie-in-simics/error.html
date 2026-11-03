@@ -1,0 +1,161 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Error templates</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="clkreq.html">CLKREQ template</a>
+<a href="reset.html">Reset templates</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;
+<a href="dml-template-reference.html">DML template reference</a>
+&nbsp;/&nbsp;</div>
+<h1>Error templates</h1>
+<h2 id="error-reporting-structures"><a href="#error-reporting-structures">Error Reporting Structures</a></h2>
+<pre><code class="language-dml">typedef struct {
+    uint8                err;
+    pcie_ecs_t           subclass;
+    atom_t               *msg_extra_atoms;
+    pcie_aer_log_entry_t log_entry;
+} corr_error_t;
+
+typedef struct {
+    pcie_uncorrectable_error_t err;
+    atom_t                     *msg_extra_atoms;
+    pcie_aer_log_entry_t       log_entry;
+} unc_error_t;
+
+typedef corr_error_t unc_anf_error_t;
+</code></pre>
+<p>Instances of these structures are passed to the
+<a href="error.html#submit_correctable_error-const-corr_error_t-e-bool-pcie_error_t"><code>submit_correctable_error()</code></a>,
+<a href="error.html#submit_uncorrectable_error-const-unc_error_t-e-bool-pcie_error_t"><code>submit_uncorrectable_error()</code></a>,
+<a href="error.html#submit_uncorrectable_error_advisory_non_fatal-const-unc_anf_error_t-e-bool-pcie_error_t"><code>submit_uncorrectable_error_advisory_non_fatal()</code></a>
+methods respectively. For <code>subclass</code> in <code>corr_error_t</code>, if the message does
+not support subclasses, the value can be left to 0 (<code>PCIE_ECS_Legacy</code>). For
+<code>err</code> in <code>corr-error_ret_t</code>, it can hold values of
+the enums <code>pcie_correctable_error_t</code> and <code>pcie_uncorrectable_error_t</code> if it
+is advisory non-fatal error. In all cases:</p>
+<ul>
+<li>The <code>msg_extra_atoms</code> pointer may be <code>NULL</code>, in which case the message
+will not include atoms in addition to the PCIe message specific atoms.</li>
+<li>The <code>log_entry</code> can optionally include a TLP log entry, which is only
+applicable if the function supports AER. This functionality is described
+below.</li>
+</ul>
+<p>In a <code>pcie_aer_log_entry_t</code> entry, the <code>is_flit</code> field indicates whether the
+the log entry is of a flit or a non-flit TLP. <code>pcie_aer_log_entry_tlp_t</code> is
+then a union and based on the value of the <code>is_flit</code>, either the
+<code>non_flit_tlp</code> or the <code>flit_tlp_header</code> field should be populated.</p>
+<pre><code class="language-c">typedef struct {
+    bool is_flit;
+    pcie_aer_log_entry_tlp_t tlp_log_entry;
+} pcie_aer_log_entry_t;
+
+typedef union {
+    pcie_aer_non_flit_tlp_t non_flit_tlp;
+    const bytes_t *flit_tlp_header;
+} pcie_aer_log_entry_tlp_t;
+
+typedef struct {
+    const bytes_t *prefix;
+    const bytes_t *header;
+} pcie_aer_non_flit_tlp_t;
+</code></pre>
+<h2 id="pcie_error_reporter"><a href="#pcie_error_reporter">pcie_error_reporter</a></h2>
+<p>The <code>pcie_error_reporter</code> is template that is instantiated by all PCIe
+function that inherit the <a href="common.html#config_bank"><code>config_bank</code></a> template.</p>
+<p>It provides utility methods for PCIe error signaling. The submission methods
+will update the relevant status register and send a PCIe message to the Root
+complex if applicable conditions are met. The registers updated and the
+conditions checked by default are described below:</p>
+<p>Updated registers:</p>
+<ul>
+<li>The device status register in the PCI Express Capability Structure</li>
+<li>If a ERR_FATAL or ERR_NONFATAL message is sent, the Signaled System Error
+bit in the command register will be set if SERR# is enabled.</li>
+</ul>
+<p>Conditions checked:</p>
+<ul>
+<li>The device control registers in the PCI Express Capability Structure</li>
+<li>SERR# in the command register of the PCI Configuration Space</li>
+</ul>
+<h3 id="methods"><a href="#methods">Methods</a></h3>
+<p>The entry methods for submitting a PCIe error are
+<code>submit_correctable_error()</code>, <code>submit_uncorrectable_error()</code> and
+<code>submit_uncorrectable_error_advisory_non_fatal()</code>. All of the methods
+described below are however overridable, which can be useful if there are
+device specific status registers that should be set or conditions that
+apply to the PCIe function to determine whether or to transmit a message.</p>
+<p>The error values can be retrieved from the <code>pcie_uncorrectable_error_t</code>
+and <code>pcie_correctable_error_t</code> enums that are defined in the top-level of
+the PCIe library in the <code>error.dml</code> file. These are accessed using for
+example
+<code>local pcie_correctable_error_t err = PCIE_Err_Cor_Internal_Error;</code>.</p>
+<h4 id="submit_correctable_error-const-corr_error_t-e-bool-pcie_error_t"><a href="#submit_correctable_error-const-corr_error_t-e-bool-pcie_error_t"><code>submit_correctable_error(const corr_error_t *e) -&gt; (bool, pcie_error_t)</code></a></h4>
+<p>Submits a correctable PCIe error. Returns two values <code>(message_was_sent, error)</code>, where <code>message_was_sent</code> is set to <code>true</code> if the message was
+sent to the RC. If the message was sent, <code>error</code> holds a value of the
+<code>pcie_error_t</code> enum. Otherwise <code>error</code> holds a value of -1 if an error is
+encountered, or 0 if the message was not sent due to configuration
+reasons.</p>
+<h4 id="submit_uncorrectable_error-const-unc_error_t-e-bool-pcie_error_t"><a href="#submit_uncorrectable_error-const-unc_error_t-e-bool-pcie_error_t"><code>submit_uncorrectable_error(const unc_error_t *e) -&gt; (bool, pcie_error_t)</code></a></h4>
+<p>Submits an uncorrectable PCIe error. Returns two values
+<code>(message_was_sent, error)</code>, where <code>message_was_sent</code> is set to <code>true</code> if
+the message was sent to the RC. If the message was sent, <code>error</code> holds a
+value of the <code>pcie_error_t</code> enum. Otherwise <code>error</code> holds a value of -1
+if an error is encountered, or 0 if the message was not sent due to
+configuration reasons.</p>
+<h4 id="submit_uncorrectable_error_advisory_non_fatal-const-unc_anf_error_t-e-bool-pcie_error_t"><a href="#submit_uncorrectable_error_advisory_non_fatal-const-unc_anf_error_t-e-bool-pcie_error_t"><code>submit_uncorrectable_error_advisory_non_fatal(const unc_anf_error_t *e) -&gt; (bool, pcie_error_t)</code></a></h4>
+<p>Submits an uncorrectable PCIe error that is advisory non fatal. Returns
+two values <code>(message_was_sent, error)</code>, where <code>message_was_sent</code> is set
+to <code>true</code> if the message was sent to the RC. If the message was sent,
+<code>error</code> holds a value of the <code>pcie_error_t</code> enum. Otherwise <code>error</code> holds
+a value of -1 if an error is encountered, or 0 if the message was not
+sent due to configuration reasons.</p>
+<h4 id="get_severity-pcie_uncorrectable_error_t-err-uint8"><a href="#get_severity-pcie_uncorrectable_error_t-err-uint8"><code>get_severity(pcie_uncorrectable_error_t err) -&gt; (uint8)</code></a></h4>
+<p>Returns the severity of an uncorrectable error. Throws an error if the
+error is not valid. Can be overridden if custom severity is needed.</p>
+<h4 id="error-message-conditions-for-sending"><a href="#error-message-conditions-for-sending">Error Message conditions for sending</a></h4>
+<ul>
+<li><code>corr_error_signaling_conditions_met(uint8, err, bool advisory_non_fatal, bool is_undefined_request_error) -&gt; (bool)</code></li>
+<li><code>uncorr_error_signaling_conditions_met(pcie_error_severity_t severity, pcie_uncorrectable_error_t err, bool is_undefined_request_error) -&gt; (bool)</code></li>
+</ul>
+<p>These methods checks if the PCIe function should send an error message to
+the Root Complex. They return true if the conditions are met, otherwise
+false.</p>
+<p>Override this methods to add additional conditions that should be met for
+correctable errors.</p>
+<h4 id="send_error_message-pcie_error_severity_t-severity-atom_t-extra_atoms-bool-int"><a href="#send_error_message-pcie_error_severity_t-severity-atom_t-extra_atoms-bool-int"><code>send_error_message(pcie_error_severity_t severity, atom_t *extra_atoms) -&gt; (bool, int)</code></a></h4>
+<p>Sends a PCIe error. Returns two values <code>(message_was_sent, error)</code>, where
+<code>message_was_sent</code> is set to <code>true</code> if the message was sent to the RC. If
+the message was sent, <code>error</code> holds a value of <code>pcie_error_t</code> enum.
+Otherwise <code>error</code> holds a value of -1 if an error is encountered, or 0 if
+the message was not sent due to configuration reasons.</p>
+<h4 id="transmit_error_message-pcie_error_severity_t-severity-atom_t-extra_atoms-pcie_error_t"><a href="#transmit_error_message-pcie_error_severity_t-severity-atom_t-extra_atoms-pcie_error_t"><code>transmit_error_message(pcie_error_severity_t severity, atom_t *extra_atoms) -&gt; (pcie_error_t)</code></a></h4>
+<p>Transmits the PCIe error message. The default behavior is to send it
+upstream. In root ports, the default behavior is to send it to it self
+for internal handling.</p>
+<p>Override this method to issue the error message transaction somewhere
+else.</p>
+<h2 id="handling_err_messages"><a href="#handling_err_messages">handling_err_messages</a></h2>
+<p>Methods for an root port receiving PCIe Error messages. Inherits
+<code>handling_messages</code>.</p>
+<p>Should only be used a Root Port’s message handling <code>port</code>. The <code>pcie_config</code>
+parameter must be set to the pcie_config bank of the root port.</p>
+<h4 id="method-handle_error_message-transaction_t-t-uint64-addr-pcie_message_type_t-type-pcie_error_t"><a href="#method-handle_error_message-transaction_t-t-uint64-addr-pcie_message_type_t-type-pcie_error_t">method handle_error_message(transaction_t *t, uint64 addr, pcie_message_type_t type) -&gt; (pcie_error_t)</a></h4>
+<p>Called by the library when an error message is received. This method can be
+called manually if the device supports sideband mechanisms for reporting
+errors. Setting the <code>t</code> argument to NULL makes sense in this case. When the
+library calls this method for incoming error signaling PCIe messages, the
+<code>transaction_t</code> representing that message will be provided. Device model are
+expected to override the default implementation to do additional processing
+of the signaled error.</p>
+
+<div class="chain">
+<a href="clkreq.html">CLKREQ template</a>
+<a href="reset.html">Reset templates</a>
+</div>

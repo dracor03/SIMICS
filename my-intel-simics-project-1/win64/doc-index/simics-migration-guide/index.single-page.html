@@ -1,0 +1,1241 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Simics Migration Guide</title>
+
+<section class="page" id="index.html"><h1 id="index.html:simics-migration-guide"><a href="#index.html:simics-migration-guide">Simics Migration Guide</a></h1>
+</section><section class="page" id="introduction.html"><h1 id="introduction.html:introduction"><a href="#introduction.html:introduction">1 Introduction</a></h1>
+<p>This document describes how to migrate to Simics 7 from Simics 6.</p>
+<p>Chapter <a class="reference" href="#compatibility.html">2</a> describes how Simics ABI and API compatibility
+works, including API deprecation and removal, between minor and major versions.
+Other areas covered include checkpoint compatibility and build environment
+compatibility.</p>
+<p>Chapter <a class="reference" href="#overview.html">3</a> gives an overview on how to migrate from an old Simics
+version to Simics 7.</p>
+<p>Finally, chapter <a class="reference" href="#deprecation-table.html">7</a> lists all currently deprecated
+functionality and the future release when it is slated for removal.</p>
+</section><section class="page" id="compatibility.html"><h1 id="compatibility.html:compatibility"><a href="#compatibility.html:compatibility">2 Compatibility</a></h1>
+<p>This chapter describes the compatibility Simics provides and how to keep
+scripts, modules and checkpoints from previous versions of Simics working in new
+versions.</p>
+<p>Simics uses <em>semantic versioning</em>. This is defined at
+<a href="http://semver.org/" rel="noopener noreferrer" target="_top">http://semver.org/</a> and here we use the terminology defined
+there without further explanation.</p>
+<p>This implies that new features can be introduced in minor versions, but in a
+backwards compatible way, so Simics is ABI backward compatible between minor
+versions. As a result, user-written modules and add-on packages can be used with
+a newer minor (or patch) version without recompilation.</p>
+<p>Major versions introduce incompatible changes, which are mainly removals of
+previously deprecated functionality. In rare cases there can also be
+incompatible changes to existing functionality.</p>
+<p>This implies that add-on packages compiled for a particular major version will
+work with the next major version as long as they do not use any deprecated
+functionality.</p>
+<p>Simics maintains backward compatibility for checkpoints one major version older
+than the oldest of the currently supported API versions, i.e. Simics 7 supports
+loading checkpoints from versions 6 and 5. This assumes that the model also
+supports older checkpoints.</p>
+<h2 id="compatibility.html:supported-simics-api"><a href="#compatibility.html:supported-simics-api">2.1 Supported Simics API</a></h2>
+<p>The API consists of all functions which have a <code>SIM_</code> prefix, as well as any
+types required by those functions. There are also functions prefixed <code>VT_</code> and
+<code>DBG_</code> that are not supported and usually not documented. Such functions may for
+instance implement experimental functionality or, in rare cases, used to
+implement parts of the API, e.g. via macros. They should generally be considered
+internal and not used directly unless explicitly advised to.</p>
+<p>The Simics C API can be accessed from C by including one of the
+<code>simics/device-api.h</code>, <code>simics/processor-api.h</code> and <code>simics/simulator-api.h</code>
+header files, or from DML by importing the corresponding files. There are also
+several additional header files defining Simics <em>interfaces</em>. The Simics
+specific memory allocation functions defined in <code>simics/alloc.h</code> are also
+supported.</p>
+<p>Part of the Simics API is only available when programming in Python. The
+supported classes and functions belonging to the Simics Python API are listed in
+the in the <a href="../rm-api/python-api.html"><code>Python API</code></a> section in
+the <a href="../rm-api/index.html"><code>Simics API Reference Manual</code></a></p>
+<p>Simics also defines some utility functions in <code>simics/utils.h</code>, that can be
+useful when programming in C and C++. These functions are currently <em>not</em> part of
+the supported Simics API.</p>
+<h2 id="compatibility.html:api-deprecation"><a href="#compatibility.html:api-deprecation">2.2 API Deprecation</a></h2>
+<p>In a particular Simics major version, some features can be marked as deprecated.
+Deprecations are introduced only in major, not in minor, versions.</p>
+<p>Features marked as deprecated in a particular major Simics version are supported
+in the subsequent major release. Using only non-deprecated features of one
+Simics release guarantees that an upgrade to the next major version will be
+without major hurdles.</p>
+<p>Starting in Simics 7, features can also be marked as <em>legacy</em> in a particular
+major Simics version. Such features continue to exist until further notice, but
+are typically not supported for use in new functionality, and receive only
+critical bug fixes. Legacy features may be re-classified as deprecated in a
+future major version.</p>
+<p>The lifespan of a SIM-prefixed API call is:</p>
+<p>Major release A: Supported : The function is a fully supported feature. Most
+features remain supported for all major releases and are never deprecated.</p>
+<p>Major releases B: Deprecated or Legacy : Documented as deprecated or legacy but
+still supported. Using deprecated functionality generates both compile-time and
+run-time warnings, which helps in migrating from deprecated API calls. When
+applicable, documentation in the form of release notes or porting guides points
+to replacement functionality. Using legacy functionality does not generate any
+warnings. : : By default, deprecated functionality cannot be used when building
+modules. It is however still available by explicitly specifying an older major
+version as the API version, see Section
+<a class="reference" href="#compatibility.html:compiling-modules-written-for-an-older-simics-version">2.3</a>.</p>
+<p>Major release C: Removed or still Legacy : Deprecated features are removed in
+the subsequent major version. Legacy features remain (but can be re-classified
+as deprecated).</p>
+<p>Calls with other prefixes such as <code>VT</code> or <code>DBG</code> do not necessarily follow the
+same process.</p>
+<h2 id="compatibility.html:compiling-modules-written-for-an-older-simics-version"><a href="#compatibility.html:compiling-modules-written-for-an-older-simics-version">2.3 Compiling Modules Written for an Older Simics Version</a></h2>
+<p>Modules from older versions must specify what API they are written for by
+setting the make variable <code>SIMICS_API</code>. This variable must have one of the
+following values:</p>
+<dl>
+<dt id="compatibility.html:dt:latest"><a href="#compatibility.html:dt:latest"><code>latest</code></a></dt>
+<dd>Use the most recent Simics API.</dd>
+<dt id="compatibility.html:dt:7"><a href="#compatibility.html:dt:7"><code>7</code></a></dt>
+<dd>Compile module for the 7 API.</dd>
+<dt id="compatibility.html:dt:6"><a href="#compatibility.html:dt:6"><code>6</code></a></dt>
+<dd>Compile module for the 6 API.</dd>
+</dl>
+<p>In order to simplify upgrades to the future major Simics releases, it is
+recommended that this variable be set even when writing new modules. The
+recommendation is to always specify an explicit version number, not use
+<code>latest</code>.</p>
+<h3 id="compatibility.html:migrating-modules-to-the-most-recent-simics-version"><a href="#compatibility.html:migrating-modules-to-the-most-recent-simics-version">2.3.1 Migrating Modules to the Most Recent Simics Version</a></h3>
+<p>Simics features are added and improved with every product release. At major
+releases some features may be deprecated in favor of improved implementations or
+solutions to the same problem.</p>
+<p>Although the recommendation for developers is to avoid such deprecated features,
+they continue to work until the next major version. In these cases Simics
+provides both compile-time and run-time checks for use of deprecated features.
+The compile-time checks make deprecated parts of the API not visible during
+module compilation, resulting in compilation errors or warnings when such parts
+are being used. The compile time checks work for modules written in C or DML,
+but not for modules written in Python. To enable the compile-time checks, set
+the <code>SIMICS_API</code> make variable to the version of the new Simics release, for
+example <code>7</code>:</p>
+<pre><code>    SIMICS_API = 7
+</code></pre>
+<p>A run-time check triggers when a feature is actually being used. Run-time checks
+complement compile time checks, since not all checks can be done statically. For
+example, static checking cannot capture if passing a NULL pointer in an argument
+is deprecated.</p>
+<p>The following Simics command-line options are related to warnings about
+deprecated features:</p>
+<p>-wdeprecated : Issue a warning when a deprecated feature is used, or in many
+cases when a used feature will become deprecated in the next major release. This
+is equivalent to setting the <code>sim→deprecation_level</code> attribute to 2.</p>
+<p>-no-wdeprecated : Never warn for use of deprecated features. This is equivalent
+to setting the <code>sim→deprecation_level</code> attribute to 0.</p>
+<p>The default warning level, if none of the above flags is given, is for the
+<code>sim→deprecation_level</code> attribute to have the value 1. The resulting behaviour
+is to warn about all used features that were deprecated in the latest major
+release, but to issue no warnings about deprecations that will appear in the
+next major release.</p>
+<blockquote class="markdown-alert-note">
+<p>The compile-time and run-time checks do not catch all uses of deprecated
+parts of the API. Direct accesses to struct and enum members are not caught.
+Check the reference documentation to find deprecated struct and enum members.
+Most direct accesses to members in structs defined in the Simics API are
+deprecated.</p>
+</blockquote>
+<h2 id="compatibility.html:running-python-code-written-for-an-older-simics-version"><a href="#compatibility.html:running-python-code-written-for-an-older-simics-version">2.4 Running Python Code Written for an Older Simics Version</a></h2>
+<p>To run a Python module, or some other Python code, that was written for an older
+Simics version, the old API module has to be included early in the Python source
+file. To run Python code written for Simics 6, add the following line:</p>
+<pre><code>import simics_6_api as simics
+</code></pre>
+<p>and then access old API functions as <code>simics.SIM_old_function()</code>, for example.</p>
+<h2 id="compatibility.html:build-environment-compatibility"><a href="#compatibility.html:build-environment-compatibility">2.5 Build Environment Compatibility</a></h2>
+<p>Only the make variables, and makefiles described in the <a href="../model-builder-user-guide/index.html"><em>Model Builder User’s
+Guide</em></a> are supported. User written
+scripts and makefiles that rely on the internals of the Simics makefiles and
+other parts of the build environment may break in future Simics versions.</p>
+</section><section class="page" id="overview.html"><h1 id="overview.html:migrating-to-a-new-simics-version"><a href="#overview.html:migrating-to-a-new-simics-version">3 Migrating to a New Simics Version</a></h1>
+<h2 id="overview.html:introduction"><a href="#overview.html:introduction">3.1 Introduction</a></h2>
+<p>This chapter gives a short overview of the process of updating code and scripts
+from any older Simics version to the most recent one. The following chapters, on
+the other hand, contain version specific descriptions.</p>
+<p>It is assumed that the migration is from Simics 6, the supported Simics version
+at the time of the Simics 7 release.</p>
+<h2 id="overview.html:step-by-step-guide"><a href="#overview.html:step-by-step-guide">3.2 Step-by-step Guide</a></h2>
+<ol>
+<li>First make sure that any C, C++, DML and Python modules compile with the most
+recent API in the version of Simics that you are migrating from. In Simics
+6, set <code>SIMICS_API</code> to <code>6</code> in the module <code>Makefile</code>. If the code does not
+compile cleanly, consult the <em>Migration Guide</em> for that Simics version.</li>
+<li>Update Python modules to the most recent API in the version of Simics that
+you are migrating from. This can be done by importing the Simics API using a
+specified version:
+<pre><code>import simics_6_api as simics
+</code></pre>
+</li>
+</ol>
+<p>This will simplify the migration of code to a newer version of Simics later.
+Please note that you’ll need to import modules and components after this.
+<code>    from simics import example    </code></p>
+<ol>
+<li>Run all scripts in Simics with the <code>-wdeprecated</code> command line flag to the
+Simics binary. This will catch uses of some deprecated features that can
+only be detected at run-time. An alternative is to set the
+<code>sim→deprecation_level</code> attribute to 2.</li>
+<li>When all modules and scripts run fine using the most recent API in the old
+version of Simics, it is time to migrate to Simics 7. Update the existing
+project to point to a Simics 7 installation or, even better, create a new
+project for Simics 7 development, since the old project may be needed for
+comparison purposes.</li>
+<li>Build all modules using the API version corresponding to the Simics version
+that you are migrating from. This should simply be a recompilation, since
+the old API version is already selected in the Makefiles and Python source
+files.</li>
+<li>In a few cases there are API changes that the pre-processor cannot hide.
+They may cause the build to fail even when an old API is selected. Use the
+table in chapter <a class="reference" href="#deprecation-table.html">7</a> to figure out what changes are
+necessary.</li>
+<li>Run all your tests and scripts to ensure that everything works in Simics 7
+when using the old API. Make sure to pass <code>-no-wdeprecated</code> to suppress
+deprecation warnings in the process. Once everything works, you can start
+using the new version of Simics for actual work. The following steps are
+optional at this point, but still strongly recommended.</li>
+<li>Change the API used for modules and scripts to the most recent version, one
+module or script at a time. Update the code according to the following
+chapters.</li>
+<li>Turn off the <code>-no-wdeprecated</code> flag when running tests and scripts. Update
+any code that yields deprecation warnings according to the following
+chapters.</li>
+</ol>
+</section><section class="page" id="6.html"><h1 id="6.html:migrating-from-simics-6"><a href="#6.html:migrating-from-simics-6">4 Migrating from Simics 6</a></h1>
+<h2 id="6.html:introduction"><a href="#6.html:introduction">4.1 Introduction</a></h2>
+<p>This chapter describes issues related to migrating to Simics 7 from Simics 6.
+For information about what is new in Simics 7, read the product release notes.</p>
+<h2 id="6.html:launching-simics"><a href="#6.html:launching-simics">4.2 Launching Simics</a></h2>
+<p>When launching Simics 5 or 6 on Linux, the shell script file
+<code>$HOME/.simics-5.sh</code> was sourced if it existed. In Simics 7 this is no longer
+done.</p>
+<h2 id="6.html:dml-migration"><a href="#6.html:dml-migration">4.3 DML migration</a></h2>
+<p>When migrating to Simics API 7 from Simics API 6, there are a few differences
+that may need to be addressed for DML code or modules. It is important to note
+that the migration to the Simics 7 API can be performed gradually. A single
+module in a large system can be migrated individually and each feature to be
+migrated can be migrated individually.</p>
+<p>A comprehensive description of migration concerns and a process for migration is
+documented in <a href="../dml-1.4-reference-manual/deprecations-auto.html"><code>Appendix C</code></a>
+of the <a href="../dml-1.4-reference-manual/index.html"><code>Device Modeling Language 1.4 Reference Manual</code></a> . The section below provides a
+brief list and brief description of some items to be addressed in the migration.</p>
+<ul>
+<li>The <code>transaction</code> interface was introduced in API 6, and will eventually
+replace the <code>io_memory</code> interface. In API 7, bank objects will by default
+implement the <code>transaction</code> interface.</li>
+<li>Log statements in shared methods now log on the nearest enclosing
+configuration object like non-shared methods. A common example of this is that
+logs from certain register/field templates which appeared on the device
+objects in API 6 will instead appear on the bank objects in API 7.</li>
+<li>The common error of mixing up log level and log group in log statements gives
+a warning in Simics API 7.</li>
+</ul>
+<p>For migrating DML 1.2 code, please refer to <a href="../dml-1.4-reference-manual/provisional-auto.html"><code>Appendix B</code></a> of the <a href="../dml-1.4-reference-manual/index.html"><code>Device Modeling Language 1.4 Reference Manual</code></a> .</p>
+</section><section class="page" id="from-io-mem-2-trans.html"><h1 id="from-io-mem-2-trans.html:migrating-from-io-memory-to-transactions"><a href="#from-io-mem-2-trans.html:migrating-from-io-memory-to-transactions">5 Migrating from IO Memory to Transactions</a></h1>
+<p>With the <code>io_memory</code> interface now considered legacy in Simics 7, all
+new modelling should implement the <code>transaction</code> interface. Migrating
+existing code to the <code>transaction</code> interface from <code>io_memory</code> is also
+strongly recommended. With this in mind, the challenge to port
+existing platforms to entirely use <code>transactions</code> can be
+significant. Therefore Simics supports automatic internal conversion
+from <code>io_memory</code> to <code>transaction</code> and vice versa to allow incremental
+migration from <code>io_memory</code> to <code>transaction</code>.</p>
+<p>To make this work, memory accesses shall not use direct interface
+calls for memory accesses but shall instead use function
+<code>SIM_issue_transaction</code>. If your model has to forward a
+<code>generic_transaction_t</code> and cannot construct the <code>transaction_t</code>
+itself, then function <code>VT_map_target_access</code> can be used but is
+considered an exception and the modeller shall construct a
+<code>transaction_t</code> whenever possible.</p>
+<p>An important concept with the new <code>transaction</code> framework is the type
+<code>map_target_t</code>. Simics objects, i.e. <code>conf_object_t</code>, that implement
+any of the memory/IO related interfaces can be converted to a
+<code>map_target_t</code> through function <code>SIM_new_map_target</code>. A <code>map_target_t</code>
+must be freed at end of use by calling function <code>SIM_free_map_target</code>.</p>
+<p>See the <a href="../rm-api/device-api-data-types.html"><em>Device API Data
+Types</em></a> section of
+the <a href="../rm-api/index.html"><em>API Reference Manual</em></a> for
+detailed information about <code>map_target_t</code>.</p>
+<h2 id="from-io-mem-2-trans.html:example-porting-external-io-memory-dependency-to-transactions-in-dml"><a href="#from-io-mem-2-trans.html:example-porting-external-io-memory-dependency-to-transactions-in-dml">5.1 Example porting external IO Memory dependency to Transactions in DML</a></h2>
+<p>The device <code>example_dev</code> contains two <code>connects</code>: <strong>memory</strong> and
+<strong>target_dev</strong>, implementing interfaces <code>memory_space</code> and <code>io_memory</code>. It
+contains two methods <code>write_to_dev32</code> and <code>read_memory32</code>. These methods create
+a <code>generic_transaction_t</code> to do a 32-bit <code>io_memory</code> <code>write</code> and <code>read</code>. The
+question now is how to port device <code>example_dev</code> to the new <code>transaction</code>
+framework.</p>
+<pre><code>dml 1.4;
+
+device example_dev;
+
+import "utility.dml";
+
+connect memory {
+    interface memory_space;
+}
+connect target_dev {
+    interface io_memory;
+}
+
+method write_to_dev32(uint64 addr, uint32 value) {
+    local bytes_t buf;
+    buf.data = cast(&amp;value, uint8*);
+    buf.len = sizeof(value);
+
+    local generic_transaction_t mop = SIM_make_mem_op_write(addr,
+                                                            buf,
+                                                            false,
+                                                            dev.obj);
+
+    local map_info_t map_info;
+    dev.target_dev.io_memory.operation(&amp;mop, map_info);
+}
+method read_memory32(uint64 addr) -&gt; (uint32) {
+    local uint32 value;
+    local buffer_t buf;
+    buf.data = cast(&amp;value, uint8*);
+    buf.len = sizeof(value);
+
+    local generic_transaction_t mop = SIM_make_mem_op_read(addr,
+                                                           buf,
+                                                           false,
+                                                           dev.obj);
+
+    dev.memory.memory_space.access(&amp;mop);
+    return value;
+}
+  
+</code></pre>
+<p>The code below ports the device to use transactions and map targets. The model
+is now ported to the new <code>transaction</code> framework and is at the same time
+Memory/IO interface agnostic. Making the model possible to be used in legacy
+platforms where the connected <code>target_dev</code> implements <code>io_memory</code> and in new
+platforms the connected <code>target_dev</code> can be using <code>transactions</code>. The
+<code>target_dev</code> object can still use <code>io_memory</code> but can now be ported to
+<code>transactions</code> at a later point without breaking its dependency to device
+<code>example_dev</code>. This way, <strong>incremental migration</strong> of a platform away from
+<code>io_memory</code> to <code>transactions</code> is possible.</p>
+<pre><code>dml 1.4;
+
+device example_dev;
+
+import "utility.dml";
+
+method validate_map_target(conf_object_t *obj) -&gt; (bool) {
+    local map_target_t *tmp = SIM_new_map_target(obj, NULL, NULL);
+    if (!tmp) {
+        local exception_type_t _exc = SIM_clear_exception();
+        SIM_attribute_error(SIM_last_error());
+        return false;
+    }
+    SIM_free_map_target(tmp);
+    return true;
+}
+connect memory {
+    session map_target_t *map_target;
+    method validate(conf_object_t *obj) -&gt; (bool) {
+        return validate_map_target(obj);
+    }
+    method set(conf_object_t *obj) {
+        SIM_free_map_target(this.map_target);
+        default(obj);
+        this.map_target = obj ? SIM_new_map_target(obj, NULL, NULL) : NULL;
+    }
+}
+connect target_dev {
+    session map_target_t *map_target;
+    method validate(conf_object_t *obj) -&gt; (bool) {
+        return validate_map_target(obj);
+    }
+    method set(conf_object_t *obj) {
+        SIM_free_map_target(this.map_target);
+        default(obj);
+        this.map_target = obj ? SIM_new_map_target(obj, NULL, NULL) : NULL;
+    }
+}
+
+method write_to_dev32(uint64 addr, uint32 value) throws {
+    if (!target_dev.map_target)
+        throw;
+    local uint8 buf[4];
+    local atom_t atoms[5] = {
+        ATOM_data(buf),
+        ATOM_size(4),
+        ATOM_flags(Sim_Transaction_Write),
+        ATOM_initiator(dev.obj),
+        ATOM_list_end(0)
+    };
+    local transaction_t t;
+    t.atoms = atoms;
+    SIM_set_transaction_value_le(&amp;t, value);
+    if (SIM_issue_transaction(target_dev.map_target, &amp;t, addr) != Sim_PE_No_Exception)
+        throw;
+}
+method read_memory32(uint64 addr) -&gt; (uint32) throws {
+    if (!memory.map_target)
+        throw;
+    local uint8 val[4];
+    local atom_t atoms[4] = {
+        ATOM_data(val),
+        ATOM_size(4),
+        ATOM_initiator(dev.obj),
+        ATOM_list_end(0)
+    };
+    local transaction_t t;
+    t.atoms = atoms;
+    if (SIM_issue_transaction(memory.map_target, &amp;t, addr) != Sim_PE_No_Exception)
+        throw;
+    return SIM_get_transaction_value_le(&amp;t);
+}
+  
+</code></pre>
+<p>In DML there is a template <code>map_target</code> that can be applied to any connect that
+implements any of the Memory/IO interfaces defined in the bullet list above. The
+code can be rewritten very compactly because of the helper functions provided by
+the <code>map_target</code> template. See the <a href="../dml-1.4-reference-manual/utility.html#standard-templates"><em>Standard
+Templates</em></a> section
+of the <a href="../dml-1.4-reference-manual/index.html"><em>Device Modeling Language 1.4 Reference
+Manual</em></a> for a detailed description of
+the <code>map_target</code> template.</p>
+<pre><code>dml 1.4;
+
+device example_dev;
+
+import "utility.dml";
+
+connect memory is map_target;
+connect target_dev is map_target;
+
+method write_to_dev32(uint64 addr, uint32 value) throws {
+    target_dev.write(addr, 4, value);
+}
+method read_memory32(uint64 addr) -&gt; (uint32) throws {
+    return memory.read(addr, 4);
+}
+  
+</code></pre>
+<h2 id="from-io-mem-2-trans.html:porting-device-implementing-io-memory-to-transactions"><a href="#from-io-mem-2-trans.html:porting-device-implementing-io-memory-to-transactions">5.2 Porting device implementing IO Memory to Transactions</a></h2>
+<p>We have now covered how to remove dependency on external devices implementing
+<code>io_memory</code> interfaces by interacting with them through a <code>map_target</code>. Another
+scenario is when the device itself implements an <code>io_memory</code> type of interface
+and you cannot port that until the devices communicating with it transitions to
+<code>map_target</code> usage. In cases where the device forwards the <code>memop</code> to another
+device a partial migration is still possible.</p>
+<pre><code>dml 1.4;
+
+device example_dev2;
+
+import "utility.dml";
+
+connect target_dev1 {
+    interface io_memory;
+}
+connect target_dev2 {
+    interface io_memory;
+}
+port demux is signal_port;
+
+implement io_memory {
+    method operation(generic_transaction_t *mem_op,
+                     map_info_t map_info) -&gt; (exception_type_t) {
+        if (demux.signal.high)
+            return target_dev1.io_memory.operation(mem_op, map_info);
+        else
+            return target_dev2.io_memory.operation(mem_op, map_info);
+    }
+}
+</code></pre>
+<p>Doing a partial migration of this code where we keep our own implementation of
+<code>io_memory</code> but remove the dependency of <code>target_dev1</code> and <code>target_dev2</code> to
+implement <code>io_memory</code> would require us to either convert <code>generic_transaction_t</code>
+to a <code>transaction_t</code> and issue a <code>SIM_issue_transaction</code> or to use the
+convenient help function <code>VT_map_target_access</code> which allows the user to use a
+<code>generic_transaction_t</code> together with a <code>map_target_t</code>. In the code below we
+utilize the <code>VT_map_target_access</code> function since it is a lot more convenient in
+this scenario.</p>
+<pre><code>dml 1.4;
+
+device example_dev2;
+
+import "utility.dml";
+
+connect target_dev1 is map_target;
+connect target_dev2 is map_target;
+
+port demux is signal_port;
+
+implement io_memory {
+    method operation(generic_transaction_t *mem_op,
+                     map_info_t map_info) -&gt; (exception_type_t) {
+        SIM_set_mem_op_physical_address(mem_op,
+            SIM_get_mem_op_physical_address(mem_op) - map_info.base + map_info.start);
+
+        if (demux.signal.high)
+            return VT_map_target_access(target_dev1.map_target, mem_op);
+        else
+            return VT_map_target_access(target_dev2.map_target, mem_op);
+    }
+}
+</code></pre>
+<p>When a full migration can be done, the code should be rewritten as:</p>
+<pre><code>dml 1.4;
+
+device example_dev2;
+
+import "utility.dml";
+
+connect target_dev1 is map_target;
+connect target_dev2 is map_target;
+
+port demux is signal_port {
+    implement signal {
+        method signal_raise() {
+            default();
+            SIM_translation_changed(dev.obj);
+        }
+        method signal_lower() {
+            default();
+            SIM_translation_changed(dev.obj);
+        }
+    }
+}
+
+implement translator {
+    method translate(uint64 addr, access_t access,
+                     const map_target_t *default_target) -&gt; (translation_t)
+    local translation_t t;
+
+    if (demux.signal.high)
+        t.target = target_dev1.map_target;
+    else
+        t.target = target_dev2.map_target;
+    return t;
+}
+</code></pre>
+<h2 id="from-io-mem-2-trans.html:port-usage-of-generic_transaction_t-user_data"><a href="#from-io-mem-2-trans.html:port-usage-of-generic_transaction_t-user_data">5.3 Port usage of generic_transaction_t user_data</a></h2>
+<h3 id="from-io-mem-2-trans.html:io-memory-with-user_data"><a href="#from-io-mem-2-trans.html:io-memory-with-user_data">5.3.1 IO Memory with user_data</a></h3>
+<p>With <code>generic_transaction_t</code> custom meta data could be added to IO Memory
+transactions through <code>user_data</code>. The example device below showcases setting
+<code>user_data</code> to a <code>generic_transaction_t</code> through function
+<code>SIM_set_mem_op_user_data</code>.</p>
+<pre><code>dml 1.4;
+
+device example_user_data_set;
+
+typedef struct {
+    int id;
+} example_message_t;
+
+connect endpoint {
+    interface io_memory;
+}
+
+bank regs {
+    register msg_id size 4 @ 0x0 "Message id";
+    register msg_send size 8 @ 0x8 "Send message" {
+        is write;
+        method write(uint64 value) {
+            if (endpoint.io_memory.val) {
+                local bytes_t buf;
+                buf.data = cast(&amp;value, uint8*);
+                buf.len = sizeof(value);
+
+                local generic_transaction_t mop = SIM_make_mem_op_write(0,
+                                                                        buf,
+                                                                        false,
+                                                                        dev.obj);
+                local example_message_t msg = { .id = msg_id.val, ... };
+                SIM_set_mem_op_user_data(&amp;mop, &amp;msg);
+                local map_info_t map_info;
+                endpoint.io_memory.operation(&amp;mop, map_info);
+            }
+        }
+    }
+}
+</code></pre>
+<p>The example device below showcases retrieving the meta data from a
+<code>generic_transaction_t</code> through function <code>SIM_get_mem_op_user_data</code>.</p>
+<pre><code>dml 1.4;
+
+device example_user_data_read;
+
+typedef struct {
+    int id;
+} example_message_t;
+
+implement io_memory {
+    method operation(generic_transaction_t *mem_op,
+                     map_info_t map_info) -&gt; (exception_type_t) {
+        local example_message_t* msg = SIM_get_mem_op_user_data(mem_op);
+
+        if (msg != NULL)
+            log info, 1: "Received message #%d", msg-&gt;id;
+        return Sim_PE_No_Exception;
+    }
+}
+</code></pre>
+<h3 id="from-io-mem-2-trans.html:transactions-with-atoms"><a href="#from-io-mem-2-trans.html:transactions-with-atoms">5.3.2 Transactions with atoms</a></h3>
+<p>With <code>generic_transaction_t</code> a <code>void</code> pointer is passed between the initiator
+and the target making the data type unsafe. With transactions meta data can be
+shared through <code>atoms</code> which are type safe. The target shall declare its own
+<code>custom atoms</code> for the meta data. A declaration consists of a type and methods
+to create, retrieve and set atom values. The target can check if a specific atom
+is part of the transaction making the meta data exchange type safe. Custom atoms
+are defined in a Simics Interface Module similar to custom interfaces.</p>
+<p>The below file <code>example-atom.h</code> declares an atom with the same signature as in
+the previous example.</p>
+<pre><code>#ifndef MESSAGE_ATOM_H
+#define MESSAGE_ATOM_H
+#include  &lt;simics/device-api.h&gt;
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+typedef struct {
+        int id;
+} example_message_t;
+
+// Allow creation from Python, if required
+SIM_PY_ALLOCATABLE(example_message_t);
+#define ATOM_TYPE_example_message example_message_t *
+SIM_CUSTOM_ATOM(example_message);
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* MESSAGE_ATOM_H */
+</code></pre>
+<p>File <code>example-atom.c</code> creates an interface module which at runtime registers the
+<code>example_message</code> <code>atom</code> for runtime usage.</p>
+<pre><code>#include "example-atom.h"
+
+void
+init_local(void)
+{
+        ATOM_register_example_message();
+}
+</code></pre>
+<p>File <code>example-atom.dml</code> adds <code>DML</code> wrappers for the <code>example_message</code> atom data
+type and its accessors. Devices written in DML shall import this file.</p>
+<pre><code>dml 1.4;
+
+header %{
+#include "example-atom.h"
+%}
+
+extern typedef struct {
+    int id;
+} example_message_t;
+
+// Create atom
+extern atom_t ATOM_example_message(const example_message_t *msg);
+// Get atom
+extern const example_message_t* ATOM_get_transaction_example_message(const transaction_t *t);
+</code></pre>
+<p>The code below is class <code>example_user_data_set</code> ported to instead use an <code>atom</code>
+for sending the message.</p>
+<pre><code>dml 1.4;
+
+device example_user_data_set;
+
+import "utility.dml";
+import "example-atom.dml";
+
+connect endpoint is map_target;
+
+bank regs {
+    register msg_id size 4 @ 0x0 "Message id";
+    register msg_send size 8 @ 0x8 "Send message" {
+        is write;
+        method write(uint64 value) {
+            local buffer_t buf;
+            buf.data = cast(&amp;value, uint8*);
+            buf.len = sizeof(value);
+            local example_message_t msg = { .id = msg_id.val, ... };
+
+            local atom_t atoms[6] = {
+                ATOM_initiator(dev.obj),
+                ATOM_data(buf.data),
+                ATOM_size(buf.len),
+                ATOM_flags(Sim_Transaction_Write),
+                ATOM_example_message(&amp;msg),
+                ATOM_list_end(0)
+            };
+            local transaction_t t;
+            t.atoms = atoms;
+            endpoint.issue(&amp;t, 0);
+        }
+    }
+}
+
+
+</code></pre>
+<p>The code below is class <code>example_user_data_read</code> ported to instead use an <code>atom</code>
+for the message.</p>
+<pre><code>dml 1.4;
+
+device example_user_data_read;
+import "example-atom.dml";
+
+implement transaction {
+    method issue(transaction_t *t, uint64 addr) -&gt; (exception_type_t) {
+        local example_message_t* msg = ATOM_get_transaction_example_message(t);
+
+        if (msg != NULL)
+            log info, 1: "Received message #%d", msg-&gt;id;
+        return Sim_PE_No_Exception;
+    }
+}
+</code></pre>
+<h2 id="from-io-mem-2-trans.html:devices-that-rely-on-align-size-based-transaction-splitting"><a href="#from-io-mem-2-trans.html:devices-that-rely-on-align-size-based-transaction-splitting">5.4 Devices that rely on align-size based transaction splitting</a></h2>
+<p>For interfaces that used the <code>generic_transaction_t</code> structure a memory space
+would split transactions into individual transactions according to the
+<code>align-size</code> setting of the memory space map entry. For <code>transaction_t</code> based
+interfaces this is no longer the case. The memory space will still apply byte
+swapping according to the byte swap and align-size settings, but it will no
+longer split the transactions.</p>
+<p>There are some rare cases where a device might rely on the fact that
+transactions arrive only in chunks that are equal to or smaller than the
+align-size setting of its mapping. In such a case, the splitting needs to be
+handled by the device code or a transaction splitter needs to be inserted
+between the memory space and the device expecting the split transactions.</p>
+<p>Device code handling of splitting is case specific and depends on the language
+used. In DML or C++, one can address oversized transactions in the function
+<code>transaction_access</code> of a <code>bank</code>, while in C one might do that directly in the
+implementation of the <code>issue</code> function of the <code>transaction</code> interface.</p>
+<p>The easiest and a language agnostic way is inserting a transaction splitter. An
+example of such a splitter is the class <code>transaction_splitter</code> shipped with
+Simics. The source code can be found in <code>src/devices/transaction-splitter</code>.
+Assume that originally you had a case like shown below in Python.</p>
+<pre><code># - mem refers to a memory space object
+# - dev refers to an io-memory based device with a bank called "regs"
+
+# map regs at offset 0x30, with length 0x100 and an align-size of 2
+mem.map.append([0x30, dev.bank.regs, 0, 0, 0x100, None, 0, 2])
+</code></pre>
+<p>If that device was migrated from IO Memory to transaction but you still want to
+ensure that all transactions carry at most 2 bytes, you could insert the
+transaction splitter as shown below.</p>
+<pre><code># - mem refers to a memory space object
+# - dev refers to an io-memory based device with a bank called "regs"
+
+# create a splitter, point it to the actual bank and configure it to split
+# into two bytes
+splitter = SIM_create_object('transaction_splitter',
+                              'splitter',
+                              target = dev.bank.regs,
+                              split_size = 2)
+
+# only change in the mapping is that it now points to the splitter object
+mem.map.append([0x30, splitter, 0, 0, 0x100, None, 0, 2])
+</code></pre>
+</section><section class="page" id="systemc-library-migration.html"><h1 id="systemc-library-migration.html:systemc-library"><a href="#systemc-library-migration.html:systemc-library">6 SystemC Library</a></h1>
+<h2 id="systemc-library-migration.html:package-1013"><a href="#systemc-library-migration.html:package-1013">6.1 Package 1013</a></h2>
+<p>The SystemC Library has been moved out of the Simics Base package to a separate
+package 1013 (*SystemC-Library*). Users migrating to Simics version 6.0.207 or
+later will need to install package 1013 to continue using SystemC.</p>
+<p>The build process and usage of the SystemC Library remain unchanged, and no
+modifications are required for users’ existing SystemC modules. However, since
+the <code>SCL_VERSION</code> has been updated, both the SystemC Library and the SystemC
+modules must be rebuilt following the migration.</p>
+</section><section class="page" id="deprecation-table.html"><h1 id="deprecation-table.html:deprecated-and-legacy-functionality"><a href="#deprecation-table.html:deprecated-and-legacy-functionality">7 Deprecated and Legacy Functionality</a></h1>
+<p>This chapter describes all functionality that is currently deprecated or legacy,
+and, in the former case, when it will be removed, including items removed in the
+current release. There are also suggestions on replacements.</p>
+<h2 id="deprecation-table.html:legacy-in-simics-7"><a href="#deprecation-table.html:legacy-in-simics-7">7.1 Legacy in Simics 7</a></h2>
+<p>Functionality classified as legacy in Simics 7.</p>
+<h3 id="deprecation-table.html:product-features"><a href="#deprecation-table.html:product-features">7.1.1 Product Features</a></h3>
+<table><thead><tr><th><strong>Functionality</strong></th><th><strong>Notes</strong></th></tr></thead><tbody>
+<tr><td>The <code>-echo</code> command line option can be used to include command invocations as part of Simics output, which can be directed to file</td><td></td></tr>
+<tr><td>The <em>script declaration</em> system.</td><td>New code should use the <em>target parameter</em> framework.</td></tr>
+<tr><td>The component system.</td><td>New code should use the <em>blueprint</em> framework.</td></tr>
+<tr><td>DML 1.2</td><td>New code should use DML 1.4.</td></tr>
+<tr><td>Haps</td><td>New code should use notifiers.</td></tr>
+<tr><td>GNU make based module build system.</td><td>New modules should use CMake instead.</td></tr>
+<tr><td>Ports and port interfaces.</td><td>New devices should use port objects.</td></tr>
+<tr><td>The <code>[obj, "name"]</code> syntax for device connects.</td><td>New devices should use port objects and regular interfaces, e.g. use syntax <code>obj.port.name</code> or <code>obj.bank.name</code>.</td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:cli"><a href="#deprecation-table.html:cli">7.1.2 CLI</a></h3>
+<table><thead><tr><th><strong>Functionality</strong></th><th><strong>Notes</strong></th></tr></thead><tbody>
+<tr><td><code>break-io</code></td><td><code>bp.bank.break</code> is a replacement in most cases</td></tr>
+<tr><td><code>unbreak-io</code></td><td><code>bp.bank.break</code> and <code>bp.delete</code> are replacements in most cases</td></tr>
+<tr><td><code>trace-io</code></td><td><code>bp.bank.trace</code> is a replacement in most cases</td></tr>
+<tr><td><code>trace-io-setup</code></td><td>No replacement.</td></tr>
+<tr><td><code>untrace-io</code></td><td><code>bp.bank.trace</code> and <code>bp.delete</code> are replacements in most cases</td></tr>
+<tr><td><code>wait-for-io-break</code></td><td><code>bp.bank.wait-for</code> is a replacement in most cases</td></tr>
+<tr><td><code>restart-simics</code></td><td>It only works when running Simics locally.</td></tr>
+<tr><td>The <code>ports</code> attribute (e.g. <code>dev.ports.HRESET.signal</code>).</td><td>Use port objects and the <code>port</code> or the <code>bank</code> sub-namespace (e.g. <code>dev.port.HRESET.iface.signal</code>).</td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:interfaces"><a href="#deprecation-table.html:interfaces">7.1.3 Interfaces</a></h3>
+<table><thead><tr><th><strong>Interface</strong></th><th><strong>Notes</strong></th></tr></thead><tbody>
+<tr><td><code>io_memory</code></td><td>New code should use <code>transaction</code></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:api"><a href="#deprecation-table.html:api">7.1.4 API</a></h3>
+<table><thead><tr><th><strong>Functionality</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>SIM_register_class</code></td><td><code>SIM_create_class</code></td></tr>
+<tr><td><code>SIM_register_typed_attribute</code></td><td><code>SIM_register_attribute</code> or <code>SIM_register_attribute_with_user_data</code></td></tr>
+<tr><td><code>SIM_register_typed_class_attribute</code></td><td><code>SIM_register_class_attribute</code> or <code>SIM_register_class_attribute_with_user_data</code></td></tr>
+<tr><td><code>class_data_t</code></td><td><code>class_info_t</code></td></tr>
+<tr><td><code>dbuffer_t</code></td><td><code>frags_t</code>, <code>bytes_t</code>, <code>buffer_t</code></td></tr>
+<tr><td><code>SIM_register_port_interface</code> and <code>SIM_get_port_interface</code></td><td><code>SIM_register_port</code> together with <code>SIM_register_interface</code></td></tr>
+<tr><td><code>SIM_mem_op_is_prefetch</code></td><td>Check if flag <code>Sim_Transaction_Control</code> is part of bitmap returned by function <code>SIM_transaction_flags</code></td></tr>
+</tbody></table>
+<h2 id="deprecation-table.html:to-be-removed-in-simics-7"><a href="#deprecation-table.html:to-be-removed-in-simics-7">7.2 To Be Removed in Simics 7</a></h2>
+<p>Functionality deprecated in Simics 6.</p>
+<h3 id="deprecation-table.html:product-features-2"><a href="#deprecation-table.html:product-features-2">7.2.1 Product Features</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td>The use of <em>workspace</em> in identifiers, file names, function names, and program arguments</td><td><em>project</em></td></tr>
+<tr><td>Non-hierarchical components</td><td>Hierarchical component system</td></tr>
+<tr><td>trace module</td><td>tracer tool in Instrumentation API</td></tr>
+<tr><td>Simics command line parameters: <em>-py3k-warnings</em>, <em>-fast</em>, <em>-stall</em>, <em>-2</em>, <em>-3</em>, <em>-abi-version</em>, <em>-alt-wx</em>, <em>-application-mode</em>, <em>-dont-use-license-feature</em>, <em>-expire</em>, <em>-extra-arg</em>, <em>-gui-only</em>, <em>-license-file</em>, <em>-no-analyzer</em>, <em>-no-py3k-warnings</em>, <em>-workspace</em></td><td></td></tr>
+<tr><td><code>Sim_Attr_Doc</code> attribute type</td><td></td></tr>
+<tr><td><code>Sim_Attr_Session</code> attribute type</td><td><code>Sim_Attr_Pseudo</code></td></tr>
+<tr><td><code>.tar</code> and <code>.exe</code> Simics package formats</td><td><code>.ispm</code> package format</td></tr>
+<tr><td><code>packageinfo</code> files in packages</td><td><code>.ispm</code> package metadata files</td></tr>
+<tr><td>Reverse execution</td><td>In-memory snapshots</td></tr>
+<tr><td>Simics Eclipse</td><td>The new standalone Simics GUI</td></tr>
+<tr><td>The Simics Frontend protocol</td><td></td></tr>
+<tr><td>The Simics GUI (winsome)</td><td>The new standalone Simics GUI</td></tr>
+<tr><td>Simics Server</td><td></td></tr>
+<tr><td>The Simics binaries, <code>simics-common</code>, <code>simics-gui</code></td><td>Simics Python module</td></tr>
+<tr><td>MIL-STD-1553</td><td></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:cli-2"><a href="#deprecation-table.html:cli-2">7.2.2 CLI</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td>`log-group -add</td><td>-sub`</td></tr>
+<tr><td>`<object>.log-group -add</object></td><td>-sub`</td></tr>
+<tr><td>`log-type -add</td><td>-sub`</td></tr>
+<tr><td>`<object>.log-type -add</object></td><td>-sub`</td></tr>
+<tr><td><code>current-processor</code></td><td><code>cpu</code> or <code>pselect</code></td></tr>
+<tr><td><code>&lt;component&gt;.connect</code></td><td><code>connect</code> <em>cnt0 cnt1</em></td></tr>
+<tr><td><code>&lt;component&gt;.disconnect</code></td><td><code>disconnect</code> <em>cnt0 cnt1</em></td></tr>
+<tr><td><code>connect-components</code></td><td><code>connect</code> <em>cnt0 cnt1</em></td></tr>
+<tr><td><code>list-objects-with-interface</code></td><td><code>list-objects</code></td></tr>
+<tr><td><code>command-list</code></td><td><code>list-commands</code></td></tr>
+<tr><td><code>get-simics-search-path</code></td><td><code>list-simics-search-paths</code></td></tr>
+<tr><td><code>object-lock-stats</code></td><td><code>print-object-lock-stats</code></td></tr>
+<tr><td><code>-ipv4</code> flag to <code>new-gdb-remote</code></td><td><code>&lt;prefs&gt;→force_ipv4</code> or <code>&lt;sim&gt;→force_ipv4</code></td></tr>
+<tr><td><code>-ipv4</code> flag to <code>telnet-frontend</code></td><td><code>&lt;prefs&gt;→force_ipv4</code> or <code>&lt;sim&gt;→force_ipv4</code></td></tr>
+<tr><td><code>&lt;textcon&gt;.break</code></td><td><code>bp.console_string.break</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.break</code></td><td><code>bp.console_string.break</code></td></tr>
+<tr><td><code>&lt;textcon&gt;.list-break-strings</code></td><td><code>bp.list</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.list-break-strings</code></td><td><code>bp.list</code></td></tr>
+<tr><td><code>&lt;textcon&gt;.unbreak</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.unbreak</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>&lt;textcon&gt;.wait-then-write</code></td><td><code>bp.console_string.wait-then-write</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.wait-then-write</code></td><td><code>bp.console_string.wait-then-write</code></td></tr>
+<tr><td><code>&lt;textcon&gt;.wait-for-string</code></td><td><code>bp.console_string.wait-for</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.wait-for-string</code></td><td><code>bp.console_string.wait-for</code></td></tr>
+<tr><td><code>break-log</code></td><td><code>bp.log.break</code></td></tr>
+<tr><td><code>unbreak-log</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>wait-for-log</code></td><td><code>bp.log.wait-for</code></td></tr>
+<tr><td><code>cycle-break</code></td><td><code>bp.cycle.break</code></td></tr>
+<tr><td><code>cycle-break-absolute</code></td><td><code>bp.cycle.break</code></td></tr>
+<tr><td><code>wait-for-cycle</code></td><td><code>bp.cycle.wait-for</code></td></tr>
+<tr><td><code>step-break</code></td><td><code>bp.step.break</code></td></tr>
+<tr><td><code>step-break-absolute</code></td><td><code>bp.step.break</code></td></tr>
+<tr><td><code>wait-for-step</code></td><td><code>bp.step.wait-for</code></td></tr>
+<tr><td><code>wait-for-time</code></td><td><code>bp.time.wait-for</code></td></tr>
+<tr><td><code>break</code></td><td><code>bp.memory.break</code></td></tr>
+<tr><td><code>tbreak</code></td><td><code>bp.memory.break</code></td></tr>
+<tr><td><code>wait-for-breakpoint</code></td><td>Use <code>bp.memory.wait-for</code> to wait for a memory access, or use <code>bp.wait-for-breakpoint</code> to wait for any breakpoint created by the breakpoint manager.</td></tr>
+<tr><td><code>unbreak</code></td><td><code>bp.memory.unbreak</code></td></tr>
+<tr><td><code>delete</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>enable</code></td><td><code>bp.enabled</code></td></tr>
+<tr><td><code>disable</code></td><td><code>bp.enabled</code></td></tr>
+<tr><td><code>ignore</code></td><td><code>bp.ignore-count</code></td></tr>
+<tr><td><code>set-prefix</code></td><td><em>prefix</em> argument on <code>bp.memory</code> commands</td></tr>
+<tr><td><code>set-substr</code></td><td><em>substr</em> argument on <code>bp.memory</code> commands</td></tr>
+<tr><td><code>set-pattern</code></td><td><em>pattern</em> argument on <code>bp.memory</code> commands</td></tr>
+<tr><td><code>list-breakpoints</code></td><td><code>bp.list</code></td></tr>
+<tr><td><code>trace-breakpoint</code></td><td><code>bp.memory.trace</code></td></tr>
+<tr><td><code>break-cr</code></td><td><code>bp.control_register.break</code></td></tr>
+<tr><td><code>break-cr-read</code></td><td><code>bp.control_register.break</code></td></tr>
+<tr><td><code>trace-cr</code></td><td><code>bp.control_register.trace</code></td></tr>
+<tr><td><code>trace-cr-read</code></td><td><code>bp.control_register.trace</code></td></tr>
+<tr><td><code>wait-for-register-read</code></td><td><code>bp.control_register.wait-for</code></td></tr>
+<tr><td><code>wait-for-register-write</code></td><td><code>bp.control_register.wait-for</code></td></tr>
+<tr><td><code>break-line</code></td><td><code>bp.source_line.break</code></td></tr>
+<tr><td><code>run-until-line</code></td><td><code>bp.source_line.run-until</code></td></tr>
+<tr><td><code>wait-for-line</code></td><td><code>bp.source_line.wait-for</code></td></tr>
+<tr><td><code>break-location</code></td><td><code>bp.source_location.break</code></td></tr>
+<tr><td><code>run-until-location</code></td><td><code>bp.source_location.run-until</code></td></tr>
+<tr><td><code>wait-for-location</code></td><td><code>bp.source_location.wait-for</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.break-gfx</code></td><td><code>bp.gfx.break</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.wait-for-gfx-break</code></td><td><code>bp.gfx.wait-for</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.unbreak-gfx</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;.list-gfx-breaks</code></td><td><code>bp.list</code></td></tr>
+<tr><td><code>break-hap</code></td><td><code>bp.hap.break</code></td></tr>
+<tr><td><code>trace-hap</code></td><td><code>bp.hap.trace</code></td></tr>
+<tr><td><code>wait-for-hap</code></td><td><code>bp.hap.wait-for</code></td></tr>
+<tr><td><code>&lt;accel_vga&gt;.wait-for-string</code></td><td><code>bp.console_string.wait-for</code></td></tr>
+<tr><td><code>new-usb-disk-from-image</code></td><td>Use <code>new-usb-disk-comp</code> with no flags if the command was used with the <code>-full</code> flag. Otherwise, no replacement is available.</td></tr>
+<tr><td><code>create-partition</code> commands defined for various storage models</td><td>No replacement.</td></tr>
+<tr><td><em>substring</em> argument on <code>log-filter</code> and <code>bp.log</code> commands</td><td><em>substr</em> argument</td></tr>
+<tr><td><code>-re</code> flag on <code>bp.log</code> commands</td><td><code>-regexp</code> flag</td></tr>
+<tr><td><em>offset</em> argument on <code>&lt;image&gt;.x</code></td><td><em>address</em> argument</td></tr>
+<tr><td><code>trace-io-setup</code></td><td><code>&lt;prefs&gt;→default_log_endianness</code></td></tr>
+<tr><td><code>&lt;os_awareness&gt;.break-enter</code></td><td><code>bp.os_awareness.break</code></td></tr>
+<tr><td><code>&lt;os_awareness&gt;.break-exit</code></td><td><code>bp.os_awareness.break</code></td></tr>
+<tr><td><code>&lt;os_awareness&gt;.wait-for-activated</code></td><td><code>bp.os_awareness.wait-for</code></td></tr>
+<tr><td><code>&lt;os_awareness&gt;.wait-for-deactivated</code></td><td><code>bp.os_awareness.wait-for</code></td></tr>
+<tr><td><code>&lt;os_awareness&gt;.unbreak</code></td><td><code>&lt;bp_manager&gt;.delete</code></td></tr>
+<tr><td><code>&lt;pci-device&gt;.print-pci-config-regs</code></td><td><code>print-device-regs bank</code></td></tr>
+<tr><td><code>dev-reg-list</code></td><td><code>print-device-regs</code></td></tr>
+<tr><td><code>dev-reg-info</code></td><td><code>print-device-reg-info</code></td></tr>
+<tr><td><code>get-class-list</code></td><td><code>list-classes</code></td></tr>
+<tr><td>Parameter <code>component</code> of the <code>list-objects</code>, <code>get-object-list</code>, <code>list-objects-with-interface</code> and <code>change-namespace</code> commands.</td><td>Parameter <code>namespace</code> for the commands.</td></tr>
+<tr><td><code>&lt;conf_object&gt;.list-attributes</code>, <code>&lt;conf_object&gt;.list-interfaces</code>, <code>&lt;conf_object&gt;.log</code>, <code>&lt;conf_object&gt;.log-size</code>, <code>&lt;conf_object&gt;.log-setup</code>, <code>&lt;conf_object&gt;.log-type</code>, <code>&lt;conf_object&gt;.(un)break-hap</code>, <code>&lt;conf_object&gt;.(un)trace-hap</code>, <code>&lt;conf_object&gt;.wait-for-log</code> commands.</td><td>Respective global command with the <code>object</code> parameter.</td></tr>
+<tr><td><code>&lt;conf_object&gt;.get-attribute-list</code>,</td><td>Global <code>list-attributes</code> command with <code>object</code> parameter.</td></tr>
+<tr><td><code>&lt;conf_object&gt;.get-interface-list</code>, <code>&lt;conf_object&gt;.get-interface-port-list</code></td><td><code>&lt;conf_object&gt;.list-interfaces</code> <code>list-interfaces</code></td></tr>
+<tr><td><em>type</em> parameter to <code>list-objects</code></td><td><em>class</em> or <em>iface</em> parameters</td></tr>
+<tr><td>The integer values to the <code>queue</code> argument of the <code>print-event-queue</code> command</td><td><em>queue</em> can be either “step” or “cycle”</td></tr>
+<tr><td><code>set-memory-limit</code></td><td><code>set-image-memory-limit</code></td></tr>
+<tr><td><code>output-file-start</code></td><td><code>start-command-line-capture</code></td></tr>
+<tr><td><code>output-file-stop</code></td><td><code>stop-command-line-capture</code></td></tr>
+<tr><td><code>-z</code> flag to checkpoint commands</td><td></td></tr>
+<tr><td><code>get-object-list</code></td><td><code>list-objects</code></td></tr>
+<tr><td><code>list-namespaces</code></td><td><code>list-objects</code></td></tr>
+<tr><td><code>get-breakpoint-list</code></td><td><code>bp.list</code></td></tr>
+<tr><td><code>get-component-list</code></td><td><code>list-components</code></td></tr>
+<tr><td><code>enable-multimachine-accelerator</code></td><td><code>enable-multithreading</code></td></tr>
+<tr><td><code>disable-multimachine-accelerator</code></td><td><code>disable-multithreading</code></td></tr>
+<tr><td><code>-n</code> flag to <code>list-objects</code></td><td>No replacement. The default behaviour is now to sort objects by name, which previously required that flag.</td></tr>
+<tr><td><code>params.dump</code></td><td><code>-yml</code> flag to <code>params.list</code></td></tr>
+<tr><td><code>-list-all</code> flag of <code>list-object-references</code></td><td><em>max-len</em> argument</td></tr>
+<tr><td><code>&lt;break_strings&gt;.break</code></td><td><code>bp.console_string.break</code></td></tr>
+<tr><td><code>&lt;break_strings&gt;.unbreak</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>&lt;break_strings&gt;.list-breakpoints</code></td><td><code>bp.list</code></td></tr>
+<tr><td><code>&lt;break_strings&gt;.wait-for-string</code></td><td><code>bp.console_string.wait-for</code></td></tr>
+<tr><td><code>&lt;break_strings&gt;.wait-then-write</code></td><td><code>bp.console_string.wait-then-write</code></td></tr>
+<tr><td><code>&lt;exception&gt;.break-exception</code></td><td><code>&lt;exception&gt;.bp-break-exception</code></td></tr>
+<tr><td><code>break-exception</code></td><td><code>bp.exception.break</code></td></tr>
+<tr><td><code>&lt;exception&gt;.unbreak-exception</code></td><td><code>bp.exception.delete</code></td></tr>
+<tr><td><code>unbreak-exception</code></td><td><code>bp.exception.delete</code></td></tr>
+<tr><td><code>&lt;exception&gt;.trace-exception</code></td><td><code>&lt;exception&gt;.bp-trace-exception</code></td></tr>
+<tr><td><code>trace-exception</code></td><td><code>bp.exception.trace</code></td></tr>
+<tr><td><code>&lt;exception&gt;.untrace-exception</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>untrace-exception</code></td><td><code>bp.delete</code></td></tr>
+<tr><td><code>&lt;exception&gt;.wait-for-exception</code></td><td><code>&lt;exception&gt;.bp-wait-for-exception</code></td></tr>
+<tr><td><code>&lt;ide-disk&gt;.print-partition-info</code></td><td><code>&lt;ide-disk&gt;.print-partition-table</code></td></tr>
+<tr><td><code>&lt;simple-scsi-disk&gt;.print-partition-info</code></td><td><code>&lt;simple-scsi-disk&gt;.print-partition-table</code></td></tr>
+<tr><td><code>&lt;gdb-remote&gt;.follow-context</code></td><td>No replacement.</td></tr>
+<tr><td><code>disable-magic-breakpoint</code></td><td><code>bp.magic.break</code></td></tr>
+<tr><td><code>enable-magic-breakpoint</code></td><td><code>bp.magic.break</code></td></tr>
+<tr><td><code>magic-breakpoint-enabled</code></td><td><code>bp.magic.break</code></td></tr>
+<tr><td><code>disable</code></td><td><code>bp.disable</code></td></tr>
+<tr><td><code>wait-for-notifier</code></td><td><code>bp.notifier.wait-for</code></td></tr>
+<tr><td><code>&lt;exception&gt;.wait-for-exception</code></td><td><code>&lt;exception&gt;.bp-wait-for-exception</code></td></tr>
+<tr><td><code>&lt;ide-disk&gt;.print-partition-info</code></td><td><code>&lt;ide-disk&gt;.print-partition-table</code></td></tr>
+<tr><td><code>&lt;scsi-disk&gt;.print-partition-info</code></td><td><code>&lt;scsi-disk&gt;.print-partition-table</code></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:classes-and-attributes"><a href="#deprecation-table.html:classes-and-attributes">7.2.3 Classes and Attributes</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>arm-simple</code></td><td><code>arm_simple_comp</code></td></tr>
+<tr><td><code>cell-and-clocks</code></td><td><code>cell_and_clocks_comp</code></td></tr>
+<tr><td><code>ddr-memory-module</code></td><td><code>ddr_memory_module_comp</code></td></tr>
+<tr><td><code>ddr2-memory-module</code></td><td><code>ddr2_memory_module_comp</code></td></tr>
+<tr><td><code>ddr3-memory-module</code></td><td><code>ddr3_memory_module_comp</code></td></tr>
+<tr><td><code>integrator-cm1176</code></td><td></td></tr>
+<tr><td><code>integrator-cm926-be</code></td><td></td></tr>
+<tr><td><code>integrator-cm926</code></td><td></td></tr>
+<tr><td><code>integrator-cortex-a9</code></td><td></td></tr>
+<tr><td><code>integrator-cp-baseboard</code></td><td></td></tr>
+<tr><td><code>integrator_cmxx6_comp</code></td><td></td></tr>
+<tr><td><code>integrator_cmxx6_fpga</code></td><td></td></tr>
+<tr><td><code>integrator_cp_baseboard_comp</code></td><td></td></tr>
+<tr><td><code>integrator_cp_baseboard_fpga</code></td><td></td></tr>
+<tr><td><code>isa-lance</code></td><td><code>isa_lance_comp</code></td></tr>
+<tr><td><code>isa-vga</code></td><td><code>isa_vga_comp</code></td></tr>
+<tr><td><code>leon2-simple</code></td><td><code>leon2_simple_comp</code></td></tr>
+<tr><td><code>pc-dual-serial-ports</code></td><td><code>pc_dual_serial_ports_comp</code></td></tr>
+<tr><td><code>pc-floppy-controller</code></td><td><code>pc_floppy_controller_comp</code></td></tr>
+<tr><td><code>pc-quad-serial-ports</code></td><td><code>pc_quad_serial_ports_comp</code></td></tr>
+<tr><td><code>pc-single-parallel-port</code></td><td><code>pc_signal_parallel_port_comp</code></td></tr>
+<tr><td><code>pci-accel-vga</code></td><td><code>pci_accel_vga_comp</code></td></tr>
+<tr><td><code>pci-am79c973</code></td><td><code>pci_am79c973_comp</code></td></tr>
+<tr><td><code>pci-bcm5703c</code></td><td><code>pci_bcm5703c_comp</code></td></tr>
+<tr><td><code>pci-bcm5704c</code></td><td><code>pci_bcm5704c_comp</code></td></tr>
+<tr><td><code>pci-dec21041</code></td><td><code>pci_dec21041_comp</code></td></tr>
+<tr><td><code>pci-dec21140a</code></td><td><code>pci_dec21140a_comp</code></td></tr>
+<tr><td><code>pci-dec21140a-dml</code></td><td><code>pci_dec21140</code></td></tr>
+<tr><td><code>pci-dec21143</code></td><td><code>pci_dec21143_comp</code></td></tr>
+<tr><td><code>pci-i21152</code></td><td><code>pci_i21152_comp</code></td></tr>
+<tr><td><code>pci-i82543gc</code></td><td><code>pci_i82543gc_comp</code></td></tr>
+<tr><td><code>pci-i82546bg</code></td><td><code>pci_i82546bg_comp</code></td></tr>
+<tr><td><code>pci-isp1040</code></td><td><code>None</code></td></tr>
+<tr><td><code>pci-sym53c810</code></td><td><code>pci_sym53c810_comp</code></td></tr>
+<tr><td><code>pci-sym53c875</code></td><td><code>pci_sym53c875_comp</code></td></tr>
+<tr><td><code>pci-sym53c876</code></td><td><code>pci_sym53c876_comp</code></td></tr>
+<tr><td><code>pci-vga</code></td><td><code>pci_vga_comp</code></td></tr>
+<tr><td><code>phy-mii-transceiver</code></td><td><code>phy_comp</code></td></tr>
+<tr><td><code>ppc-simple</code></td><td><code>ppc_simple_comp</code></td></tr>
+<tr><td><code>ps2-keyboard-mouse</code></td><td><code>ps2_keyboard_mouse_comp</code></td></tr>
+<tr><td><code>sdram-memory-module</code></td><td><code>sdram_memory_module_comp</code></td></tr>
+<tr><td><code>sio-w83627hf</code></td><td><code>sio_w83627hf_comp</code></td></tr>
+<tr><td><code>std-service-node</code></td><td><code>service_node_comp</code></td></tr>
+<tr><td><code>std-super-io</code></td><td><code>super_io_comp</code></td></tr>
+<tr><td><code>usb-disk</code></td><td><code>usb_disk_comp</code></td></tr>
+<tr><td><code>usb3_disk_comp</code></td><td><code>usb3_disk_component</code></td></tr>
+<tr><td><code>usb-tablet-comp</code></td><td><code>usb_tablet_component</code></td></tr>
+<tr><td><code>&lt;component&gt;→process_tracker</code></td><td>The new OS Awareness system</td></tr>
+<tr><td><code>leon2-simple</code></td><td><code>leon2_simple_comp</code></td></tr>
+<tr><td><code>&lt;textcon&gt;→telnet_use_ipv4</code></td><td><code>&lt;prefs&gt;→force_ipv4</code> or <code>&lt;sim&gt;→force_ipv4</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;→vnc_use_ipv4</code></td><td><code>&lt;prefs&gt;→force_ipv4</code> or <code>&lt;sim&gt;→force_ipv4</code></td></tr>
+<tr><td><code>&lt;telnet_frontend&gt;→use_ipv4</code></td><td><code>&lt;prefs&gt;→force_ipv4</code> or <code>&lt;sim&gt;→force_ipv4</code></td></tr>
+<tr><td><code>&lt;gdb-remote&gt;→use_ipv4</code></td><td><code>&lt;prefs&gt;→force_ipv4</code> or <code>&lt;sim&gt;→force_ipv4</code></td></tr>
+<tr><td><code>&lt;textcon&gt;→telnet_port</code></td><td><code>&lt;textcon&gt;→server</code> and <code>&lt;tcp-server&gt;→port</code></td></tr>
+<tr><td><code>&lt;textcon&gt;→telnet_unix_socket</code></td><td><code>&lt;textcon&gt;→server</code> and <code>&lt;unix-socket-server&gt;→socket_name</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;→vnc_port</code></td><td><code>&lt;graphcon&gt;→server</code> and <code>&lt;tcp-server&gt;→port</code></td></tr>
+<tr><td><code>&lt;graphcon&gt;→vnc_unix_socket</code></td><td><code>&lt;graphcon&gt;→server</code> and <code>&lt;unix-socket-server&gt;→socket_name</code></td></tr>
+<tr><td><code>&lt;telnet_frontend&gt;→port</code></td><td><code>&lt;telnet_frontend&gt;→server</code> and <code>&lt;tcp-server&gt;→port</code></td></tr>
+<tr><td><code>&lt;telnet_frontend&gt;→unix_socket</code></td><td><code>&lt;telnet_frontend&gt;→server</code> and <code>&lt;unix-socket-server&gt;→socket_name</code></td></tr>
+<tr><td><code>&lt;gdb-remote&gt;→listen</code></td><td><code>&lt;gdb-remote&gt;→server</code> and <code>&lt;tcp-server&gt;→port</code></td></tr>
+<tr><td><code>real-network-host</code></td><td><code>real_network_host_comp</code></td></tr>
+<tr><td><code>real-network-bridge</code></td><td><code>real_network_bridge_comp</code></td></tr>
+<tr><td><code>setting &lt;sim&gt;→max_worker_threads to 0</code></td><td><code>setting &lt;sim&gt;→use_jit_threads to false</code></td></tr>
+<tr><td><code>text-console</code></td><td><code>textcon</code></td></tr>
+<tr><td><code>gfx-console</code></td><td><code>graphcon</code></td></tr>
+<tr><td><code>text_console_comp</code></td><td><code>txt_console_comp</code></td></tr>
+<tr><td><code>graphics_console_comp</code></td><td><code>gfx_console_comp</code></td></tr>
+<tr><td><code>text_graphics_console_comp</code></td><td><code>gfx_console_comp</code></td></tr>
+<tr><td><code>&lt;prefs&gt;→compress_images</code></td><td></td></tr>
+<tr><td><code>osa_admin</code></td><td><code>os_awareness</code></td></tr>
+<tr><td><code>nfs_server</code></td><td></td></tr>
+<tr><td><code>breakpoints-old</code></td><td><code>bp-manager</code></td></tr>
+<tr><td><code>&lt;sim&gt;→frontend_current_processor</code></td><td><code>&lt;sim&gt;→current_frontend_object</code></td></tr>
+<tr><td><code>&lt;prefs&gt;→command_log</code></td><td></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:interfaces-2"><a href="#deprecation-table.html:interfaces-2">7.2.4 Interfaces</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>io_memory._deprecated_map</code> (function not called)</td><td>—</td></tr>
+<tr><td><code>pool_protect</code></td><td><code>direct_memory</code></td></tr>
+<tr><td><code>add_map</code> in <code>map_demap</code></td><td><code>map_simple</code> or <code>map_bridge</code></td></tr>
+<tr><td><code>remove_map</code> in <code>map_demap</code></td><td><code>unmap</code></td></tr>
+<tr><td><code>add_default</code> in <code>map_demap</code></td><td><code>map_simple</code></td></tr>
+<tr><td><code>remove_default</code> in <code>map_demap</code></td><td><code>unmap</code></td></tr>
+<tr><td><code>gfx_console</code></td><td><code>gfx_con</code></td></tr>
+<tr><td><code>link_endpoint</code></td><td><code>link_endpoint_v2</code></td></tr>
+<tr><td><code>slave_agent</code></td><td><code>follower_agent</code></td></tr>
+<tr><td><code>slaver_message</code></td><td><code>leader_message</code></td></tr>
+<tr><td><code>break_strings</code></td><td><code>break_strings_v2</code></td></tr>
+<tr><td><code>rapidio_v3</code>, <code>rapidio_v4</code>, <code>rapidio_v5</code></td><td></td></tr>
+<tr><td><code>recorder</code></td><td><code>recorder_v2</code></td></tr>
+<tr><td><code>osa_tracker_state_query.get_trackers</code></td><td></td></tr>
+<tr><td><code>p2_memory_transaction</code></td><td><code>x86_memory_transaction</code></td></tr>
+<tr><td><code>memory_space.timing_model_operate</code></td><td></td></tr>
+<tr><td><code>pci_device._deprecated_interrupt_acknowledge</code>, <code>pci_device._deprecated_special_cycle</code></td><td></td></tr>
+<tr><td><code>pci_bus.memory_access</code>, <code>pci_bus.interrupt_acknowledge</code>, <code>pci_bus.special_cycle</code>, <code>pci_bus.add_default</code>, <code>pci_bus.remove_default</code></td><td></td></tr>
+<tr><td><code>data_profiler.accum_in_range</code></td><td><code>address_profile</code></td></tr>
+<tr><td><code>NULL</code> value of <code>bank_before_read.initiator</code>, <code>bank_after_read.initiator</code>, <code>bank_before_write.initiator</code>, <code>bank_after_write.initiator</code></td><td></td></tr>
+<tr><td><code>breakpoint_query</code></td><td><code>breakpoint_query_v2</code></td></tr>
+<tr><td><code>telnet_connection</code></td><td><code>telnet_connection_v2</code> and <code>&lt;textcon&gt;→server</code> with <code>tcp_connection_info</code></td></tr>
+<tr><td><code>vnc_server</code></td><td><code>vnc_server_v2</code> and <code>&lt;textcon&gt;→server</code> with <code>tcp_connection_info</code></td></tr>
+<tr><td><code>rsa</code></td><td><code>rsa_v2</code></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:api-2"><a href="#deprecation-table.html:api-2">7.2.5 API</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td>Hyphens (<code>-</code>) in attribute, interface and port names</td><td>underscores (<code>_</code>)</td></tr>
+<tr><td>Hyphens (<code>-</code>) in object names</td><td>underscores (<code>_</code>)</td></tr>
+<tr><td>Files <code>commands.py</code> and <code>gcommands.py</code> in module source directories</td><td>Rename to <code>module_load.py</code> and <code>simics_start.py</code>. Then list them in the <code>PYTHON_FILES</code> make variable in the module <code>Makefile</code></td></tr>
+<tr><td>Python import statements on the form `import</td><td></td></tr>
+<tr><td>mod_module_name_gcommands<code>or</code>import</td><td></td></tr>
+<tr><td>mod_module_name_commands`</td><td>`import</td></tr>
+<tr><td>simmod.module_name.simics_start<code>, </code>import</td><td></td></tr>
+<tr><td>simmod.module_name.module_load`</td><td></td></tr>
+<tr><td>The support for <code>.py</code> files listed in <code>SRC_FILES</code> variable found in Simics module makefile.</td><td>New mechanism of using Python in a Simics module should be used which involves <code>PYTHON_FILES</code> makefile variable usage to list <code>.py</code> files contained in a Simics module.</td></tr>
+<tr><td><code>CASSERT</code>, <code>CASSERT_STMT</code></td><td><code>STATIC_ASSERT</code></td></tr>
+<tr><td><code>Sim_Hap_Simulation</code></td><td><code>0</code></td></tr>
+<tr><td><code>hap_flags_t</code></td><td><code>Should not be used by user code.</code></td></tr>
+<tr><td><code>current_processor</code> Python function</td><td><code>current_cpu_obj</code> Python function</td></tr>
+<tr><td><code>set_current_processor</code> Python function</td><td><code>set_current_frontend_obj</code> Python function</td></tr>
+<tr><td><code>current_clock</code> Python function</td><td><code>current_cycle_obj</code> Python function</td></tr>
+<tr><td><code>assert_cpu</code> Python function</td><td><code>current_cpu_obj</code> Python function</td></tr>
+<tr><td>The <code>integer_t</code> and <code>uinteger_t</code> types</td><td><code>int64</code> and <code>uint64</code></td></tr>
+<tr><td><code>MIN_INTEGER_T</code>, <code>MAX_UINTEGER_T</code>, etc. constants</td><td><code>INT64_MIN</code>, <code>UINT64_MAX</code> etc. from <code>&lt;limits.h&gt;</code></td></tr>
+<tr><td><code>SIM_current_processor</code></td><td>On a case by case basis, use available interfaces, or make sure a CPU object is passed explicitly</td></tr>
+<tr><td><code>SIM_unload_module</code></td><td>No replacement. <code>SIM_unload_module</code> has never done anything</td></tr>
+<tr><td><code>&lt;simics/util/data-structs.h&gt;</code> header file</td><td><code>&lt;simics/utils.h&gt;</code></td></tr>
+<tr><td>Implicit include of <code>&lt;simics/util/dbuffer.h&gt;</code> by using <code>&lt;simics/utils.h&gt;</code>.</td><td>Include <code>&lt;simics/util/dbuffer.h&gt;</code> directly in legacy code. New code should not use this file since <code>dbuffer_t</code> is deprecated.</td></tr>
+<tr><td><code>ignore</code> field in <code>generic_transaction_t</code> and <code>SIM_get_mem_op_ignore</code>, <code>SIM_set_mem_op_ignore</code> functions</td><td>Use <code>translator</code> interface to direct or sink operations</td></tr>
+<tr><td><code>ABS_POINTER_BUTTON_LEFT</code>, <code>ABS_POINTER_BUTTON_RIGHT</code> and <code>ABS_POINTER_BUTTON_MIDDLE</code> constants</td><td><code>Abs_Pointer_Button_Left</code>, <code>Abs_Pointer_Button_Right</code> and <code>Abs_Pointer_Button_Middle</code></td></tr>
+<tr><td>C++ API v1</td><td>C++ API v2</td></tr>
+<tr><td><code>mm_malloc_low</code></td><td><code>No replacement. mm_malloc_low was always only for internal use.</code></td></tr>
+<tr><td><code>SIM_get_attribute_idx</code> and <code>SIM_set_attribute_idx</code> on non-indexed attributes</td><td><code>SIM_get_attribute</code> and <code>SIM_set_attribute</code> to read/write the entire attribute.</td></tr>
+<tr><td>SIM_init_simulator</td><td>SIM_init_simulator2</td></tr>
+<tr><td>SIM_register_copyright</td><td></td></tr>
+<tr><td><code>Xterm_Break_String</code></td><td><code>Console_Break_String</code></td></tr>
+<tr><td><code>Vga_Break_String</code> hap</td><td><code>Console_Break_String</code> hap</td></tr>
+<tr><td><code>&lt;simics/vtutils.h&gt;</code> header file</td><td><code>&lt;simics/utils.h&gt;</code></td></tr>
+<tr><td><code>&lt;simics/global.h&gt;</code> header file</td><td></td></tr>
+<tr><td><code>&lt;simics/simulator/slave-time.h&gt;</code> header file</td><td><code>&lt;simics/simulator/follower-time.h&gt;</code></td></tr>
+<tr><td><code>&lt;simics/simulator-iface/slave.h&gt;</code> header file</td><td><code>&lt;simics/simulator-iface/follower.h&gt;</code></td></tr>
+<tr><td><code>pseudo_exceptions_t</code> enum</td><td><code>exception_type_t</code> enum</td></tr>
+<tr><td>enums <code>Probe_Key_Global_Sum</code>, <code>Probe_Key_Cell_Sum</code></td><td><code>Probe_Key_Aggregates</code></td></tr>
+<tr><td><code>ppc_spr_user_setter_func_t</code></td><td><code>gen_spr_user_setter_func_t</code></td></tr>
+<tr><td><code>ppc_spr_user_getter_func_t</code></td><td><code>gen_spr_user_getter_func_t</code></td></tr>
+<tr><td><code>ppc_spr_ret_t</code></td><td><code>gen_spr_ret_t</code></td></tr>
+<tr><td><code>ppc_spr_access_type_t</code></td><td><code>gen_spr_access_type_t</code></td></tr>
+<tr><td><code>Core_Global_Message</code> hap</td><td><code>Sim_Global_Notify_Message</code> global notifier</td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:other"><a href="#deprecation-table.html:other">7.2.6 Other</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>workspace-setup[.bat]</code> script</td><td><code>project-setup[.bat]</code></td></tr>
+<tr><td><code>-workspace</code> option</td><td><code>-project</code> option</td></tr>
+<tr><td><code>SIMICS_WORKSPACE</code> build variable</td><td><code>SIMICS_PROJECT</code></td></tr>
+<tr><td><code>WORKSPACE_SRC_DIR</code> build variable</td><td><code>PROJECT_SRC_DIR</code></td></tr>
+<tr><td><code>DEEP_SOURCE_SEARCH</code> build variable</td><td><code>MODULE_DIRS</code></td></tr>
+<tr><td>The <code>--copy-device</code> argument to the <code>project-setup</code> script</td><td><code>--copy-module</code></td></tr>
+<tr><td>The kdcom-proxy proxy utility</td><td>No replacement</td></tr>
+<tr><td><code>bin/debug-simics[.bat]</code> script</td><td><code>bin/gdb[.bat]</code> script</td></tr>
+<tr><td><code>gen-keymap</code> utility</td><td></td></tr>
+<tr><td><code>aescrypt</code> utility</td><td></td></tr>
+<tr><td>The old installer <code>install-simics.pl</code></td><td>The Intel Simics Package Manager</td></tr>
+<tr><td>The <code>documentation</code> target parameter key</td><td>The <code>description</code> target parameter key</td></tr>
+<tr><td>Sourcing of <code>$HOME/.simics-5.sh</code> when launching on Simics on Linux</td><td>None</td></tr>
+</tbody></table>
+<h2 id="deprecation-table.html:to-be-removed-in-simics-8"><a href="#deprecation-table.html:to-be-removed-in-simics-8">7.3 To Be Removed in Simics 8</a></h2>
+<p>Functionality deprecated in Simics 7.</p>
+<h3 id="deprecation-table.html:product-features-3"><a href="#deprecation-table.html:product-features-3">7.3.1 Product Features</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td>Command line options: <em>-config</em>, <em>-dstc</em>, <em>-gui</em>, <em>-gui-only</em>, <em>-istc</em>, <em>-n</em>, <em>-no-gui</em>, <em>-no-dstc</em>, <em>-no-istc</em>, <em>-no-jit</em>, <em>-no-stc</em>, <em>-obscure</em>, <em>-p</em>, <em>-python-verbose</em>, <em>-stc</em>, <em>-x</em></td><td>Use the -e command line option. I.e: <em>-e dstc-enable</em>, <em>-e dstc-disable</em>, <em>-e istc-enable</em>, <em>-e istc-disable</em>, <em>-e disable-jit</em>, <em>-e enable-jit</em></td></tr>
+<tr><td>Old log file related command line parameters: <em>-log</em>, <em>-no-log</em>, <em>-log-file</em></td><td>New command line parameter <em>–log-file</em></td></tr>
+<tr><td>Old warning/error command line parameters: <em>–werror</em>, <em>–no-werror</em></td><td>New command line parameters <em>–warnings-as-errors</em> and <em>–deprecations-as-errors</em></td></tr>
+<tr><td>Single dash command line parameters: <em>-batch-mode</em>, <em>-core</em>, <em>-echo</em>, <em>-echofile</em>, <em>-help</em>, <em>-licence</em>, <em>-no-copyright</em>, <em>-no-settings</em>, <em>-no-upgrade-info</em>, <em>-no-wdeprecated</em>, <em>-no-werror</em>, <em>-no-win</em>, <em>-quiet</em>, <em>-script-trace</em>, <em>-version</em>, <em>-v-short</em>, <em>-verbose</em>, <em>-wdeprecated</em>, <em>-werror</em></td><td>Corresponding POSIX style command line parameters: <em>–batch-mode</em>, <em>–dump-core</em>, <em>–echo</em>, <em>–help</em>, <em>–licence</em>, <em>–no-copyright</em>, <em>–no-settings</em>, <em>–no-upgrade-info</em>, <em>–no-wdeprecated</em>, <em>–no-win</em>, <em>–quiet</em>, <em>–script-trace</em>, <em>–version</em>, <em>–base-version</em>, <em>–verbose</em>, <em>–wdeprecated</em></td></tr>
+<tr><td>Direct embedding of <code>libsimics-common</code> in another application.</td><td>Embedding of Python and Simics Python module.</td></tr>
+<tr><td>Modulo calculation in fixed sized arguments will be deprecated in Simics 7. In Simics 6, a warning will be printed when module calculation is required to fit into the type. The CLI argument types <code>int8_t</code>, <code>int16_t</code>, <code>int32_t</code>, <code>int64_t</code> <code>integer_t</code>, <code>sint8_t</code>, <code>sint16_t</code>, <code>sint32_t</code> <code>sint64_t</code>, <code>uint8_t</code>, <code>uint16_t</code>, <code>uint32_t</code> <code>uint64_t</code> will warn once if module calculation is required when calling a command.</td><td>Use only values that fit in the argument type. If required, use the <code>unsigned*</code> commands:</td></tr>
+</tbody></table>
+<ul>
+<li>
+<p><code>unsigned</code></p>
+</li>
+<li>
+<p><code>unsigned8</code></p>
+</li>
+<li>
+<p><code>unsigned16</code></p>
+</li>
+<li>
+<p><code>unsigned32</code></p>
+</li>
+<li>
+<p><code>unsigned64</code></p>
+<p>|
+| The hostfs functionality. | SimicsFS or Simics Agent. |</p>
+</li>
+</ul>
+<h3 id="deprecation-table.html:cli-3"><a href="#deprecation-table.html:cli-3">7.3.2 CLI</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>run-command-file</code></td><td><code>run-script</code></td></tr>
+<tr><td><code>run-python-file</code></td><td><code>run-script</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_hap</code></td><td><code>conf.bp.hap.cli_cmds.wait_for</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_notifier</code></td><td><code>conf.bp.notifier.cli_cmds.wait_for</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_log</code></td><td><code>conf.bp.log.cli_cmds.wait_for</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_breakpoint</code></td><td>Use <code>conf.bp.memory.cli_cmds.wait_for</code> to wait for a memory access, or use <code>conf.bp.cli_cmds.wait_for_breakpoint</code> to wait for any breakpoint created by the breakpoint manager.</td></tr>
+<tr><td><code>script_branch.sb_wait_for_step</code></td><td><code>conf.bp.step.cli_cmds.wait_for</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_cycle</code></td><td><code>conf.bp.cycle.cli_cmds.wait_for</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_time</code></td><td><code>conf.bp.time.cli_cmds.wait_for</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_global_sync</code></td><td><code>cli.global_cmds.wait_for_global_sync</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_global_time</code></td><td><code>conf.bp.time.cli_cmds.wait_for</code> <code>cli.global_cmds.wait_for_global_time</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_register_read</code></td><td><code>conf.bp.control_register.cli_cmds.wait_for</code> with <em>_r</em> set to true</td></tr>
+<tr><td><code>script_branch.sb_wait_for_register_write</code></td><td><code>conf.bp.control_register.cli_cmds.wait_for</code> with <em>_w</em> set to true</td></tr>
+<tr><td><code>script_branch.sb_wait_for_simulation_started</code></td><td><code>cli.global_cmds.wait_for_simulation_started</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_simulation_stopped</code></td><td><code>cli.global_cmds.wait_for_simulation_started</code></td></tr>
+<tr><td><code>script_branch.sb_wait_for_exception</code></td><td><code>conf.bp.exception.cli_cmds.wait_for</code></td></tr>
+<tr><td>The <em>object-name</em> argument to the <code>devs</code> command</td><td>The <em>object</em> argument</td></tr>
+<tr><td><code>cpu-switch-time</code> alias</td><td><code>set-time-quantum</code></td></tr>
+<tr><td><code>&lt;cell&gt;.cpu-switch-time</code> alias</td><td><code>&lt;cell&gt;.set-time-quantum</code></td></tr>
+<tr><td><code>system-perfmeter</code></td><td><code>new-system-perfmeter</code></td></tr>
+<tr><td><code>system-perfmeter-summary</code></td><td><code>new-system-perfmeter</code></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:classes-and-attributes-2"><a href="#deprecation-table.html:classes-and-attributes-2">7.3.3 Classes and Attributes</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>component</code></td><td></td></tr>
+<tr><td><code>component_slot</code></td><td></td></tr>
+<tr><td><code>sim-&gt;gui_mode</code></td><td></td></tr>
+<tr><td><code>context</code></td><td>The interfaces <code>virtual_data_breakpoint</code> and <code>virtual_instruction_breakpoint</code></td></tr>
+<tr><td><code>i2c_link_v1</code>, <code>i2c_link</code></td><td><code>i2c_link_v2</code></td></tr>
+<tr><td><code>sim-&gt;fail_on_warnings</code></td><td><code>sim-&gt;stop_on_error</code></td></tr>
+<tr><td><code>sim-&gt;fatal_error_messages</code></td><td></td></tr>
+<tr><td><code>&lt;sim&gt;→workspace</code></td><td><code>&lt;sim&gt;→project</code></td></tr>
+<tr><td><code>pcie-bus</code></td><td><code>pcie-downstream-port</code></td></tr>
+<tr><td><code>&lt;time-server&gt;→port</code> attribute</td><td><code>&lt;time-server&gt;.tcp→port</code> attribute</td></tr>
+<tr><td><code>apic</code></td><td><code>x2apic_v2</code></td></tr>
+<tr><td><code>apic-bus</code></td><td><code>apic_bus_v2</code></td></tr>
+<tr><td><code>sim-&gt;env</code></td><td>Use the <code>simenv</code> Python module or alternatively <code>cli.simenv</code></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:interfaces-3"><a href="#deprecation-table.html:interfaces-3">7.3.4 Interfaces</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>translate</code></td><td><code>translator</code></td></tr>
+<tr><td><code>multi_level_signal</code></td><td><code>uint64_state</code></td></tr>
+<tr><td><code>ieee_802_3_phy</code></td><td><code>ieee_802_3_phy_v2</code></td></tr>
+<tr><td><code>ieee_802_3_mac</code></td><td><code>ieee_802_3_mac_v2</code></td></tr>
+<tr><td><code>pci_express</code></td><td>New code should use the new PCIe library</td></tr>
+<tr><td><code>pci_express_hotplug</code></td><td>New code should use the new PCIe library</td></tr>
+<tr><td><code>pcie_adapter_compat</code></td><td>New code should use the new PCIe library</td></tr>
+<tr><td><code>i2c_bus</code></td><td><code>i2c_slave_v2</code> and <code>i2c_master_v2</code></td></tr>
+<tr><td><code>i2c_bridge</code></td><td><code>i2c_slave_v2</code> and <code>i2c_master_v2</code></td></tr>
+<tr><td><code>i2c_master</code></td><td><code>i2c_slave_v2</code> and <code>i2c_master_v2</code></td></tr>
+<tr><td><code>i2c_slave</code></td><td><code>i2c_slave_v2</code> and <code>i2c_master_v2</code></td></tr>
+<tr><td><code>i2c_link</code></td><td><code>i2c_slave_v2</code> and <code>i2c_master_v2</code></td></tr>
+<tr><td><code>i2c_device</code></td><td><code>i2c_slave_v2</code> and <code>i2c_master_v2</code></td></tr>
+<tr><td><code>temporal_state</code></td><td>Global notifiers <code>Sim_Global_Notify_Before_Snapshot_Restore</code>, <code>Sim_Global_Notify_After_Snapshot_Restore</code> and use attributes for state.</td></tr>
+<tr><td><code>rsa_v2</code> in <code>crypto_engine_rsa</code></td><td><code>rsa_v2</code> in <code>crypto_engine_openssl</code></td></tr>
+<tr><td><code>dsa</code></td><td><code>dsa_v2</code></td></tr>
+<tr><td><code>ecdsa</code></td><td><code>ecdsa_v2</code></td></tr>
+<tr><td><code>tpm_rsa</code></td><td><code>tpm_rsa_v2</code></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:api-3"><a href="#deprecation-table.html:api-3">7.3.5 API</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>SIM_get_all_objects</code></td><td><code>SIM_object_iterator</code></td></tr>
+<tr><td><code>SIM_init_environment</code></td><td></td></tr>
+<tr><td><code>SIM_init_simulator2</code></td><td></td></tr>
+<tr><td><code>SIM_get_init_arg_string</code></td><td></td></tr>
+<tr><td><code>SIM_get_init_arg_boolean</code></td><td></td></tr>
+<tr><td><code>SIM_is_loading_micro_checkpoint</code></td><td></td></tr>
+<tr><td>Python import of <code>component</code> and <code>base_component</code></td><td>Methods in <code>comp</code> and <code>component_utils</code> modules</td></tr>
+<tr><td><code>Sim_Class_Kind_Session</code></td><td><code>Sim_Class_Kind_Pseudo</code></td></tr>
+<tr><td><code>SIM_log_info</code> in C</td><td><code>SIM_LOG_INFO</code></td></tr>
+<tr><td><code>SIM_log_error</code> in C</td><td><code>SIM_LOG_ERROR</code></td></tr>
+<tr><td><code>SIM_log_unimplemented</code> in C</td><td><code>SIM_LOG_UNIMPLEMENTED</code></td></tr>
+<tr><td><code>SIM_log_spec_violation</code> in C</td><td><code>SIM_LOG_SPEC_VIOLATION</code></td></tr>
+<tr><td><code>SIM_log_critical</code> in C</td><td><code>SIM_LOG_CRITICAL</code></td></tr>
+<tr><td><code>six</code> Python module</td><td></td></tr>
+<tr><td><code>HOST_64_BIT</code> define</td><td></td></tr>
+<tr><td><code>HOST_LITTLE_ENDIAN</code> define</td><td></td></tr>
+<tr><td><code>HOST_BIG_ENDIAN</code> define</td><td></td></tr>
+<tr><td><code>reg.FIELDNAME</code> syntax in <code>dev_util.AbstractRegister</code></td><td><code>reg.field.FIELDNAME.read()</code></td></tr>
+<tr><td><em>inquiry</em> argument to <code>dev_util.bank_regs</code></td><td><code>.val</code> accessor</td></tr>
+<tr><td><code>value_to_tuple_be</code>, <code>value_to_tuple_le</code>, <code>tuple_to_value_be</code>, <code>tuple_to_value_le</code> function in <code>dev_util</code></td><td>Standard Python functions <code>to_bytes</code> and <code>from_bytes</code></td></tr>
+<tr><td><code>dev_util.Memory</code></td><td><code>sparse-memory</code></td></tr>
+<tr><td><code>dev_util.Dev</code>, <code>dev_util.Iface</code>, <code>dev_util.iface</code></td><td></td></tr>
+</tbody></table>
+<h2 id="deprecation-table.html:to-be-removed-in-simics-9"><a href="#deprecation-table.html:to-be-removed-in-simics-9">7.4 To Be Removed in Simics 9</a></h2>
+<p>Functionality deprecated in Simics 8.</p>
+<h3 id="deprecation-table.html:product-features-4"><a href="#deprecation-table.html:product-features-4">7.4.1 Product Features</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>critical</code> log type</td><td><code>error</code> log type</td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:cli-4"><a href="#deprecation-table.html:cli-4">7.4.2 CLI</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>cpu-switch-time</code> alias</td><td><code>set-time-quantum</code></td></tr>
+<tr><td><code>table-border-style</code></td><td><code>set-table-border-style</code></td></tr>
+<tr><td><code>sync-info</code> alias</td><td><code>print-sync-info</code></td></tr>
+<tr><td><em>cycles</em>, <em>picoseconds</em> and <em>seconds</em> arguments to <code>set-time-quantum</code></td><td><em>count</em> and <em>unit</em> arguments</td></tr>
+<tr><td><em>min-latency</em> argument to <code>set-min-latency</code></td><td><em>count</em> and <em>unit</em> arguments</td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:classes-and-attributes-3"><a href="#deprecation-table.html:classes-and-attributes-3">7.4.3 Classes and Attributes</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+<tr><td><code>accel-vga</code></td><td><code>accel_vga_v2</code></td></tr>
+<tr><td><code>pci_accel_vga_comp</code></td><td><code>pci_accel_vga_v2_comp</code></td></tr>
+</tbody></table>
+<h3 id="deprecation-table.html:interfaces-4"><a href="#deprecation-table.html:interfaces-4">7.4.4 Interfaces</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+</tbody></table>
+<h3 id="deprecation-table.html:api-4"><a href="#deprecation-table.html:api-4">7.4.5 API</a></h3>
+<table><thead><tr><th><strong>Removed</strong></th><th><strong>Replacement</strong></th></tr></thead><tbody>
+</tbody></table>
+</section>

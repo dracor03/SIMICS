@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Breakpoints</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="controlling-and-inspecting-processor-state.html">4 Controlling and Inspecting Processor State</a>
+<a href="simics-environment-interaction.html">6 Simics Environment Interaction</a>
+</div>
+<div class="path">
+<a href="index.html">Processor Model Integration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="breakpoints"><a href="#breakpoints">5 Breakpoints</a></h1>
+<p>Breakpoints in Simics are set on physical, linear, or virtual address for read, write, or execute accesses.
+Linear address breakpoints are usually only supported by x86 processors.
+Figure <a class="reference" href="#processor_api_breakpoints">5</a> shows how to carry out a memory access to support breakpoints.</p>
+<figure id="processor_api_breakpoints">
+<p><img alt="" src="processor_api_breakpoints.png"> </p><figcaption>Figure 5. Memory access path with breakpoint support and direct access to memory.</figcaption><p></p>
+</figure>
+<p>Simics keeps an updated list of virtual breakpoints for a given virtual context in a context object.
+A processor object must make sure that all accesses are checked against the list and trigger a breakpoint when there is a hit.</p>
+<p>The processor object may cache the list internally for efficiency.
+A processor that does not optimize the breakpoint checking internally can request that the context checks and triggers breakpoints.
+It does that by calling the <code>trigger_breakpoint</code> function in the <a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_trigger_interface_t"><code>breakpoint_trigger</code></a> interface with the <em>handle</em> set to <em>BREAKPOINT_HANDLE_ANY</em>.</p>
+<p>There are two ways that the list of virtual address breakpoints can change and the processor must then refresh or invalidate its breakpoint information cache:</p>
+<ul>
+<li>Breakpoints may be added to or removed from a context.</li>
+<li>The current active context may change to another context.</li>
+</ul>
+<p>Breakpoint changes can be listened for either using the <em>Core_Breakpoint_Change</em> hap, or by registering callbacks through the <a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_change_interface_t"><code>breakpoint_change</code></a> interface.</p>
+<p>The active context is changed through the <code>set_context</code> function in the <a href="../rm-api/simulator-to-simulator-interfaces.html#context_handler_interface_t"><code>context_handler</code></a> interface.</p>
+<p>The <a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_lookup_interface_t"><code>direct_memory_lookup</code></a> interface will return information flagging if breakpoints or tracers are present on a returned lookup.
+If breakpoints or tracers are flagged and overlap with the access type the direct memory user wants to perform, then the access should be performed using the <a href="../rm-api/model-to-model-interfaces.html#memory_space_interface_t"><code>memory_space</code></a> interface.
+When accessing memory through the <code>memory_space</code> interface, physical address breakpoints will be handled by the memory-space and do not need to be handled in the cosimulator.
+Unlike for virtual breakpoints, the cosimulator does not need to listen for new or changed physical breakpoints.
+Any change to a physical breakpoint on a requested page will result in the page being invalidated through the <a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_update_interface_t"><code>direct_memory_update</code></a> interface.</p>
+<p>The interfaces directly related to implementing breakpoint support are:</p>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_query_v2_interface_t"><code>breakpoint_query</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_change_interface_t"><code>breakpoint_change</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_trigger_interface_t"><code>breakpoint_trigger</code></a></li>
+</ul>
+
+<div class="chain">
+<a href="controlling-and-inspecting-processor-state.html">4 Controlling and Inspecting Processor State</a>
+<a href="simics-environment-interaction.html">6 Simics Environment Interaction</a>
+</div>

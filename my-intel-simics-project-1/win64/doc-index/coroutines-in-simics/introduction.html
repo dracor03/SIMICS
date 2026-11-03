@@ -1,0 +1,92 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1 Introduction</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="index.html">Python Coroutines in Simics</a>
+<a href="basic-usage.html">2 Basic Usage Example</a>
+</div>
+<div class="path">
+<a href="index.html">Python Coroutines in Simics</a>
+&nbsp;/&nbsp;</div><h1 id="introduction"><a href="#introduction">1 Introduction</a></h1>
+<p>Python coroutines is a general language mechanism that allows suspension
+and resumption of a subroutine.
+The primary use-case for Python coroutines within the Intel Simics simulator
+is currently to write tests for target software.
+Target software tests are typically constructed by waiting for the
+system to enter a particular state, inject a stimulus,
+awaiting a reaction and validate that reaction.
+Coroutines offer an easy way to express such logic using a linear
+control flow instead of a set of callback functions.</p>
+<p>The recommended way to implement coroutines in the Python language is through
+the <code>async</code>/<code>await</code> syntax, and the <code>asyncio</code> library.</p>
+<p>This document presents two libraries that together leverage <code>asyncio</code>-style
+Python coroutines in Simics: The <em><code>snoop</code></em> library, which provides a unified
+representation of simulation events, and the <em><code>sloop</code></em> library which allows
+snoopers to be used within <code>asyncio</code>-style coroutines.</p>
+<p>This document serves as a guide for getting started with <code>snoop</code> and <code>sloop</code>,
+and includes reference material for all Simics-specific details. The <code>sloop</code>
+library offers an API that is nearly identical to that of <code>asyncio</code>, ensuring a
+familiar experience for those accustomed to the standard Python library.</p>
+<p>Please note that this document does not delve into general programming
+methodologies for Python coroutines. Since <code>sloop</code> shares a similar API with
+<code>asyncio</code>, existing resources and guides for <code>asyncio</code> are largely applicable
+and can be referred to for guidance on coroutine usage within <code>sloop</code>.</p>
+<h2 id="the-snoop-library"><a href="#the-snoop-library">1.1 The Snoop Library</a></h2>
+<p>A <em>snooper</em> is a Python object responsible for monitoring a particular
+kind of simulation event. Snoopers offer a unified API for registering
+callbacks.</p>
+<p>The primary operation of a snooper is its <code>add_callback</code> method, which
+registers a callback on the snooped event. The callback will then be called
+repeatedly, every time the event happens,
+until the snooper is <em>canceled</em>, which is done by calling the <code>cancel</code> method
+on the <code>Handle</code> object returned by <code>add_callback</code>. The <code>add_callback</code> method is
+typically not called directly; for most use cases there are utilities,
+such as the <code>sloop.wait</code> coroutine,
+that manage things like cancellations automatically in a safe manner.</p>
+<p>The <code>snoop</code> library both provides the
+base definitions needed to define custom snooper classes, and a comprehensive
+library of snooper classes for monitoring
+different common types of simulation events.</p>
+<p>One example of a snooper object is <code>snoop.ConsoleString(conf.con, 'hello')</code>.
+That object represents the act of waiting for the next time the string
+<code>hello</code> appears on the console <code>con</code>. Note that creating the <code>ConsoleString</code>
+object does not by itself start monitoring the console; instead, the snooper
+would typically be used in a context like
+<code>await sloop.wait(snoop.ConsoleString(conf.con, 'hello'))</code>,
+where the <code>sloop.wait</code> call triggers calls to <code>add_callback</code> and <code>cancel</code>.</p>
+<h2 id="the-sloop-library"><a href="#the-sloop-library">1.2 The Sloop Library</a></h2>
+<p>The <code>sloop</code> library is an integration of Python’s <code>asyncio</code> library with the
+Intel Simics simulator scheduler.
+The library provides means to create and run tasks based on
+coroutine functions (declared in Python using the <code>async def</code> syntax), but
+where the progression of an <code>asyncio</code> coroutine typically depends on
+asynchronous operating system events on the host machine, the progression of a
+<code>sloop</code> coroutine instead depends on simulation events. The API of the <code>sloop</code>
+library generally imitates <code>asyncio</code>, but only supports a subset of all
+functions available in <code>asyncio</code>. Most notably, <code>sloop.create_task</code> spawns a
+task which can await simulation events, and <code>sloop.run_until_complete</code> runs
+simulation until a Sloop based awaitable yields, similar to the <code>run-until</code>
+commands in the Intel Simics Command-Line Interface (CLI).</p>
+<p>The <code>sloop</code> library is well suited for writing regression tests that monitor
+a system’s behaviour over time.</p>
+<p>The <code>sloop</code> library also contains some primitives specific to Simics, in
+particular:</p>
+<ul>
+<li><code>wait(snp)</code> is a coroutine that returns the next value yielded by a snooper
+<code>snp</code>.</li>
+<li>The <code>timeout</code> asynchronous context manager is similar to its <code>asyncio</code>
+counterpart, but the timeout is specified by a snooper rather than a number
+of host seconds. For instance, <code>async with timeout(snoop.Seconds(conf.cpu0, 1)):</code> gives a timeout if the block is not exited within one simulated second.</li>
+<li>The <code>Tracer</code> asynchronous context manager and the <code>trace</code> coroutine are used
+to collect a sequence of values from a snooper into an asynchronous iterator
+and list, respectively.</li>
+</ul>
+
+<div class="chain">
+<a href="index.html">Python Coroutines in Simics</a>
+<a href="basic-usage.html">2 Basic Usage Example</a>
+</div>

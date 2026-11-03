@@ -1,0 +1,53 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-motherboard-x86-simple-no-apic</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-motherboard-x86-simple.html">new-motherboard-x86-simple</a>
+<a href="rm-cmd-new-nemo.html">new-nemo</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-motherboard-x86-simple-no-apic"></a>
+<h1 id="new-motherboard-x86-simple-no-apic"><a href="#new-motherboard-x86-simple-no-apic">new-motherboard-x86-simple-no-apic</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-motherboard-x86-simple-no-apic</b> [<i>"name"</i>] [<i>acpi</i>] [<i>"bios"</i>] [<i>break_on_reboot</i>] [<i>"rtc_time"</i>] [<i>system_clock</i>] [<i>"system_clock_class"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command creates an instantiated component of the class <tt>motherboard_x86_simple_no_apic</tt>.
+<p>
+The class description for the <tt>motherboard_x86_simple_no_apic</tt> class: X86 simple motherboard for processors without APIC.
+</p><p>
+</p><dl><dt id="dt:name-is-optional"><a href="#dt:name-is-optional"><i>name</i> is Optional</a></dt><dd>If not specified, the component will get a class-specific default name.</dd>
+<p>
+</p><dt id="dt:acpi-is-optional"><a href="#dt:acpi-is-optional"><i>acpi</i> is Optional</a></dt><dd>Use ACPI when True, default value is True.</dd>
+<p>
+</p><dt id="dt:bios-is-optional"><a href="#dt:bios-is-optional"><i>bios</i> is Optional</a></dt><dd>The x86 BIOS file to use.</dd>
+<p>
+</p><dt id="dt:break_on_reboot-is-optional"><a href="#dt:break_on_reboot-is-optional"><i>break_on_reboot</i> is Optional</a></dt><dd>If true, the simulation will stop when machine is rebooted.</dd>
+<p>
+</p><dt id="dt:rtc_time-is-optional"><a href="#dt:rtc_time-is-optional"><i>rtc_time</i> is Optional</a></dt><dd>The date and time of the Real-Time clock. Please note that time-zone information is not supported and will be silently dropped when passed to the RTC object.</dd>
+<p>
+</p><dt id="dt:system_clock-is-optional"><a href="#dt:system_clock-is-optional"><i>system_clock</i> is Optional</a></dt><dd>If true, the motherboard will contain a clock separate from the processor, which will be used as queue for all devices. The class used for the clock is taken from system_clock_class.</dd>
+<p>
+</p><dt id="dt:system_clock_class-is-optional"><a href="#dt:system_clock_class-is-optional"><i>system_clock_class</i> is Optional</a></dt><dd>The class used for the system_clock.</dd></dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.x86-comp.html">x86-comp</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-motherboard-x86-simple.html">new-motherboard-x86-simple</a>
+<a href="rm-cmd-new-nemo.html">new-nemo</a>
+</div>

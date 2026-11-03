@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;simics-uefi&gt;.add-acpi-table-bytes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-sim.status.html">&lt;sim&gt;.status</a>
+<a href="rm-cmd-simics-uefi.add-acpi-table-file.html">&lt;simics-uefi&gt;.add-acpi-table-file</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="simics-uefi.add-acpi-table-bytes"></a>
+<h1 id="simics-uefi.add-acpi-table-bytes"><a href="#simics-uefi.add-acpi-table-bytes">&lt;simics-uefi&gt;.add-acpi-table-bytes</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;simics-uefi&gt;.add-acpi-table-bytes</b> <i>"table-name"</i> <i>table-as-byte-list</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ <b>add-acpi-table-bytes</b> adds the provided list of bytes as an ACPI table to the list of ACPI tables that will be installed/overridden during boot. The command will try to find an available slot. If it cannot it will raise an error. The required argument <i>table-name</i> is used to create a name for the image object that will store the provided bytes. The name can be freely chosen and does not need to correspond to the actual ACPI table name. The required argument <i>table-as-byte-list</i> is expected to be a list of integers that are no more than 8 bits wide and represent the bytes of the ACPI table. 
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics-uefi.html">simics-uefi</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-sim.status.html">&lt;sim&gt;.status</a>
+<a href="rm-cmd-simics-uefi.add-acpi-table-file.html">&lt;simics-uefi&gt;.add-acpi-table-file</a>
+</div>

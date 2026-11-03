@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 Code arrangement</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="naming.html">6 Naming</a>
+<a href="various-issues.html">8 Various issues</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for C</a>
+&nbsp;/&nbsp;</div><h1 id="code-arrangement"><a href="#code-arrangement">7 Code arrangement</a></h1>
+<p>The functions and variables exported from a <code>.c</code> file should be declared in the
+corresponding <code>.h</code> file.
+That header should be included first in the <code>.c</code> file.</p>
+<blockquote class="markdown-alert-note">
+<p>This practice forces header files to be independent so that they do not
+require any other headers to be included first, which simplifies their use
+elsewhere.
+Making a unit include its own header will check that the definitions in both
+files agree.</p>
+</blockquote>
+<p>Function prototypes in the header should not be declared <code>extern</code>; that keyword
+is superfluous there.
+The header should only contain the types actually needed for other units to
+interface with it.
+Where possible, opaque struct and class types should be used.</p>
+<p>Any functions or variables that are not used outside the unit should be declared
+<code>static</code>.</p>
+<p>Reorder functions to avoid the need of forward declarations where possible.</p>
+<blockquote class="markdown-alert-note">
+<p>Forward declarations are just a pointless exercise required by the language,
+needing extra maintenance and taking up space. Ordering functions in the
+calling order also makes it easier to navigate in the code since it imposes
+a consistent direction to look for functions and their callers.</p>
+</blockquote>
+
+<div class="chain">
+<a href="naming.html">6 Naming</a>
+<a href="various-issues.html">8 Various issues</a>
+</div>

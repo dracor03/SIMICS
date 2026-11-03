@@ -1,0 +1,1170 @@
+{
+  "is_book": false,
+  "anchor": "users_guides",
+  "style": "unstyled",
+  "file": "index.html",
+  "name": "Intel® Simics® Simulator User’s Guide",
+  "headings": [],
+  "children": [
+    {
+      "file": "introduction.html",
+      "name": "1 Introduction",
+      "headings": [],
+      "children": [
+        {
+          "file": "afos-introduction.html",
+          "name": "1.1 Introduction",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "simulation-concepts.html",
+          "name": "1.2 Simulation Concepts",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "the-limits-of-simulation",
+              "text": "1.2.1 The Limits of Simulation"
+            },
+            {
+              "level": 1,
+              "anchor": "non-intrusive-inspection-and-debugging",
+              "text": "1.2.2 Non-intrusive Inspection and Debugging"
+            },
+            {
+              "level": 1,
+              "anchor": "simulated-time",
+              "text": "1.2.3 Simulated Time"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "feature-overview.html",
+      "name": "2 Feature Overview",
+      "headings": [],
+      "children": [
+        {
+          "file": "startupoptions.html",
+          "name": "2.1 Using Simics from the Command Line",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "cli.html",
+          "name": "2.2 The Command Line Interface",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "invoking-commands",
+              "text": "2.2.1 Invoking Commands"
+            },
+            {
+              "level": 2,
+              "anchor": "how-are-arguments-resolved",
+              "text": "2.2.1.1 How are Arguments Resolved?"
+            },
+            {
+              "level": 2,
+              "anchor": "referring-to-simics-objects",
+              "text": "2.2.1.2 Referring to Simics Objects"
+            },
+            {
+              "level": 2,
+              "anchor": "namespace-commands",
+              "text": "2.2.1.3 Namespace Commands"
+            },
+            {
+              "level": 2,
+              "anchor": "expressions",
+              "text": "2.2.1.4 Expressions"
+            },
+            {
+              "level": 2,
+              "anchor": "interrupting-commands",
+              "text": "2.2.1.5 Interrupting Commands"
+            },
+            {
+              "level": 1,
+              "anchor": "tab-completion",
+              "text": "2.2.2 Tab Completion"
+            },
+            {
+              "level": 1,
+              "anchor": "help-system",
+              "text": "2.2.3 Help System"
+            },
+            {
+              "level": 1,
+              "anchor": "simics-s-search-path",
+              "text": "2.2.4 Simics’s Search Path"
+            },
+            {
+              "level": 1,
+              "anchor": "using-the-pipe-command",
+              "text": "2.2.5 Using the Pipe Command"
+            },
+            {
+              "level": 1,
+              "anchor": "running-shell-commands",
+              "text": "2.2.6 Running Shell Commands"
+            },
+            {
+              "level": 1,
+              "anchor": "command-line-keyboard-shortcuts",
+              "text": "2.2.7 Command-line Keyboard Shortcuts"
+            },
+            {
+              "level": 2,
+              "anchor": "list-of-shortcuts",
+              "text": "2.2.7.1 List of Shortcuts"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "script-support-in-simics.html",
+          "name": "2.3 Simics Scripting Environment",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "script-support-in-cli",
+              "text": "2.3.1 Script Support in CLI"
+            },
+            {
+              "level": 2,
+              "anchor": "why-use-cli-scripting-instead-of-python",
+              "text": "2.3.1.1 Why Use CLI Scripting Instead of Python"
+            },
+            {
+              "level": 2,
+              "anchor": "variables",
+              "text": "2.3.1.2 Variables"
+            },
+            {
+              "level": 2,
+              "anchor": "command-return-values",
+              "text": "2.3.1.3 Command Return Values"
+            },
+            {
+              "level": 2,
+              "anchor": "control-flow-commands",
+              "text": "2.3.1.4 Control Flow Commands"
+            },
+            {
+              "level": 2,
+              "anchor": "integer-conversion",
+              "text": "2.3.1.5 Integer Conversion"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-configuration-attributes",
+              "text": "2.3.1.6 Accessing Configuration Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "error-handling-in-scripts",
+              "text": "2.3.1.7 Error Handling in Scripts"
+            },
+            {
+              "level": 1,
+              "anchor": "script-branches",
+              "text": "2.3.2 Script Branches"
+            },
+            {
+              "level": 2,
+              "anchor": "introduction-to-script-branches",
+              "text": "2.3.2.1 Introduction to Script Branches"
+            },
+            {
+              "level": 2,
+              "anchor": "how-script-branches-work",
+              "text": "2.3.2.2 How Script Branches Work"
+            },
+            {
+              "level": 2,
+              "anchor": "script-branch-commands",
+              "text": "2.3.2.3 Script Branch Commands"
+            },
+            {
+              "level": 2,
+              "anchor": "variables-in-script-branches",
+              "text": "2.3.2.4 Variables in Script Branches"
+            },
+            {
+              "level": 2,
+              "anchor": "script-branches-and-multi-threaded-simulation",
+              "text": "2.3.2.5 Script Branches and Multi-Threaded Simulation"
+            },
+            {
+              "level": 2,
+              "anchor": "canceling-script-branches",
+              "text": "2.3.2.6 Canceling Script Branches"
+            },
+            {
+              "level": 2,
+              "anchor": "script-branch-restrictions",
+              "text": "2.3.2.7 Script Branch Restrictions"
+            },
+            {
+              "level": 1,
+              "anchor": "targets-and-parameters",
+              "text": "2.3.3 Targets and parameters"
+            },
+            {
+              "level": 2,
+              "anchor": "semantics",
+              "text": "2.3.3.1 Semantics"
+            },
+            {
+              "level": 2,
+              "anchor": "file-types",
+              "text": "2.3.3.2 File types"
+            },
+            {
+              "level": 3,
+              "anchor": "script-files",
+              "text": "2.3.3.2.1 Script Files"
+            },
+            {
+              "level": 3,
+              "anchor": "preset-files",
+              "text": "2.3.3.2.2 Preset Files"
+            },
+            {
+              "level": 2,
+              "anchor": "example-target",
+              "text": "2.3.3.3 Example target"
+            },
+            {
+              "level": 2,
+              "anchor": "example-presets",
+              "text": "2.3.3.4 Example presets"
+            },
+            {
+              "level": 2,
+              "anchor": "target-definition",
+              "text": "2.3.3.5 Target definition"
+            },
+            {
+              "level": 2,
+              "anchor": "run-time-usage",
+              "text": "2.3.3.6 Run-time usage"
+            },
+            {
+              "level": 2,
+              "anchor": "using-parameter-references",
+              "text": "2.3.3.7 Using parameter references"
+            },
+            {
+              "level": 1,
+              "anchor": "scripting-using-python",
+              "text": "2.3.4 Scripting Using Python"
+            },
+            {
+              "level": 2,
+              "anchor": "python-in-the-intel-simics-simulator",
+              "text": "2.3.4.1 Python in the Intel® Simics® Simulator"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-cli-variables-from-python",
+              "text": "2.3.4.2 Accessing CLI Variables from Python"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-the-configuration-from-python",
+              "text": "2.3.4.3 Accessing the Configuration from Python"
+            },
+            {
+              "level": 3,
+              "anchor": "configuration-objects",
+              "text": "2.3.4.3.1 Configuration Objects"
+            },
+            {
+              "level": 3,
+              "anchor": "interfaces",
+              "text": "2.3.4.3.2 Interfaces"
+            },
+            {
+              "level": 3,
+              "anchor": "ports-and-banks",
+              "text": "2.3.4.3.3 Ports and Banks"
+            },
+            {
+              "level": 3,
+              "anchor": "port-interfaces",
+              "text": "2.3.4.3.4 Port Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-command-line-commands-from-python",
+              "text": "2.3.4.4 Accessing Command Line Commands from Python"
+            },
+            {
+              "level": 2,
+              "anchor": "the-script-branch-api",
+              "text": "2.3.4.5 The Script Branch API"
+            },
+            {
+              "level": 2,
+              "anchor": "the-simics-api",
+              "text": "2.3.4.6 The Simics API"
+            },
+            {
+              "level": 2,
+              "anchor": "haps",
+              "text": "2.3.4.7 Haps"
+            },
+            {
+              "level": 3,
+              "anchor": "example-of-python-callback-on-a-hap",
+              "text": "2.3.4.7.1 Example of Python Callback on a Hap"
+            },
+            {
+              "level": 3,
+              "anchor": "example-of-python-callback-on-core_log_message_extended-hap",
+              "text": "2.3.4.7.2 Example of Python Callback on Core_Log_Message_Extended Hap"
+            },
+            {
+              "level": 1,
+              "anchor": "simics-as-python-module",
+              "text": "2.3.5 Simics as Python module"
+            },
+            {
+              "level": 2,
+              "anchor": "launching-the-simulator-from-your-virtual-environment",
+              "text": "2.3.5.1 Launching the simulator from your virtual environment"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "configuration.html",
+          "name": "2.4 Configuration and Checkpointing",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "basics",
+              "text": "2.4.1 Basics"
+            },
+            {
+              "level": 1,
+              "anchor": "checkpointing",
+              "text": "2.4.2 Checkpointing"
+            },
+            {
+              "level": 2,
+              "anchor": "compatibility",
+              "text": "2.4.2.1 Compatibility"
+            },
+            {
+              "level": 2,
+              "anchor": "attributes",
+              "text": "2.4.2.2 Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "images",
+              "text": "2.4.2.3 Images"
+            },
+            {
+              "level": 3,
+              "anchor": "image-search-path",
+              "text": "2.4.2.3.1 Image Search Path"
+            },
+            {
+              "level": 2,
+              "anchor": "saving-and-restoring-persistent-data",
+              "text": "2.4.2.4 Saving and Restoring Persistent Data"
+            },
+            {
+              "level": 2,
+              "anchor": "modifying-checkpoints",
+              "text": "2.4.2.5 Modifying Checkpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "merging-checkpoints",
+              "text": "2.4.2.6 Merging Checkpoints"
+            },
+            {
+              "level": 1,
+              "anchor": "inspecting-the-configuration",
+              "text": "2.4.3 Inspecting the Configuration"
+            },
+            {
+              "level": 1,
+              "anchor": "components",
+              "text": "2.4.4 Components"
+            },
+            {
+              "level": 2,
+              "anchor": "component-definitions",
+              "text": "2.4.4.1 Component Definitions"
+            },
+            {
+              "level": 2,
+              "anchor": "importing-component-commands",
+              "text": "2.4.4.2 Importing Component Commands"
+            },
+            {
+              "level": 2,
+              "anchor": "creating-components",
+              "text": "2.4.4.3 Creating Components"
+            },
+            {
+              "level": 2,
+              "anchor": "connectors",
+              "text": "2.4.4.4 Connectors"
+            },
+            {
+              "level": 2,
+              "anchor": "instantiation",
+              "text": "2.4.4.5 Instantiation"
+            },
+            {
+              "level": 2,
+              "anchor": "inspecting-component-configurations",
+              "text": "2.4.4.6 Inspecting Component Configurations"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-objects-from-components",
+              "text": "2.4.4.7 Accessing Objects from Components"
+            },
+            {
+              "level": 2,
+              "anchor": "available-components",
+              "text": "2.4.4.8 Available Components"
+            },
+            {
+              "level": 1,
+              "anchor": "object-name",
+              "text": "2.4.5 Object Name"
+            },
+            {
+              "level": 1,
+              "anchor": "ready-to-run-configurations",
+              "text": "2.4.6 Ready-to-run Configurations"
+            },
+            {
+              "level": 2,
+              "anchor": "customizing-the-configurations",
+              "text": "2.4.6.1 Customizing the Configurations"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-devices-to-existing-configurations",
+              "text": "2.4.6.2 Adding Devices to Existing Configurations"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "managedisks.html",
+          "name": "2.5 Moving Data in and out of the Simulation",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "file-transfers-using-the-simics-agent",
+              "text": "2.5.1 File Transfers Using the Simics Agent"
+            },
+            {
+              "level": 2,
+              "anchor": "interactive-example",
+              "text": "2.5.1.1 Interactive Example"
+            },
+            {
+              "level": 2,
+              "anchor": "example-with-a-script-branch",
+              "text": "2.5.1.2 Example with a Script Branch"
+            },
+            {
+              "level": 2,
+              "anchor": "example-from-the-target-shell",
+              "text": "2.5.1.3 Example from the target shell"
+            },
+            {
+              "level": 1,
+              "anchor": "working-with-images",
+              "text": "2.5.2 Working with Images"
+            },
+            {
+              "level": 2,
+              "anchor": "image-file-formats",
+              "text": "2.5.2.1 Image File Formats"
+            },
+            {
+              "level": 2,
+              "anchor": "saving-changes-to-an-image",
+              "text": "2.5.2.2 Saving Changes to an Image"
+            },
+            {
+              "level": 2,
+              "anchor": "reducing-memory-usage-due-to-images",
+              "text": "2.5.2.3 Reducing Memory Usage Due to Images"
+            },
+            {
+              "level": 2,
+              "anchor": "using-read-write-images",
+              "text": "2.5.2.4 Using Read/Write Images"
+            },
+            {
+              "level": 2,
+              "anchor": "editing-fat-images-using-mtools",
+              "text": "2.5.2.5 Editing FAT Images Using Mtools"
+            },
+            {
+              "level": 2,
+              "anchor": "editing-images-using-loopback-mounting",
+              "text": "2.5.2.6 Editing Images Using Loopback Mounting"
+            },
+            {
+              "level": 2,
+              "anchor": "constructing-a-disk-from-multiple-files",
+              "text": "2.5.2.7 Constructing a Disk from Multiple Files"
+            },
+            {
+              "level": 2,
+              "anchor": "the-craff-utility",
+              "text": "2.5.2.8 The Craff Utility"
+            },
+            {
+              "level": 2,
+              "anchor": "craff-fs",
+              "text": "2.5.2.9 craff-fs"
+            },
+            {
+              "level": 3,
+              "anchor": "example",
+              "text": "2.5.2.9.1 Example"
+            },
+            {
+              "level": 4,
+              "anchor": "use-of-parted-to-display-the-file-type-and-partitions",
+              "text": "2.5.2.9.1.1 Use of parted to display the file type and partitions"
+            },
+            {
+              "level": 4,
+              "anchor": "mounting-the-partitions",
+              "text": "2.5.2.9.1.2 Mounting the partitions"
+            },
+            {
+              "level": 4,
+              "anchor": "unmounting-the-partitions",
+              "text": "2.5.2.9.1.3 Unmounting the partitions"
+            },
+            {
+              "level": 3,
+              "anchor": "use-craff-tool-to-reduce-the-size-of-craff-files-if-needed",
+              "text": "2.5.2.9.2 Use CRAFF tool to reduce the size of CRAFF files if needed"
+            },
+            {
+              "level": 1,
+              "anchor": "cd-roms",
+              "text": "2.5.3 CD-ROMs"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-a-host-cd-rom-drive",
+              "text": "2.5.3.1 Accessing a Host CD-ROM Drive"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-a-cd-rom-image-file",
+              "text": "2.5.3.2 Accessing a CD-ROM Image File"
+            },
+            {
+              "level": 1,
+              "anchor": "usb-disks",
+              "text": "2.5.4 USB disks"
+            },
+            {
+              "level": 1,
+              "anchor": "using-simicsfs-with-fuse",
+              "text": "2.5.5 Using SimicsFS with FUSE"
+            },
+            {
+              "level": 2,
+              "anchor": "installing-simicsfs-client",
+              "text": "2.5.5.1 Installing SimicsFS client"
+            },
+            {
+              "level": 2,
+              "anchor": "using-simicsfs-client",
+              "text": "2.5.5.2 Using SimicsFS client"
+            },
+            {
+              "level": 2,
+              "anchor": "simicsfs-path-substitution",
+              "text": "2.5.5.3 SimicsFS Path Substitution"
+            },
+            {
+              "level": 1,
+              "anchor": "using-virtiofs",
+              "text": "2.5.6 Using VirtioFS"
+            },
+            {
+              "level": 2,
+              "anchor": "requirements",
+              "text": "2.5.6.1 Requirements"
+            },
+            {
+              "level": 2,
+              "anchor": "example-using-virtiofs-with-a-linux-target",
+              "text": "2.5.6.2 Example Using VirtioFS with a Linux Target"
+            },
+            {
+              "level": 3,
+              "anchor": "linux-kernel",
+              "text": "2.5.6.2.1 Linux Kernel"
+            },
+            {
+              "level": 3,
+              "anchor": "platform-setup",
+              "text": "2.5.6.2.2 Platform Setup"
+            },
+            {
+              "level": 3,
+              "anchor": "interacting-with-the-virtiofs-device",
+              "text": "2.5.6.2.3 Interacting with the VirtioFS Device"
+            },
+            {
+              "level": 3,
+              "anchor": "using-the-virtiofs-device-as-a-root-file-system",
+              "text": "2.5.6.2.4 Using the VirtioFS Device as a Root File System"
+            },
+            {
+              "level": 4,
+              "anchor": "the-user-provided-linux-qsp-target",
+              "text": "2.5.6.2.4.1 The User Provided Linux QSP Target"
+            },
+            {
+              "level": 1,
+              "anchor": "using-tftp",
+              "text": "2.5.7 Using TFTP"
+            },
+            {
+              "level": 1,
+              "anchor": "using-ftp-service",
+              "text": "2.5.8 Using FTP service"
+            },
+            {
+              "level": 1,
+              "anchor": "importing-a-real-disk-into-simics",
+              "text": "2.5.9 Importing a Real Disk into Simics"
+            },
+            {
+              "level": 1,
+              "anchor": "foreign-image-formats-including-qemu-and-vmware",
+              "text": "2.5.10 Foreign Image Formats Including QEMU and VMware"
+            },
+            {
+              "level": 1,
+              "anchor": "serial-links",
+              "text": "2.5.11 Serial Links"
+            },
+            {
+              "level": 2,
+              "anchor": "serial-link-component",
+              "text": "2.5.11.1 Serial Link Component"
+            },
+            {
+              "level": 3,
+              "anchor": "text-and-telnet-consoles",
+              "text": "2.5.11.1.1 Text and Telnet Consoles"
+            },
+            {
+              "level": 2,
+              "anchor": "host-serial-console",
+              "text": "2.5.11.2 Host Serial Console"
+            },
+            {
+              "level": 3,
+              "anchor": "using-host-serial-connections-with-windows-hyperterminal",
+              "text": "2.5.11.2.1 Using host serial connections with Windows HyperTerminal"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "instrumentation.html",
+          "name": "2.6 Instrumentation",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "command-set",
+              "text": "2.6.1 Command Set"
+            },
+            {
+              "level": 1,
+              "anchor": "instrumentation-tools",
+              "text": "2.6.2 Instrumentation Tools"
+            },
+            {
+              "level": 1,
+              "anchor": "instrumentation-filters",
+              "text": "2.6.3 Instrumentation Filters"
+            },
+            {
+              "level": 1,
+              "anchor": "exporting-instrumentation-data",
+              "text": "2.6.4 Exporting Instrumentation Data"
+            },
+            {
+              "level": 1,
+              "anchor": "profiling-example",
+              "text": "2.6.5 Profiling Example"
+            },
+            {
+              "level": 2,
+              "anchor": "profiling-setup",
+              "text": "2.6.5.1 Profiling Setup"
+            },
+            {
+              "level": 2,
+              "anchor": "instruction-profiling",
+              "text": "2.6.5.2 Instruction Profiling"
+            },
+            {
+              "level": 2,
+              "anchor": "data-profiling",
+              "text": "2.6.5.3 Data Profiling"
+            },
+            {
+              "level": 1,
+              "anchor": "device-register-coverage",
+              "text": "2.6.6 Device Register Coverage"
+            },
+            {
+              "level": 2,
+              "anchor": "example",
+              "text": "2.6.6.1 Example"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "probes.html",
+          "name": "2.7 Probes",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "probes-command-set",
+              "text": "2.7.1 Probes Command Set"
+            },
+            {
+              "level": 1,
+              "anchor": "probe-samplers",
+              "text": "2.7.2 Probe Samplers"
+            },
+            {
+              "level": 2,
+              "anchor": "probe-monitor",
+              "text": "2.7.2.1 Probe Monitor"
+            },
+            {
+              "level": 2,
+              "anchor": "probe-streamer",
+              "text": "2.7.2.2 Probe Streamer"
+            },
+            {
+              "level": 2,
+              "anchor": "probe-based-system-perfmeter",
+              "text": "2.7.2.3 Probe Based system-perfmeter"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "low-level-debugging.html",
+      "name": "3 Low-Level Debugging",
+      "headings": [],
+      "children": [
+        {
+          "file": "introduction-2.html",
+          "name": "3.1 Introduction",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "debug.html",
+          "name": "3.2 Low-level Debugging with Simics",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "breakpoints",
+              "text": "3.2.1 Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "the-breakpoint-manager",
+              "text": "3.2.1.1 The Breakpoint Manager"
+            },
+            {
+              "level": 2,
+              "anchor": "memory-breakpoints",
+              "text": "3.2.1.2 Memory Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "temporal-breakpoints",
+              "text": "3.2.1.3 Temporal Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "control-register-breakpoints",
+              "text": "3.2.1.4 Control Register Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "i-o-breakpoints",
+              "text": "3.2.1.5 I/O Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "text-output-breakpoints",
+              "text": "3.2.1.6 Text Output Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "graphics-breakpoints",
+              "text": "3.2.1.7 Graphics Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "magic-instructions-and-magic-breakpoints",
+              "text": "3.2.1.8 Magic Instructions and Magic Breakpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "advanced-magic-instruction-usage",
+              "text": "3.2.1.9 Advanced Magic Instruction Usage"
+            },
+            {
+              "level": 1,
+              "anchor": "symbolic-debugging",
+              "text": "3.2.2 Symbolic Debugging"
+            },
+            {
+              "level": 2,
+              "anchor": "contexts",
+              "text": "3.2.2.1 Contexts"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "lowlevel-software.html",
+          "name": "3.3 Using Simics for Hardware Bring-Up and Firmware Development",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "a-simple-example",
+              "text": "3.3.1 A Simple Example"
+            },
+            {
+              "level": 1,
+              "anchor": "going-further",
+              "text": "3.3.2 Going Further"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "gdb.html",
+          "name": "3.4 Using Simics with GDB",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "gdb-with-multiple-cpus",
+              "text": "3.4.1 GDB with multiple cpus"
+            },
+            {
+              "level": 1,
+              "anchor": "remote-gdb-and-shared-libraries",
+              "text": "3.4.2 Remote GDB and Shared Libraries"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "others.html",
+          "name": "3.5 Using Simics with Other IDEs",
+          "headings": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "performance.html",
+      "name": "4 Performance",
+      "headings": [],
+      "children": [
+        {
+          "file": "simulation-performance.html",
+          "name": "4.1 Simulation Performance",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "measuring-performance",
+              "text": "4.1.1 Measuring Performance"
+            },
+            {
+              "level": 2,
+              "anchor": "useful-performance-scenarios",
+              "text": "4.1.1.1 Useful Performance Scenarios"
+            },
+            {
+              "level": 1,
+              "anchor": "multithreaded-simulation-profiling-and-tuning",
+              "text": "4.1.2 Multithreaded Simulation Profiling and Tuning"
+            },
+            {
+              "level": 2,
+              "anchor": "simics-multimachine-accelerator",
+              "text": "4.1.2.1 Simics® Multimachine Accelerator"
+            },
+            {
+              "level": 2,
+              "anchor": "multicore-accelerator",
+              "text": "4.1.2.2 Multicore Accelerator"
+            },
+            {
+              "level": 1,
+              "anchor": "platform-effects",
+              "text": "4.1.3 Platform Effects"
+            },
+            {
+              "level": 1,
+              "anchor": "workload-characteristics",
+              "text": "4.1.4 Workload Characteristics"
+            },
+            {
+              "level": 2,
+              "anchor": "idle-loops-and-performance",
+              "text": "4.1.4.1 Idle Loops and Performance"
+            },
+            {
+              "level": 1,
+              "anchor": "hypersimulation",
+              "text": "4.1.5 Hypersimulation"
+            },
+            {
+              "level": 1,
+              "anchor": "vmp",
+              "text": "4.1.6 VMP"
+            },
+            {
+              "level": 2,
+              "anchor": "installing-the-vmp-kernel-module",
+              "text": "4.1.6.1 Installing the VMP Kernel Module"
+            },
+            {
+              "level": 3,
+              "anchor": "linux",
+              "text": "4.1.6.1.1 Linux"
+            },
+            {
+              "level": 3,
+              "anchor": "windows",
+              "text": "4.1.6.1.2 Windows"
+            },
+            {
+              "level": 3,
+              "anchor": "hyper-v-interaction",
+              "text": "4.1.6.1.3 Hyper-V Interaction"
+            },
+            {
+              "level": 2,
+              "anchor": "running-with-the-vmp-add-on",
+              "text": "4.1.6.2 Running with the VMP Add-on"
+            },
+            {
+              "level": 2,
+              "anchor": "current-limitations-of-the-vmp-add-on",
+              "text": "4.1.6.3 Current Limitations of the VMP Add-on"
+            },
+            {
+              "level": 2,
+              "anchor": "differences-between-vmp-and-non-vmp",
+              "text": "4.1.6.4 Differences Between VMP and non-VMP"
+            },
+            {
+              "level": 1,
+              "anchor": "performance-tweaks",
+              "text": "4.1.7 Performance Tweaks"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "scaling-simics.html",
+          "name": "4.2 Scaling Simics",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "intel-simics-multimachine-accelerator",
+              "text": "4.2.1 Intel® Simics® Multimachine Accelerator"
+            },
+            {
+              "level": 2,
+              "anchor": "multithread-ready-models",
+              "text": "4.2.1.1 Multithread-Ready Models"
+            },
+            {
+              "level": 2,
+              "anchor": "enabling-and-disabling-multimachine-accelerator",
+              "text": "4.2.1.2 Enabling and Disabling Multimachine Accelerator"
+            },
+            {
+              "level": 2,
+              "anchor": "controlling-cell-synchronization",
+              "text": "4.2.1.3 Controlling Cell Synchronization"
+            },
+            {
+              "level": 3,
+              "anchor": "the-simple-way",
+              "text": "4.2.1.3.1 The Simple Way"
+            },
+            {
+              "level": 3,
+              "anchor": "understanding-synchronization-domains",
+              "text": "4.2.1.3.2 Understanding Synchronization Domains"
+            },
+            {
+              "level": 3,
+              "anchor": "setting-latencies-the-complete-rules",
+              "text": "4.2.1.3.3 Setting Latencies: the Complete Rules"
+            },
+            {
+              "level": 2,
+              "anchor": "multimachine-accelerator-and-scripting",
+              "text": "4.2.1.4 Multimachine Accelerator and Scripting"
+            },
+            {
+              "level": 2,
+              "anchor": "dynamic-load-balancing",
+              "text": "4.2.1.5 Dynamic Load Balancing"
+            },
+            {
+              "level": 1,
+              "anchor": "multicore-accelerator",
+              "text": "4.2.2 Multicore Accelerator"
+            },
+            {
+              "level": 2,
+              "anchor": "enabling-and-disabling-multicore-accelerator",
+              "text": "4.2.2.1 Enabling and Disabling Multicore Accelerator"
+            },
+            {
+              "level": 2,
+              "anchor": "when-is-multicore-accelerator-beneficial",
+              "text": "4.2.2.2 When is Multicore Accelerator beneficial"
+            },
+            {
+              "level": 1,
+              "anchor": "distributed-simulation",
+              "text": "4.2.3 Distributed Simulation"
+            },
+            {
+              "level": 2,
+              "anchor": "configuration",
+              "text": "4.2.3.1 Configuration"
+            },
+            {
+              "level": 2,
+              "anchor": "links",
+              "text": "4.2.3.2 Links"
+            },
+            {
+              "level": 2,
+              "anchor": "global-messages",
+              "text": "4.2.3.3 Global Messages"
+            },
+            {
+              "level": 2,
+              "anchor": "running-the-simulation",
+              "text": "4.2.3.4 Running the simulation"
+            },
+            {
+              "level": 2,
+              "anchor": "saving-and-restoring-checkpoints",
+              "text": "4.2.3.5 Saving and restoring checkpoints"
+            },
+            {
+              "level": 2,
+              "anchor": "security",
+              "text": "4.2.3.6 Security"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "appendix.html",
+      "name": "5 Appendix",
+      "headings": [],
+      "children": [
+        {
+          "file": "script-decls.html",
+          "name": "5.1 Old Script Parameters",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "declarations-and-parameters",
+              "text": "5.1.1 Declarations and Parameters"
+            },
+            {
+              "level": 1,
+              "anchor": "results",
+              "text": "5.1.2 Results"
+            },
+            {
+              "level": 1,
+              "anchor": "running-scripts",
+              "text": "5.1.3 Running Scripts"
+            },
+            {
+              "level": 1,
+              "anchor": "types",
+              "text": "5.1.4 Types"
+            },
+            {
+              "level": 1,
+              "anchor": "documentation",
+              "text": "5.1.5 Documentation"
+            },
+            {
+              "level": 1,
+              "anchor": "parameters-from-other-scripts",
+              "text": "5.1.6 Parameters from Other Scripts"
+            },
+            {
+              "level": 1,
+              "anchor": "parameter-groups",
+              "text": "5.1.7 Parameter Groups"
+            },
+            {
+              "level": 1,
+              "anchor": "script-execution",
+              "text": "5.1.8 Script Execution"
+            },
+            {
+              "level": 1,
+              "anchor": "example",
+              "text": "5.1.9 Example"
+            }
+          ],
+          "children": []
+        }
+      ]
+    }
+  ]
+}

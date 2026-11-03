@@ -1,0 +1,93 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>tcf-agent</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-system_panel_state_manager.html">system_panel_state_manager</a>
+<a href="rm-class-tcf-context-proxy.html">tcf-context-proxy</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="tcf-agent"><a href="#tcf-agent">tcf-agent</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This class implements the Simics Debugger API. The class can be instantiated at most one time. Do not create this instance manually. Use <tt>SIM_get_debugger</tt> instead.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, tcf_channel, tcf_trace, agent_proxy_finder, tcf_pathmap, tcf_memorymap, tcf_pe, tcf_elf, debug_config, debug_notification, debug_query, debug_symbol, debug_symbol_file, debug_setup, debug_step, debug_internal, tcf_serial_tap, tcf_command_registry, exec_tracer, tcf_breakpoints, tcf_target_identification, tcf_pycmd
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:exec_tracers"><a href="#dt:exec_tracers">exec_tracers</a></dt>
+<dd>
+<a href="rm-class-tcf_exec_tracer_manager.html#tcf_exec_tracer_manager">tcf_exec_tracer_manager</a>
+ – parent object of exec tracers</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-tcf-agent.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-tcf-agent.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:parameters"><a href="#dt:parameters">
+<i>parameters</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>s</code>
+<br>Parameter for the TCF agent.</dd>
+<dt id="dt:properties"><a href="#dt:properties">
+<i>properties</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>D|n</code>
+<br>Properties for the TCF peer.</dd>
+<dt id="dt:stepping_option"><a href="#dt:stepping_option">
+<i>stepping_option</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Option on how stepping over and stepping out is handled:<ul> <li>0 - Breakpoint on function exit address. Longjmp or C++ exceptions might not work correctly. Fastest and default.</li> <li>1 - Breakpoint on return instructions, handles longjmp and C++ exceptions. Only works on x86-based architectures. Slower.</li> <li>2 - No breakpoints, handles longjmp and C++ exceptions, but can be really slow for long steps.</li></ul></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+</section>
+<div class="chain">
+<a href="rm-class-system_panel_state_manager.html">system_panel_state_manager</a>
+<a href="rm-class-tcf-context-proxy.html">tcf-context-proxy</a>
+</div>

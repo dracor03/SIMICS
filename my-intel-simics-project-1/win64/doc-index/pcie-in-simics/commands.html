@@ -1,0 +1,148 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simics Commands</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="reset.html">Reset templates</a>
+<a href="migration.html">Migrating From the Legacy PCI Library</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="pcie-commands-for-simics-cli"><a href="#pcie-commands-for-simics-cli">PCIe Commands for Simics CLI</a></h1>
+<p>Several convenience commands to inspect and manipulate PCIe hierarchies in a
+Simics session are included with Simics Base.</p>
+<h2 id="listing-pcie-hierarchies"><a href="#listing-pcie-hierarchies">Listing PCIe hierarchies</a></h2>
+<p>The global <code>list-pcie-hierarchies</code> command (also has an alias
+<code>pcie-list-hierarchies</code>) can be used to list (potentially multiple) PCIe
+hierarchies in a platform. It visualizes the PCIe topology in a way that makes
+it easy to grasp its hierarchical structure. Useful information about each PCIe
+function in the hierarchy such as BDF and device/port type is also provided. An
+example output of this command is shown below:</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                      PCIe Subsystem #0                                                                      │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                         Host CPU/Memory Bridge: board.mb.nb.bridge                                                          │
+├───────────────────┬───────────────────────────┬───────────────────────────────────────────┬───────────────────────────────────────┬─────────────────────────┤
+│        BDF        │          Device           │                 Function                  │                 Info                  │    Device/Port Type     │
+├───────────────────┼───────────────────────────┼───────────────────────────────────────────┼───────────────────────────────────────┼─────────────────────────┤
+│00:00.0            │board.mb.nb.bridge         │board.mb.nb.bridge.bank.pcie_config        │Intel® X58 DMI unit                    │PCI Endpoint             │
+│00:01.0            │board.mb.nb.pcie_p1        │board.mb.nb.pcie_p1.bank.pcie_config       │Intel® X58 PCIe Root Port              │Root port of Root Complex│
+│    01:00.0        │sw0.sw.usp                 │sw0.sw.usp.bank.pcie_config                │                                       │Switch Upstream port     │
+│        02:00.0    │sw0.sw.dsp[0]              │sw0.sw.dsp[0].bank.pcie_config             │                                       │Switch Downstream port   │
+│            03:00.0│blk0.virtio_blk            │blk0.virtio_blk.bank.pcie_config           │model of virtio PCIE block device      │Endpoint                 │
+│        02:01.0    │sw0.sw.dsp[1]              │sw0.sw.dsp[1].bank.pcie_config             │                                       │Switch Downstream port   │
+│        02:02.0    │sw0.sw.dsp[2]              │sw0.sw.dsp[2].bank.pcie_config             │                                       │Switch Downstream port   │
+│        02:03.0    │sw0.sw.dsp[3]              │sw0.sw.dsp[3].bank.pcie_config             │                                       │Switch Downstream port   │
+│00:02.0            │board.mb.nb.pcie_p2        │board.mb.nb.pcie_p2.bank.pcie_config       │Intel® X58 PCIe Root Port              │Root port of Root Complex│
+│00:03.0            │board.mb.nb.pcie_p3        │board.mb.nb.pcie_p3.bank.pcie_config       │Intel® X58 PCIe Root Port              │Root port of Root Complex│
+│00:04.0            │board.mb.nb.pcie_p4        │board.mb.nb.pcie_p4.bank.pcie_config       │Intel® X58 PCIe Root Port              │Root port of Root Complex│
+│00:05.0            │board.mb.nb.pcie_p5        │board.mb.nb.pcie_p5.bank.pcie_config       │Intel® X58 PCIe Root Port              │Root port of Root Complex│
+│00:07.0            │board.mb.nb.pcie_p7        │board.mb.nb.pcie_p7.bank.pcie_config       │Intel® X58 PCIe Root Port              │Root port of Root Complex│
+│00:0f.0            │board.mb.gpu.vga           │board.mb.gpu.vga.bank.pcie_config          │model of accelerated Super VGA for...  │PCI Endpoint             │
+│00:10.0            │board.mb.nb.qpi_port[0]    │board.mb.nb.qpi_port[0].bank.pcie_config[0]│Intel® X58 QPI Port                    │PCI Endpoint             │
+│00:10.1            │board.mb.nb.qpi_port[0]    │board.mb.nb.qpi_port[0].bank.pcie_config[1]│Intel® X58 QPI Port                    │PCI Endpoint             │
+│00:11.0            │board.mb.nb.qpi_port[1]    │board.mb.nb.qpi_port[1].bank.pcie_config[0]│Intel® X58 QPI Port                    │PCI Endpoint             │
+│00:11.1            │board.mb.nb.qpi_port[1]    │board.mb.nb.qpi_port[1].bank.pcie_config[1]│Intel® X58 QPI Port                    │PCI Endpoint             │
+│00:13.0            │board.mb.nb.ioxapic        │board.mb.nb.ioxapic.bank.pcie_config       │Intel® X58 IOxAPIC                     │PCI Endpoint             │
+│00:14.0            │board.mb.nb.core           │board.mb.nb.core.bank.f0                   │Intel® X58 Core functions              │RCiEP                    │
+│00:14.1            │board.mb.nb.core           │board.mb.nb.core.bank.f1                   │Intel® X58 Core functions              │RCiEP                    │
+│00:14.2            │board.mb.nb.core           │board.mb.nb.core.bank.f2                   │Intel® X58 Core functions              │RCiEP                    │
+│00:14.3            │board.mb.nb.core           │board.mb.nb.core.bank.f3                   │Intel® X58 Core functions              │PCI Endpoint             │
+│00:19.0            │board.mb.sb.lan            │board.mb.sb.lan                            │model of Intel® ICH10 Gb Ethernet...   │PCI Endpoint             │
+│00:1a.0            │board.mb.sb.uhci[3]        │board.mb.sb.uhci[3]                        │model of Intel® ICH10 USB UHCI         │PCI Endpoint             │
+│00:1a.1            │board.mb.sb.uhci[4]        │board.mb.sb.uhci[4]                        │model of Intel® ICH10 USB UHCI         │PCI Endpoint             │
+│00:1a.2            │board.mb.sb.uhci[5]        │board.mb.sb.uhci[5]                        │model of Intel® ICH10 USB UHCI         │PCI Endpoint             │
+│00:1a.7            │board.mb.sb.ehci[1]        │board.mb.sb.ehci[1]                        │model of Intel® ICH10 USB EHCI         │PCI Endpoint             │
+│00:1d.0            │board.mb.sb.uhci[0]        │board.mb.sb.uhci[0]                        │model of Intel® ICH10 USB UHCI         │PCI Endpoint             │
+│00:1d.1            │board.mb.sb.uhci[1]        │board.mb.sb.uhci[1]                        │model of Intel® ICH10 USB UHCI         │PCI Endpoint             │
+│00:1d.2            │board.mb.sb.uhci[2]        │board.mb.sb.uhci[2]                        │model of Intel® ICH10 USB UHCI         │PCI Endpoint             │
+│00:1d.7            │board.mb.sb.ehci[0]        │board.mb.sb.ehci[0]                        │model of Intel® ICH10 USB EHCI         │PCI Endpoint             │
+│00:1e.0            │board.mb.sb.bridge         │board.mb.sb.bridge                         │model of Intel® ICH10 DMI to PCI unit  │PCI to PCI Bridge        │
+│00:1f.0            │board.mb.sb.lpc            │board.mb.sb.lpc                            │model of Intel® ICH10 LPC bridge       │PCI Endpoint             │
+│00:1f.2            │board.mb.sb.sata2          │board.mb.sb.sata2                          │model of Intel® ICH10 SATA controller  │PCI Endpoint             │
+│00:1f.3            │board.mb.sb.smbus          │board.mb.sb.smbus.bank.pcie_config         │model of Intel® ICH10 SMBus unit       │PCI Endpoint             │
+│00:1f.5 (disabled) │board.mb.sb.sata5          │board.mb.sb.sata5                          │model of Intel® ICH10 SATA             │PCI Endpoint             │
+│00:1f.6            │board.mb.sb.thermal        │board.mb.sb.thermal                        │model of Intel® ICH10 thermal sensor...│PCI Endpoint             │
+│ff:00.0            │board.mb.socket[0].qpi_arch│board.mb.socket[0].qpi_arch.bank.f0        │Intel® Core™ i7 QPI Architecture Device│PCI Endpoint             │
+│ff:00.1            │board.mb.socket[0].qpi_arch│board.mb.socket[0].qpi_arch.bank.f1        │Intel® Core™ i7 QPI Architecture Device│PCI Endpoint             │
+└───────────────────┴───────────────────────────┴───────────────────────────────────────────┴───────────────────────────────────────┴─────────────────────────┘
+</code></pre>
+<p>Details regarding how to use the command can be found
+<a href="../rm-base/rm-cmd-list-pcie-hierarchies.html#list-pcie-hierarchies">here</a>.</p>
+<h2 id="reading-and-writing-to-pcie-configuration-space"><a href="#reading-and-writing-to-pcie-configuration-space">Reading and Writing to PCIe Configuration Space</a></h2>
+<p>The global <code>pcie-config-read</code> and <code>pcie-config-write</code> commands can be used to
+read and write from/to a PCIe hierarchy’s configuration space using a BDF.</p>
+<p>Details regarding how to use the command can be found
+<a href="../rm-base/rm-cmd-pcie-config-read.html#pcie-config-read">here</a> and
+<a href="../rm-base/rm-cmd-pcie-config-write.html#pcie-config-write">here</a>.</p>
+<h2 id="probing-pcie-configuration-space"><a href="#probing-pcie-configuration-space">Probing PCIe Configuration Space</a></h2>
+<p>The global <code>pcie-config-probe</code> command can be used to probe a PCIe hierarchy’s
+configuration space using a BDF. The output of this command will show the probed
+path to get to the potential device that exists at the provided BDF. An example
+of probing the booted platform in the example above for <code>list-pcie-hierarchies</code>
+could look like this:</p>
+<pre><code>simics&gt; pcie-config-probe bus = 3 device = 0 function = 0
+┌──────────────────────────────────────────────┬──────────┬─────┬─────────────────────────┬───────────────┬──────────────┐
+│                    Target                    │  Offset  │Notes│       Added Atoms       │Inspected Atoms│ Missed Atoms │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│board.mb.nb.pci_bus.port.downstream           │0x03000000│~    │                         │pcie_type      │              │
+│                                              │          │     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│board.mb.nb.pci_bus.port.cfg                  │0x03000000│~    │completion               │pcie_type      │pcie_device_id│
+│                                              │          │     │owner=board.mb.nb.pci_bus│               │              │
+│                                              │          │     │pcie_device_id=768       │               │              │
+│                                              │          │     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│board.mb.nb.pci_bus.cfg_space                 │0x03000000│     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│board.mb.nb.pcie_p1.port.downstream_translator│0x03000000│~    │                         │pcie_type      │              │
+│                                              │          │     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│board.mb.nb.pcie_p1.downstream_port.port.cfg  │0x03000000│~    │                         │pcie_type      │              │
+│                                              │          │     │                         │pcie_device_id │              │
+│                                              │          │     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│board.mb.nb.pcie_p1.downstream_port.cfg_space │0x03000000│     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│sw0.sw.usp.downstream_translators.port.cfg    │0x03000000│~    │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│sw0.sw.usp.downstream_port.port.cfg           │0x03000000│~    │                         │pcie_type      │              │
+│                                              │          │     │                         │pcie_device_id │              │
+│                                              │          │     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│sw0.sw.usp.downstream_port.cfg_space          │0x03000000│     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│sw0.sw.dsp[0].downstream_translators.port.cfg │0x03000000│~    │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│sw0.sw.dsp[0].downstream_port.port.cfg        │0x03000000│~    │                         │pcie_type      │              │
+│                                              │          │     │                         │pcie_device_id │              │
+│                                              │          │     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│sw0.sw.dsp[0].downstream_port.cfg_space       │0x03000000│     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│sw0.sw.dsp[0].downstream_port.cfg_space       │0x00000000│     │                         │               │              │
+├──────────────────────────────────────────────┼──────────┼─────┼─────────────────────────┼───────────────┼──────────────┤
+│blk0.virtio_blk.bank.pcie_config              │0x00000000│     │                         │               │              │
+└──────────────────────────────────────────────┴──────────┴─────┴─────────────────────────┴───────────────┴──────────────┘
+'~' - Translator implementing 'transaction_translator' interface
+</code></pre>
+<p>Details regarding how to use the command can be found
+<a href="../rm-base/rm-cmd-pcie-config-probe.html#pcie-config-probe">here</a>.</p>
+<h2 id="issue-a-dma-from-a-pcie-function"><a href="#issue-a-dma-from-a-pcie-function">Issue a DMA from a PCIe function</a></h2>
+<p>The <code>pcie-dma-read</code> and <code>pcie-dma-write</code> commands exist on all PCIe functions
+(banks that have directly or indirectly instantiated the
+<a href="common.html#config_bank"><code>config_bank</code></a> template). These commands can be used
+to trigger an upstream PCIe Memory request from the perspective of the function
+that these commands were invoked from.</p>
+<p>Details regarding how to use the command can be found
+<a href="../rm-base/rm-cmd-pcie_function_info.pcie-dma-read.html#pcie_function_info.pcie-dma-read">here</a>
+and
+<a href="../rm-base/rm-cmd-pcie_function_info.pcie-dma-write.html#pcie_function_info.pcie-dma-write">here</a>.</p>
+
+<div class="chain">
+<a href="reset.html">Reset templates</a>
+<a href="migration.html">Migrating From the Legacy PCI Library</a>
+</div>

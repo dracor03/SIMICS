@@ -1,0 +1,322 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample_802_15_4_transceiver</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample-x86-isa-extension.html">sample-x86-isa-extension</a>
+<a href="rm-class-sample_device_cxx_after.html">sample_device_cxx_after</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample_802_15_4_transceiver"><a href="#sample_802_15_4_transceiver">sample_802_15_4_transceiver</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+a sample IEEE 802.15.4 transceiver
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, ieee_802_15_4_receiver
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:contention_target-optional"><a href="#dt:contention_target-optional">contention_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: uint64_state
+</dd>
+<dt id="dt:ep-optional"><a href="#dt:ep-optional">ep (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: ieee_802_15_4_link
+</dd>
+<dt id="dt:id_target-optional"><a href="#dt:id_target-optional">id_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: uint64_state
+</dd>
+<dt id="dt:pkt_lost_target-optional"><a href="#dt:pkt_lost_target-optional">pkt_lost_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: uint64_state
+</dd>
+<dt id="dt:pkt_recv_target-optional"><a href="#dt:pkt_recv_target-optional">pkt_recv_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: uint64_state
+</dd>
+<dt id="dt:pkt_sent_target-optional"><a href="#dt:pkt_sent_target-optional">pkt_sent_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: uint64_state
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-regs"><a href="#dt:bank-regs">bank.regs</a></dt>
+<dd>
+<a href="rm-class-sample_802_15_4_transceiver.html#sample_802_15_4_transceiver.regs">sample_802_15_4_transceiver.regs</a>
+</dd>
+<dt id="dt:port-reset"><a href="#dt:port-reset">port.reset</a></dt>
+<dd>
+<a href="rm-class-sample_802_15_4_transceiver.html#sample_802_15_4_transceiver.reset">sample_802_15_4_transceiver.reset</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.rm-rssi.html">rm-rssi</a>
+ – remove RSSI value</li>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.set-contention-ratio.html">set-contention-ratio</a>
+ – set contention-ratio</li>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.set-rssi.html">set-rssi</a>
+ – set RSSI value</li>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.set-rssi-always-drop.html">set-rssi-always-drop</a>
+ – set rssi-always-drop</li>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.set-rssi-random-drop.html">set-rssi-random-drop</a>
+ – set rssi-random-drop</li>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.set-rssi-random-drop-ratio.html">set-rssi-random-drop-ratio</a>
+ – set rssi-random-drop-ratio</li>
+<li>
+<a href="rm-cmd-sample_802_15_4_transceiver.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:channel_num"><a href="#dt:channel_num">
+<i>channel_num</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The channel number.</dd>
+<dt id="dt:channel_page"><a href="#dt:channel_page">
+<i>channel_page</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The channel page.</dd>
+<dt id="dt:contention_count"><a href="#dt:contention_count">
+<i>contention_count</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Contention failure times.</dd>
+<dt id="dt:contention_target"><a href="#dt:contention_target">
+<i>contention_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The NumberOutput for contention times.
+<p>
+Required interfaces: <tt>uint64_state</tt>.</p></dd>
+<dt id="dt:crc"><a href="#dt:crc">
+<i>crc</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The CRC status.</dd>
+<dt id="dt:ep"><a href="#dt:ep">
+<i>ep</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The endpoint that the device will be connected to.
+<p>
+Required interfaces: <tt>ieee_802_15_4_link</tt>.</p></dd>
+<dt id="dt:id"><a href="#dt:id">
+<i>id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>node id</dd>
+<dt id="dt:id_target"><a href="#dt:id_target">
+<i>id_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The NumberOutput for ID.
+<p>
+Required interfaces: <tt>uint64_state</tt>.</p></dd>
+<dt id="dt:lost_frames_count"><a href="#dt:lost_frames_count">
+<i>lost_frames_count</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The number of lost frames.</dd>
+<dt id="dt:pkt_lost_target"><a href="#dt:pkt_lost_target">
+<i>pkt_lost_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The NumberOutput for lost packets.
+<p>
+Required interfaces: <tt>uint64_state</tt>.</p></dd>
+<dt id="dt:pkt_recv_target"><a href="#dt:pkt_recv_target">
+<i>pkt_recv_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The NumberOutput for received packets.
+<p>
+Required interfaces: <tt>uint64_state</tt>.</p></dd>
+<dt id="dt:pkt_sent_target"><a href="#dt:pkt_sent_target">
+<i>pkt_sent_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The NumberOutput for sent packets.
+<p>
+Required interfaces: <tt>uint64_state</tt>.</p></dd>
+<dt id="dt:received_frames_count"><a href="#dt:received_frames_count">
+<i>received_frames_count</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The number of received frames.</dd>
+<dt id="dt:sent_frames_count"><a href="#dt:sent_frames_count">
+<i>sent_frames_count</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The number of sent frames.</dd>
+<dt id="dt:tx_buffer"><a href="#dt:tx_buffer">
+<i>tx_buffer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>A buffer for transmit FIFO.</dd>
+<dt id="dt:tx_buffer_pos"><a href="#dt:tx_buffer_pos">
+<i>tx_buffer_pos</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The next pos to fill in the buffer.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-802-15-4-transceiver.html">sample-802-15-4-transceiver</a>
+</section>
+<h2 id="sample_802_15_4_transceiver.regs"><a href="#sample_802_15_4_transceiver.regs">sample_802_15_4_transceiver.regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, int_register, io_memory, register_view, register_view_catalog
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+</section>
+<h2 id="sample_802_15_4_transceiver.reset"><a href="#sample_802_15_4_transceiver.reset">sample_802_15_4_transceiver.reset</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-sample-x86-isa-extension.html">sample-x86-isa-extension</a>
+<a href="rm-class-sample_device_cxx_after.html">sample_device_cxx_after</a>
+</div>

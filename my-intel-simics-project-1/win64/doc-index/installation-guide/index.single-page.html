@@ -1,0 +1,400 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Installation Guide</title>
+
+<section class="page" id="index.html"><h1 id="index.html:installation-guide"><a href="#index.html:installation-guide">Installation Guide</a></h1>
+</section><section class="page" id="introduction.html"><h1 id="introduction.html:introduction"><a href="#introduction.html:introduction">1 Introduction</a></h1>
+<p>This document describes how installations of Intel® Simics® Simulator (hereafter
+called “the simulator”) work and how to manage Intel Simics Projects, also
+called “user projects”. It identifies the hardware and software requirements for
+installing and running the simulator. It should be read by users doing
+installations on their own, and all administrators.</p>
+<p>For formatting and style, see <a href="../DOCUMENTATION/index.html"><em>Documentation
+Contents</em></a>.</p>
+</section><section class="page" id="hardware-and-software-requirements.html"><h1 id="hardware-and-software-requirements.html:hardware-and-software-requirements"><a href="#hardware-and-software-requirements.html:hardware-and-software-requirements">2 Hardware and Software Requirements</a></h1>
+<h2 id="hardware-and-software-requirements.html:hardware-requirements"><a href="#hardware-and-software-requirements.html:hardware-requirements">2.1 Hardware requirements</a></h2>
+<p>The minimum hardware requirements are:</p>
+<ul>
+<li>64-bit Intel® Architecture processor, either Haswell or newer performance core
+(“big core”) architecture, or Gracemont or newer efficiency core (Atom)
+architecture.</li>
+<li>VMP requires that Intel® Architecture (Intel® VT-x) is enabled in UEFI/BIOS
+and visible to the VMXMON kernel module. The XSAVE/XRSTOR instruction set
+must not be disabled by the host operating system.</li>
+<li>16 GB of RAM.</li>
+<li>8 GB of disk space.</li>
+</ul>
+<p>More RAM and/or disk is often necessary, depending on the requirements of the
+simulated machine.</p>
+<p>For best performance, we recommend:</p>
+<ul>
+<li>A host with at least 32 GB of RAM.</li>
+<li>A host processor with a high clock speed, 4GHz or more.</li>
+<li>At least two host cores per simulation running simultaneously (in
+particular, check processor allocations in containers and virtual
+machines).</li>
+<li>Since a more recent host processor will run faster than older generations, try
+to use the most modern Intel® Architecture processor possible.</li>
+<li>Use fast local storage for the simulator swap.</li>
+<li>Faster memory (RAM) can help, but is not as important as the processor
+core itself.</li>
+</ul>
+<p>For maximum performance when simulating Intel® Architecture targets, the Intel®
+Simics® Simulator can use virtualization (also known as VMP or
+VMXMON). The use of virtualization requires an Intel processor with
+Intel® Virtualization Technology (Intel® VT) for IA-32, Intel® 64 and
+Intel® Architecture (Intel® VT-x).</p>
+<ul>
+<li>The best performance from virtualization is obtained when the host
+is as close to the target as possible. In particular, simulating an
+Intel® Architecture Server is usually best done on an Intel®
+Architecture Server host of the most recent generation.</li>
+<li>Note that running Intel® Simics® simulations in a virtual machine
+typically prevents Intel® VT-x from being used or causes it to run
+with a significant reduction in speed. If isolation between
+simulator instances is desired, use containers on Linux instead as
+they normally allow the use of custom drivers on the host.</li>
+</ul>
+<h2 id="hardware-and-software-requirements.html:linux-64-bit"><a href="#hardware-and-software-requirements.html:linux-64-bit">2.2 Linux (64-bit)</a></h2>
+<p><strong>Run Time Requirements</strong></p>
+<p>A modern Linux distribution (<em><a href="#hardware-and-software-requirements.html:note1">1</a></em>), with at least</p>
+<ul>
+<li>GLIBC 2.22 or later.</li>
+<li>GTK 2.24 or later — for the GUI.</li>
+<li>Linux 4.12 or later and GCC 9.0 or later — for VMXMON driver compilation.</li>
+</ul>
+<p>Supported examples are Suse Linux Enterprise Server 12 (and newer) and Red Hat
+Enterprise Linux 8 (and newer).</p>
+<p>When running Simics with a user provided Python, or when using Simics as a
+Python module, Python version 3.10 or later is required.</p>
+<p><strong>Model Builder Requirements</strong></p>
+<ul>
+<li>GCC 6.3 compiler. Recommended to use GCC 15 or later (this is required to
+build distributed non-sample models).</li>
+<li>Typical GNU-based development environment, with GNU Make 4.1 or later.</li>
+<li>Optional: CMake version 3.4 or later.</li>
+<li>For SystemC*, see footnote <em>(<a href="#hardware-and-software-requirements.html:note2">2</a>)</em>.</li>
+</ul>
+<h2 id="hardware-and-software-requirements.html:microsoft-windows-64-bit"><a href="#hardware-and-software-requirements.html:microsoft-windows-64-bit">2.3 Microsoft Windows (64-bit)</a></h2>
+<p><strong>Run Time Requirements</strong></p>
+<ul>
+<li>Windows 10, Windows Server 2016, or later, for userspace components.</li>
+<li>Windows 10 or Windows Server build 2004 or later — for VMXMON driver operation.</li>
+<li>Visual Studio run-time libraries:
+<a href="https://aka.ms/vs/17/release/vc_redist.x64.exe" rel="noopener noreferrer" target="_top">https://aka.ms/vs/17/release/vc_redist.x64.exe</a>.</li>
+<li>Simics Base and the libraries it ships are built for the Windows Universal C
+Runtime (UCRT).</li>
+</ul>
+<p>When running Simics with a user provided Python, or when using Simics as a
+Python module, Python version 3.10 or later is required.</p>
+<p><strong>Model Builder Requirements</strong></p>
+<ul>
+<li>MinGW GCC 6.3 or Microsoft Visual Studio 2015 compiler <em>(<a href="#hardware-and-software-requirements.html:note3">3</a>)</em>.
+Recommended to use MinGW GCC 15 or later, built for UCRT and POSIX threads
+(this is required to build distributed non-sample models).</li>
+<li>MinGW development environment, with GNU Make 4.1 or later.</li>
+<li>Optional: CMake version 3.4 or later.</li>
+<li>For SystemC*, see footnote <em>(<a href="#hardware-and-software-requirements.html:note2">2</a>)</em>.</li>
+</ul>
+<br>
+<br>
+<h2 id="hardware-and-software-requirements.html:python-requirements"><a href="#hardware-and-software-requirements.html:python-requirements">2.4 Python requirements</a></h2>
+<p>Simics needs a Python installation to run. The minimum required Python
+version is 3.10 and it must have the <code>ctypes</code> module. A few Python
+packages are also required to run Simics. These are
+installed automatically when setting up a Simics project
+<em>(<a href="#hardware-and-software-requirements.html:note4">4</a>)</em>, into a project local standard Python virtual
+environment.</p>
+<hr>
+<ol>
+<li><span id="hardware-and-software-requirements.html:note1"></span>Installing additional packages may be necessary.</li>
+<li><span id="hardware-and-software-requirements.html:note2"></span>The Intel® Simics® SystemC* library has its own
+compiler requirements, see the <a href="../systemc-library/index.html"><em>SystemC*
+Library</em></a> programming guide for details.</li>
+<li><span id="hardware-and-software-requirements.html:note3"></span>The Microsoft Visual C++ compilers are only supported
+for C++ modules.</li>
+<li><span id="hardware-and-software-requirements.html:note4"></span>Setting up a project using <code>project-setup</code>
+and <code>addon-manager</code> does not require any extra Python packages.</li>
+</ol>
+</section><section class="page" id="installation.html"><h1 id="installation.html:installing-packages"><a href="#installation.html:installing-packages">3 Installing Packages</a></h1>
+<p>As a customer you should have received instructions that describe which packages
+to install and where to find them. If this is not the case, contact your
+provider to obtain this information.</p>
+<p>For the installation, use the Intel® Simics® Package Manager (ISPM). ISPM can be
+used to check for updated packages, download and install/uninstall, and manage
+Intel Simics Projects, also called “user projects”. It supports both command
+line (batch) mode and GUI mode.</p>
+<p>The simulator is delivered in <em>packages</em>, each one containing different parts of
+the functionality. There is a <em>Simics Base</em> package and several add-on packages.
+The most common packages are:</p>
+<ul>
+<li>The <em>Simics Base</em> package which provides the simulation engine and the user
+interface, as well as a library of standard models.</li>
+<li>Add-on packages, one for each virtual platform, usually containing CPU cores
+and various devices. The virtual platform is the simulation platform and the
+model of the physical target hardware that is being simulated.</li>
+<li>The <em>Quick-Start Platform for x86</em> (QSP-x86) add-on package is meant for
+training, application development, demos, etc.</li>
+</ul>
+<p>Once ISPM has installed Simics Base and one or more platform packages it can
+create user projects. A user project is a directory for adding user files and
+developing simulation models, and is typically set up for a combination of a few
+packages of certain versions. Thus such projects enable users to work with
+different package combinations just by switching between projects.</p>
+<p>New users are suggested to study the <a href="../getting-started/index.html"><em>Getting
+Started</em></a> guide which describes how to launch the
+simulator and run the QSP-x86 platform.</p>
+<p>ISPM can, at any time, install more packages, other versions of already
+installed packages, or uninstall packages or versions no longer used.</p>
+<h2 id="installation.html:installing-vmp"><a href="#installation.html:installing-vmp">3.1 Installing VMP</a></h2>
+<p>VMP uses direct execution to simulate x86 systems at near native speed. A kernel
+module is needed to communicate directly with the host hardware, and installing
+the kernel module requires a separate step.</p>
+<p>The VMP feature requires that the host machine running the simulator has the
+Intel® Virtualization Technology (Intel® VT) for IA-32, Intel® 64, and that
+Intel® Architecture (Intel® VT-x) is enabled in the host machine firmware (the
+UEFI/BIOS) and visible to the VMXMON kernel module.</p>
+<p>For more information and known limitations, see <a href="../simics-user-guide/index.html"><em>Simics User’s
+Guide</em></a>, chapter “Simulation Performance”.</p>
+<h3 id="installation.html:linux"><a href="#installation.html:linux">3.1.1 Linux</a></h3>
+<p>Installing and managing VMP kernel modules requires sudo privileges. Installing
+will compile the kernel module and therefore also requires an environment to
+build kernel modules. Which packages you need for building kernel modules depend
+on the distribution of Linux that you are using, but at least for certain Red
+Hat based distributions you would need <code>gcc-c++</code>, <code>kernel-headers</code>, and
+<code>kernel-devel</code>. Change directory to the user project and run:</p>
+<pre><code>[project]$ bin/vmp-kernel-install
+</code></pre>
+<p>The script will compile and persistently install the kernel modules that are
+used by VMP. It will echo what needs to be done, which involves running scripts
+in the <code>[simics]/vmxmon/scripts/</code> directory.</p>
+<p>Disable VMP temporarily by running the <code>bin/vmp-kernel-unload</code> script, and
+enable VMP with the <code>bin/vmp-kernel-load</code> script. Permanently uninstall VMP from
+your host by running the <code>bin/vmp-kernel-uninstall</code> script.</p>
+<p>If the installation is read-only, or if you for some other reason want to have
+the built VMP artifacts outside of the installation, you can give a directory to
+the relevant VMP scripts, for example:</p>
+<pre><code>[project]$ bin/vmp-kernel-install /somewhere/directory
+[project]$ bin/vmp-kernel-load /somewhere/directory
+</code></pre>
+<h3 id="installation.html:windows"><a href="#installation.html:windows">3.1.2 Windows</a></h3>
+<p>The kernel module can be loaded and unloaded by running the
+<code>bin\vmp-kernel-load.bat</code> and <code>bin\vmp-kernel-unload.bat</code> scripts, respectively,
+as administrator. To do that, open a command shell as administrator and run:</p>
+<pre><code>[project]&gt; bin\vmp-kernel-load.bat
+</code></pre>
+<p>Another way to perform the same action would be to right-click on
+<code>vmp-kernel-load.bat</code> and select run as administrator.</p>
+<p>The <code>/AUTO</code> and <code>/DEMAND</code> options select the start option for the VMP service.
+With <code>/AUTO</code> (default), the service will be available after restart, whereas
+<code>/DEMAND</code> makes the service available just until shutdown or reboot, and then
+VMP has to be loaded again when needed.</p>
+<p>If the script fails, see the Windows event log for more information. The most
+common reason is that Intel® VT-x technology or the NX feature is not enabled in
+the UEFI/BIOS. The kernel module will also fail to load if the Hyper-V feature
+is enabled.</p>
+</section><section class="page" id="upgrading-major-versions.html"><h1 id="upgrading-major-versions.html:upgrading-major-versions"><a href="#upgrading-major-versions.html:upgrading-major-versions">4 Upgrading Major Versions</a></h1>
+<h2 id="upgrading-major-versions.html:upgrading-from-version-4-8-5-and-6"><a href="#upgrading-major-versions.html:upgrading-from-version-4-8-5-and-6">4.1 Upgrading from Version 4.8, 5, and 6</a></h2>
+<p>Intel® Simics® Simulator 7 is binary compatible with recent models from version
+6 but it is not directly compatible with either version 4.8 or 5. However, the
+simulator supports the same structure of installation and multi-user
+configuration, so upgrading should be simple.</p>
+<p>For version 4.8, select the 4.8 API to get access to deprecated parts of the
+API. This is described in the <a href="../simics-migration-guide/index.html"><em>Simics Migration
+Guide</em></a>.</p>
+<p>For both version 4.8 and 5, some Python source code may have to be updated
+before recompiling.</p>
+<h2 id="upgrading-major-versions.html:upgrading-minor-7-releases"><a href="#upgrading-major-versions.html:upgrading-minor-7-releases">4.2 Upgrading Minor 7 Releases</a></h2>
+<p>Version 7 releases are binary compatible, so nothing special
+needs to be done when upgrading. Unless specifically mentioned in their <em>Release
+Notes</em>, add-on packages should work with any installation of Simics Base,
+version 7. A more detailed description of compatibility
+issues for user-created modules is available in the <a href="../simics-migration-guide/index.html"><em>Simics Migration
+Guide</em></a>.</p>
+</section><section class="page" id="advanced-installation.html"><h1 id="advanced-installation.html:advanced-installation-options"><a href="#advanced-installation.html:advanced-installation-options">5 Advanced Installation Options</a></h1>
+<p>This section provides additional information for users who need deeper
+information about some issues.</p>
+<h2 id="advanced-installation.html:manual-package-management"><a href="#advanced-installation.html:manual-package-management">5.1 Manual Package Management</a></h2>
+<p>The Intel® Simics® Package Manager (ISPM) works well for many advanced use
+cases. However, sometimes it is necessary to use the <code>addon-manager</code> or the
+<code>project-setup</code> programs.</p>
+<blockquote class="markdown-alert-note">
+<p>The examples are run on Linux but everything works the same on Windows, except
+file paths and file suffixes.</p>
+</blockquote>
+<p>Packages are <em>not</em> installed on top of any other package. Instead each package,
+and different versions of it, stay in separate directories. Each user project is
+bound to a particular installation of Simics Base, and it keeps its own list of
+paths to selected add-on packages that makes them available to the simulation
+engine at run-time. To manually configure this list or bind to another
+installation of Simics Base, use the <code>addon-manager</code> and <code>project-setup</code>
+programs.</p>
+<p>Here are a few examples of what those programs can do:</p>
+<h3 id="advanced-installation.html:listing-add-on-packages"><a href="#advanced-installation.html:listing-add-on-packages">5.1.1 Listing Add-on Packages</a></h3>
+<p>This example will list the add-on packages configured for the particular user
+project.</p>
+<pre><code>[project]$ bin/addon-manager
+=== Using the package list in project ([project]) ===
+
+Configured add-on packages:
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+</code></pre>
+<p>If there are any invalid entries (their paths do not exist anymore, or the
+necessary information files are invalid), the <code>addon-manager</code> will suggest
+removing them right away.</p>
+<h3 id="advanced-installation.html:adding-add-on-packages"><a href="#advanced-installation.html:adding-add-on-packages">5.1.2 Adding Add-on Packages</a></h3>
+<p>This example will add a package to the list for the particular user project.</p>
+<pre><code>[project]$ bin/addon-manager -s [simics]/simics-gdb-7.0.0
+
+...
+Configured add-on packages:
+   QSP-x86  7.0.0   ../simics-qsp-x86-7.0.0
+
+The following operations will be performed:
+   -&gt; Add  GDB  7.0.0  ../simics-gdb-7.0.0
+
+New package list:
+   GDB      7.0.0  ../simics-gdb-7.0.0
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+
+Do you want to update the package list? (y/n) [y] &lt;ENTER&gt;
+Package list updated
+Do you want to update the project? (y/n) [y] &lt;ENTER&gt;
+Project updated successfully
+</code></pre>
+<h3 id="advanced-installation.html:removing-add-on-packages"><a href="#advanced-installation.html:removing-add-on-packages">5.1.3 Removing Add-on Packages</a></h3>
+<p>This example will remove an add-on package from the list for the particular user
+project.</p>
+<pre><code>[project]$ bin/addon-manager -d ../simics-gdb-7.0.0/
+
+...
+Configured add-on packages:
+   GDB      7.0.0  ../simics-gdb-7.0.0
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+
+The following operations will be performed:
+   -&gt; Remove  GDB 7.0.0  ../simics-gdb-7.0.0
+
+New package list:
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+
+Do you want to update the package list? (y/n) [y] &lt;ENTER&gt;
+...
+</code></pre>
+<h3 id="advanced-installation.html:upgrade-version-of-simics-base"><a href="#advanced-installation.html:upgrade-version-of-simics-base">5.1.4 Upgrade Version of Simics Base</a></h3>
+<p>To manually change which installation of Simics Base a user project is bound to,
+use the <code>project-setup</code> program of the installation to bind to.</p>
+<pre><code>[project]$ [simics]/bin/project-setup .
+Project-local package list updated successfully.
+Project updated successfully
+</code></pre>
+<p>The program will save any edited files it wants to update into the project’s
+<code>.backup</code> directory.</p>
+<p>When building custom modules or extensions on Windows, <code>bin\make.bat</code> must be
+setup to find the executables of MinGW. If needed it can be updated by using
+<code>project-setup</code> with the <em>–mingw-dir</em> option.</p>
+<br>
+<p>For more options and information about the <code>addon-manager</code> and <code>project-setup</code>
+programs, see the <a href="../rm-base/command-line-tools-and-programs.html"><em>Simics Reference
+Manual</em></a>.</p>
+<h2 id="advanced-installation.html:multi-user-installations"><a href="#advanced-installation.html:multi-user-installations">5.2 Multi-user Installations</a></h2>
+<h3 id="advanced-installation.html:shared-installations"><a href="#advanced-installation.html:shared-installations">5.2.1 Shared Installations</a></h3>
+<p>By default, the simulator is organized so that the installed packages can be
+left read-only in a common location accessible to all users. And users create
+custom Intel® Simics® project areas, as described in our manuals.</p>
+<h3 id="advanced-installation.html:shared-configuration"><a href="#advanced-installation.html:shared-configuration">5.2.2 Shared Configuration</a></h3>
+<p>Historically each installation of Simics Base kept its own list of paths to all
+installed add-on packages. Some organizations tweaked the list to create a
+“shared configuration” of selected add-on packages.</p>
+<p>It is now recommended to use ISPM and instead share <em>manifest files</em> with the
+users.</p>
+<p>However, if necessary an installation of Simics Base can be configured with
+specific add-on packages in the same way as manually managing user projects as
+described in a previous section of this chapter. For more information, see about
+the <code>addon-manager</code> in the <a href="../rm-base/addon-manager.html"><em>Simics Reference
+Manual</em></a>.</p>
+<h2 id="advanced-installation.html:third-party-products-windows"><a href="#advanced-installation.html:third-party-products-windows">5.3 Third-Party Products (Windows)</a></h2>
+<p>On Windows some functionality of the simulator requires support from third-party
+products. This section describes those products.</p>
+<dl>
+<dt id="advanced-installation.html:dt:openvpn-tap-driver"><a href="#advanced-installation.html:dt:openvpn-tap-driver">OpenVPN TAP driver</a></dt>
+<dd>
+<p>The port-forwarding kind of real
+network connection is included with the simulator. However, to access a real
+network using bridges or host connections the OpenVPN TAP driver is required.</p>
+<p>The OpenVPN TAP driver can be downloaded from
+<a href="https://build.openvpn.net/downloads/releases/" rel="noopener noreferrer" target="_top">build.openvpn.net/downloads/releases/</a>.</p>
+<p>To learn more about the different real network connection types available, see
+the <a href="../ethernet-networking/index.html"><em>Ethernet Networking</em></a> technology guide.</p>
+</dd>
+<dt id="advanced-installation.html:dt:mingw-w64"><a href="#advanced-installation.html:dt:mingw-w64">MinGW-w64</a></dt>
+<dd>
+<p>If you plan to create models or extensions
+for the simulator, you will need the MinGW tools for compilation.</p>
+<p>MinGW-w64 provides a GCC compiler and the make programs that are needed to
+compile modules on Windows. Download the version for the <em>UCRT runtime</em> with
+<em>POSIX threads</em> that is provided at <a href="https://winlibs.com" rel="noopener noreferrer" target="_top">winlibs.com</a>.</p>
+<p>Setting up a user project will search in <code>C:\</code> and in the parent folder of the
+Simics Base installation for a directory named <code>mingw64</code>, which must contain the
+executables.</p>
+</dd>
+<dt id="advanced-installation.html:dt:virtual-serial-ports"><a href="#advanced-installation.html:dt:virtual-serial-ports">Virtual Serial Ports</a></dt>
+<dd>
+<p>To connect a
+<code>host-serial-console</code> to a virtual serial (COM) port, that port must have been
+created in advance. Use any software that can set up virtual COM ports.</p>
+</dd>
+</dl>
+</section><section class="page" id="open-source-software.html"><h1 id="open-source-software.html:open-source-software"><a href="#open-source-software.html:open-source-software">6 Open Source Software</a></h1>
+<p>All source code for “copyleft” open source software used by, or with, the
+simulator is bundled with the same package as the binary is distributed in.</p>
+</section><section class="page" id="security-considerations.html"><h1 id="security-considerations.html:security-considerations"><a href="#security-considerations.html:security-considerations">7 Security Considerations</a></h1>
+<p>The simulator runs as a user application with standard privileges and is secure
+at its core. However, it has some features that present potential
+vulnerabilities which are good to be aware of before enabling them. None of them
+are enabled by default.</p>
+<ul>
+<li>Access to the command line (CLI) provides access to arbitrary shell commands
+on the simulation host (as the user running the simulator). Hence usage of
+<strong>telnet-frontend</strong> potentially opens up shell access to the simulation host
+to anyone with network access to it.</li>
+<li>Similarly, access to the simulated target system may potentially be used to
+obtain access to the host (as the user running the simulator). The features
+which provide communication between target and the simulator, and which
+therefore could introduce this type of risk, are <strong>SimicsFS</strong>, <strong>Simics
+Agent</strong>, the host serial connections in the <strong>host-serial-console</strong> and
+<strong>textcon</strong> modules, and the debugging functionality in <strong>tcf-agent</strong>. In
+general, bugs in simulation modules can lead to crashes or similar that
+result in access to the simulation host.</li>
+<li>Some features may provide access to the simulated target system to users who
+have network access to the simulation host. By the previous point, this may
+be exploited to access the simulation host. These features are the VNC server
+in the <strong>graphcon</strong> module, the telnet servers in the <strong>telnet-console</strong> and
+<strong>textcon</strong> modules, the <strong>gdb-remote</strong> module, distributed simulation and
+all types of real network connections using the <strong>real-network</strong> module.</li>
+<li>The connection modules mentioned above can be configured to use restrictive
+connection types, domain sockets on Linux and named pipes on Windows, that do
+not make the simulation host accessible over the network.</li>
+<li>Real network connections in particular should be used with care, as they also
+allow the target system to initiate connections to the network that the
+simulation host is connected to. This can potentially expose information
+about the target. Moreover, the <strong>Ethernet bridging</strong> type of real network
+connection makes it possible for users of the simulator, as well as software
+at the simulated target machine, to access raw Ethernet frames on the local
+network of the host. In particular, do not use the network services of the
+simulator (the <strong>service-node</strong>) when bridging networks, as this exposes
+those services to the host network, which is both a security concern and can
+also lead to conflicts with other similar services on the network. Also,
+Ethernet bridging uses TAP which requires administrator privileges to setup,
+an additional risk.</li>
+<li>It is recommended to only use any of the features mentioned above when the
+simulation host is on a secure network.</li>
+<li><strong>VMP</strong> is a kernel module that must be installed with administrator
+privileges and that runs in supervisor mode. Hence, bugs in processor models
+can potentially crash the host when running in VMP mode.</li>
+</ul>
+<p>Add-on packages often include software intended to run in the simulated target
+systems. This software is supplied for demonstration and training purposes only,
+and is not intended to be used as part of production setups.</p>
+</section>

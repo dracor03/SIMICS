@@ -1,0 +1,128 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1 Simics Products</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="index.html">Product Family Overview</a>
+<a href="standard-limitations.html">2 Standard Limitations</a>
+</div>
+<div class="path">
+<a href="index.html">Product Family Overview</a>
+&nbsp;/&nbsp;</div><h1 id="simics-products"><a href="#simics-products">1 Simics Products</a></h1>
+<p>The Simics product family is made up of multiple products and optional add-on
+products. For clarity the products are grouped into tools products and model
+products. This section defines what these products are and how they interact
+with each other. Please contact your Simics provider for the licensing terms of
+each product.</p>
+<p>Features presented in this document may not always be supported for all
+architectures, for all target software and on all hosts.</p>
+<h2 id="simics-tool-products"><a href="#simics-tool-products">1.1 Simics Tool Products</a></h2>
+<h3 id="simics"><a href="#simics">1.1.1 Simics</a></h3>
+<p>Simics is the primary product in the family. It provides the core simulation
+engine and user interface. With Simics, users can set up, run, control and
+inspect the virtual target system. User-written models and user-written
+extensions and fault injectors can run in Simics without those products
+available or installed.</p>
+<p>The primary functions of Simics are the simulator itself with hardware-level
+inspection capabilities, the ability to save and restore checkpoints,
+record-replay functionality, snapshots, breakpoints, scripting, host connections
+(aka real networking), and simulation performance monitoring. Checkpoints
+contain the complete state of the system, thus when you save a checkpoint you
+are saving the entire state of the system, including the processors, devices,
+and all the software. When you restore a checkpoint, you begin executing from
+the exact place where you stopped executing when you saved that checkpoint.</p>
+<p>Simics offers a fully featured command line which enables scripting of all
+Simics commands in CLI and Python. Simics also supports non-intrusive platform
+level debug or standalone debuggers such as the Intel* System Debugger, and the
+GNU Debugger (GDB) which connect to agents running on the virtual board to
+support application debug.</p>
+<h3 id="simics-analyzer"><a href="#simics-analyzer">1.1.2 Simics Analyzer</a></h3>
+<p>Simics Analyzer is a part of the Simics product which provides analysis and
+debugging capabilities for software applications for large distributed and
+heterogeneous systems as well as less complex systems. Information is primarily
+accessed via GUI views, as well as being accessible from the Simics
+command-line. The primary functionalities of Analyzer are Source Code Debugger,
+OS Awareness, Full System Process List, System Execution Time Line, and Code
+Coverage. More details can be found in the Feature List document. Simics
+Analyzer is a system-level debugger that provides debug across all targets in a
+Simics session. Simics Analyzer can debug heterogeneous systems from a single
+debug view, including different target architectures and operating systems.</p>
+<p>While Simics provides a hardware-centric view of the system, Simics Analyzer
+extends this to a software-centric view. At its most basic Simics Analyzer
+extends the assembly level debug of Simics with stack frames and local
+variables. On supported architectures (ARM, Intel, PPC, and MIPS) this can be
+extended to source level debug for single context systems such as boot code and
+OS kernels. Source level debug can be extended to multi-context systems through
+the use of OS awareness. OS awareness, which must be enabled for each
+combination of Operating System and CPU type, is provided for most Wind River
+Operating Systems and Linux with many Simics Model Products, see the associated
+Target Guide for supported combinations. Users can enable OS awareness for
+additional Operating Systems using Simics Model Builder. Simics Analyzer
+requires no instrumentation or other changes to the target code.</p>
+<h3 id="simics-model-builder"><a href="#simics-model-builder">1.1.3 Simics Model Builder</a></h3>
+<p>Simics Model Builder is an add-on product in the Simics Family. Simics Model
+Builder allows users to create and modify the device models, virtual boards, and
+systems that Simics runs. Additionally it lets users adapt and extend Simics
+with new capabilities, allowing for customization, expanded use cases and
+integration into other tooling environments.</p>
+<p>Simics Model Builder provides access to the Simics API documentation and
+frameworks needed to build device models, components, and system configurations
+in DML, C, C++, SystemC, Python, and any other language that can be compiled to
+a C-language API. The API includes frameworks for common types of devices such
+as PCI, I2C, and Ethernet. The Device Modeling Language (DML) allows device
+models to be created quickly and efficiently by providing appropriate constructs
+for common modeling tasks such as register banks, bit fields, and endianness.
+Additionally, Simics Model Builder includes a kit for creating target system
+panels.</p>
+<p>Simics Model Builder includes a SystemC Library that provides the ability to use
+SystemC TLM models within Simics, and to build SystemC models into Simics
+modules that can be run in Simics. SystemC Library-based models support most
+Simics CLI and GUI inspection features in the same way as models written
+directly for Simics. The SystemC Library supports SystemC 2.3, TLM-2.0, and both
+AT and LT-style SystemC models.</p>
+<h4 id="systemc-library-requirements"><a href="#systemc-library-requirements">1.1.3.1 SystemC Library Requirements</a></h4>
+<p>Simics supports running SystemC models, but because C++ does not have a
+standardized ABI, all SystemC Library modules as well as all SystemC models to
+be run inside Simics need to be compiled with exactly the same compiler,
+compiler version, and compiler flags. It works perfectly fine to include binary
+SystemC models as long as they are Accellera compliant and the compiler
+guidelines just outlined are followed.</p>
+<p>Simics does not guarantee that the Simics SystemC Library API will not change
+between releases. Simics’ SystemC support is still being gradually improved and
+a completely frozen API would limit what improvements can be made. A lot of
+effort will, however, be made to avoid changing the API. If a change is needed,
+the end-user effort will be minimized.</p>
+<h2 id="simics-model-products"><a href="#simics-model-products">1.2 Simics Model Products</a></h2>
+<p>Simics Virtual Platforms model the functionality of real or imagined hardware
+and are required for useful operation of a Simics Tools product. A Simics
+Virtual Platform can be as simple or complex as the physical target system is.
+It can contain anything from a simple CPU and RAM, to a complex single board
+computer containing a multi-core processor, to a personal computer with
+graphics, disk drives, and mouse, or even to a complex network of computers and
+systems. Simics Virtual Platforms can connect to other Simics Virtual Platforms
+or to the real world via networks like Ethernet.</p>
+<p>Simics Virtual Platforms are comprised of a combination of model Components,
+Processor/SoCs models, and device models. Simics Virtual Platforms may not model
+all possible functionality of the hardware as models are frequently written to
+support the needs of a specific Operating System or set of Operating Systems.
+Simics Virtual Platforms are often referred to as “targets”.</p>
+<h3 id="simics-quick-start-platform"><a href="#simics-quick-start-platform">1.2.1 Simics Quick-Start Platform</a></h3>
+<p>A Simics Quick-Start Platform or QSP includes a model of a generic machine with
+a real core. The point of the QSP is to enable basic simulation of code that is
+Architecture and OS dependent, but BSP independent. The set of devices provides
+what an OS requires to execute: interrupt controller, system controller, timers,
+memory, serial connection, Ethernet, real-time clock, disk and flash. The
+devices are PC compatible with x86 QSP. The QSPs include board support packages
+(BSP) that enable operating systems to run on the QSP.</p>
+<h3 id="simics-platforms"><a href="#simics-platforms">1.2.2 Simics Platforms</a></h3>
+<p>A Simics Platform (Model Library) is an add-on product to Simics that provides a
+collection of device models that a user can add to a Simics Virtual Platform
+using Simics Model Builder.</p>
+
+<div class="chain">
+<a href="index.html">Product Family Overview</a>
+<a href="standard-limitations.html">2 Standard Limitations</a>
+</div>

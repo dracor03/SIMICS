@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;bp_manager&gt;.list</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp_manager.ignore-count.html">&lt;bp_manager&gt;.ignore-count</a>
+<a href="rm-cmd-bp_manager.list-types.html">&lt;bp_manager&gt;.list-types</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp_manager.list"></a>
+<h1 id="bp_manager.list"><a href="#bp_manager.list">&lt;bp_manager&gt;.list</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp_manager&gt;.list</b> [<i>"provider"</i>] [<i>"action"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Lists all breakpoints known by the breakpoint manager. For each breakpoint you get its id, and a short summary.
+<p>
+To filter the list, use <i>provider</i> to specify the breakpoint type provider (for example <tt>bp.memory</tt>), and <i>action</i> to filter the type of action for the break command (for example <tt>trace</tt>).
+</p><p>
+To get more details about a breakpoint use the <code>bp.show</code> command.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>bp.show
+</section>
+<div class="chain">
+<a href="rm-cmd-bp_manager.ignore-count.html">&lt;bp_manager&gt;.ignore-count</a>
+<a href="rm-cmd-bp_manager.list-types.html">&lt;bp_manager&gt;.list-types</a>
+</div>

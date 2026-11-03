@@ -1,0 +1,90 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3.4 Selecting Host Ethernet Interface</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="real-network-access.html">3.3 Accessing Host Ethernet Interfaces</a>
+<a href="real-network-performance.html">3.5 Performance</a>
+</div>
+<div class="path">
+<a href="index.html">Ethernet Networking Technology Guide</a>
+&nbsp;/&nbsp;
+<a href="real-network.html">3 Connecting to a Real Network</a>
+&nbsp;/&nbsp;</div><h1 id="selecting-host-ethernet-interface"><a href="#selecting-host-ethernet-interface">3.4 Selecting Host Ethernet Interface</a></h1>
+<p>When connecting to a real network on a host with multiple network interfaces
+installed, Simics will select one of them for the real network connection. If
+the default selection is incorrect, all commands have an <em>interface</em> argument to
+select the desired interface. The interface name expected by the <em>interface</em>
+argument is the ordinary interface name used by the host operating system. The
+next two sections describe how to obtain the names of the simulation host’s
+network interfaces for Linux and Windows hosts.</p>
+<h2 id="linux"><a href="#linux">3.4.1 Linux</a></h2>
+<p>All network interfaces are listed by <code>/sbin/ifconfig -a</code> on the simulation host:</p>
+<pre><code class="language-simics">computer$ <strong>/sbin/ifconfig -a</strong>
+eth0      Link encap:Ethernet  HWaddr 00:10:18:0A:DE:EF
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Interrupt:21
+
+eth1      Link encap:Ethernet  HWaddr 00:0C:F1:D1:FF:09
+          inet addr:10.0.0.140  Bcast:10.0.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:671467287 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:647635204 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:3725791210 (3553.1 Mb)  TX bytes:217046405 (206.9 Mb)
+          Interrupt:20 Base address:0xdf40 Memory:fceef000-fceef038
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:24929 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:24929 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:4164218 (3.9 Mb)  TX bytes:4164218 (3.9 Mb)
+</code></pre>
+<p>For example, to use the first interface listed above, specify <code>eth0</code> as the
+<em>interface</em> argument.</p>
+<h2 id="windows"><a href="#windows">3.4.2 Windows</a></h2>
+<p>The interface name expected by the <em>interface</em> argument is the ordinary
+interface name used by the host operating system. All interfaces of the host are
+listed in the <em>Network Connections</em> folder in the <em>Control Panel</em>;
+alternatively, <code>ipconfig</code> can be used in a command prompt on the simulation
+host:</p>
+<pre><code class="language-simics">C:\&gt; <strong>ipconfig</strong>
+
+Windows IP Configuration
+
+
+Ethernet adapter Local Area Connection:
+
+   Connection-specific DNS Suffix  . :
+   IP Address. . . . . . . . . . . . : 10.0.0.191
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 10.0.0.3
+
+Ethernet adapter LAB:
+
+   Connection-specific DNS Suffix  . :
+   IP Address. . . . . . . . . . . . : 10.10.0.1
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . :
+
+Ethernet adapter TAP:
+
+   Media State . . . . . . . . . . . : Media disconnected
+</code></pre>
+<p>For example, to use the first interface listed above, specify <em>“Local Area
+Connection”</em> as the <em>interface</em> argument. There is no need to specify the entire
+interface name: it is enough to specify a unique substring.</p>
+
+<div class="chain">
+<a href="real-network-access.html">3.3 Accessing Host Ethernet Interfaces</a>
+<a href="real-network-performance.html">3.5 Performance</a>
+</div>

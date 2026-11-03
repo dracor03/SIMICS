@@ -1,0 +1,56 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;tcf_exec_tracer&gt;.save</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-tcf_exec_tracer.properties.html">&lt;tcf_exec_tracer&gt;.properties</a>
+<a href="rm-cmd-tcf_exec_tracer.status.html">&lt;tcf_exec_tracer&gt;.status</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="tcf_exec_tracer.save"></a>
+<h1 id="tcf_exec_tracer.save"><a href="#tcf_exec_tracer.save">&lt;tcf_exec_tracer&gt;.save</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;tcf_exec_tracer&gt;.save</b> <i>file</i> [-overwrite] [-text-format] [<i>index-granularity</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command saves the collected traces to the file specified in <i>file</i>. If the file already exists, <tt>-overwrite</tt> must be used to overwrite the contents. The format is binary by default unless <tt>-text-format</tt> is set. If not traces are available, nothing will be saved. Available traces can be checked with tcf_exec_tracer.status.
+<p>
+When saving a binary trace file (not using <tt>-text-format</tt>), an index map file is created with the same name as the trace file but ending with <tt>.idx</tt> (for example <tt>trace1.bin.idx</tt>). The index map file contains entries that map CPU time and file offsets to specific trace lines, allowing selective decoding and faster seeking when analyzing large trace files offline.
+</p><p>
+The <i>index-granularity</i> parameter controls how many consecutive trace lines are represented by each index entry. The default value is 100000 (one entry per trace line). Higher values reduce index file size but decrease seek precision. For example, with <tt>index-granularity=10</tt>, each index entry covers 10 trace lines, reducing the index file size by approximately 90%.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-new-tcf-exec-tracer.html">new-tcf-exec-tracer</a>, 
+<a href="rm-cmd-tcf_exec_tracer.clear.html">&lt;tcf_exec_tracer&gt;.clear</a>, 
+<a href="rm-cmd-tcf_exec_tracer.delete.html">&lt;tcf_exec_tracer&gt;.delete</a>, 
+<a href="rm-cmd-tcf_exec_tracer.disable.html">&lt;tcf_exec_tracer&gt;.disable</a>, 
+<a href="rm-cmd-tcf_exec_tracer.enable.html">&lt;tcf_exec_tracer&gt;.enable</a>, 
+<a href="rm-cmd-tcf_exec_tracer.properties.html">&lt;tcf_exec_tracer&gt;.properties</a>, 
+<a href="rm-cmd-tcf_exec_tracer.status.html">&lt;tcf_exec_tracer&gt;.status</a>, 
+<a href="rm-cmd-tcf_exec_tracer_manager.delete.html">&lt;tcf_exec_tracer_manager&gt;.delete</a>, 
+<a href="rm-cmd-tcf_exec_tracer_manager.disable.html">&lt;tcf_exec_tracer_manager&gt;.disable</a>, 
+<a href="rm-cmd-tcf_exec_tracer_manager.enable.html">&lt;tcf_exec_tracer_manager&gt;.enable</a>, 
+<a href="rm-cmd-tcf_exec_tracer_manager.new.html">&lt;tcf_exec_tracer_manager&gt;.new</a>, 
+<a href="rm-cmd-tcf_exec_tracer_manager.status.html">&lt;tcf_exec_tracer_manager&gt;.status</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-tcf_exec_tracer.properties.html">&lt;tcf_exec_tracer&gt;.properties</a>
+<a href="rm-cmd-tcf_exec_tracer.status.html">&lt;tcf_exec_tracer&gt;.status</a>
+</div>

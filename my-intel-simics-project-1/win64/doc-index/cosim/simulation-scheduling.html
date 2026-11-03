@@ -1,0 +1,40 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Simulation Scheduling</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="cosimulator-examples.html">1 Processor Scheduling Examples</a>
+<a href="direct-access-to-memory.html">3 Direct Access to Memory</a>
+</div>
+<div class="path">
+<a href="index.html">Processor Model Integration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="simulation-scheduling"><a href="#simulation-scheduling">2 Simulation Scheduling</a></h1>
+<p>This chapter lists the interfaces used for customized simulation scheduling.</p>
+<h2 id="execute-interface"><a href="#execute-interface">2.1 Execute Interface</a></h2>
+<p>See <a href="../rm-api/model-to-simulator-interfaces.html#execute_interface_t"><code>execute</code></a> for the documentation of the interface.</p>
+<p>In figure <a class="reference" href="#execute_fig">4</a> there is an example call-graph of Simics core and processor scheduler communication.
+Simics posts events on the processor’s event queues to be triggered, for instance, at the end of the allowed time window.
+Simics then calls the <code>run</code> function in the <code>execute</code> interface and the processor starts executing instructions.
+The processor which implements the event queues will after a while execute an event callback for the event posted by the Simics core in one of the event queues.
+The Simics core handles the event which will trigger a stop request via the <code>stop</code> function.
+Note that not all events will trigger a stop request.
+Having received <code>stop</code>, the processor model must stop the simulation as soon as possible and return to the Simics core.
+This is typically done as soon as the currently executing instruction is committed.</p>
+<figure id="execute_fig">
+<p><img alt="" src="execute_scheduler.png"> </p><figcaption>Figure 4. An example of Simics core and scheduler communication.</figcaption><p></p>
+</figure>
+<h2 id="other-interfaces"><a href="#other-interfaces">2.2 Other Interfaces</a></h2>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#cell_inspection_interface_t"><code>cell_inspection</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#cycle_interface_t"><code>cycle</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#co_execute_interface_t"><code>co_execute</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#synchronous_mode_interface_t"><code>synchronous_mode</code></a></li>
+</ul>
+
+<div class="chain">
+<a href="cosimulator-examples.html">1 Processor Scheduling Examples</a>
+<a href="direct-access-to-memory.html">3 Direct Access to Memory</a>
+</div>

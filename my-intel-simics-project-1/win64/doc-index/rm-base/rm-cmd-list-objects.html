@@ -1,0 +1,69 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-objects</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-object-references.html">list-object-references</a>
+<a href="rm-cmd-list-packages.html">list-packages</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-objects"></a>
+<h1 id="list-objects"><a href="#list-objects">list-objects</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-objects</b> [<i>"class"</i>] [<i>namespace</i>] [<i>"substr"</i>] [<i>max-depth</i>] [-all] [-sort-by-classname] [-a] [-tree] [-class-desc] [-expand-all] [-with-class-name] [-local] [-show-port-objects] ([ <i>"iface"</i> ... ] | list of <i>"iface"</i>) ([ <i>"port"</i> ... ] | list of <i>"port"</i>) <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Lists configuration objects and the classes they belong to. With the <i>class</i>, <i>iface</i> and <i>port</i> arguments, you can restrict the listing to objects of a particular class, or to objects that implement particular interfaces. Notice, the <i>iface</i> argument must come last on the line.
+<p>
+By default, only the objects in the current namespace are listed (see the <code>change-namespace</code> command). The <i>namespace</i> argument can be used to override the current namespace.)
+</p><p>
+When the <i>namespace</i> argument is used, objects in standard sub-namespaces are always included, e.g. <tt>list-objects namespace=DEV</tt> will always include objects hierarchies rooted at <tt>DEV.bank</tt>, <tt>DEV.port</tt> and <tt>DEV.impl</tt>.
+</p><p>
+Objects of class <tt>index-map</tt> are only listed if specifically asked for, using the <i>class</i> argument.
+</p><p>
+If the optional <i>substr</i> argument is specified, only objects with a name matching this sub-string will be printed. The current namespace part of the object name will not be included in the name matched against.
+</p><p>
+The default is to list objects in the current namespace as well as namespaces below, i.e. list the whole tree rooted at the given namespace. Use the <tt>-local</tt> flag to only list the current namespace.
+</p><p>
+The <tt>-show-port-objects</tt> flag will include port objects in the result; this includes "port", "bank", and "impl" objects.
+</p><p>
+With the <tt>-all</tt> flag, all objects are listed, regardless of namespace. This implies the <tt>-show-port-objects</tt> flag.
+</p><p>
+By default objects are sorted by name. The <tt>-sort-by-classname</tt> flag sorts them by class name instead.
+</p><p>
+Component objects are printed first and then all other objects. Use the <tt>-a</tt> flag to mix all objects in the same list.
+</p><p>
+The <tt>-tree</tt> flag prints a tree of all the objects descending from the current namespace. If <tt>-all</tt> is given the tree will start from the root. Objects not belonging to any hierarchy will be put in the root node. Arrays of leaf objects will be summarized unless <tt>-expand-all</tt> is given. With the <tt>-with-class-name</tt> flag class names are added to all non port objects. The <i>max-depth</i> argument can be used to only include objects up to the given depth from the namespace root, for both the tree view and the default flat list view.
+</p><p>
+The <tt>-class-desc</tt> flag will include a short description in the result.
+</p><p>
+The <tt>port</tt> argument selects objects that have all the interfaces specified as port/bank. Writing <tt>list-objects port=signal</tt> will return <tt>obj.port/bank.RESET</tt> if <tt>RESET</tt> is type interface <tt>signal</tt>, as well as the root object <tt>obj</tt>.
+</p><p>
+The <code>list-objects</code> command returns a list of objects when used in an expression.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-change-namespace.html">change-namespace</a>, 
+<a href="rm-cmd-l.html">l</a>, 
+<a href="rm-cmd-ll.html">ll</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-object-references.html">list-object-references</a>
+<a href="rm-cmd-list-packages.html">list-packages</a>
+</div>

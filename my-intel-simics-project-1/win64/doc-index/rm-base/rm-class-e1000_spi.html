@@ -1,0 +1,298 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>e1000_spi</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-dynamic_link_connector.html">dynamic_link_connector</a>
+<a href="rm-class-echo.html">echo</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="e1000_spi"><a href="#e1000_spi">e1000_spi</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+SPI flash in Intel® E1000 GbE Controller.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, serial_peripheral_interface_master
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:spi_slave-required"><a href="#dt:spi_slave-required">spi_slave (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: serial_peripheral_interface_slave
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-gbe_regs"><a href="#dt:bank-gbe_regs">bank.gbe_regs</a></dt>
+<dd>
+<a href="rm-class-e1000_spi.html#e1000_spi.gbe_regs">e1000_spi.gbe_regs</a>
+</dd>
+<dt id="dt:bank-spi_regs"><a href="#dt:bank-spi_regs">bank.spi_regs</a></dt>
+<dd>
+<a href="rm-class-e1000_spi.html#e1000_spi.spi_regs">e1000_spi.spi_regs</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-e1000_spi.html#e1000_spi.HRESET">e1000_spi.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-e1000_spi.html#e1000_spi.SRESET">e1000_spi.SRESET</a>
+</dd>
+<dt id="dt:port-mem_bios"><a href="#dt:port-mem_bios">port.mem_bios</a></dt>
+<dd>
+<a href="rm-class-e1000_spi.html#e1000_spi.mem_bios">e1000_spi.mem_bios</a>
+</dd>
+<dt id="dt:port-mem_gbe"><a href="#dt:port-mem_gbe">port.mem_gbe</a></dt>
+<dd>
+<a href="rm-class-e1000_spi.html#e1000_spi.mem_gbe">e1000_spi.mem_gbe</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-e1000_spi.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-e1000_spi.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cur_master_idx"><a href="#dt:cur_master_idx">
+<i>cur_master_idx</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current master that using SPI bus lines</dd>
+<dt id="dt:desc_buffer"><a href="#dt:desc_buffer">
+<i>desc_buffer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Buffer for holding page program data</dd>
+<dt id="dt:mapped_access_buf"><a href="#dt:mapped_access_buf">
+<i>mapped_access_buf</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Buffer for direct memory access</dd>
+<dt id="dt:spi_slave"><a href="#dt:spi_slave">
+<i>spi_slave</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Connect to a SPI slave device
+<p>
+Required interfaces: <tt>serial_peripheral_interface_slave</tt>.</p></dd>
+<dt id="dt:x_state"><a href="#dt:x_state">
+<i>x_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Status of inner state-machine</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.intel-e1000.html">intel-e1000</a>
+</section>
+<h2 id="e1000_spi.HRESET"><a href="#e1000_spi.HRESET">e1000_spi.HRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="e1000_spi.SRESET"><a href="#e1000_spi.SRESET">e1000_spi.SRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="e1000_spi.gbe_regs"><a href="#e1000_spi.gbe_regs">e1000_spi.gbe_regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-4">
+<a href="#interfaces-implemented-4">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, int_register, io_memory, register_view, register_view_catalog
+<h2 id="notifiers-4">
+<a href="#notifiers-4">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-4"><a href="#dt:cell-change-4">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-4"><a href="#dt:object-delete-4">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-4"><a href="#dt:queue-change-4">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+</section>
+<h2 id="e1000_spi.mem_bios"><a href="#e1000_spi.mem_bios">e1000_spi.mem_bios</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-5">
+<a href="#interfaces-implemented-5">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory
+<h2 id="notifiers-5">
+<a href="#notifiers-5">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-5"><a href="#dt:cell-change-5">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-5"><a href="#dt:object-delete-5">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-5"><a href="#dt:queue-change-5">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="e1000_spi.mem_gbe"><a href="#e1000_spi.mem_gbe">e1000_spi.mem_gbe</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-6">
+<a href="#interfaces-implemented-6">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory
+<h2 id="notifiers-6">
+<a href="#notifiers-6">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-6"><a href="#dt:cell-change-6">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-6"><a href="#dt:object-delete-6">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-6"><a href="#dt:queue-change-6">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="e1000_spi.spi_regs"><a href="#e1000_spi.spi_regs">e1000_spi.spi_regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-7">
+<a href="#interfaces-implemented-7">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, int_register, io_memory, register_view, register_view_catalog
+<h2 id="notifiers-7">
+<a href="#notifiers-7">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-7"><a href="#dt:cell-change-7">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-7"><a href="#dt:object-delete-7">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-7"><a href="#dt:queue-change-7">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-2">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-2">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-2">
+<a href="#commands-for-interface-instrumentation_order-2">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+</section>
+<div class="chain">
+<a href="rm-class-dynamic_link_connector.html">dynamic_link_connector</a>
+<a href="rm-class-echo.html">echo</a>
+</div>

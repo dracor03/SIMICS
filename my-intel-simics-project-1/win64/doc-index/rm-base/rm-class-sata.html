@@ -1,0 +1,140 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sata</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample_timer_device.html">sample_timer_device</a>
+<a href="rm-class-sata-controller-connector.html">sata-controller-connector</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sata"><a href="#sata">sata</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The sata class implements the functionality of a SATA device that can be connected to a SATA controller .
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, sata
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sata.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sata.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:master"><a href="#dt:master">
+<i>master</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>IDE device. Must implement the ide-device interface.</dd>
+<dt id="dt:hba"><a href="#dt:hba">
+<i>hba</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Host bus adaptor. Must implement the sata interface.</dd>
+<dt id="dt:lba_mode"><a href="#dt:lba_mode">
+<i>lba_mode</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Currently selected addressing mode (bit 6 in the drive/head register).</dd>
+<dt id="dt:interrupt_delay"><a href="#dt:interrupt_delay">
+<i>interrupt_delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Time in seconds between state changes.</dd>
+<dt id="dt:initial_fis_delay"><a href="#dt:initial_fis_delay">
+<i>initial_fis_delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Time in seconds between a COMRESET is received and the initial D2H Register FIS is sent to the host.</dd>
+<dt id="dt:state"><a href="#dt:state">
+<i>state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Device state.</dd>
+<dt id="dt:write_cache_enabled"><a href="#dt:write_cache_enabled">
+<i>write_cache_enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>"Write cache enabled" state.</dd>
+<dt id="dt:tag_queue"><a href="#dt:tag_queue">
+<i>tag_queue</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Tag Queue for FPDMA</dd>
+<dt id="dt:cmd_fis_queue"><a href="#dt:cmd_fis_queue">
+<i>cmd_fis_queue</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Command Fis Queue for FPDMA</dd>
+<dt id="dt:sector_buffer"><a href="#dt:sector_buffer">
+<i>sector_buffer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>contains current contents of sector buffer</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sata.html">sata</a>
+</section>
+<div class="chain">
+<a href="rm-class-sample_timer_device.html">sample_timer_device</a>
+<a href="rm-class-sata-controller-connector.html">sata-controller-connector</a>
+</div>

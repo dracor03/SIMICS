@@ -1,0 +1,85 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>probes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-probe_system_perfmeter.html">probe_system_perfmeter</a>
+<a href="rm-class-process_filter.html">process_filter</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="probes"><a href="#probes">probes</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Singleton object class for the probes framework.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, probe_sampler_cache
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-probes.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-probes.list-kinds.html">list-kinds</a>
+ – print table of probe-kinds</li>
+<li>
+<a href="rm-cmd-probes.new-aggregate-probe.html">new-aggregate-probe</a>
+ – create new aggregate probe</li>
+<li>
+<a href="rm-cmd-probes.new-attribute-probe.html">new-attribute-probe</a>
+ – new attribute based probe</li>
+<li>
+<a href="rm-cmd-probes.new-fraction-object-probe.html">new-fraction-object-probe</a>
+ – create object specific fraction probe</li>
+<li>
+<a href="rm-cmd-probes.new-fraction-probe.html">new-fraction-probe</a>
+ – create probe fraction probe</li>
+<li>
+<a href="rm-cmd-probes.new-percent-probe.html">new-percent-probe</a>
+ – create new percent probe</li>
+<li>
+<a href="rm-cmd-probes.new-sum-probe.html">new-sum-probe</a>
+ – create new sum probe</li>
+<li>
+<a href="rm-cmd-probes.read.html">read</a>
+ – return probe value</li>
+<li>
+<a href="rm-cmd-probes.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-probes.subscribe.html">subscribe</a>
+ – subscribe to probes</li>
+<li>
+<a href="rm-cmd-probes.unsubscribe.html">unsubscribe</a>
+ – unsubscribe to probes</li>
+</ul>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probes-singleton.html">probes-singleton</a>
+</section>
+<div class="chain">
+<a href="rm-class-probe_system_perfmeter.html">probe_system_perfmeter</a>
+<a href="rm-class-process_filter.html">process_filter</a>
+</div>

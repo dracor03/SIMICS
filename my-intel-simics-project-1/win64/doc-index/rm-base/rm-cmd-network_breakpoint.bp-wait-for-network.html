@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;network_breakpoint&gt;.bp-wait-for-network</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-network_breakpoint.bp-trace-network.html">&lt;network_breakpoint&gt;.bp-trace-network</a>
+<a href="rm-cmd-nikita.info.html">&lt;nikita&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="network_breakpoint.bp-wait-for-network"></a>
+<h1 id="network_breakpoint.bp-wait-for-network"><a href="#network_breakpoint.bp-wait-for-network">&lt;network_breakpoint&gt;.bp-wait-for-network</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;network_breakpoint&gt;.bp-wait-for-network</b> [<i>"src_mac"</i>] [<i>"dst_mac"</i>] [<i>eth_type</i>] [<i>timeout</i>] [<i>timeout-rt</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Run Simulation until specified src <i>src_mac</i>, <i>dst_mac</i> or <i>eth_type</i> is discovered in the network stream by the link.
+<p>
+If <i>timeout</i> is a positive number, the command will run for at most that many seconds of virtual time.
+</p><p>
+If <i>timeout-rt</i> is a positive number, the command will run for at most that many seconds of real time.
+</p><p>
+A time-out will be signaled by throwing a CLI exception, which can be captured using try/except in order to take specific action, or to let it pass unhandled. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-network_breakpoint.bp-trace-network.html">&lt;network_breakpoint&gt;.bp-trace-network</a>
+<a href="rm-cmd-nikita.info.html">&lt;nikita&gt;.info</a>
+</div>

@@ -1,0 +1,52 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>disable-instrumentation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-disable-hypersim.html">disable-hypersim</a>
+<a href="rm-cmd-disable-jit.html">disable-jit</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="disable-instrumentation"></a>
+<h1 id="disable-instrumentation"><a href="#disable-instrumentation">disable-instrumentation</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>disable-instrumentation</b> [<i>id</i>] [<i>"name"</i>] [<i>"group"</i>] [-verbose] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Disable instrumentation connections. The connections between the provider and tool remains, but instrumentation gathering is stopped.
+<p>
+Specify which connections to disable with one of <i>id</i>, <i>name</i> or <i>group</i> arguments. The <i>id</i> specifies one unique connection. The <i>name</i> specifies all connections associated with a specific tool. The <i>group</i> selects all connections associated with a connection group.
+</p><p>
+The <tt>-verbose</tt> lists information on the connections that becomes disabled.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-add-instrumentation-filter.html">add-instrumentation-filter</a>, 
+<a href="rm-cmd-add-instrumentation-group.html">add-instrumentation-group</a>, 
+<a href="rm-cmd-enable-instrumentation.html">enable-instrumentation</a>, 
+<a href="rm-cmd-list-instrumentation.html">list-instrumentation</a>, 
+<a href="rm-cmd-list-instrumentation-groups.html">list-instrumentation-groups</a>, 
+<a href="rm-cmd-remove-instrumentation.html">remove-instrumentation</a>, 
+<a href="rm-cmd-remove-instrumentation-filter.html">remove-instrumentation-filter</a>, 
+<a href="rm-cmd-remove-instrumentation-group.html">remove-instrumentation-group</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-disable-hypersim.html">disable-hypersim</a>
+<a href="rm-cmd-disable-jit.html">disable-jit</a>
+</div>

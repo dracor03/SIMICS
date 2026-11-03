@@ -1,0 +1,111 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ieee_802_15_4_probe</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ieee_802_15_4_link_impl.html">ieee_802_15_4_link_impl</a>
+<a href="rm-class-image.html">image</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ieee_802_15_4_probe"><a href="#ieee_802_15_4_probe">ieee_802_15_4_probe</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>ieee_802_15_4_probe</tt> provides a way to listen to traffic at a particular device that is connected to the link. The probe will receive both incoming and outgoing traffic for the device.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, ieee_802_15_4_link, ieee_802_15_4_probe, ieee_802_15_4_receiver
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:device-optional"><a href="#dt:device-optional">device (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: ieee_802_15_4_receiver
+</dd>
+<dt id="dt:ep-optional"><a href="#dt:ep-optional">ep (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: ieee_802_15_4_link
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.pcap-dump.html">pcap-dump</a>
+ – dump network traffic to a file</li>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.pcap-dump-stop.html">pcap-dump-stop</a>
+ – stop the current dump</li>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.tcpdump.html">tcpdump</a>
+ – run the tcpdump program</li>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.tcpdump-stop.html">tcpdump-stop</a>
+ – stop the current tcpdump capture</li>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.wireshark.html">wireshark</a>
+ – run the wireshark/ethereal program</li>
+<li>
+<a href="rm-cmd-ieee_802_15_4_probe.wireshark-stop.html">wireshark-stop</a>
+ – stop the current wireshark capture</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:device"><a href="#dt:device">
+<i>device</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>the transceiver that the probe will be connected to
+<p>
+Required interfaces: <tt>ieee_802_15_4_receiver</tt>.</p></dd>
+<dt id="dt:ep"><a href="#dt:ep">
+<i>ep</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>the endpoint that the probe will be connected to
+<p>
+Required interfaces: <tt>ieee_802_15_4_link</tt>.</p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ieee-802-15-4-probe.html">ieee-802-15-4-probe</a>
+</section>
+<div class="chain">
+<a href="rm-class-ieee_802_15_4_link_impl.html">ieee_802_15_4_link_impl</a>
+<a href="rm-class-image.html">image</a>
+</div>

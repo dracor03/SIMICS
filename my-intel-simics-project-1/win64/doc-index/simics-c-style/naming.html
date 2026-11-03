@@ -1,0 +1,62 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 Naming</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="preprocessor-usage.html">5 Preprocessor usage</a>
+<a href="code-arrangement.html">7 Code arrangement</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for C</a>
+&nbsp;/&nbsp;</div><h1 id="naming"><a href="#naming">6 Naming</a></h1>
+<p>In absence of other rules, identifiers are written in lower case letters, words
+separated by underscores.</p>
+<h2 id="functions-macros-and-variables"><a href="#functions-macros-and-variables">6.1 Functions, macros and variables</a></h2>
+<p>Functions and macros that are executed primarily for their side-effect should be
+named after what they do.
+Functions and macros executed for their return value should be named after what
+they return.
+If the function or macro is a predicate (returning a boolean value), it should
+be named after the condition when it returns a true value.</p>
+<p>Examples:</p>
+<pre><code>void show_death_animation(monster_t *m);
+float magic_power(monster_t *m, int colour);
+bool is_undead(monster_t *m);
+</code></pre>
+<p>Variables should be named after what they contain, not from the variable or its
+type.
+The more local a variable is, the shorter can be its name.
+Use long, descriptive names for global variables; use short names in local
+scopes.
+Names more frequently used can also be shorter.</p>
+<p>Do not append a number as a general method to create new identifiers, other than
+in very special circumstances:</p>
+<pre><code>void draw_line(int x1, int y1, int x2, int y2); /* good */
+int invalidate_object2(conf_object_t *obj);     /* BAD */
+</code></pre>
+<p>In particular, do not use “<code>tmp</code>” or “<code>ptr</code>” in identifiers; it is rare that it
+is needed to point out that a variable contains a temporary value or a pointer.</p>
+<p>Do not prefix names with an article, such as <code>an_object</code> or <code>the_score</code>.</p>
+<h2 id="types"><a href="#types">6.2 Types</a></h2>
+<p>Enum members are capitalised, each word separately.
+To avoid namespace clashes, consider using a common prefix:</p>
+<pre><code>enum monster_state { Sleeping, Awake, Angry, Fleeing };
+enum shape { Sh_Rect, Sh_Rounded_Rect, Sh_Circle };
+</code></pre>
+<p>Typedef names should end in <code>_t</code>.
+Typedef structs, unions and enums unless only used locally.
+Do not define tags unless needed.
+If a struct/enum/union tag is defined, make it equal to the typedef but without
+the <code>_t</code> suffix.</p>
+<p>Where possible, make struct definitions private to code if other parts of the
+source only need to handle pointers to the struct.</p>
+<h2 id="files"><a href="#files">6.3 Files</a></h2>
+<p>In file names, words are separated by hyphens rather than underscores.</p>
+
+<div class="chain">
+<a href="preprocessor-usage.html">5 Preprocessor usage</a>
+<a href="code-arrangement.html">7 Code arrangement</a>
+</div>

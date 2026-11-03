@@ -1,0 +1,108 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Callbacks</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-configuration.html">Configuration</a>
+<a href="dev-api-errors.html">Errors and Exceptions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Callbacks</h1>
+<h2 id="SIM_cbdata_data"><a href="#SIM_cbdata_data">SIM_cbdata_data</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_cbdata_data — get cbdata data pointer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void *
+SIM_cbdata_data(const cbdata_t *cbd);
+</code></pre>
+<h2>Description</h2>
+<p>Return the data pointer of the callback data <code>cbd</code>.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#cbdata_t"><code>cbdata_t</code></a></p>
+</section>
+<h2 id="SIM_cbdata_type"><a href="#SIM_cbdata_type">SIM_cbdata_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_cbdata_type — get cbdata type pointer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE const cbdata_type_t *
+SIM_cbdata_type(const cbdata_t *cbd);
+</code></pre>
+<h2>Description</h2>
+<p>Return a pointer to the type information of the callback data <code>cbd</code>.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#cbdata_t"><code>cbdata_t</code></a></p>
+</section>
+<h2 id="SIM_free_cbdata"><a href="#SIM_free_cbdata">SIM_free_cbdata</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_free_cbdata — free cbdata</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE void
+SIM_free_cbdata(cbdata_t *cbd);
+</code></pre>
+<h2>Description</h2>
+<p>Free the callback data <code>cbd</code> by calling its <code>dealloc</code> function.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#cbdata_t"><code>cbdata_t</code></a></p>
+</section>
+<h2 id="SIM_make_cbdata"><a href="#SIM_make_cbdata">SIM_make_cbdata</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_cbdata — create cbdata</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE cbdata_t
+SIM_make_cbdata(const cbdata_type_t *type, void *data);
+</code></pre>
+<h2>Description</h2>
+<p>Create new callback data of type <code>type</code> and value <code>data</code>.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#cbdata_t"><code>cbdata_t</code></a></p>
+</section>
+<h2 id="SIM_make_simple_cbdata"><a href="#SIM_make_simple_cbdata">SIM_make_simple_cbdata</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_simple_cbdata — create untyped cbdata</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE cbdata_t
+SIM_make_simple_cbdata(void *obj);
+</code></pre>
+<h2>Description</h2>
+<p>Create new untyped callback data of value <code>data</code>. An untyped callback data has no <code>dealloc</code> function.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#cbdata_t"><code>cbdata_t</code></a></p>
+</section>
+<div class="chain">
+<a href="dev-api-configuration.html">Configuration</a>
+<a href="dev-api-errors.html">Errors and Exceptions</a>
+</div>

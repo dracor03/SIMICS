@@ -1,0 +1,166 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>35 Port Objects</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="object-lifetime.html">Object Lifetime</a>
+<a href="notifiers.html">36 Notifiers</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-simics-programming.html">VI Simics API</a>
+&nbsp;/&nbsp;</div><h1 id="port-objects"><a href="#port-objects">35 Port Objects</a></h1>
+<p>In Simics 6 there is a concept called Port Objects. A port object is a child
+object which is created automatically together with its parent object. The
+underlying idea is that a class should be able to specify a set of child
+objects, denoted port objects, which will be created automatically when the
+class is instantiated. The end user of the class does not need to explicitly
+create the port objects or even know about them.</p>
+<p>Port objects are not intended as a replacement for components, but rather as a
+way to allow functionality to be factored out and put in separate objects
+residing in the namespace below the object. As the name implies, however, port
+objects are intended to function as a replacement for port interfaces.</p>
+<h2 id="registering-port-objects"><a href="#registering-port-objects">35.1 Registering Port Objects</a></h2>
+<p>Below is an example of how a port object can be registered on a class:</p>
+<pre><code>// Define a signal reset function
+static void
+signal_raise_reset(conf_object_t *port_obj)
+{
+        conf_object_t *parent_obj = SIM_port_object_parent(port_obj);
+        ...
+}
+
+// Create the class "myclass"
+cls = SIM_create_class("myclass", &amp;class_info);
+
+// Register the port port.RESET
+port_cls = SIM_register_simple_port(
+        cls, "port.RESET", "Hardware Reset Port");
+
+// Register an interface on the created port object class
+static const signal_interface_t signal_iface = {
+        .signal_raise = signal_raise_reset,
+};
+SIM_REGISTER_INTERFACE(port_cls, signal, &amp;signal_iface);
+</code></pre>
+<p>In the example above, a port object is registered on <code>myclass</code> with the name
+<code>port.RESET</code>. When the class subsequently is instantiated as an object <code>myobj</code>,
+then the port object will be created as <code>myobj.port.RESET</code>. The port object will
+be an instance of the class <code>myclass.RESET</code> with a single interface registered
+on this class in this case. The port object class can be more complex than in
+the simple example above; it can be defined to have attributes, multiple
+interfaces or even port objects of its own.</p>
+<h2 id="hierarchical-class-names"><a href="#hierarchical-class-names">35.2 Hierarchical Class Names</a></h2>
+<p>The preceding example defined a class with a hierarchical class name,
+<code>myclass.RESET</code>. The dot in the class name has the following meaning:</p>
+<ul>
+<li>When Simics tries to find the module defining <code>myclass.RESET</code> it will look
+for the module defining the class <code>myclass</code>, and <code>myclass.RESET</code> does not
+need to be listed in the Makefile for this module.</li>
+<li>There might be non-public interfaces between <code>myclass.RESET</code> and <code>myclass</code>.
+That is, it is assumed that the port object may have direct access to the
+instance data for <code>myclass</code> objects.</li>
+</ul>
+<h2 id="using-existing-classes-as-port-objects"><a href="#using-existing-classes-as-port-objects">35.3 Using Existing Classes as Port Objects</a></h2>
+<p>It is possible to use pre-defined classes as well when port objects are defined,
+which is illustrated in the following example:</p>
+<pre><code>// Create the class "mydev"
+cls = SIM_create_class("mydev", &amp;class_methods);
+
+// Register the port object 'bus_clock' as a 'cycle-counter' class
+conf_class_t *cycle_counter_cls = SIM_get_class("cycle-counter");
+SIM_register_port(cls, "bus_clock", cycle_counter_cls,
+                  "Clock running at bus frequency");
+</code></pre>
+<p>When <code>mydev</code> is instantiated, then a <code>cycle-counter</code> instance will be created as
+<code>mydev.bus_clock</code>. The <code>cycle-counter</code> class, which is included in the Simics
+Base package, provides a cycle counter that runs at some user-defined frequency
+and allows for event posting. In this example, the counter would typically be
+used by <code>mydev</code> to model functionality that depends on some device specific
+frequency.</p>
+<h2 id="setting-port-object-state"><a href="#setting-port-object-state">35.4 Setting Port Object State</a></h2>
+<p>For port objects that have attributes, it is often useful for the parent object
+to provide default values for certain attributes. Below are some examples when
+this is particularly useful:</p>
+<ul>
+<li>The port object has a required attribute which takes an object, and this
+object should be the port object parent itself or some other object the
+parent knows about.</li>
+<li>The port object class needs certain parameters to be set in a specific way.
+One example could be a clock running at a frequency defined by the parent.</li>
+</ul>
+<p>The <code>SIM_set_attribute_default</code> function provides a way for the port object
+parent to set default values. These default values take effect only if the
+attribute in question is not set explicitly when the object is created. Default
+attributes values can only be set from the <code>init</code> method or from attribute
+setters of objects under construction. The later allows state to be propagated
+from a port object parent to its children.</p>
+<blockquote class="markdown-alert-note">
+<p>Setting attribute values directly during object construction, rather than
+setting attribute defaults, will invariably break checkpointing or not have
+the intended effect.</p>
+</blockquote>
+<p>Below is an example showing an <code>init</code> method which sets a default value for the
+frequency attribute of its <code>bus_clock</code> port object.</p>
+<pre><code>static lang_void *
+init(conf_object_t *obj)
+{
+    // Configure the bus_clock frequency...
+    conf_object_t *clock = SIM_object_descendant(obj, "bus_clock");
+    attr_value_t freq = SIM_make_attr_floating(1E6);
+    SIM_set_attribute_default(clock, "frequency", freq);
+
+    // Do other initialization as needed...
+    return obj;
+}
+</code></pre>
+<p>The following is another example, where a bus object is propagated from the
+attribute setter of the parent to a port object child.</p>
+<pre><code>static set_error_t
+attr_set_bus(conf_object_t *obj, attr_value_t *val)
+{
+    // Propagate our configured bus as an
+    // attribute default for the "device" port object
+    if (!SIM_object_is_configured(obj)) {
+        conf_object_t *dev = SIM_object_descendant(obj, "device");
+        SIM_set_attribute_default(dev, "bus", *val);
+    }
+    // Do other things here...
+    return Sim_Set_Ok;
+}
+</code></pre>
+<p>As a rule of thumb, it should be possible to instantiate a class without having
+to explicitly set attributes for any of its registered port objects.</p>
+<h2 id="pre-conf-object-support"><a href="#pre-conf-object-support">35.5 Pre Conf Object Support</a></h2>
+<p>The port object support extends to the <code>pre_conf_object</code>, as is illustrated in
+the following example, which uses the ‘myclass’ Simics class defined previously:</p>
+<pre><code>simics&gt; @myobj = pre_conf_object('myclass', 'myclass')
+simics&gt; @print(myobj.port.RESET)
+pre conf object myclass.port.RESET of type myclass.RESET
+</code></pre>
+<p>That is, if a class defines port objects, then pre objects corresponding to the
+port objects will be created automatically.</p>
+<h2 id="port-object-parent"><a href="#port-object-parent">35.6 Port Object Parent</a></h2>
+<p>A special function <code>SIM_port_object_parent</code> exists to retrieve the port object
+parent from a port object. The function returns <code>NULL</code> if the object is not a
+port object.</p>
+<blockquote class="markdown-alert-note">
+<p>Use <code>SIM_port_object_parent</code> to retrieve the port object parent instead of
+relying on <code>SIM_object_parent</code>. The main reason for this is that the former
+will always return the correct object, whereas the latter will return the
+hierarchical parent, which sometimes is not the desired object. As an example,
+if <code>SIM_object_parent</code> is applied to the objects <code>myobj.port.RESET</code>,
+<code>myobj.port.signal[2]</code> and <code>myobj.bus_clock</code>, then the return value will be
+<code>myobj.port</code>, <code>myobj.port.signal</code> and <code>myobj</code> respectively. The
+<code>SIM_port_object_parent</code> function, on the other hand, consistently returns the
+wanted <code>myobj</code> object in all three cases.</p>
+</blockquote>
+
+<div class="chain">
+<a href="object-lifetime.html">Object Lifetime</a>
+<a href="notifiers.html">36 Notifiers</a>
+</div>

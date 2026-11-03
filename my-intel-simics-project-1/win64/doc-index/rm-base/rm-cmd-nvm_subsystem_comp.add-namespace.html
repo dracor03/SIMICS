@@ -1,0 +1,38 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;nvm_subsystem_comp&gt;.add-namespace</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-nvm-subsystem-manager.status.html">&lt;nvm-subsystem-manager&gt;.status</a>
+<a href="rm-cmd-nvm_subsystem_comp.info.html">&lt;nvm_subsystem_comp&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="nvm_subsystem_comp.add-namespace"></a>
+<a name="nvm_subsystem_comp.add_namespace"></a>
+<h1 id="nvm_subsystem_comp.add-namespace"><a href="#nvm_subsystem_comp.add-namespace">&lt;nvm_subsystem_comp&gt;.add-namespace</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;nvm_subsystem_comp&gt;.add-namespace</b> [<i>size</i>] [<i>"file"</i>] [<i>attach-to</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Add an active namespace to the NVMe drive. Either a <i>file</i>, containing for example a file system can be provided, and/or a <i>size</i> of the namespace. If no size if provided, the size of the namespace will be the size of the provided file. If the size is smaller than the file, an error will be returned. If no file is provided, the namespace will be empty with the size provided. <i>attach-to</i> can be used to specify which controllers the namespace should be attached to. If not provided, the namespace will be attached to all controllers in the NVM subsystem if <tt>auto_attach_namespaces</tt> attribute of the subsystem is enabled. Otherwise, the namespace will be created but not attached to any controller.
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics-nvme-comp.html">simics-nvme-comp</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-nvm-subsystem-manager.status.html">&lt;nvm-subsystem-manager&gt;.status</a>
+<a href="rm-cmd-nvm_subsystem_comp.info.html">&lt;nvm_subsystem_comp&gt;.info</a>
+</div>

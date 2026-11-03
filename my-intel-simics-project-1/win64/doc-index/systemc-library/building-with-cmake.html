@@ -1,0 +1,131 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8 Building with CMake</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="limitations.html">7 Limitations</a>
+<a href="building-required-libraries.html">9 Building Required Libraries</a>
+</div>
+<div class="path">
+<a href="index.html">SystemC* Library</a>
+&nbsp;/&nbsp;</div><h1 id="building-with-cmake"><a href="#building-with-cmake">8 Building with CMake</a></h1>
+<p>The static libraries needed at link time and the shared modules loaded by Simics
+can all be built using CMake. This is the preferred way to build SystemC.</p>
+<p>This chapter will outline how to do that and how to migrate from the previous
+GNU Make driven build system.</p>
+<p>In order to build with CMake you need to create a CMake Simics project. In
+Simics 6 this is an opt-in feature enabled by passing <code>--with-cmake</code> to
+<code>project-setup</code>. In Simics 7 it’s opt-out, always enabled. In Simics 8 it will
+be the only supported way to build Simics modules.</p>
+<h2 id="basic-structure"><a href="#basic-structure">8.1 Basic structure</a></h2>
+<p>A Simics SystemC module consists of two parts:</p>
+<ul>
+<li>the static libraries providing basic SystemC support and added features</li>
+<li>the Simics (shared) module.</li>
+</ul>
+<p>The set of static libraries built by CMake varies upon features required by the
+module. CMake will figure out what to build and in what order before building
+the module. The libraries can also be built on their own through the
+<code>systemc-deps-cache</code> target. Optionally, these libraries can then be deployed to
+a common repository or cache, enabling re-use in other build environments.</p>
+<h2 id="boost-dependency"><a href="#boost-dependency">8.2 Boost dependency</a></h2>
+<p>The Simics SystemC Checkpointing feature depends on a fixed version of Boost
+1.91.0. If this version cannot be provided, or if the user does not need the
+Checkpointing feature, the Checkpointing feature will not be built.</p>
+<p>The feature is currently opt-in; it’s not built by default.</p>
+<p>The <code>Simics.cmake</code> module will try to locate Boost in the default paths or
+<code>SYSTEMC_BOOST_INCLUDE_DIR</code> if provided by the user. The standard
+<code>Boost_INCLUDE_DIR</code> is not honored, making it possible for the user to leverage
+a more modern version of Boost for other parts of the CMake project.</p>
+<p>See ‘Configuration’ below for more details and other options.</p>
+<h2 id="backwards-compatibility-hybrid-gnu-make-cmake-setup"><a href="#backwards-compatibility-hybrid-gnu-make-cmake-setup">8.3 Backwards compatibility / hybrid GNU Make/CMake setup</a></h2>
+<p>To retain backwards compatibility the libraries can still be built using the
+build script. See next chapter for details on invocation.</p>
+<p>The build script requires that CMake and Ninja is found in <code>PATH</code> now. It sets
+up a build tree and produces the static libraries in the same location as
+before, e.g. <code>linux64/lib/systemc/2.3.3</code>. The <code>linux64/lib/systemc</code> root
+directory (including the version subdirs) can be copied to a shared location and
+be re-used between builds by setting the <code>SYSTEMC_DEPS_CACHE</code> variable.</p>
+<h2 id="building-the-static-libraries-as-part-of-the-project-build"><a href="#building-the-static-libraries-as-part-of-the-project-build">8.4 Building the static libraries as part of the project build</a></h2>
+<p>The preferred way to build a SystemC module is to build everything, including
+the static libraries, in the same project. This does not take very long, and
+CMake will track all dependencies so a rebuild where only the module has been
+changed will not rebuild the static libs. The CMake dependencies will make sure
+the correct libraries are built in the correct order, so there is no need for
+the dedicated build script anymore.</p>
+<p>The added benefit is also that CMake will make sure to only build what is
+needed, so if the modules you build do not require checkpointing, those static
+libs will never be built. This obviously saves time compared to building them
+and not using them.</p>
+<p>Please note that Simics modules in general and SystemC modules in particular are
+designed to be free from run-time dependencies. The static libraries built
+locally are not meaningful elsewhere, only the Simics module should be
+distributed and shared with other Simics configurations elsewhere.</p>
+<h2 id="re-using-the-static-libraries-from-cache"><a href="#re-using-the-static-libraries-from-cache">8.5 Re-using the static libraries from cache</a></h2>
+<p>If the user needs to link with pre-built static libraries, this is still
+possible with CMake using the same <code>SYSTEMC_DEPS_CACHE</code> variable exposed to the
+deprecated GNU Make build system. Simply set the <code>SYSTEMC_DEPS_CACHE</code> cache
+variable during CMake configuration. By setting this variable the CMake build
+rules/dependencies will <em>not</em> build any of the required static libraries.</p>
+<h2 id="configuration"><a href="#configuration">8.6 Configuration</a></h2>
+<h3 id="options"><a href="#options">8.6.1 Options</a></h3>
+<table><thead><tr><th>Options / cache variable</th><th>Default value</th><th>Usage</th></tr></thead><tbody>
+<tr><td>SYSTEMC_KERNEL_VERSION</td><td><em>undefined</em></td><td>Selects the SystemC kernel version used in the project</td></tr>
+<tr><td>SYSTEMC_INTC_EXT</td><td>ON</td><td>Intel Extensions enabled</td></tr>
+<tr><td>SYSTEMC_INTC_EXT_VALGRIND</td><td>ON</td><td>Valgrind support enabled</td></tr>
+<tr><td>USE_SIMICS_CHECKPOINTING</td><td>NO</td><td>Simics SystemC Checkpointing enabled (opt-in feature)</td></tr>
+<tr><td>SYSTEMC_BOOST_INCLUDE_DIR</td><td><em>undefined</em></td><td>Look for Boost 1.91.0 headers in this directory</td></tr>
+<tr><td>USE_SIMICS_CCI</td><td>YES</td><td>Simics CCI enabled (opt-out feature)</td></tr>
+</tbody></table>
+<h3 id="variables"><a href="#variables">8.6.2 Variables</a></h3>
+<p>The <code>SIMICS_1013_ADDON_DIR</code> and <code>SIMICS_7213_ADDON_DIR</code> can be used to locate
+the root of the corresponding add-on package.</p>
+<h2 id="cmakelists-txt-for-systemc-modules"><a href="#cmakelists-txt-for-systemc-modules">8.7 CMakeLists.txt for SystemC modules</a></h2>
+<p>Simics has added a dedicated helper function, <code>simics_add_systemc_module</code>, for
+SystemC modules. It works exactly like the standard <code>simics_add_module</code> for
+normal modules but adds the capability of building SystemC modules. It is not
+strictly necessary to use this helper function, but it is strongly recommended.
+See the <a href="../refmanual-cmake/README.html">Simics CMake Reference Manual</a> for more
+details. These are the added options and a brief description:</p>
+<ul>
+<li><code>GASKET_OBJECTS</code>, enables the Gasket Objects feature</li>
+<li><code>CHECKPOINTING</code>, enables the Simics SystemC Checkpointing feature</li>
+<li><code>SC_FACTORY</code>, enables the simple integration of SystemC modules
+feature, when building a SystemC-only model</li>
+<li><code>KERNEL</code>, sets the kernel version used by this module</li>
+</ul>
+<h2 id="things-to-note-about-the-modules-distributed-with-simics-1013-add-on-package"><a href="#things-to-note-about-the-modules-distributed-with-simics-1013-add-on-package">8.8 Things to note about the modules distributed with Simics 1013 add-on package</a></h2>
+<h3 id="they-are-conditional-on-the-systemc_intc_ext-cache-variable"><a href="#they-are-conditional-on-the-systemc_intc_ext-cache-variable">8.8.1 They are conditional on the <code>SYSTEMC_INTC_EXT</code> cache variable</a></h3>
+<p>Some modules require that the kernel has been built with the Simics extensions,
+and if that is not the case then these modules are skipped.</p>
+<h3 id="they-are-conditional-on-the-systemc_kernel_version-cache-variable"><a href="#they-are-conditional-on-the-systemc_kernel_version-cache-variable">8.8.2 They are conditional on the <code>SYSTEMC_KERNEL_VERSION</code> cache variable</a></h3>
+<p>This variable controls what version of the kernel to build. See
+<a class="reference" href="systemc-library-requirements.html">2</a> for more details on supported versions.</p>
+<h2 id="selecting-the-c-standard-is-important"><a href="#selecting-the-c-standard-is-important">8.9 Selecting the C++ standard is important</a></h2>
+<p>As noted in <a class="reference" href="systemc-library-requirements.html">2</a> the selected C++ standard is
+very important as kernel 3.0.0 only builds with C++ 17. The older versions
+should work with C++ 14. The SystemC Library itself requires C++ 14 and does not
+work with C++ 11.</p>
+<p>The standard must be setup in the top-level CMakeLists.txt file of the Simics
+project.</p>
+<p>These settings belong to the end-user’s project, thus they are not set by
+default by Simics.</p>
+<p>This is an example of what it could look like:</p>
+<pre><code>if(NOT CMAKE_CXX_STANDARD)
+  if("${SYSTEMC_KERNEL_VERSION}" STREQUAL "3.0.0")
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  else()
+    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)  # make sure -std=c++14 flag is used
+  endif()
+endif()
+</code></pre>
+
+<div class="chain">
+<a href="limitations.html">7 Limitations</a>
+<a href="building-required-libraries.html">9 Building Required Libraries</a>
+</div>

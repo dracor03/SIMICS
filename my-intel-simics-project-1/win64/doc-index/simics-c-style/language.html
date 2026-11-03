@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Language</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="document-level.html">1 Document level</a>
+<a href="general-syntax.html">3 General syntax</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for C</a>
+&nbsp;/&nbsp;</div><h1 id="language"><a href="#language">2 Language</a></h1>
+<p>This document does not cover C++; there is a separate style guide for that
+language.
+Older C++ code may be written in a style largely following the C rules, but new
+code should follow the language-specific style.</p>
+<p>The allowed language is ISO C99.
+Note that some files may have stricter requirements.
+For instance, many public header files need to work with Microsoft Visual C,
+which is approximately C89 but allowing <code>//</code>-style comments.</p>
+<p>Language extensions should only be used if there is a true benefit from doing so
+that outweighs the mess caused by conditional compilation to allow the code to
+build on platforms that do not support the extensions.</p>
+<p>String literals should always be considered to have the type <code>const char *</code>, not
+<code>char&nbsp;*</code>.</p>
+<p>Note that on Windows, <code>interface</code> is a reserved word or a preprocessor macro, so
+it cannot be used as an identifier.</p>
+<p>All source code is written in UTF-8 without BOM.
+Non-ASCII characters may be used in comments and string literals where
+appropriate.</p>
+
+<div class="chain">
+<a href="document-level.html">1 Document level</a>
+<a href="general-syntax.html">3 General syntax</a>
+</div>

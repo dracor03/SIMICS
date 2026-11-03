@@ -1,0 +1,73 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ftp-alg</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-frequency_bus.html">frequency_bus</a>
+<a href="rm-class-ftp-control.html">ftp-control</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ftp-alg"><a href="#ftp-alg">ftp-alg</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+FTP ALG.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, alg
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:forward_handler"><a href="#dt:forward_handler">
+<i>forward_handler</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>An instance of the port-forward-outgoing-server class. Must implement the port_forward interface.</dd>
+<dt id="dt:incoming_handler"><a href="#dt:incoming_handler">
+<i>incoming_handler</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Must implement the port_forward interface.</dd>
+<dt id="dt:ftp_port"><a href="#dt:ftp_port">
+<i>ftp_port</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Port for FTP service (on target), default 21.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ftp_alg.html">ftp_alg</a>
+</section>
+<div class="chain">
+<a href="rm-class-frequency_bus.html">frequency_bus</a>
+<a href="rm-class-ftp-control.html">ftp-control</a>
+</div>

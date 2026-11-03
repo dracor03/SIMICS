@@ -1,0 +1,84 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>usb-host-connector</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-usb-device-connector.html">usb-device-connector</a>
+<a href="rm-class-usb3-device-connector.html">usb3-device-connector</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="usb-host-connector"><a href="#usb-host-connector">usb-host-connector</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+USB host hotplug connector.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, connector
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-usb-host-connector.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-usb-host-connector.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:remote"><a href="#dt:remote">
+<i>remote</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Remote connector.</dd>
+<dt id="dt:connector_name"><a href="#dt:connector_name">
+<i>connector_name</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br></dd>
+<dt id="dt:usb"><a href="#dt:usb">
+<i>usb</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.std-bp.html">std-bp</a>
+</section>
+<div class="chain">
+<a href="rm-class-usb-device-connector.html">usb-device-connector</a>
+<a href="rm-class-usb3-device-connector.html">usb3-device-connector</a>
+</div>

@@ -1,0 +1,53 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-object-references</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-notifiers.html">list-notifiers</a>
+<a href="rm-cmd-list-objects.html">list-objects</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-object-references"></a>
+<h1 id="list-object-references"><a href="#list-object-references">list-object-references</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-object-references</b> <i>object</i> [<i>namespace</i>] [-include-ports] [<i>max-len</i>] [-only-list-objects] [-only-inbound|-only-outbound] [-hide-queue] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ List object attributes references from/to <i>object</i>.
+<p>
+If the <tt>-include-ports</tt> flag is used, attribute references from/to port objects belonging to <i>object</i> is included in the list.
+</p><p>
+By default, every non-pseudo attribute in every object in the configuration is considered. With the <i>namespace</i> argument the scope of the search can be reduced.
+</p><p>
+The maximum number of displayed and returned references is controlled by the <i>max-len</i> argument, which defaults to 10. Set the argument to <tt>NIL</tt> to display/return all references.
+</p><p>
+By default, object, attribute and referenced object is listed. With the <tt>-only-list-objects</tt> flag only the objects containing an attribute referencing <i>object</i> is listed.
+</p><p>
+By default, both inbound and outbound references are listed. If the <tt>-only-inbound</tt> flag is used, outbound references are omitted. If <tt>-only-outbound</tt> flag is used, inbound references are omitted.
+</p><p>
+If the command is used in an expression, the command returns a list of lists including referencing object, attribute and object referenced. If the <tt>-only-list-objects</tt> flag is used only referencing object is included in the list.
+</p><p>
+If the <tt>-hide-queue</tt> flag is used, then references through attributes named "queue" are omitted.
+</p><p>
+Note that the completion time can be very long when run on large platforms. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-notifiers.html">list-notifiers</a>
+<a href="rm-cmd-list-objects.html">list-objects</a>
+</div>

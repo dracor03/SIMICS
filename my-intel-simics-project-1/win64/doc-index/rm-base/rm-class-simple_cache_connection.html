@@ -1,0 +1,129 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>simple_cache_connection</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-simple_cache.html">simple_cache</a>
+<a href="rm-class-simple_cache_tool.html">simple_cache_tool</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="simple_cache_connection"><a href="#simple_cache_connection">simple_cache_connection</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Instrumentation connection
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_connection
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:dcache"><a href="#dt:dcache">
+<i>dcache</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>next hierarchy object</dd>
+<dt id="dt:icache"><a href="#dt:icache">
+<i>icache</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>next hierarchy object</dd>
+<dt id="dt:cpu"><a href="#dt:cpu">
+<i>cpu</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>n|o</code>
+<br>to read out the provider</dd>
+<dt id="dt:tool"><a href="#dt:tool">
+<i>tool</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>n|o</code>
+<br>The cache tool of the connection</dd>
+<dt id="dt:issue_instructions"><a href="#dt:issue_instructions">
+<i>issue_instructions</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If set the connection will issue instruction accesses to the added instruction cache. If the cache block is the same as last access, no issue will be done.</dd>
+<dt id="dt:uncachable_reads"><a href="#dt:uncachable_reads">
+<i>uncachable_reads</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of uncachable read accesses done.</dd>
+<dt id="dt:uncachable_writes"><a href="#dt:uncachable_writes">
+<i>uncachable_writes</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of uncachable write accesses done.</dd>
+<dt id="dt:prefetch_instructions"><a href="#dt:prefetch_instructions">
+<i>prefetch_instructions</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of prefetch instructions.</dd>
+<dt id="dt:cache_all_flush_instructions"><a href="#dt:cache_all_flush_instructions">
+<i>cache_all_flush_instructions</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of flush entire cache instructions.</dd>
+<dt id="dt:cache_line_flush_instructions"><a href="#dt:cache_line_flush_instructions">
+<i>cache_line_flush_instructions</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cache line flush instructions.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simple-cache-tool.html">simple-cache-tool</a>
+</section>
+<div class="chain">
+<a href="rm-class-simple_cache.html">simple_cache</a>
+<a href="rm-class-simple_cache_tool.html">simple_cache_tool</a>
+</div>

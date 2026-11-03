@@ -1,0 +1,128 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Thread Domains</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="multithreading-simulation-cells.html">Simulation Cells</a>
+<a href="multithreading-concurrency-modes.html">Concurrency Modes</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="threading-model.html">Threading Model</a>
+&nbsp;/&nbsp;</div><h1 id="thread-domains"><a href="#thread-domains">Thread Domains</a></h1>
+<p>Each object in the simulation has a thread domain associated with it. The same thread domain can be associated with multiple objects.</p>
+<p>The basic rule is that before the state of an object is accessed, the corresponding thread domain needs to be held by the thread performing the access. This ensures that an object is never accessed concurrently by two different threads.</p>
+<p>The thread domain containing the cell object, the <strong>cell thread domain (cell TD)</strong>, has some special properties. Sometimes it is referred to as just the “cell” for brevity, as in “acquiring the cell”, and “holding the cell”, which should be read as “acquiring the cell thread domain”, and “holding the cell thread domain” respectively.</p>
+<figure id="thread-domains-figure">
+<p><img alt="" src="thread-domains.png"> </p><figcaption>Figure 5. Division of a cell into thread domains</figcaption><p></p>
+</figure>
+<p>The cell TD should be thought of as a single-threaded domain. To a model in the cell TD, everything in the entire cell appears to be simulated from a single thread, even if this is not the case.</p>
+<blockquote class="markdown-alert-note">
+<p>In most cases, the appropriate thread domain is already held, and no special action needs to be taken. This is for instance the case for normal device models, which run in Cell Context, or for code running in Global Context.</p>
+<p>Only models which use custom threads or use the Threaded Device Model need to acquire thread domains explicitly.</p>
+</blockquote>
+<h2 id="relationship-with-api-execution-context"><a href="#relationship-with-api-execution-context">Relationship with API Execution Context</a></h2>
+<p>The relationship between the <a href="api-usage-rules.html#api-execution-contexts">API execution context</a>, and thread domains is as follows:</p>
+<dl>
+<dt id="dt:global-context"><a href="#dt:global-context">Global Context</a></dt>
+<dd><strong>All</strong> thread domains (and by implication, all cells) in the simulation are held by the thread. The thread has exclusive access to all objects. CLI scripts, Python scripts, CLI commands, script-branches, and object initialization code, all run in Global Context.</dd>
+<dt id="dt:cell-context"><a href="#dt:cell-context">Cell Context</a></dt>
+<dd>The <strong>cell TD</strong> is held by the thread. The thread can freely access all other objects in the cell. Normal device models (i.e. models which are not thread-aware) can assume that they are invoked in this context.</dd>
+<dt id="dt:threaded-context"><a href="#dt:threaded-context">Threaded Context</a></dt>
+<dd>No thread domains are required to be held, but thread-aware models often hold <strong>their own</strong> thread domain.</dd>
+</dl>
+<blockquote class="markdown-alert-note">
+<p>The locking model in Simics is <em>asymmetrical</em>. Models running in Cell Context can call interface functions on any object in the cell without taking any special measures, and this includes interfaces on objects belonging to a different TD. This is possible since thread-aware models are required to guard model entry points by acquiring their own domains. Conversely, thread-aware models are required to enter Cell Context explicitly, by using a special API call, before calling interface functions on objects in the cell TD.</p>
+</blockquote>
+<h2 id="lock-semantics"><a href="#lock-semantics">Lock Semantics</a></h2>
+<p>A thread domain has the following basic properties:</p>
+<ul>
+<li><strong>Exclusive</strong> - a thread domain can only be held by a single thread at a time</li>
+<li><strong>Recursive</strong> - a thread domain can be acquired multiple times by the same thread</li>
+<li><strong>Extendable</strong> - multiple thread domains can be held simultaneously by a thread, and the thread may access any object whose thread domain is held.</li>
+</ul>
+<p>The following macros are used to acquire thread domains.</p>
+<dl>
+<dt id="dt:sim_acquire_object"><a href="#dt:sim_acquire_object"><code>SIM_ACQUIRE_OBJECT</code></a></dt>
+<dd>
+<p>Acquires the thread domain associated with the object.
+This function is intended to be used by thread-aware objects to obtain their own thread domain before modifying internal state protected by the domain.</p>
+<p>This primitive does <strong>not</strong> enter Cell Context, even if the cell TD is acquired. The reason is that the <em>retention</em> mechanism is not activated (see below).</p>
+</dd>
+<dt id="dt:sim_acquire_target"><a href="#dt:sim_acquire_target"><code>SIM_ACQUIRE_TARGET</code></a></dt>
+<dd>
+<p>Enters Cell Context if the specified object belongs to the cell TD. As part of entering Cell Context, the cell TD is acquired.</p>
+<p>This primitive does nothing if the object does not belong to the cell TD. In other words, it is a no-op if the specified object is thread-aware.</p>
+<p>Thread-aware code, which is not running in Cell Context, uses this function before invoking an interface method on an external object.</p>
+</dd>
+<dt id="dt:sim_acquire_cell"><a href="#dt:sim_acquire_cell">SIM_ACQUIRE_CELL</a></dt>
+<dd>
+<p>Enters Cell Context unconditionally. The specified object is associated with a cell whose TD is acquired as part of entering Cell Context.</p>
+<p>The function should be used before calling an API function, or callback, requiring Cell Context.</p>
+</dd>
+</dl>
+<p>Each primitive above should be used together with the corresponding release function.
+Macros are used in order to allow lock statistics to be collected with information about where the lock was acquired.
+There are also corresponding SIM-functions available.</p>
+<blockquote class="markdown-alert-note">
+<p>If multiple thread domains are acquired, then they must be released in strict reverse order. Failure to do so will result in a hard error and a complaint about locks being released in an incorrect order.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>The difference between <code>SIM_ACQUIRE_CELL</code> and <code>SIM_ACQUIRE_TARGET</code> is really that the former <strong>always</strong> acquires the cell thread domain and enters Cell Context, whereas the latter is a no-op when a thread-aware object is specified.</p>
+<p>The reason for the distinction is that thread-aware objects are required to protect incoming calls as needed; this self-protection usually involves a call to <code>SIM_ACQUIRE_OBJECT</code>, but models are free to use alternate locking schemes.</p>
+</blockquote>
+<h2 id="contention"><a href="#contention">Contention</a></h2>
+<blockquote class="markdown-alert-note">
+<p>This section describes how Simics handles thread domain contention, and it is mostly provided to allow for a deeper understanding of the Simics threading model.</p>
+</blockquote>
+<p>When a thread tries to acquire a thread domain which is already held or requested by another thread, then the following happens:</p>
+<ul>
+<li>The thread is assigned a priority, using the table below.</li>
+<li>All domains held by the thread are released and marked as contended</li>
+<li>The current holder of the requested domain is notified that a thread is waiting for the domain, and the domain is marked as contended.</li>
+<li>The thread is blocked until all needed domains are available and can be assigned to the thread. Among all threads waiting for a domain, the domain can only be assigned to the thread with the highest priority.</li>
+</ul>
+<p>The priority is assigned as follows:</p>
+<table><thead><tr><th>Priority</th><th>Name</th><th>Situation</th></tr></thead><tbody>
+<tr><td>1</td><td>Execute</td><td>TD acquired for instruction execution (lowest priority)</td></tr>
+<tr><td>2</td><td>Yield</td><td>domains reacquired after explicit yield</td></tr>
+<tr><td>3</td><td>Entry</td><td>TD acquired, no other domains held</td></tr>
+<tr><td>4</td><td>Entry 2</td><td>TD acquired, other TDs already held</td></tr>
+<tr><td>5</td><td>Cell Entry</td><td>cell acquired with <code>SIM_ACQUIRE_CELL/TARGET</code></td></tr>
+<tr><td>6</td><td>Elevated</td><td>TD acquired in Cell Context</td></tr>
+<tr><td>7</td><td>Message</td><td>TD acquired for delivery of direct memory message</td></tr>
+</tbody></table>
+<p>In the table above, TD stands for a thread domain which is not the cell TD.</p>
+<p>A contended thread domain is always assigned to the waiting thread with the highest priority. The domain is never released to a thread with lower priority, even if the domain is unused and the highest priority thread is waiting upon some other domain.</p>
+<p>The priority scheme serves two purposes:</p>
+<ul>
+<li>It ensures that a deadlock situation cannot occur.</li>
+<li>It ensures that a thread in Cell Context is not preempted by other threads when there is lock contention.</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>For performance reasons, a thread waiting for a thread domain will typically spin for a certain amount of time before falling back to sleeping on some condition variable.</p>
+</blockquote>
+<h2 id="domain-retention"><a href="#domain-retention">Domain Retention</a></h2>
+<p>In Cell Context, a special mechanism is used when additionally acquired thread domains are released.
+The release of additionally acquired domains is deferred until Cell Context is exited, or in other words, until the cell TD is released.</p>
+<p>As an example, consider a thread doing the following, with CPU1 belonging to thread domain TD_cpu1, CPU2 to TD_cpu2, and device DEV to TD_cell, respectively:</p>
+<ol>
+<li>CPU1 is simulated while holding TD_cpu1</li>
+<li>EC is entered before the model calls an interface on DEV. TD_cell is acquired when EC is entered.</li>
+<li>device DEV queries CPU2 for its cycle count. The TD_cpu2 domain is acquired and released during this operation, but the actual release of TD_cpu2 is deferred by the retention mechanism</li>
+<li>device DEV posts an event on CPU2, again taking and releasing TD_cpu2</li>
+<li>TD_cell is released when the DEV interface call returns, and the thread leaves Cell Context. The retention mechanism causes TD_cpu2 to be released for real at this point</li>
+</ol>
+<p>The retention mechanism ensures that TD_cpu2, in the example above, is held until the device access is complete. Between point 3 and point 5, CPU2 will not be simulated, and its state will be stable.</p>
+<blockquote class="markdown-alert-note">
+<p>The retention mechanism ensures that a device model sees a stable state for all objects it interacts with. The mechanism allows CPUs to run concurrently with device models, but when a device model interacts with a CPU, it is stopped until the device operation is complete.</p>
+</blockquote>
+
+<div class="chain">
+<a href="multithreading-simulation-cells.html">Simulation Cells</a>
+<a href="multithreading-concurrency-modes.html">Concurrency Modes</a>
+</div>

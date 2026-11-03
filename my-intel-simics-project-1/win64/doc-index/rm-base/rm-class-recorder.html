@@ -1,0 +1,128 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>recorder</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-realtime.html">realtime</a>
+<a href="rm-class-remote_sync_domain.html">remote_sync_domain</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="recorder"><a href="#recorder">recorder</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>recorder</tt> class is used to record and playback I/O events. Recordable events include network traffic and mouse and keyboard events.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, recorder_v2, temporal_state
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-recorder.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-recorder.playback-start.html">playback-start</a>
+ – play back recorded asynchronous input</li>
+<li>
+<a href="rm-cmd-recorder.playback-stop.html">playback-stop</a>
+ – stop playback</li>
+<li>
+<a href="rm-cmd-recorder.recorder-start.html">recorder-start</a>
+ – record asynchronous input to file</li>
+<li>
+<a href="rm-cmd-recorder.recorder-stop.html">recorder-stop</a>
+ – stop recorder</li>
+<li>
+<a href="rm-cmd-recorder.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:in_file"><a href="#dt:in_file">
+<i>in_file</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Name of input file, if any.</dd>
+<dt id="dt:out_file"><a href="#dt:out_file">
+<i>out_file</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Name of output file, if any.</dd>
+<dt id="dt:input_during_playback"><a href="#dt:input_during_playback">
+<i>input_during_playback</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, input is accepted when playback is active.</dd>
+<dt id="dt:recording"><a href="#dt:recording">
+<i>recording</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, recording is active.</dd>
+<dt id="dt:playback"><a href="#dt:playback">
+<i>playback</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, playback is active.</dd>
+<dt id="dt:event"><a href="#dt:event">
+<i>event</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, playback event is active.</dd>
+<dt id="dt:stop_at_end_of_recording"><a href="#dt:stop_at_end_of_recording">
+<i>stop_at_end_of_recording</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Determines if the simulation will be stopped when the end of the recording is reached. Default value is true.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.recorder.html">recorder</a>
+</section>
+<div class="chain">
+<a href="rm-class-realtime.html">realtime</a>
+<a href="rm-class-remote_sync_domain.html">remote_sync_domain</a>
+</div>

@@ -1,0 +1,238 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>systempanel.widgets</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="systempanel.html">systempanel</a>
+<a href="instrumentation.html">instrumentation</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="systempanel.widgets"><a href="#systempanel.widgets">systempanel.widgets</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>systempanel.widgets</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import systempanel.widgets
+</code></pre>
+</section>
+<h2 id="systempanel.widgets.Led"><a href="#systempanel.widgets.Led">class systempanel.widgets.Led</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Led(obj_name, color=None)
+</code></pre>
+<h2>Description</h2>
+<p>A standard LED.</p>
+<p>A LED, which can be on or off. Driven by the <a href="model-to-model-interfaces.html#signal_interface_t"><code>signal</code></a> interface. The parameter <code>color</code> specifies the color of the LED. Supported colors are listed below:</p>
+<ul>
+<li><a href="systempanel.widgets.html#systempanel.widgets.BLUE">systempanel.widgets.BLUE</a></li>
+<li><a href="systempanel.widgets.html#systempanel.widgets.GREEN">systempanel.widgets.GREEN</a></li>
+<li><a href="systempanel.widgets.html#systempanel.widgets.PURPLE">systempanel.widgets.PURPLE</a></li>
+<li><a href="systempanel.widgets.html#systempanel.widgets.RED">systempanel.widgets.RED</a></li>
+<li><a href="systempanel.widgets.html#systempanel.widgets.WHITE">systempanel.widgets.WHITE</a></li>
+<li><a href="systempanel.widgets.html#systempanel.widgets.YELLOW">systempanel.widgets.YELLOW</a></li>
+</ul>
+<p>The look-and-feel of the LED is frontend specific.</p>
+</section>
+<h2 id="systempanel.widgets.Button"><a href="#systempanel.widgets.Button">class systempanel.widgets.Button</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Button(obj_name, label)
+</code></pre>
+<h2>Description</h2>
+<p>A standard button.</p>
+<p>A button, that can be pressed. The button state is propagated using the <a href="model-to-model-interfaces.html#signal_interface_t"><code>signal</code></a> interface, and can be raised or lowered. Raising and lowering the signal is frontend specific.</p>
+</section>
+<h2 id="systempanel.widgets.ToggleButton"><a href="#systempanel.widgets.ToggleButton">class systempanel.widgets.ToggleButton</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.ToggleButton(obj_name, label)
+</code></pre>
+<h2>Description</h2>
+<p>A toggle button.</p>
+<p>A toggle button, that can be pressed or released. The button state is propagated using the <a href="model-to-model-interfaces.html#signal_interface_t"><code>signal</code></a> interface. When button is pressed, signal is raised. When button is released, signal is lowered. The button must have a label indicating its purpose.</p>
+</section>
+<h2 id="systempanel.widgets.NumberInput"><a href="#systempanel.widgets.NumberInput">class systempanel.widgets.NumberInput</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.NumberInput(obj_name)
+</code></pre>
+<h2>Description</h2>
+<p>An input text field for integer numbers.</p>
+<p>An input text field for integer numbers, provided by the panel user. The value is propagated to the model using the <a href="model-to-model-interfaces.html#uint64_state_interface_t"><code>uint64_state</code></a> interface.</p>
+</section>
+<h2 id="systempanel.widgets.NumberOutput"><a href="#systempanel.widgets.NumberOutput">class systempanel.widgets.NumberOutput</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.NumberOutput(obj_name)
+</code></pre>
+<h2>Description</h2>
+<p>An output text field for integer numbers.</p>
+<p>An output text field for integer numbers, presenting integer state from the model. Driven by the <a href="model-to-model-interfaces.html#uint64_state_interface_t"><code>uint64_state</code></a> interface.</p>
+</section>
+<h2 id="systempanel.widgets.Canvas"><a href="#systempanel.widgets.Canvas">class systempanel.widgets.Canvas</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Canvas(contents)
+</code></pre>
+<h2>Description</h2>
+<p>A canvas (i.e bitmap container).</p>
+<p>A canvas for painting bitmap-based widgets.  A canvas contains multiple bitmap-based widgets, each drawn at a specified offset.  The <code>contents</code> parameter is a list of elements on the form <code>(x, y, widget)</code>.  Here <code>x</code> and <code>y</code> are integers, and <code>widget</code> is an instance of one of <a href="systempanel.widgets.html#systempanel.widgets.Image"><code>systempanel.widgets.Image</code></a>, <a href="systempanel.widgets.html#systempanel.widgets.BitmapLed"><code>systempanel.widgets.BitmapLed</code></a>, <a href="systempanel.widgets.html#systempanel.widgets.BitmapButton"><code>systempanel.widgets.BitmapButton</code></a>, <a href="systempanel.widgets.html#systempanel.widgets.BitmapToggleButton"><code>systempanel.widgets.BitmapToggleButton</code></a>, <a href="systempanel.widgets.html#systempanel.widgets.MultiImageOutput"><code>systempanel.widgets.MultiImageOutput</code></a>, <a href="systempanel.widgets.html#systempanel.widgets.Canvas"><code>systempanel.widgets.Canvas</code></a>, or a subclass thereof. The items are rendered in the same order as they appear in the list; this means that if any widgets overlap, the last one will be drawn on top.</p>
+</section>
+<h2 id="systempanel.widgets.Grid"><a href="#systempanel.widgets.Grid">class systempanel.widgets.Grid</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Grid(contents, columns)
+</code></pre>
+<h2>Description</h2>
+<p>A two-dimensional widget container.</p>
+<p>A two-dimensional widget container.  Containers are used to group other widgets, and enforce a specific layout scheme.  The <code>contents</code> constructor parameter is a list of widget objects; it can contain any other widget except for bitmap-based ones.  Widgets are laid out from left to right, top to bottom. Use the <a href="systempanel.widgets.html#systempanel.widgets.Empty"><code>systempanel.widgets.Empty</code></a> class to fill empty cells. The number of rows in a <a href="systempanel.widgets.html#systempanel.widgets.Grid"><code>systempanel.widgets.Grid</code></a> container is implicitly defined by the length of the <code>contents</code> list and the number of columns specified when creating the container. See also the <a href="systempanel.widgets.html#systempanel.widgets.Column"><code>systempanel.widgets.Column</code></a> and <a href="systempanel.widgets.html#systempanel.widgets.Row"><code>systempanel.widgets.Row</code></a> containers, which are convenience classes for the one-dimensional cases. Containers can contain other containers.</p>
+</section>
+<h2 id="systempanel.widgets.Column"><a href="#systempanel.widgets.Column">class systempanel.widgets.Column</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Column(contents)
+</code></pre>
+<h2>Description</h2>
+<p>A one-dimensional widget container.</p>
+<p>A container for normal (non bitmap-based) widgets. The <a href="systempanel.widgets.html#systempanel.widgets.Column"><code>systempanel.widgets.Column</code></a> container is a special case of <a href="systempanel.widgets.html#systempanel.widgets.Grid"><code>systempanel.widgets.Grid</code></a> container; the contained widgets are laid out vertically.</p>
+</section>
+<h2 id="systempanel.widgets.Row"><a href="#systempanel.widgets.Row">class systempanel.widgets.Row</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Row(contents)
+</code></pre>
+<h2>Description</h2>
+<p>A one-dimensional widget container.</p>
+<p>A container for normal (non bitmap-based) widgets. The <a href="systempanel.widgets.html#systempanel.widgets.Row"><code>systempanel.widgets.Row</code></a> container is a special case of <a href="systempanel.widgets.html#systempanel.widgets.Grid"><code>systempanel.widgets.Grid</code></a> container; the contained widgets are laid out horizontally.</p>
+</section>
+<h2 id="systempanel.widgets.Empty"><a href="#systempanel.widgets.Empty">class systempanel.widgets.Empty</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Empty()
+</code></pre>
+<h2>Description</h2>
+<p>An empty widget.</p>
+<p>An empty widget, used to fill containers for layout purposes.</p>
+</section>
+<h2 id="systempanel.widgets.Label"><a href="#systempanel.widgets.Label">class systempanel.widgets.Label</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Label(label)
+</code></pre>
+<h2>Description</h2>
+<p>An label.</p>
+<p>A label, used to present static text.</p>
+</section>
+<h2 id="systempanel.widgets.LabeledBox"><a href="#systempanel.widgets.LabeledBox">class systempanel.widgets.LabeledBox</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.LabeledBox(label, container)
+</code></pre>
+<h2>Description</h2>
+<p>A container with a label and box drawn around it.</p>
+<p>A single-element container with a text label and a box drawn around it. The single widget given by the <code>container</code> parameter can be of any widget type, but it is typically of a container type.</p>
+</section>
+<h2 id="systempanel.widgets.MultiImageOutput"><a href="#systempanel.widgets.MultiImageOutput">class systempanel.widgets.MultiImageOutput</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.MultiImageOutput(obj_name, images)
+</code></pre>
+<h2>Description</h2>
+<p>A bitmap-based output that toggles between multiple images.</p>
+<p>An output that toggles between multiple custom images.  This can be used, among other things, for multi-coloured LEDs or seven-segment display elements.  The <code>images</code> parameter is a list of paths to image filenames, each one given on the same form as in the <a href="systempanel.widgets.html#systempanel.widgets.Image"><code>systempanel.widgets.Image</code></a> class.  Numeric input to the panel object via the <a href="model-to-model-interfaces.html#uint64_state_interface_t"><code>uint64_state</code></a> interface is used as a 0-based index in the image list.</p>
+</section>
+<h2 id="systempanel.widgets.BitmapButton"><a href="#systempanel.widgets.BitmapButton">class systempanel.widgets.BitmapButton</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.BitmapButton(obj_name, offBitmap, onBitmap)
+</code></pre>
+<h2>Description</h2>
+<p>A bitmap-based button.</p>
+<p>A bitmap-based button. Similar to the standard <a href="systempanel.widgets.html#systempanel.widgets.Button"><code>systempanel.widgets.Button</code></a> class, but can be put inside a <a href="systempanel.widgets.html#systempanel.widgets.Canvas"><code>systempanel.widgets.Canvas</code></a>, and the appearance is based on custom images. The bitmap parameters are filenames of the same type as in the <a href="systempanel.widgets.html#systempanel.widgets.Image"><code>systempanel.widgets.Image</code></a> class.</p>
+</section>
+<h2 id="systempanel.widgets.BitmapToggleButton"><a href="#systempanel.widgets.BitmapToggleButton">class systempanel.widgets.BitmapToggleButton</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.BitmapToggleButton(obj_name, offBitmap, onBitmap)
+</code></pre>
+<h2>Description</h2>
+<p>A bitmap-based toggle button.</p>
+<p>A bitmap-based toggle button. Similar to the standard <a href="systempanel.widgets.html#systempanel.widgets.ToggleButton"><code>systempanel.widgets.ToggleButton</code></a> class, but can be put inside a <a href="systempanel.widgets.html#systempanel.widgets.Canvas"><code>systempanel.widgets.Canvas</code></a>, and the appearance is based on custom images. The bitmap parameters are file names of the same type as in the <a href="systempanel.widgets.html#systempanel.widgets.Image"><code>systempanel.widgets.Image</code></a> class.</p>
+</section>
+<h2 id="systempanel.widgets.BitmapLed"><a href="#systempanel.widgets.BitmapLed">class systempanel.widgets.BitmapLed</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.BitmapLed(obj_name, offBitmap, onBitmap)
+</code></pre>
+<h2>Description</h2>
+<p>A bitmap-based LED.</p>
+<p>A bitmap-based LED. Same as the standard <a href="systempanel.widgets.html#systempanel.widgets.Led"><code>systempanel.widgets.Led</code></a> class, but can be put inside a <a href="systempanel.widgets.html#systempanel.widgets.Canvas"><code>systempanel.widgets.Canvas</code></a>, and custom images can be supplied. The bitmap constructor parameters are file names of the same type as in the <a href="systempanel.widgets.html#systempanel.widgets.Image"><code>systempanel.widgets.Image</code></a> class.</p>
+</section>
+<h2 id="systempanel.widgets.Image"><a href="#systempanel.widgets.Image">class systempanel.widgets.Image</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class systempanel.widgets.Image(filename)
+</code></pre>
+<h2>Description</h2>
+<p>An image.</p>
+<p>An image, that can be put inside a <a href="systempanel.widgets.html#systempanel.widgets.Canvas"><code>systempanel.widgets.Canvas</code></a> class. Currently the only supported file format is PNG, but with full support for transparency. See <a href="systempanel.widgets.html#systempanel.widgets.Canvas"><code>systempanel.widgets.Canvas</code></a> class for more information.</p>
+</section>
+<h2 id="systempanel.widgets.BLUE"><a href="#systempanel.widgets.BLUE">systempanel.widgets.BLUE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>systempanel.widgets.BLUE
+</code></pre>
+<h2>Description</h2>
+<p>Blue standard widget color.</p>
+</section>
+<h2 id="systempanel.widgets.GREEN"><a href="#systempanel.widgets.GREEN">systempanel.widgets.GREEN</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>systempanel.widgets.GREEN
+</code></pre>
+<h2>Description</h2>
+<p>Green standard widget color.</p>
+</section>
+<h2 id="systempanel.widgets.PURPLE"><a href="#systempanel.widgets.PURPLE">systempanel.widgets.PURPLE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>systempanel.widgets.PURPLE
+</code></pre>
+<h2>Description</h2>
+<p>Purple standard widget color.</p>
+</section>
+<h2 id="systempanel.widgets.RED"><a href="#systempanel.widgets.RED">systempanel.widgets.RED</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>systempanel.widgets.RED
+</code></pre>
+<h2>Description</h2>
+<p>Red standard widget color.</p>
+</section>
+<h2 id="systempanel.widgets.WHITE"><a href="#systempanel.widgets.WHITE">systempanel.widgets.WHITE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>systempanel.widgets.WHITE
+</code></pre>
+<h2>Description</h2>
+<p>White standard widget color.</p>
+</section>
+<h2 id="systempanel.widgets.YELLOW"><a href="#systempanel.widgets.YELLOW">systempanel.widgets.YELLOW</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>systempanel.widgets.YELLOW
+</code></pre>
+<h2>Description</h2>
+<p>Yellow standard widget color.</p>
+</section>
+<div class="chain">
+<a href="systempanel.html">systempanel</a>
+<a href="instrumentation.html">instrumentation</a>
+</div>

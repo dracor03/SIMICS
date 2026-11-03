@@ -1,0 +1,508 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Quick-Start Platform x86 (Package Number 2096) Release Notes</title>
+
+<section class="page" id="index.html"><h1 id="index.html:quick-start-platform-x86-package-number-2096-release-notes"><a href="#index.html:quick-start-platform-x86-package-number-2096-release-notes">Quick-Start Platform x86 (Package Number 2096) Release Notes</a></h1>
+<p>This document contains release notes for the package <em>Quick-Start Platform x86</em>
+(package number 2096) for Simics 7.
+The release notes describe new features, bug fixes, and other changes.</p>
+<h2 id="index.html:changes-since-version-7-0-0"><a href="#index.html:changes-since-version-7-0-0">Changes Since Version 7.0.0</a></h2>
+<p>The following is a list of changes since the initial 7.0.0 release.</p>
+<h2 id="index.html:7-66-0-build-7214"><a href="#index.html:7-66-0-build-7214">7.66.0 (build 7214)</a></h2>
+<h3 id="index.html:qsp-x86-v2"><a href="#index.html:qsp-x86-v2">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_9_0.fd</code>. The change reallocates flash space from FVMAIN_COMPACT to the SEC FV so microcode patches can be embedded as FIT type 1 entries; the overall flash layout is unchanged. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_8_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-65-0-build-7210"><a href="#index.html:7-65-0-build-7210">7.65.0 (build 7210)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>RMUG4 (<code>remap_unit_gen4</code>) initialization is now performed by the QSPv2 blueprint itself instead of the <code>rmug4_helper.py</code> target script, removing duplication across target scripts and making it available when the blueprint is used directly. New parameters <code>hardware:remap_unit:rmug4:paw</code>, <code>hardware:remap_unit:rmug4:x2apic_opt_out</code> and <code>hardware:remap_unit:rmug4:with_atsr</code> configure the DMAR table generated for the RMUG4 remap unit. A new parameter <code>hardware:simulation:create_cell</code> (default <code>FALSE</code>) controls whether the blueprint creates its own simulation cell.</li>
+<li>The top-level object created by the QSPv2 blueprint now has an attribute <code>memory_megs</code> returning the DRAM size in megabytes. This is used by the <code>print-target-info</code> and <code>list-target-info</code> commands.</li>
+<li>QSPv2 now uses CPU blueprints instead of CPU components. The blueprints are selected with the parameter <code>processor:class</code> that was previously used to select the component class. In order for a CPU blueprint to be usable the following applies:
+<ul>
+<li>The module containing the CPU blueprint must be associated with the Simics project.</li>
+<li>The Simics module must also be a proper Python package with an <code>__init__.py</code> file.</li>
+<li>With the value of <code>processor:class</code> being (for example) <code>x86-foo</code> the function name for the blueprint has to be <code>bp_processor_x86_foo</code>.</li>
+<li>The same file that defines the blueprint function must define a state class <code>socket</code>, with members <code>mem_space</code>, <code>port_space</code>, <code>apic_bus</code>, <code>broadcast_bus</code>, and <code>cell</code>, all being <code>ConfObject</code> types to store references to the respective objects within the QSPv2.</li>
+<li>A blueprint instance for a given CPU shall take its configuration from the config class <code>CPUParams</code> as defined in the <code>x86-bp</code> module.</li>
+<li>The CPU blueprint can be decorated with the <code>@bp_legacy_comp</code> decorator.</li>
+</ul>
+</li>
+</ul>
+<h3 id="index.html:generic-pc-support-module"><a href="#index.html:generic-pc-support-module">Generic PC support module</a></h3>
+<ul>
+<li>Added attribute <code>fwd_msg_to_iommu</code> to the PCI upstream dispatcher. When set, non-interrupt upstream PCIe messages (e.g. ATS invalidation completions) are forwarded to the IOMMU remap unit instead of being dropped.</li>
+</ul>
+<h3 id="index.html:qsp-pci-components"><a href="#index.html:qsp-pci-components">QSP PCI Components</a></h3>
+<ul>
+<li>Removed the dummy clock workaround from <code>qsp_usb_blueprint</code> and the associated <code>qsp_usb_clock_available</code> function, since a working queue is now guaranteed to be available at object creation time. The USB controllers now enable frame list and async/periodic list polling directly instead of requiring a separate call once a clock became available.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-2"><a href="#index.html:qsp-x86-v2-2">QSP-x86-v2</a></h3>
+<ul>
+<li>RMUG4 initialization is no longer performed by a helper script invoked from the target <code>.yml.include</code> files; it has moved into the QSPv2 blueprint itself. See the <code>qsp-x86-v2-bp</code> release notes for details.</li>
+</ul>
+<h2 id="index.html:7-64-0-build-7196"><a href="#index.html:7-64-0-build-7196">7.64.0 (build 7196)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-2"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-2">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>The top-level object created by the QSPv2 blueprint now offers custom <code>info</code> and <code>status</code> commands. The <code>info</code> command shows the configuration data used when the blueprint was expanded. The <code>status</code> command shows the state of the connectors.</li>
+</ul>
+<h2 id="index.html:7-63-0-build-7193"><a href="#index.html:7-63-0-build-7193">7.63.0 (build 7193)</a></h2>
+<h3 id="index.html:qsp-x86-v2-3"><a href="#index.html:qsp-x86-v2-3">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_8_0.fd</code>. The BIOS now supports booting from PCIe-connected AHCI CDROMs and includes MNP, SNP, IPv4, IPv6, and VLAN network drivers. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_7_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-62-0-build-7192"><a href="#index.html:7-62-0-build-7192">7.62.0 (build 7192)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-3"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-3">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Fixed a bug where one could not create more than 14 root ports, because the device number of the VGA device was fixed at 15 and the 15th port would collide in the device numbers. The device number of the VGA device is by default 15 but will be pushed upwards if more than 14 root ports are created. This allows to create the envisioned maximum number of root ports, which is 20.</li>
+</ul>
+<h3 id="index.html:generic-pc-support-module-2"><a href="#index.html:generic-pc-support-module-2">Generic PC support module</a></h3>
+<ul>
+<li>Increased the maximum port ID for the generic root port class from 10 to 20 to enable creating more ports in a single platform.</li>
+</ul>
+<h2 id="index.html:7-61-0-build-7188"><a href="#index.html:7-61-0-build-7188">7.61.0 (build 7188)</a></h2>
+<h3 id="index.html:qsp-x86-v2-4"><a href="#index.html:qsp-x86-v2-4">QSP-x86-v2</a></h3>
+<ul>
+<li>Add a command <code>list-bios-build-shas</code> to the QSP v2 top-level object to allow inspecting the commit SHAs of the source repositories used to build the loaded BIOS.</li>
+<li>Update BIOS to <code>QSPv2_r_1_7_0.fd</code>. The new BIOS has improved source traceability. When the QSP v2 is booted into EFI shell, the command <code>BuildInfo</code> will show the commit SHAs of all repos used to build it. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_6_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-60-0-build-7187"><a href="#index.html:7-60-0-build-7187">7.60.0 (build 7187)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-4"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-4">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Use <code>advanced</code> level for blueprint parameters if provided by Simics Base.</li>
+</ul>
+<h2 id="index.html:7-59-0-build-7185"><a href="#index.html:7-59-0-build-7185">7.59.0 (build 7185)</a></h2>
+<h3 id="index.html:qsp-x86-v2-5"><a href="#index.html:qsp-x86-v2-5">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_6_0.fd</code>. This makes the <code>BootOrder</code> EFI variable persistent between simulated reboots, which enables <code>efibootmgr</code> settings made from within Linux running on the QSPv2 to take effect. This also means that a boot device selection made via the attribute <code>selected_boot_option</code> of the Simics UEFI device (<code>&lt;qspv2&gt;.css.mpss.simics_uefi</code>) only takes effect on the initial boot. During simulated reboots the selected boot option will be ignored as the now persistent <code>BootOrder</code> is then reused. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_5_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-58-0-build-7172"><a href="#index.html:7-58-0-build-7172">7.58.0 (build 7172)</a></h2>
+<h3 id="index.html:qsp-x86"><a href="#index.html:qsp-x86">QSP-x86</a></h3>
+<ul>
+<li>Added parameter <code>machine:hardware:consoles:gfx_con:no_gpu_if_no_console</code> to avoid creating a GPU component
+if no console is created.</li>
+</ul>
+<h2 id="index.html:7-57-0-build-7166"><a href="#index.html:7-57-0-build-7166">7.57.0 (build 7166)</a></h2>
+<h3 id="index.html:ich-base-functionality"><a href="#index.html:ich-base-functionality">ICH Base Functionality</a></h3>
+<ul>
+<li>ICH10 usb ehci/uhci are ported to DML 1.4.</li>
+</ul>
+<h2 id="index.html:7-56-0-build-7159"><a href="#index.html:7-56-0-build-7159">7.56.0 (build 7159)</a></h2>
+<h3 id="index.html:qsp-x86-v2-6"><a href="#index.html:qsp-x86-v2-6">QSP-x86-v2</a></h3>
+<ul>
+<li>Added a new parameter <code>hardware:root_ports:rc_routes_p2p</code> which defaults to <code>FALSE</code>. When set to <code>TRUE</code>, upstream DMA coming in at one root port can reach BAR-mapped resources of other root ports. Otherwise, upstream DMA can only reach DRAM.</li>
+</ul>
+<h2 id="index.html:7-55-0-build-7155"><a href="#index.html:7-55-0-build-7155">7.55.0 (build 7155)</a></h2>
+<h3 id="index.html:x58-devices"><a href="#index.html:x58-devices">X58 devices</a></h3>
+<ul>
+<li>Added an attribute <code>End_End_TLP_Prefix_Supported</code> to
+<code>x58-pcie-port-acs</code> which if set ensures that the “End-End TLP Prefix
+Supported” field in the Device Capabilities 2 register of the PCI Express
+Capability Structure returns 1 when read.</li>
+<li>The <code>x58-pcie-port-acs</code> class has been moved to PCIe version 3 from 2
+to include more PCIe fields in certain capability registers.</li>
+</ul>
+<h2 id="index.html:7-54-0-build-7151"><a href="#index.html:7-54-0-build-7151">7.54.0 (build 7151)</a></h2>
+<h3 id="index.html:qsp-x86-v2-7"><a href="#index.html:qsp-x86-v2-7">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_5_0.fd</code>. A number of unused drivers has been removed and the BIOS has been modified to support up to 512 cores. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_4_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-53-0-build-7150"><a href="#index.html:7-53-0-build-7150">7.53.0 (build 7150)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-5"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-5">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Map PM1a event register block stub into port space to avoid errors messages during Linux boot.</li>
+</ul>
+<h3 id="index.html:common"><a href="#index.html:common">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h3 id="index.html:generic-pc-support-module-3"><a href="#index.html:generic-pc-support-module-3">Generic PC support module</a></h3>
+<ul>
+<li>Added a stubs for PM registers <code>PM1a_STS</code> and <code>PM1a_EN</code>. They are plain read/write registers without any side effects.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-8"><a href="#index.html:qsp-x86-v2-8">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_4_0.fd</code>. This corrects EDID information in the GOP and adds a BIOS menu that allows selecting the graphics console resolution. After selection, no reboot is needed — settings only need to be saved and boot can continue. The selection persists over reboots and overwrites the selection made in attribute <code>video_mode</code> of the Simics UEFI device. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_3_0.fd</code>.</li>
+<li>Fixed a packaging bug where files for the <code>qsp-x86-v2/yocto-linux</code> were missing.</li>
+<li>Disabled platform CR access for QSP v2.</li>
+<li>Update BIOS to <code>QSPv2_r_1_3_0.fd</code>. This increases the MEM64 PCI resource window to 16TiB to accommodate resource-hungry PCIe endpoints, and includes internal cleanup and restructuring. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_2_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-52-0-build-7146"><a href="#index.html:7-52-0-build-7146">7.52.0 (build 7146)</a></h2>
+<h3 id="index.html:blueprints-of-the-qsp-x86-platform"><a href="#index.html:blueprints-of-the-qsp-x86-platform">Blueprints of the QSP-x86 platform</a></h3>
+<ul>
+<li>Use the access ports on the <code>pcie-downstream-port-legacy</code> rather than the memory spaces to ensure required atoms are added.</li>
+</ul>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-6"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-6">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Use the access ports on the <code>pcie-downstream-port-legacy</code> rather than the memory spaces to ensure required atoms are added.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-9"><a href="#index.html:qsp-x86-v2-9">QSP-x86-v2</a></h3>
+<ul>
+<li>The script <code>rmug4_helper.py</code> now adds the remap unit to the platform reset bus (addresses HSD-14027193461).</li>
+</ul>
+<h3 id="index.html:x58-ich10-hierarchical-components"><a href="#index.html:x58-ich10-hierarchical-components">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>Use the access ports on the <code>pcie-downstream-port-legacy</code> rather than the memory spaces to ensure required atoms are added.</li>
+</ul>
+<h2 id="index.html:7-51-0-build-7143"><a href="#index.html:7-51-0-build-7143">7.51.0 (build 7143)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-7"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-7">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Added a new parameter <code>hardware:usb_host:type</code> to select either the <code>public</code> (the default) or the <code>intel-internal</code> variant of the USB host and connected devices. The non-public variants are shipped in package 2017.</li>
+</ul>
+<h2 id="index.html:7-50-0-build-7139"><a href="#index.html:7-50-0-build-7139">7.50.0 (build 7139)</a></h2>
+<h3 id="index.html:qsp-x86-2"><a href="#index.html:qsp-x86-2">QSP-x86</a></h3>
+<ul>
+<li>The default apic bus class is now <code>apic_bus_v2</code>.</li>
+</ul>
+<h2 id="index.html:7-49-0-build-7138"><a href="#index.html:7-49-0-build-7138">7.49.0 (build 7138)</a></h2>
+<h3 id="index.html:x58-devices-2"><a href="#index.html:x58-devices-2">X58 devices</a></h3>
+<ul>
+<li>Fixed check pointing for the QPI device model.
+Previously it did not work when a deferred transaction was pending.</li>
+</ul>
+<h2 id="index.html:7-48-0-build-7133"><a href="#index.html:7-48-0-build-7133">7.48.0 (build 7133)</a></h2>
+<h3 id="index.html:qsp-x86-3"><a href="#index.html:qsp-x86-3">QSP-x86</a></h3>
+<ul>
+<li>Older processor models contained in modules <code>x86-intel64</code> and <code>x86-nehalem-comp</code> are removed. You need to install package 8112 (“QSP CPU”) to have the new default CPU class <code>x86QSP3</code> and other supported models available.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-10"><a href="#index.html:qsp-x86-v2-10">QSP-x86-v2</a></h3>
+<ul>
+<li>Older processor models contained in modules <code>x86-intel64</code> and <code>x86-nehalem-comp</code> are removed. You need to install package 8112 (“QSP CPU”) to have the new default CPU class <code>x86QSP3</code> and other supported models available.</li>
+</ul>
+<h2 id="index.html:7-47-0-build-7132"><a href="#index.html:7-47-0-build-7132">7.47.0 (build 7132)</a></h2>
+<h3 id="index.html:blueprints-of-the-qsp-x86-platform-2"><a href="#index.html:blueprints-of-the-qsp-x86-platform-2">Blueprints of the QSP-x86 platform</a></h3>
+<ul>
+<li>Use the new <code>intel-io-apic</code> device class if possible. Otherwise fall back to using the original <code>io-apic</code> class.</li>
+</ul>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-8"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-8">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Use the new <code>intel-io-apic</code> device class if possible. Otherwise fall back to using the original <code>io-apic</code> class.</li>
+</ul>
+<h3 id="index.html:x58-ich10-hierarchical-components-2"><a href="#index.html:x58-ich10-hierarchical-components-2">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>Use the new <code>intel-io-apic</code> device class if possible. Otherwise fall back to using the original <code>io-apic</code> class.</li>
+</ul>
+<h2 id="index.html:7-46-0-build-7131"><a href="#index.html:7-46-0-build-7131">7.46.0 (build 7131)</a></h2>
+<h3 id="index.html:qsp-x86-v2-11"><a href="#index.html:qsp-x86-v2-11">QSP-x86-v2</a></h3>
+<ul>
+<li>Target <code>qsp-x86-v2/yocto-linux</code> has been added.</li>
+</ul>
+<h3 id="index.html:x58-ich10-hierarchical-components-3"><a href="#index.html:x58-ich10-hierarchical-components-3">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>The use of <code>hostfs</code> has been removed.</li>
+</ul>
+<h2 id="index.html:7-45-0-build-7129"><a href="#index.html:7-45-0-build-7129">7.45.0 (build 7129)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-9"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-9">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Fixed a bug that prevented the QSPv2 to be instantiated in the absence of the QSP-CPU package (package number 8112) even when a processor class was taken from another package (SIMICS-23304)</li>
+</ul>
+<h2 id="index.html:7-44-0-build-7126"><a href="#index.html:7-44-0-build-7126">7.44.0 (build 7126)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-10"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-10">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Move ECAM mapping from PCI memory into physical memory.</li>
+</ul>
+<h2 id="index.html:7-43-0-build-7122"><a href="#index.html:7-43-0-build-7122">7.43.0 (build 7122)</a></h2>
+<h3 id="index.html:blueprints-of-the-qsp-x86-platform-3"><a href="#index.html:blueprints-of-the-qsp-x86-platform-3">Blueprints of the QSP-x86 platform</a></h3>
+<ul>
+<li>The QSP-x86 package now requires minimum Simics-Base 7.63.0.</li>
+</ul>
+<h3 id="index.html:x58-ich10-hierarchical-components-4"><a href="#index.html:x58-ich10-hierarchical-components-4">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>Map <code>shadow.port.io</code> instead of <code>shadow</code> into the port space if the build ID of the <code>pc-shadow</code> class indicates availability of said port.</li>
+<li>This component, part of package 2075 now requires minimum Simics-Base
+7.63.0.</li>
+</ul>
+<h2 id="index.html:7-42-0-build-7119"><a href="#index.html:7-42-0-build-7119">7.42.0 (build 7119)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-11"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-11">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Replace all usage of components with recently added blueprints. The minimum required version of Simics Base is hence 7.61.0.</li>
+</ul>
+<h3 id="index.html:qsp-pci-components-2"><a href="#index.html:qsp-pci-components-2">QSP PCI Components</a></h3>
+<ul>
+<li>The blueprints <code>qsp_nic_blueprint</code> and <code>qsp_usb_blueprint</code> have been added. The former creates a PCIe connectable NIC for the QSP while the latter creates a PCIe connectable USB host controller. Both contain their associated hot-plug connectors.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-12"><a href="#index.html:qsp-x86-v2-12">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_2_0.fd</code>. This adds a <code>_OSC</code> method to the PCI node of the default DSDT that will grant the OS control over whatever feature it requests. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_1_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-41-0-build-7117"><a href="#index.html:7-41-0-build-7117">7.41.0 (build 7117)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-12"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-12">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Ensure remap unit remains unconnected in case a non-default remap unit is used. This allows the end user (who replaced the remap unit class) to decide how to connect the remap unit.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-13"><a href="#index.html:qsp-x86-v2-13">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_1_0.fd</code>. This adds a new feature to reserve additional memory regions with the help of the <code>simics-uefi</code> device. The new version is fully backwards-compatible and it replaces all uses of <code>QSPv2_r_1_0_2.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-40-0-build-7116"><a href="#index.html:7-40-0-build-7116">7.40.0 (build 7116)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-13"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-13">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Fixed a bug that prevented booting the system with <code>hardware:processor:num_slots</code> being larger than 1.</li>
+</ul>
+<h3 id="index.html:generic-pc-support-module-4"><a href="#index.html:generic-pc-support-module-4">Generic PC support module</a></h3>
+<ul>
+<li>S5 state detection added.</li>
+</ul>
+<h2 id="index.html:7-39-0-build-7115"><a href="#index.html:7-39-0-build-7115">7.39.0 (build 7115)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-14"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-14">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Replaced x58 PCIe root ports and x58 remap units with classes <code>simple_pcie_root_port</code> and <code>pass_through_remap_unit</code> from the <code>generic-pc-support</code> module.</li>
+</ul>
+<h3 id="index.html:qsp-x86-4"><a href="#index.html:qsp-x86-4">QSP-x86</a></h3>
+<ul>
+<li>Updated the training device driver in the diff image <code>targets/qsp-x86/images/simics-user-20240917113829.craff</code> used in the <code>qsp-x86/yocto-linux</code> target to work with the <code>x86QSP3</code> core.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-14"><a href="#index.html:qsp-x86-v2-14">QSP-x86-v2</a></h3>
+<ul>
+<li>Update BIOS to <code>QSPv2_r_1_0_2.fd</code>. This fixes a bug in the DSDT that prevented Windows 10 to boot. Since this is a bug fix release it replaces all uses of <code>QSPv2_r_1_0_1.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-38-0-build-7111"><a href="#index.html:7-38-0-build-7111">7.38.0 (build 7111)</a></h2>
+<h3 id="index.html:qsp-x86-v2-15"><a href="#index.html:qsp-x86-v2-15">QSP-x86-v2</a></h3>
+<ul>
+<li>Added a new <code>user-provided-linux</code> target that can boot a user provided linux either from a full disk image or a combination of kernel, rootfs, initrd and kernel command line.</li>
+<li>Update BIOS to <code>QSPv2_r_1_0_1.fd</code>. This fixes a bug where the serial console switched to an obscure mode if there was no graphics console enabled and it fixes a bug where older Linux kernels could not find the RSDP in the legacy BIOS region. Since this is a bug fix release it replaces all uses of <code>QSPv2_r_1_0_0.fd</code>.</li>
+</ul>
+<h2 id="index.html:7-37-0-build-7109"><a href="#index.html:7-37-0-build-7109">7.37.0 (build 7109)</a></h2>
+<h3 id="index.html:blueprints-of-the-qsp-x86-platform-4"><a href="#index.html:blueprints-of-the-qsp-x86-platform-4">Blueprints of the QSP-x86 platform</a></h3>
+<ul>
+<li>Moved x86_cpu to a separate module packaged with QSP-x86-CPU</li>
+</ul>
+<h3 id="index.html:qsp-x86-5"><a href="#index.html:qsp-x86-5">QSP-x86</a></h3>
+<ul>
+<li>The default processor for the QSP has been changed to <code>x86QSP3</code> which is part of package 8112 (“QSP CPU”). Hence, in order to run the QSP without explicitly setting the processor type your project needs to be associated with the aforementioned package. The minimum version of package 8112 for this is 7.14.0.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-16"><a href="#index.html:qsp-x86-v2-16">QSP-x86-v2</a></h3>
+<ul>
+<li>The default processor for the QSP v2 has been changed to <code>x86QSP3</code> which is part of package 8112 (“QSP CPU”). Hence, in order to run the QSP v2 without explicitly setting the processor type your project needs to be associated with the aforementioned package. The minimum version of package 8112 for this is 7.14.0.</li>
+</ul>
+<h2 id="index.html:7-36-0-build-7108"><a href="#index.html:7-36-0-build-7108">7.36.0 (build 7108)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-15"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-15">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Renamed and added to package 2096.</li>
+</ul>
+<h3 id="index.html:qsp-x86-v2-17"><a href="#index.html:qsp-x86-v2-17">QSP-x86-v2</a></h3>
+<ul>
+<li>Initial release</li>
+</ul>
+<h2 id="index.html:7-35-0-build-7098"><a href="#index.html:7-35-0-build-7098">7.35.0 (build 7098)</a></h2>
+<h3 id="index.html:intel-e1000-network-adapters"><a href="#index.html:intel-e1000-network-adapters">Intel e1000 Network Adapters</a></h3>
+<ul>
+<li>Ported the DML 1.4 version of e1000 to the new PCIe modeling library. Backwards-incompatible change: The <code>connect phy</code> is renamed to <code>eth_phy</code> to avoid a name collision with the <code>port phy</code> in the new PCIe library referring to the PCIe PHY. e1000 can still use the legacy PCI library for transitional purposes by setting the parameter e1000_use_legacy_pci_library in the device file.</li>
+</ul>
+<h3 id="index.html:qsp-x86-6"><a href="#index.html:qsp-x86-6">QSP-x86</a></h3>
+<ul>
+<li>Updated <code>qsp-x85/firststeps</code> to use GRML version 2025.05, as the previous version, 2024.02, is no longer possible to download.</li>
+</ul>
+<h2 id="index.html:7-34-0-build-7094"><a href="#index.html:7-34-0-build-7094">7.34.0 (build 7094)</a></h2>
+<h3 id="index.html:intel-e1000-network-adapters-2"><a href="#index.html:intel-e1000-network-adapters-2">Intel e1000 Network Adapters</a></h3>
+<ul>
+<li>Added a port of the module to DML 1.4. The existing DML 1.2 version of the library is kept for backwards compatibility. DML 1.2 devices that include the library will use the DML 1.2 variant while DML 1.4 devices will use the DML 1.4 variant.</li>
+</ul>
+<h2 id="index.html:7-33-0-build-7091"><a href="#index.html:7-33-0-build-7091">7.33.0 (build 7091)</a></h2>
+<h3 id="index.html:qsp-x86-7"><a href="#index.html:qsp-x86-7">QSP-x86</a></h3>
+<ul>
+<li>A new target <code>qsp-x86/yocto-linux-bp</code> has been added that fulfills the same role as <code>qsp-x86/yocto-linux</code> but uses the QSP blueprint and the blueprint integration into the target framework instead of the QSP component and an explicit <code>hardware.yml</code> file.</li>
+</ul>
+<h2 id="index.html:7-32-0-build-7089"><a href="#index.html:7-32-0-build-7089">7.32.0 (build 7089)</a></h2>
+<h2 id="index.html:7-31-0-build-7087"><a href="#index.html:7-31-0-build-7087">7.31.0 (build 7087)</a></h2>
+<h3 id="index.html:blueprints-of-the-quick-start-platform-for-x86-v2-16"><a href="#index.html:blueprints-of-the-quick-start-platform-for-x86-v2-16">Blueprints of the Quick Start Platform for x86 v2</a></h3>
+<ul>
+<li>Initial release</li>
+</ul>
+<h2 id="index.html:7-30-0-build-7084"><a href="#index.html:7-30-0-build-7084">7.30.0 (build 7084)</a></h2>
+<h2 id="index.html:7-29-0-build-7083"><a href="#index.html:7-29-0-build-7083">7.29.0 (build 7083)</a></h2>
+<h3 id="index.html:ich-base-functionality-2"><a href="#index.html:ich-base-functionality-2">ICH Base Functionality</a></h3>
+<ul>
+<li>Fixed a bug in <code>info</code> and <code>status</code> commands of SMBUS controller.</li>
+</ul>
+<h3 id="index.html:irq-pin-to-ioapic-adapter"><a href="#index.html:irq-pin-to-ioapic-adapter">IRQ Pin to IOAPIC Adapter</a></h3>
+<ul>
+<li>Initial release.</li>
+</ul>
+<h3 id="index.html:qsp-pci-components-3"><a href="#index.html:qsp-pci-components-3">QSP PCI Components</a></h3>
+<ul>
+<li>Initial release.</li>
+</ul>
+<h2 id="index.html:7-28-0-build-7081"><a href="#index.html:7-28-0-build-7081">7.28.0 (build 7081)</a></h2>
+<h3 id="index.html:blueprints-of-the-qsp-x86-platform-5"><a href="#index.html:blueprints-of-the-qsp-x86-platform-5">Blueprints of the QSP-x86 platform</a></h3>
+<ul>
+<li>Larger refactoring of the QSP blueprint. The new blueprints are closer aligned to the original structure of the QSP component. The code is more expressive and naming has been adjusted to match best practices. The example in <code>src/components/qsp-x86-bp/tests/qsp_platform.py</code> shows how to assemble a fully functioning platform with disks and consoles from the QSP blueprint. This update <em>breaks</em> backwards compatibility.</li>
+</ul>
+<h2 id="index.html:7-27-0-build-7079"><a href="#index.html:7-27-0-build-7079">7.27.0 (build 7079)</a></h2>
+<h3 id="index.html:qsp-x86-8"><a href="#index.html:qsp-x86-8">QSP-x86</a></h3>
+<ul>
+<li>Added support for processor classes that require package, die, and module IDs to properly generate APIC IDs. <code>hardware.yml</code> now has parameters <code>num_dies</code> and <code>num_modules</code> in addition to the existing parameters <code>num_slots</code> (now also used to determine the number of packages), <code>num_cores</code>, and <code>num_threads</code>. Note that even if a processor class requires/supports multi-dies and multi-module layouts, not every arbitrary combination of the values works. Some cores may only support a single package but multiple dies, others may only support single dies and others just a single core per module.</li>
+</ul>
+<h2 id="index.html:7-26-0-build-7075"><a href="#index.html:7-26-0-build-7075">7.26.0 (build 7075)</a></h2>
+<h2 id="index.html:7-25-0-build-7072"><a href="#index.html:7-25-0-build-7072">7.25.0 (build 7072)</a></h2>
+<h3 id="index.html:qsp-x86-9"><a href="#index.html:qsp-x86-9">QSP-x86</a></h3>
+<ul>
+<li>Added a new target <code>qsp-x86/boot-disk-image</code> that expects parameter <code>machine:software:boot_disk:image</code> to point to a UEFI bootable disk image and then the machine will be booted off of this disk image. Parameter <code>machine:software:boot_disk:medium</code> can be used to select the boot medium. Supported options are <code>CDR</code> (CDROM), <code>HDD0</code> and <code>HDD1</code> (hard disks 0 or 1), and <code>USB</code> (the default).</li>
+</ul>
+<h2 id="index.html:7-24-0-build-7071"><a href="#index.html:7-24-0-build-7071">7.24.0 (build 7071)</a></h2>
+<h3 id="index.html:blueprints-of-the-qsp-x86-platform-6"><a href="#index.html:blueprints-of-the-qsp-x86-platform-6">Blueprints of the QSP-x86 platform</a></h3>
+<ul>
+<li>Fix a bug that leads to incorrect APIC ID assignments when using more than one core.</li>
+</ul>
+<h2 id="index.html:7-23-0-build-7069"><a href="#index.html:7-23-0-build-7069">7.23.0 (build 7069)</a></h2>
+<h3 id="index.html:blueprints-of-the-qsp-x86-platform-7"><a href="#index.html:blueprints-of-the-qsp-x86-platform-7">Blueprints of the QSP-x86 platform</a></h3>
+<ul>
+<li>The QSP-x86 blueprint is now using new-style PCIe the the north bridge, new-style PCIe for the SMBus controller in the south bridge and <code>accel-vga-v2</code> as the VGA model.</li>
+<li>The QSP-x86 package now requires minimum Simics-Base 6.0.217.</li>
+</ul>
+<h3 id="index.html:qsp-x86-10"><a href="#index.html:qsp-x86-10">QSP-x86</a></h3>
+<ul>
+<li>Added support for NVMe disks to <code>hardware.yml</code> and added an example target <code>qsp-x86/yocto-linux-nvme</code> that uses NVMe disks (SIMICS-4510). This means package 2096 (QSP) now needs Simics Base 7.31.0 or later.</li>
+</ul>
+<h2 id="index.html:7-22-0-build-7064"><a href="#index.html:7-22-0-build-7064">7.22.0 (build 7064)</a></h2>
+<h3 id="index.html:x58-devices-3"><a href="#index.html:x58-devices-3">X58 devices</a></h3>
+<ul>
+<li>IO transactions over the x58-dmi now supports being deferred.</li>
+</ul>
+<h2 id="index.html:7-21-0-build-7063"><a href="#index.html:7-21-0-build-7063">7.21.0 (build 7063)</a></h2>
+<h3 id="index.html:qsp-x86-11"><a href="#index.html:qsp-x86-11">QSP-x86</a></h3>
+<ul>
+<li>The <code>user-provided-linux</code> target now uses the boot device selection feature offered by the Simics UEFI device (SIMICS-17186).</li>
+<li>The hardware definition for new-style targets (<code>hardware.yml</code>) now has an additional parameter <code>hardware:processor:do_not_initialize_mtrr</code> that (when set to <code>true</code>) prevents the motherboard component from initializing the <code>MTRR</code> registers of the cores. The initialization was done for legacy workloads that did not use the UEFI BIOS. For workloads that use the UEFI BIOS this is no longer needed. With all new-style targets using the UEFI BIOS, the default for the parameter is hence <code>true</code> (HSD-22013229935).</li>
+<li>Version 2 of the QSP BIOS is now in full 64 bit mode (SEC, PEI and DXE), understands SR-IOV devices during PCI enumeration and has a significantly increased 64 bit PCI resource window in order to handle SR-IOV devices with a large number of virtual functions. The new BIOS file is named <code>SIMICSX58X64_2_0_0_r.fd</code> and is fully backwards compatible and it replaces all uses of <code>SIMICSX58IA32X64_1_5_0_r.fd</code>. Hence, BIOS <code>SIMICSX58IA32X64_1_5_0_r.fd</code> has been removed from the package.</li>
+</ul>
+<h3 id="index.html:x58-ich10-hierarchical-components-5"><a href="#index.html:x58-ich10-hierarchical-components-5">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>Added new configuration attribute <code>do_not_initialize_mtrr</code> to prevent <code>MTRR</code> register initialization by the component. This is needed for legacy workloads and hence defaults to <code>false</code> to prevent existing setups from breaking. When using a UEFI BIOS, the attribute should be set to <code>true</code> (HSD-22013229935).</li>
+</ul>
+<h3 id="index.html:x58-devices-4"><a href="#index.html:x58-devices-4">X58 devices</a></h3>
+<ul>
+<li>Fix a bug where completing a deferred transaction leads to an assertion in the QPI device model.</li>
+</ul>
+<h2 id="index.html:7-20-0-build-7061"><a href="#index.html:7-20-0-build-7061">7.20.0 (build 7061)</a></h2>
+<h3 id="index.html:ich-base-functionality-3"><a href="#index.html:ich-base-functionality-3">ICH Base Functionality</a></h3>
+<ul>
+<li>Added an implementation of the SMBUS controller that uses the i2c v2 interfaces (fixes SIMICS-10697).</li>
+</ul>
+<h3 id="index.html:qsp-x86-12"><a href="#index.html:qsp-x86-12">QSP-x86</a></h3>
+<ul>
+<li>Adding new target <code>qsp-x86/yocto-linux</code> designed to boot <code>https://downloads.yoctoproject.org/releases/yocto/yocto-5.1/machines/genericx86-64/core-image-sato-sdk-genericx86-64.rootfs-20240917113829.wic</code></li>
+<li>Added parameter <code>smbus_ctrl:use_i2c_v2</code> to the QSP’s <code>hardware.yml</code> to control if the SMBUS controller and the x58-ich10 components shall use i2c v2 interfaces or v1 interfaces. v1 is the default for backwards compatibility reasons (fixes SIMICS-10697).</li>
+</ul>
+<h3 id="index.html:x58-ich10-hierarchical-components-6"><a href="#index.html:x58-ich10-hierarchical-components-6">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>Added configuration attribute <code>smbus_use_i2c_v2</code> to both, <code>motherboard_x58_ich10</code> and <code>southbridge_ich10</code> to select if the SMBUS controller and the SMBUS should use i2c interface version v1 or v2 (fixes SIMICS-10697).</li>
+</ul>
+<h2 id="index.html:7-19-0-build-7058"><a href="#index.html:7-19-0-build-7058">7.19.0 (build 7058)</a></h2>
+<h3 id="index.html:qsp-x86-13"><a href="#index.html:qsp-x86-13">QSP-x86</a></h3>
+<ul>
+<li>Resolving types before using (fixes SIMINT-1656).</li>
+</ul>
+<h2 id="index.html:7-18-0-build-7056"><a href="#index.html:7-18-0-build-7056">7.18.0 (build 7056)</a></h2>
+<h3 id="index.html:qsp-x86-14"><a href="#index.html:qsp-x86-14">QSP-x86</a></h3>
+<ul>
+<li>Moved <code>user-provided-linux</code> helper scripts out of QSP into common targets to facilitate easier reuse by other platforms. The package now requires Simics-Base version 7.25.0 or later.</li>
+</ul>
+<h2 id="index.html:7-17-0-build-7055"><a href="#index.html:7-17-0-build-7055">7.17.0 (build 7055)</a></h2>
+<h3 id="index.html:qsp-x86-15"><a href="#index.html:qsp-x86-15">QSP-x86</a></h3>
+<ul>
+<li>Fixed a problem with target parameter default overrides (fixes SIMINT-1652).</li>
+<li>Removed unused parameter <code>enable_real_time_mode</code> from <code>hardware.yml</code>.</li>
+</ul>
+<h2 id="index.html:7-16-0-build-7050"><a href="#index.html:7-16-0-build-7050">7.16.0 (build 7050)</a></h2>
+<h3 id="index.html:qsp-x86-16"><a href="#index.html:qsp-x86-16">QSP-x86</a></h3>
+<ul>
+<li>Fix a bug where setting <code>sim-&gt;automatic_cell_partition = FALSE</code> will lead to an error when loading QSP targets (fixes SIMICS-21891).</li>
+</ul>
+<h2 id="index.html:7-15-0-build-7037"><a href="#index.html:7-15-0-build-7037">7.15.0 (build 7037)</a></h2>
+<h3 id="index.html:qsp-x86-17"><a href="#index.html:qsp-x86-17">QSP-x86</a></h3>
+<ul>
+<li>Added a new MSR to the QSP1 core to allow recent EDK2 BIOS builds to work on the QSP</li>
+</ul>
+<h2 id="index.html:7-14-0-build-7035"><a href="#index.html:7-14-0-build-7035">7.14.0 (build 7035)</a></h2>
+<h3 id="index.html:qsp-x86-18"><a href="#index.html:qsp-x86-18">QSP-x86</a></h3>
+<ul>
+<li>Make use of new <code>allow_empty</code> target parameter flag. The
+package now requires Simics-Base 7.19.0 or later.</li>
+</ul>
+<h3 id="index.html:x58-devices-5"><a href="#index.html:x58-devices-5">X58 devices</a></h3>
+<ul>
+<li>Corrected the port type ID value for the PCIe ports to report that these ports are root ports.</li>
+</ul>
+<h2 id="index.html:7-13-0-build-7033"><a href="#index.html:7-13-0-build-7033">7.13.0 (build 7033)</a></h2>
+<h3 id="index.html:qsp-x86-19"><a href="#index.html:qsp-x86-19">QSP-x86</a></h3>
+<ul>
+<li>Added a new target parameter <code>external_remap_unit</code> of type string to the QSP that, when set, instantiates objects of the given class and sets them as external remap units for the x58 chipset.</li>
+</ul>
+<h3 id="index.html:x58-devices-6"><a href="#index.html:x58-devices-6">X58 devices</a></h3>
+<ul>
+<li>Support has been added for external remap units that expect to receive accesses to their MMIO range with the full address (base not removed).</li>
+<li>The VTD base address can now be switched to use 18 address bits instead of 12.</li>
+</ul>
+<h2 id="index.html:7-12-0-build-7029"><a href="#index.html:7-12-0-build-7029">7.12.0 (build 7029)</a></h2>
+<h3 id="index.html:qsp-x86-20"><a href="#index.html:qsp-x86-20">QSP-x86</a></h3>
+<ul>
+<li>Updated BIOS to allow ACPI table overrides. The new BIOS version is <code>SIMICSX58IA32X64_1_5_0_r.fd</code> and is fully backwards compatible and it replaces all uses of <code>SIMICSX58IA32X64_1_4_0_r.fd</code>. BIOS <code>SIMICSX58IA32X64_1_4_0_r.fd</code> is kept in the package in case of explicit use of the image by end users but will be removed in future releases, so any explicit use of it should be updated to the new BIOS.</li>
+<li>Added a new target parameter to the QSP <code>hardware.yml</code> file that allows to set the name of the Simics UEFI device in the <code>motherboard_x58_ich10</code> component and hence also control its instantiation. Also adjusted the <code>qsp-x86/uefi-shell</code> target to use the newly added parameter.</li>
+</ul>
+<h3 id="index.html:x58-ich10-hierarchical-components-7"><a href="#index.html:x58-ich10-hierarchical-components-7">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>Added the optional Simics UEFI device to the <code>motherboard_x58_ich10</code> component. It will only be instantiated if the attribute <code>uefi_device_name</code> is set to a non-empty string.</li>
+</ul>
+<h2 id="index.html:7-11-0-build-7028"><a href="#index.html:7-11-0-build-7028">7.11.0 (build 7028)</a></h2>
+<h3 id="index.html:qsp-x86-21"><a href="#index.html:qsp-x86-21">QSP-x86</a></h3>
+<ul>
+<li>Fixed a problem when using writable persistent state. The package now requires Simics-Base version 6.0.200 or later.</li>
+</ul>
+<h2 id="index.html:7-10-0-build-7027"><a href="#index.html:7-10-0-build-7027">7.10.0 (build 7027)</a></h2>
+<h3 id="index.html:qsp-x86-22"><a href="#index.html:qsp-x86-22">QSP-x86</a></h3>
+<ul>
+<li>Fixed a problem when using writable persistent state. The package now requires Simics-Base version 7.14.0 or later.</li>
+<li>A new <code>qsp-x86/bare-metal</code> target was added for running bare metal applications in a given execution mode.</li>
+<li>Changed to using <code>bash</code> as default shell in <code>qsp-x86/firststeps</code> instead of <code>zsh</code>. This change was done to allow easier scripted interaction with the terminal, since <code>bash</code> produces less invisible characters on the terminal.</li>
+</ul>
+<h2 id="index.html:7-9-0-build-7023"><a href="#index.html:7-9-0-build-7023">7.9.0 (build 7023)</a></h2>
+<h3 id="index.html:common-2"><a href="#index.html:common-2">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h2 id="index.html:7-8-0-build-7021"><a href="#index.html:7-8-0-build-7021">7.8.0 (build 7021)</a></h2>
+<h3 id="index.html:qsp-x86-23"><a href="#index.html:qsp-x86-23">QSP-x86</a></h3>
+<ul>
+<li>Updated <code>qsp-x86/firststeps</code> target to the search for the <code>GRML</code> ISO image in the project first and otherwise in <code>%simics/targets/qsp-x86/images</code>. This allows a simplified setup in the <em>Getting Started</em> manual.</li>
+</ul>
+<h2 id="index.html:7-7-0-build-7017"><a href="#index.html:7-7-0-build-7017">7.7.0 (build 7017)</a></h2>
+<h3 id="index.html:qsp-x86-24"><a href="#index.html:qsp-x86-24">QSP-x86</a></h3>
+<ul>
+<li>Updated the target <code>qsp/firststeps</code> to use the <code>GRML Linux</code> distribution. This target is now used in <em>Getting Started</em> (fixes SIMICS-20852).</li>
+</ul>
+<h2 id="index.html:7-6-0-build-7016"><a href="#index.html:7-6-0-build-7016">7.6.0 (build 7016)</a></h2>
+<h2 id="index.html:7-5-0-build-7012"><a href="#index.html:7-5-0-build-7012">7.5.0 (build 7012)</a></h2>
+<h3 id="index.html:qsp-x86-25"><a href="#index.html:qsp-x86-25">QSP-x86</a></h3>
+<ul>
+<li>Fixed a problem loading the Clear Linux target when using Simics as a Python module.</li>
+</ul>
+<h2 id="index.html:7-4-0-build-7011"><a href="#index.html:7-4-0-build-7011">7.4.0 (build 7011)</a></h2>
+<h3 id="index.html:qsp-x86-26"><a href="#index.html:qsp-x86-26">QSP-x86</a></h3>
+<ul>
+<li>Added the target script <code>qsp/firststeps</code> (fixes SIMICS-20852).</li>
+</ul>
+<h2 id="index.html:7-3-0-build-7010"><a href="#index.html:7-3-0-build-7010">7.3.0 (build 7010)</a></h2>
+<h3 id="index.html:qsp-x86-27"><a href="#index.html:qsp-x86-27">QSP-x86</a></h3>
+<ul>
+<li>Updated BIOS to avoid line breaks in the serial console at the line width of the graphical console (fixes HSD-18036995885). The new BIOS version is SIMICSX58IA32X64_1_4_0_r.fd and it replaces all uses of SIMICSX58IA32X64_1_3_0_r.fd which hence has been removed from the package.</li>
+</ul>
+<h2 id="index.html:7-2-0-build-7009"><a href="#index.html:7-2-0-build-7009">7.2.0 (build 7009)</a></h2>
+<h3 id="index.html:x58-ich10-hierarchical-components-8"><a href="#index.html:x58-ich10-hierarchical-components-8">X58 ICH10 Hierarchical Components</a></h3>
+<ul>
+<li>Increased supported UEFI (BIOS) size to 128 MB.</li>
+</ul>
+<h2 id="index.html:7-1-0-build-7007"><a href="#index.html:7-1-0-build-7007">7.1.0 (build 7007)</a></h2>
+<h3 id="index.html:common-3"><a href="#index.html:common-3">Common</a></h3>
+<ul>
+<li>Updated the batch (<code>.bat</code>) files in the <code>bin</code> folder so that they do not leak environment variables to the current <code>cmd.exe</code> command shell on Windows (fixes SIMICS-21906).</li>
+</ul>
+<h2 id="index.html:7-0-0-build-7006"><a href="#index.html:7-0-0-build-7006">7.0.0 (build 7006)</a></h2>
+<h3 id="index.html:common-4"><a href="#index.html:common-4">Common</a></h3>
+<ul>
+<li>Simics, when launched on Linux, no longer sources the file <code>$HOME/.simics-5.sh</code> (fixes SIMICS-21148)</li>
+</ul>
+<h2 id="index.html:changes-since-previous-major-in-initial-release"><a href="#index.html:changes-since-previous-major-in-initial-release">Changes Since Previous Major in Initial Release</a></h2>
+<p>The following is a list of changes in 7.0.0 since the previous major.</p>
+</section>

@@ -1,0 +1,105 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>table.cmd</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="table.html">table</a>
+<a href="table.exported_functions.html">table.exported_functions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;
+<a href="table.html">table</a>
+&nbsp;/&nbsp;</div><h1 id="table.cmd"><a href="#table.cmd">table.cmd</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>table.cmd</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import table.cmd
+</code></pre>
+</section>
+<h2 id="table.cmd.default_table_args"><a href="#table.cmd.default_table_args">table.cmd.default_table_args</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table.cmd.default_table_args(set_dict={})
+</code></pre>
+<h2>Description</h2>
+<p>Gets default table arguments.</p>
+<p>Return the tuple representing the default table arguments. The</p>
+<p>set_dict can contain key/value elements overriding the default value. The key is the same as the name of the table argument in the command.</p>
+<h2>SEE ALSO</h2>
+<p><a href="table.html#table.new_table_command"><code>table.new_table_command</code></a> <a href="table.html#table.get"><code>table.get</code></a></p>
+</section>
+<h2 id="table.cmd.get_table_arg_value"><a href="#table.cmd.get_table_arg_value">table.cmd.get_table_arg_value</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table.cmd.get_table_arg_value(arg, table_values)
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve the value for a table command argument.</p>
+<p>Allows the user command to look at a certain named parameter to get</p>
+<p>its value. For example, to internally make use of the <code>-verbose</code> flag. The <code>arg</code> argument specifies the argument to fetch the value of. The <code>table_values</code> argument is the tuple of table arguments received in the <a href="table.html#table.new_table_command"><code>table.new_table_command()</code></a> callback function.</p>
+</section>
+<h2 id="table.cmd.new_table_command"><a href="#table.cmd.new_table_command">table.cmd.new_table_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table.cmd.new_table_command(
+    command_name,
+    cmd_func,
+    args=None,
+    doc='',
+    sortable_columns=None,
+    **kwargs
+)
+</code></pre>
+<h2>Description</h2>
+<p>Register a new command which prints a table.</p>
+<p>Register a specific command for printing the table, with all the command arguments from the <a href="../rm-base/rm-cmd-table.print-table.html"><code>print-table</code></a> commands, but extendable with personalized argument handling. For example, a dedicated command could print out additional data, or filter out certain rows from the table and only print those.</p>
+<p>All arguments here are similar to the <code>cli.new_command()</code> function except the <code>sortable_columns</code> argument.</p>
+<p>The <code>cmd_func</code> function will be called with additional table argument last. The function should use the <a href="table.html#table.show"><code>table.show()</code></a> to produce the table output according to the user arguments.</p>
+<p>If the <code>sortable_columns</code> argument is supplied, it should contain a list of the column namnes which can be used for sorting. This is only used for the expander function. If this argument is not set, the default expander will try to use the table interface to retrieve the column names.</p>
+<h2>SEE ALSO</h2>
+<p><a href="cli.html#cli.new_command"><code>cli.new_command</code></a>, <a href="table.html#table.show"><code>table.show</code></a></p>
+</section>
+<h2 id="table.cmd.new_tech_preview_table_command"><a href="#table.cmd.new_tech_preview_table_command">table.cmd.new_tech_preview_table_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table.cmd.new_tech_preview_table_command(
+    name,
+    feature,
+    fun,
+    args=[],
+    doc='',
+    sortable_columns=None,
+    **kwargs
+)
+</code></pre>
+<h2>Description</h2>
+<p>Define a new tech preview CLI table command.</p>
+</section>
+<h2 id="table.cmd.new_unsupported_table_command"><a href="#table.cmd.new_unsupported_table_command">table.cmd.new_unsupported_table_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table.cmd.new_unsupported_table_command(
+    name,
+    feature,
+    fun,
+    args=[],
+    doc='',
+    sortable_columns=None,
+    **kwargs
+)
+</code></pre>
+<h2>Description</h2>
+<p>Define a new unsupported CLI table command.</p>
+</section>
+<div class="chain">
+<a href="table.html">table</a>
+<a href="table.exported_functions.html">table.exported_functions</a>
+</div>

@@ -1,0 +1,85 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>process_filter</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-probes.html">probes</a>
+<a href="rm-class-process_histogram.html">process_histogram</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="process_filter"><a href="#process_filter">process_filter</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Instrumentation filter for processes.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_filter_master
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-process_filter.add-pattern.html">add-pattern</a>
+ – filter on a specific node path pattern</li>
+<li>
+<a href="rm-cmd-process_filter.delete.html">delete</a>
+ – remove the filter</li>
+<li>
+<a href="rm-cmd-process_filter.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-process_filter.remove-pattern.html">remove-pattern</a>
+ – stop filtering on a process</li>
+<li>
+<a href="rm-cmd-process_filter.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:software_comp"><a href="#dt:software_comp">
+<i>software_comp</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>OSA software component to use.</dd>
+<dt id="dt:tracked_processes"><a href="#dt:tracked_processes">
+<i>tracked_processes</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[s*]</code>
+<br>The processes being tracked.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.process-filter.html">process-filter</a>
+</section>
+<div class="chain">
+<a href="rm-class-probes.html">probes</a>
+<a href="rm-class-process_histogram.html">process_histogram</a>
+</div>

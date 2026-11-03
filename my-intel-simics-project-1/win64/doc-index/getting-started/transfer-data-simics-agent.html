@@ -1,0 +1,158 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.7.2 Using the Intel Simics Agent</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="transfer-data-preparation.html">8.7.1 Preparation</a>
+<a href="transfer-data-usb.html">8.7.3 Using disk images</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;
+<a href="transfer-data.html">8.7 Networking and getting data into the simulated system</a>
+&nbsp;/&nbsp;</div><h1 id="using-the-intel-simics-agent"><a href="#using-the-intel-simics-agent">8.7.2 Using the Intel Simics Agent</a></h1>
+<p>File transfer can be done in several ways. The preferred method is to use the
+<em>Intel Simics Agent</em>, which is a piece of software that must be present on the
+target machine. The <code>qsp-x86/firststeps</code> target comes with the agent already on
+disk.</p>
+<p>For other targets, if the agent is not present, it must be transferred to the
+target machine using one of the methods described later. The agent is
+preferred since it is the fastest and least intrusive method.</p>
+<p>The steps required to configure the <em>agent</em> can be summarized as:</p>
+<ol>
+<li>
+<p><strong>in the simulator</strong>:<br>
+Start the <em>agent manager</em>.
+The <em>agent manager</em> is a single global manager in the simulator, used to
+manage all connections to all agents on all targets.
+The agent manager is started with the<br>
+<code>start-agent-manager</code> command.</p>
+</li>
+<li>
+<p><strong>on the target</strong>:<br>
+Start the <code>simics-agent</code> on the target.</p>
+</li>
+<li>
+<p><strong>in the simulator</strong>: Connect the <em>agent manager</em> with the <em>agent</em> with the
+<code>&lt;agent_manager&gt;.connect-to-agent</code> command. After connecting, an <em>agent
+handle</em> will be created, which is a Simics object which can be used access
+the target.</p>
+</li>
+</ol>
+<p>Here is an example of using the agent for transferring files, using the
+<code>qsp-x86/firststeps</code> target.</p>
+<ul>
+<li>
+<p>Follow the <a href="transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+</li>
+<li>
+<p>Start the <em>simulation</em> and, from the target console, start <code>simics-agent</code> as a
+background process.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+<pre><code class="language-simics"># <strong>simics-agent &amp;</strong>
+[1] 2638
+grml, v1.5, Feb 21 2023 14:13:26 
+</code></pre>
+</li>
+<li>
+<p>Stop the simulation.</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>Start the <em>agent manager</em> from the CLI.
+The manager object will get the default name of <code>agent_manager</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>start-agent-manager</strong>
+'agent_manager' is created and enabled.
+</code></pre>
+</li>
+<li>
+<p>Now we can connect the <em>agent manager</em> to the <em>agent</em> running on the target. A
+connection between the agent manager and a specific agent is represented by an
+<em>agent handle</em>. We specify the name <code>agent0</code> for the agent handle.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent_manager.connect-to-agent name = agent0</strong>
+</code></pre>
+</li>
+<li>
+<p>Upload the file <code>config.mk</code> in the projects to <code>/tmp</code> in the target. The
+<code>agent0.run-until-job</code> provides a way to run until the upload finishes, and
+can be useful when scripting, even though not strictly necessary in this
+example.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent0.upload from = ./config.mk to = /tmp/</strong>
+agent0:job 1 (upload config.mk)
+simics&gt; <strong>agent0.run-until-job 1</strong>
+agent0:job 1 (upload config.mk) finished
+</code></pre>
+</li>
+<li>
+<p>Observe that the file is available in <code>/tmp/config.mk</code> in the target. This can
+be done by starting the simulator, and typing <code>ls /tmp/config.mk</code> in the
+target console, but we will instead use the <code>agent0.list-files</code> command to
+list files under <code>/tmp</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent0.list-files target-dir = /tmp</strong>
+agent0:job 2 (ls /tmp)
+simics&gt; <strong>agent0.run-until-job 2</strong>
+...
+config.mk
+agent0:job 2 (ls /tmp) finished
+...
+</code></pre>
+</li>
+<li>
+<p>Similarly, we can use the agent handle to transfer a file from the target to
+the host.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent0.download -overwrite from = "/tmp/config.mk" to = /tmp</strong>
+agent0:job 3 (download config.mk)
+simics&gt; <strong>agent0.run-until-job 3</strong>
+agent0:job 3 (download config.mk) finished
+</code></pre>
+</li>
+</ul>
+<p>Note that the agent operations are necessarily asynchronous, which is why we
+must wait for them to finish. However, there is no need to wait after each
+command; several commands can be queued up before a wait is issued.</p>
+<p>In the example, we only started the simulation to allow starting <code>simics-agent</code>
+in the target machine, and while waiting for agent operations to complete,
+using <code>&lt;agent_handle&gt;.run-until-job</code>.</p>
+<p>An alternative method is to keep the simulation <em>running</em>. With this method, the
+requested agent operations will start directly, and
+<code>&lt;agent_handle&gt;.run-until-job</code> or <code>&lt;agent_handle&gt;.status</code> may only be required
+to await or check completion of the operation. This method (work with a running
+simulator) can be convenient for interactive work.</p>
+<p>The agent can also perform other operations, such as</p>
+<ul>
+<li>Print target file contents (<code>agent0.print-file</code>)</li>
+<li>Run arbitrary target (shell) commands (<code>agent0.run</code>)</li>
+<li>Retrieve output of the commands (<code>agent0.get-captured-output</code>)</li>
+</ul>
+<p>To see other available commands, run <code>help agent0</code> or use the tab-completion by
+typing <code>agent0.</code> followed by two tabs:</p>
+<pre><code class="language-simics">agent0 # press tab twice to expand all commands
+agent0.agent-poll-interval  agent0.log-group
+agent0.agent-quit           agent0.log-level
+agent0.agent-restart        agent0.ls
+agent0.cd                   agent0.print-file
+agent0.change-directory     agent0.print-working-directory
+agent0.delete-handle        agent0.pwd
+agent0.discard-jobs         agent0.run
+agent0.download             agent0.run-until-job
+agent0.download-dir         agent0.status
+agent0.get-captured-output  agent0.target-time
+agent0.info                 agent0.upload
+agent0.list-files           agent0.upload-dir
+agent0.list-jobs            agent0.wait-for-job
+</code></pre>
+
+<div class="chain">
+<a href="transfer-data-preparation.html">8.7.1 Preparation</a>
+<a href="transfer-data-usb.html">8.7.3 Using disk images</a>
+</div>

@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-sample-core-timing-tool</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-motherboard-x58-ich10.html">new-motherboard-x58-ich10</a>
+<a href="rm-all-cmds.html">1.3 Command Index</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">1 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">1.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-sample-core-timing-tool"></a>
+<h1 id="new-sample-core-timing-tool"><a href="#new-sample-core-timing-tool">new-sample-core-timing-tool</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-sample-core-timing-tool</b> [<i>"name"</i>] ([ <i>providers</i> ... ] | list of <i>providers</i>) [<i>parent</i>] [-connect-all] [<i>"group"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Creates a new sample-core-timing tool which can be connected to x86 cores. <br>
+<br>
+The optional <i>name</i> argument can be used to set a name of the created object. If no name is given, a default name <i>sample_core_timing</i> followed by a sequence number is generated (<i>sample_core_timing0</i>, <i>sample_core_timing1</i>,...).<br>
+<br>
+ The optional <i>providers</i> argument, supports connecting one or several providers directly. With the optional <i>parent</i> argument a hierarchical object can be specified and all providers below this object matching the provider requirements will be connected to the tool. The <tt>-connect-all</tt> flag can be given to add a connection to all supported providers in the configuration.<br>
+<br>
+The optional argument <i>group</i> lets a user specify a named instrumentation group to use for the connection. (See <code>add-instrumentation-group</code> for details on named groups.)
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-core-timing.html">sample-core-timing</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-motherboard-x58-ich10.html">new-motherboard-x58-ich10</a>
+<a href="rm-all-cmds.html">1.3 Command Index</a>
+</div>

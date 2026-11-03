@@ -1,0 +1,130 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simics API Information</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="programming-concepts.html">Programming Concepts</a>
+<a href="api-usage-rules.html">API usage rules</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="introduction.html">Introduction</a>
+&nbsp;/&nbsp;</div><h1 id="simics-api-information"><a href="#simics-api-information">Simics API Information</a></h1>
+<p>This chapter describes the organization of the Simics API, and how to use it. It also shows how it interacts with system, Device, Simulator, Processor, and Link Library APIs.</p>
+<h2 id="the-simics-api"><a href="#the-simics-api">The Simics API</a></h2>
+<p>Simics provides a number of unique APIs designed to allow the integration of new modules with the Simics family of products.</p>
+<p>The Simics API is partitioned into three major parts, and an additional three groups of interfaces. There is one header file to include for each part of the Simics API, while the interfaces are split over several independent header files.</p>
+<p>With a partitioned API the part needed by models can be kept as small and simple as possible, and the boundary between models and the simulator infrastructure is more clearly defined. A small Device API makes device modeling easier and reduces the risk of writing code with the potential to break determinism or multi-threading.</p>
+<p>For a model representing a piece of hardware, you should only need to use the <em>Device API</em> together with the necessary <em>model-to-model</em> and <em>model-to-simulator</em> interfaces.</p>
+<p>To find out how to get access to a particular API function or data type, you can use the <code>api-help</code> CLI command. This will tell you which C header file, if any, to include, or which DML file to import.</p>
+<h3 id="device-api"><a href="#device-api">Device API</a></h3>
+<p>The basic functionality of the Simics API and the only part available to device models.<br>
+The Device API is always accessible from DML; from C it is available using:</p>
+<pre><code>C: #include &lt;simics/device-api.h&gt;
+</code></pre>
+<h3 id="model-to-model-interfaces"><a href="#model-to-model-interfaces">Model-to-Model Interfaces</a></h3>
+<p>Interfaces between models typically represent standard hardware interfaces such as PCI, I2C, Ethernet and interrupt lines. These interfaces are included in the Device API.</p>
+<p>Accessible from DML, C and C++. In DML and C, use:</p>
+<pre><code>DML:   import "simics/devs/interface.dml";
+C:     #include &lt;simics/devs/interface.h&gt;
+</code></pre>
+<p>where <em>interface</em> should be replaced with the actual header file name.</p>
+<p>To find out which header file the <code>foo</code> interface is defined in, you can use the Simics CLI command <code>api-help foo_interface_t</code>.</p>
+<h3 id="model-to-simulator-interfaces"><a href="#model-to-simulator-interfaces">Model-to-Simulator Interfaces</a></h3>
+<p>These interfaces fall into two categories:</p>
+<ul>
+<li>Interfaces that models may implement, which are called by the Simics framework.</li>
+<li>Interfaces implemented by the Simics framework or by Simics simulator objects, which may be called by simulation models.</li>
+</ul>
+<p>Interfaces included in this list are part of the Device API.</p>
+<p>They are accessible from DML, C and C++. In DML and C, use:</p>
+<pre><code>DML:   import "simics/model-iface/interface.dml";
+C:     #include &lt;simics/model-iface/interface.h&gt;
+</code></pre>
+<p>where <em>interface</em> should be replaced with the actual header file name.</p>
+<p>To find out which header file the <code>foo</code> interface is defined in, you can use the Simics CLI command <code>api-help foo_interface_t</code>.</p>
+<h3 id="simulator-api"><a href="#simulator-api">Simulator API</a></h3>
+<p>The Simulator API contains the complete Simics API, including parts that are not available to models. This API may be used by simulator extensions.</p>
+<p>Accessible from DML, C and C++. In DML and C, use:</p>
+<pre><code>DML:   import "simics/simulator-api.dml";
+C:     #include &lt;simics/simulator-api.h&gt;
+</code></pre>
+<h3 id="simulator-to-simulator-interfaces"><a href="#simulator-to-simulator-interfaces">Simulator-to-Simulator Interfaces</a></h3>
+<p>Interfaces that are only used between simulator extensions and that should not be used by any model are collected into this group. These interfaces are part of the Simulator API.</p>
+<p>Accessible from DML, C and C++. In DML and C, use:</p>
+<pre><code>DML:   import "simics/simulator-iface/interface.dml";
+C:     #include &lt;simics/simulator-iface/interface.h&gt;
+</code></pre>
+<p>where <em>interface</em> should be replaced with the actual header file name.</p>
+<p>To find out which header file the <code>foo</code> interface is defined in, you can use the Simics CLI command <code>api-help foo_interface_t</code>.</p>
+<h3 id="processor-api"><a href="#processor-api">Processor API</a></h3>
+<p>The Processor API extends the Device API with functions needed when modeling processors in Simics.<br>
+Accessible from DML, C and C++. In DML and C, use:</p>
+<pre><code>DML:   import "simics/processor-api.dml";
+C:     #include &lt;simics/processor-api.h&gt;
+</code></pre>
+<h3 id="link-library-api"><a href="#link-library-api">Link Library API</a></h3>
+<p>The Link Library API extends device modeling capabilities with Simics by allowing users to write Simics link models.<br>
+Accessible from DML, C and C++. In DML and C, use:</p>
+<pre><code>DML:   import "simics/devs/liblink.dml";
+C:     #include &lt;simics/devs/liblink.h&gt;
+</code></pre>
+<h3 id="python-api"><a href="#python-api">Python API</a></h3>
+<p>Simics users may utilize Python to interact with the Simics API.
+For example, Python can be used to write or run Simics commands.
+Python may also be used to write components and modules for Simics.</p>
+<p>The <a href="python-api.html">Python specific API</a> is accessible by importing the respective modules.</p>
+<p>Python can also be used directly from the Simics command line and in set-up scripts.</p>
+<h2 id="api-version"><a href="#api-version">API Version</a></h2>
+<p>Device makefiles have a variable called <code>SIMICS_API</code>, which specifies which version of the Simics API the model uses. It is a good idea to set <code>SIMICS_API</code> to the current Simics API. This will cause compile errors for uses of deprecated features.</p>
+<pre><code>SIMICS_API := 6
+</code></pre>
+<p>Python modules do not have a SIMICS_API flag to force compiler checking and thus need to be checked manually. Command line options can be passed to Simics to ensure any runtime usage of deprecated features trigger errors.</p>
+<h2 id="system-calls-and-signals"><a href="#system-calls-and-signals">System Calls and Signals</a></h2>
+<p>On Linux, Simics will register its built-in signal handlers to make system calls restartable after the signal has been handled (cf. the <code>SA_RESTART</code> flag in the <code>sigaction(2)</code> man page).</p>
+<p>However, only some system calls are restartable, so when writing modules for Simics, you have to make sure that you restart the other system calls yourself:</p>
+<pre><code>do {
+        res = accept(sock, &amp;saddr, &amp;slen);
+} while (res == -1 &amp;&amp; errno == EINTR);
+</code></pre>
+<h2 id="text-output"><a href="#text-output">Text Output</a></h2>
+<p>Simics has its own text output routines that use the command-line window for display and also allow output to be directed elsewhere. To maintain this functionality these output routines should be used instead of the standard C library output routines: Use <code>SIM_printf</code> instead of <code>printf</code>, <code>SIM_putchar</code> instead of <code>putchar</code>, and so on.</p>
+<p>The Simics output functions (<code>SIM_write</code>, <code>SIM_printf</code>, etc.) also send the resulting text to handlers registered using <code>SIM_add_output_handler</code>.</p>
+<p>Here is an example showing how a module could get Simics to write a copy of all its text output to a log file:</p>
+<pre><code>static void
+output_handler(void *file, const void *buf, size_t count)
+{
+    fwrite(buf, 1, count, (FILE *)file);
+}
+
+static void
+init_local(void)
+{
+    SIM_add_output_handler(output_handler,
+                           (void *)fopen("my.log", "a"));
+}
+</code></pre>
+<h2 id="using-threads-in-simics-modules"><a href="#using-threads-in-simics-modules">Using Threads in Simics Modules</a></h2>
+<p>It is possible to write modules for Simics that use POSIX threads, but only a restricted part of the Simics API can be used directly from such threads.
+It is possible, however, to post callbacks that have access to the entire API.
+One way to do that is through the <code>SIM_thread_safe_callback</code> API function.
+It is also possible to enter a context where a larger part of the Simics API is available.
+This, and the threading model in general, is <a href="threading-model.html">discussed separately</a>.</p>
+<h2 id="header-inclusion-order"><a href="#header-inclusion-order">Header Inclusion Order</a></h2>
+<p>For modules written in C or C++, the general order of header file inclusion should be from most to least general:</p>
+<table><thead><tr><th></th><th></th></tr></thead><tbody>
+<tr><td>Language</td><td>e.g., <code>&lt;stdio.h&gt;</code> (C), <code>&lt;map&gt;</code> (C++)</td></tr>
+<tr><td>Operating system</td><td>e.g., <code>&lt;unistd.h&gt;</code> (Linux), <code>&lt;windows.h&gt;</code> (Windows)</td></tr>
+<tr><td>Simics</td><td>e.g., <code>&lt;simics/device-api.h&gt;</code></td></tr>
+<tr><td>Application</td><td>specific to your module</td></tr>
+</tbody></table>
+<p>When this order is observed, problems related to interference between include files should be minimized. In particular, Simics may redefine some standard functions with preprocessor macros and this can cause problems unless the standard headers are included first.</p>
+
+<div class="chain">
+<a href="programming-concepts.html">Programming Concepts</a>
+<a href="api-usage-rules.html">API usage rules</a>
+</div>

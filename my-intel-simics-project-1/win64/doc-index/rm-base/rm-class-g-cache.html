@@ -1,0 +1,875 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>g-cache</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ftp-service.html">ftp-service</a>
+<a href="rm-class-gdb-remote.html">gdb-remote</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="g-cache"><a href="#g-cache">g-cache</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+<tt>g-cache</tt> is an in-order 'flat' cache model with the following features: configurable number of lines, line size, associativity; indexing/tagging on physical/virtual addresses; configurable policies for write-allocate and write-back; random, cyclic and lru replacement policies; several caches can be chained; a single cache can be connected to several processors; support for a simple MESI protocol between caches.
+<p>
+It is imperative to start Simics with the <i>-stall</i> flag to get correct cache statistics. It is possible to start Simics without it, but no transactions will then be stalled, and all transaction may not be visible to the cache.
+</p><p>
+Note that the sample MESI protocol was written to handle simple cases such as several L1 write-through caches with L2 caches synchronizing via MESI. To model more complex protocols, you will need to modify <tt>g-cache</tt>.
+</p><p>
+See <cite>Simics Analyzer User's Guide</cite> for more information.
+</p><h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, mesi_listen, timing_model, cache_control
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-c_dev_data_read"><a href="#dt:port-c_dev_data_read">port.c_dev_data_read</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.c_dev_data_read">g-cache.c_dev_data_read</a>
+ – cacheable device read</dd>
+<dt id="dt:port-c_dev_data_write"><a href="#dt:port-c_dev_data_write">port.c_dev_data_write</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.c_dev_data_write">g-cache.c_dev_data_write</a>
+ – cacheable device write</dd>
+<dt id="dt:port-copy_back"><a href="#dt:port-copy_back">port.copy_back</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.copy_back">g-cache.copy_back</a>
+ – copy back</dd>
+<dt id="dt:port-data_read"><a href="#dt:port-data_read">port.data_read</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.data_read">g-cache.data_read</a>
+ – read</dd>
+<dt id="dt:port-data_read_miss"><a href="#dt:port-data_read_miss">port.data_read_miss</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.data_read_miss">g-cache.data_read_miss</a>
+ – read miss</dd>
+<dt id="dt:port-data_write"><a href="#dt:port-data_write">port.data_write</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.data_write">g-cache.data_write</a>
+ – write</dd>
+<dt id="dt:port-data_write_miss"><a href="#dt:port-data_write_miss">port.data_write_miss</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.data_write_miss">g-cache.data_write_miss</a>
+ – write miss</dd>
+<dt id="dt:port-dev_data_read"><a href="#dt:port-dev_data_read">port.dev_data_read</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.dev_data_read">g-cache.dev_data_read</a>
+ – device read</dd>
+<dt id="dt:port-dev_data_write"><a href="#dt:port-dev_data_write">port.dev_data_write</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.dev_data_write">g-cache.dev_data_write</a>
+ – device write</dd>
+<dt id="dt:port-inst_fetch"><a href="#dt:port-inst_fetch">port.inst_fetch</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.inst_fetch">g-cache.inst_fetch</a>
+ – instruction fetch</dd>
+<dt id="dt:port-inst_fetch_miss"><a href="#dt:port-inst_fetch_miss">port.inst_fetch_miss</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.inst_fetch_miss">g-cache.inst_fetch_miss</a>
+ – instruction fetch miss</dd>
+<dt id="dt:port-mesi_exclusive_to_shared"><a href="#dt:port-mesi_exclusive_to_shared">port.mesi_exclusive_to_shared</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.mesi_exclusive_to_shared">g-cache.mesi_exclusive_to_shared</a>
+ – MESI exclusive to shared</dd>
+<dt id="dt:port-mesi_invalidate"><a href="#dt:port-mesi_invalidate">port.mesi_invalidate</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.mesi_invalidate">g-cache.mesi_invalidate</a>
+ – MESI invalidate</dd>
+<dt id="dt:port-mesi_modified_to_shared"><a href="#dt:port-mesi_modified_to_shared">port.mesi_modified_to_shared</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.mesi_modified_to_shared">g-cache.mesi_modified_to_shared</a>
+ – MESI modified to shared</dd>
+<dt id="dt:port-transaction"><a href="#dt:port-transaction">port.transaction</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.transaction">g-cache.transaction</a>
+ – transaction</dd>
+<dt id="dt:port-uc_data_read"><a href="#dt:port-uc_data_read">port.uc_data_read</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.uc_data_read">g-cache.uc_data_read</a>
+ – uncached read</dd>
+<dt id="dt:port-uc_data_write"><a href="#dt:port-uc_data_write">port.uc_data_write</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.uc_data_write">g-cache.uc_data_write</a>
+ – uncached write</dd>
+<dt id="dt:port-uc_inst_fetch"><a href="#dt:port-uc_inst_fetch">port.uc_inst_fetch</a></dt>
+<dd>
+<a href="rm-class-g-cache.html#g-cache.uc_inst_fetch">g-cache.uc_inst_fetch</a>
+ – uncached instruction fetch</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-g-cache.add-profiler.html">add-profiler</a>
+ – add a profiler to the cache</li>
+<li>
+<a href="rm-cmd-g-cache.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-g-cache.line-status.html">line-status</a>
+ – print the cache lines status</li>
+<li>
+<a href="rm-cmd-g-cache.remove-profiler.html">remove-profiler</a>
+ – remove a profiler from the cache</li>
+<li>
+<a href="rm-cmd-g-cache.reset-cache-lines.html">reset-cache-lines</a>
+ – reset all the cache lines</li>
+<li>
+<a href="rm-cmd-g-cache.reset-statistics.html">reset-statistics</a>
+ – reset the cache statistics</li>
+<li>
+<a href="rm-cmd-g-cache.statistics.html">statistics</a>
+ – print the cache statistics</li>
+<li>
+<a href="rm-cmd-g-cache.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cpus"><a href="#dt:cpus">
+<i>cpus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o|[o*]</code>
+<br>cpus that can send transactions to the cache.</dd>
+<dt id="dt:config_line_number"><a href="#dt:config_line_number">
+<i>config_line_number</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of lines in the cache (default is 128)</dd>
+<dt id="dt:config_line_size"><a href="#dt:config_line_size">
+<i>config_line_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Cache line size (must be a power of 2, default is 32). If you plan to use the STC in combination to improve the cache performance, this value must be greater or equal to the instruction_profile_line_size.</dd>
+<dt id="dt:config_assoc"><a href="#dt:config_assoc">
+<i>config_assoc</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Cache associativity. Note that the total number of lines divided by the associativity must be a power of 2. (default is 4).</dd>
+<dt id="dt:config_virtual_index"><a href="#dt:config_virtual_index">
+<i>config_virtual_index</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address used to compute the set in the cache (0: physical, 1: virtual; default is 0).</dd>
+<dt id="dt:config_virtual_tag"><a href="#dt:config_virtual_tag">
+<i>config_virtual_tag</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address used to compute the tag of the cache line (0: physical, 1: virtual; default is 0).</dd>
+<dt id="dt:config_write_allocate"><a href="#dt:config_write_allocate">
+<i>config_write_allocate</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Write allocation policy (0: non-write allocate, 1: write-allocate, default is 0).</dd>
+<dt id="dt:config_write_back"><a href="#dt:config_write_back">
+<i>config_write_back</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Write policy (0: write-through, 1: write-back, default is 0).</dd>
+<dt id="dt:config_replacement_policy"><a href="#dt:config_replacement_policy">
+<i>config_replacement_policy</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Replacement policy ("random", "lru" or "cyclic", default is "random").</dd>
+<dt id="dt:penalty_read"><a href="#dt:penalty_read">
+<i>penalty_read</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Stall penalty (in cycles) for any incoming read transaction. A cache-hit on read will only suffer a 'read' penalty (default is 0). Note that if you set this to a non-zero value, the simulation won't be able to use the STCs.</dd>
+<dt id="dt:penalty_write"><a href="#dt:penalty_write">
+<i>penalty_write</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Stall penalty (in cycles) for any incoming write transaction. A cache-hit on write (in a write-back cache) will only suffer a 'write' penalty (default is 0). Note that if you set this to a non-zero value, the simulation won't be able to use the STCs.</dd>
+<dt id="dt:stat_transaction"><a href="#dt:stat_transaction">
+<i>stat_transaction</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Total number of transactions seen by the cache.</dd>
+<dt id="dt:stat_dev_data_read"><a href="#dt:stat_dev_data_read">
+<i>stat_dev_data_read</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of device data read transactions (DMA).</dd>
+<dt id="dt:stat_dev_data_write"><a href="#dt:stat_dev_data_write">
+<i>stat_dev_data_write</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of device data write transactions (DMA).</dd>
+<dt id="dt:stat_c_dev_data_read"><a href="#dt:stat_c_dev_data_read">
+<i>stat_c_dev_data_read</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cached device data read transactions (DMA).</dd>
+<dt id="dt:stat_c_dev_data_write"><a href="#dt:stat_c_dev_data_write">
+<i>stat_c_dev_data_write</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cached device data write transactions (DMA).</dd>
+<dt id="dt:stat_uc_data_read"><a href="#dt:stat_uc_data_read">
+<i>stat_uc_data_read</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of uncacheable data read transactions.</dd>
+<dt id="dt:stat_uc_data_write"><a href="#dt:stat_uc_data_write">
+<i>stat_uc_data_write</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of uncacheable data write transactions.</dd>
+<dt id="dt:stat_uc_inst_fetch"><a href="#dt:stat_uc_inst_fetch">
+<i>stat_uc_inst_fetch</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of uncacheable inst fetch transactions.</dd>
+<dt id="dt:stat_data_read"><a href="#dt:stat_data_read">
+<i>stat_data_read</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cacheable data read transactions (may be underestimated if the STCs are used, see Simics Analyzer Guide for more information).</dd>
+<dt id="dt:stat_data_read_miss"><a href="#dt:stat_data_read_miss">
+<i>stat_data_read_miss</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cacheable data read transactions that missed in the cache.</dd>
+<dt id="dt:stat_data_write"><a href="#dt:stat_data_write">
+<i>stat_data_write</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cacheable data write transactions (may be underestimated if the STCs are used, see Simics Analyzer Guide for more information).</dd>
+<dt id="dt:stat_data_write_miss"><a href="#dt:stat_data_write_miss">
+<i>stat_data_write_miss</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cacheable data write transactions that missed in the cache (write-through caches report a correct miss value but all writes are sent to the next level).</dd>
+<dt id="dt:stat_inst_fetch"><a href="#dt:stat_inst_fetch">
+<i>stat_inst_fetch</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cacheable instruction fetches (may be underestimated if the STCs are used, see Simics Analyzer Guide for more information).</dd>
+<dt id="dt:stat_inst_fetch_miss"><a href="#dt:stat_inst_fetch_miss">
+<i>stat_inst_fetch_miss</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cacheable instruction fetches that missed in the cache.</dd>
+<dt id="dt:stat_copy_back"><a href="#dt:stat_copy_back">
+<i>stat_copy_back</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of copy-back transactions initiated by the cache.</dd>
+<dt id="dt:timing_model"><a href="#dt:timing_model">
+<i>timing_model</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Object listening on transactions coming from the cache (line fetch, copy-back).</dd>
+<dt id="dt:profilers"><a href="#dt:profilers">
+<i>profilers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o|n*]</code>
+<br>Profilers connected to the cache.</dd>
+<dt id="dt:config_block_stc"><a href="#dt:config_block_stc">
+<i>config_block_STC</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Prevent the cache from using the STCs. Read the 'Cache Simulation' chapter in Simics Analyzer Guide for more information (0: STC usage allowed, 1: STC usage blocked; default is 0).</dd>
+<dt id="dt:penalty_read_next"><a href="#dt:penalty_read_next">
+<i>penalty_read_next</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Stall penalty (in cycles) for a read transaction issued by the cache to the next level cache. A cache miss on read will have a penalty for 'read' (incoming transaction) + 'read-next' (line fetch transaction) + any penalty set by the next caches. (default is 0)</dd>
+<dt id="dt:penalty_write_next"><a href="#dt:penalty_write_next">
+<i>penalty_write_next</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Stall penalty (in cycles) for a write transactions issued by the cache to the next level cache. In a write-back cache, a cache miss on read triggering a copy-back transaction will have a penalty for 'read', 'write-next' (copy-back transaction) and 'read-next' (line fetch transaction). In write-through cache, a write transaction will always have at least a penalty for 'write' and 'write-next' (write-through transaction). (default is 0).</dd>
+<dt id="dt:lines"><a href="#dt:lines">
+<i>lines</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[iiii]*]</code>
+<br>Content of the cache lines</dd>
+<dt id="dt:cacheable_devices"><a href="#dt:cacheable_devices">
+<i>cacheable_devices</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|[o*]</code>
+<br>List of devices that can be cached.</dd>
+<dt id="dt:snoopers"><a href="#dt:snoopers">
+<i>snoopers</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|[o*]</code>
+<br>Caches listening on the bus (MESI protocol).</dd>
+<dt id="dt:higher_level_caches"><a href="#dt:higher_level_caches">
+<i>higher_level_caches</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|[o*]</code>
+<br>Higher level caches that need to receive invalidates during MESI snooping (MESI protocol).</dd>
+<dt id="dt:stat_mesi_exclusive_to_shared"><a href="#dt:stat_mesi_exclusive_to_shared">
+<i>stat_mesi_exclusive_to_shared</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of Exclusive to Shared transitions in MESI protocol.</dd>
+<dt id="dt:stat_mesi_modified_to_shared"><a href="#dt:stat_mesi_modified_to_shared">
+<i>stat_mesi_modified_to_shared</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of Modified to Shared transitions in MESI protocol.</dd>
+<dt id="dt:stat_mesi_invalidate"><a href="#dt:stat_mesi_invalidate">
+<i>stat_mesi_invalidate</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of lines invalidated in MESI protocol.</dd>
+<dt id="dt:stat_lost_stall_cycles"><a href="#dt:stat_lost_stall_cycles">
+<i>stat_lost_stall_cycles</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Stall cycles lost due to non-stallable transactions.</dd>
+<dt id="dt:config_seed"><a href="#dt:config_seed">
+<i>config_seed</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Seed for random replacement policy, default is 0).</dd>
+<dt id="dt:lines_last_used"><a href="#dt:lines_last_used">
+<i>lines_last_used</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Last used timestamp for the cache lines</dd>
+<dt id="dt:next_line_in_set"><a href="#dt:next_line_in_set">
+<i>next_line_in_set</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Next line used for replacement in a given set.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.g-cache.html">g-cache</a>
+</section>
+<h2 id="g-cache.c_dev_data_read"><a href="#g-cache.c_dev_data_read">g-cache.c_dev_data_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+cacheable device read
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.c_dev_data_write"><a href="#g-cache.c_dev_data_write">g-cache.c_dev_data_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+cacheable device write
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.copy_back"><a href="#g-cache.copy_back">g-cache.copy_back</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-4">
+<a href="#description-4">Description</a>
+</h2>
+copy back
+<h2 id="interfaces-implemented-4">
+<a href="#interfaces-implemented-4">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-4">
+<a href="#notifiers-4">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-4"><a href="#dt:cell-change-4">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-4"><a href="#dt:object-delete-4">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-4"><a href="#dt:queue-change-4">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.data_read"><a href="#g-cache.data_read">g-cache.data_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-5">
+<a href="#description-5">Description</a>
+</h2>
+read
+<h2 id="interfaces-implemented-5">
+<a href="#interfaces-implemented-5">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-5">
+<a href="#notifiers-5">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-5"><a href="#dt:cell-change-5">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-5"><a href="#dt:object-delete-5">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-5"><a href="#dt:queue-change-5">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.data_read_miss"><a href="#g-cache.data_read_miss">g-cache.data_read_miss</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-6">
+<a href="#description-6">Description</a>
+</h2>
+read miss
+<h2 id="interfaces-implemented-6">
+<a href="#interfaces-implemented-6">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-6">
+<a href="#notifiers-6">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-6"><a href="#dt:cell-change-6">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-6"><a href="#dt:object-delete-6">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-6"><a href="#dt:queue-change-6">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.data_write"><a href="#g-cache.data_write">g-cache.data_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-7">
+<a href="#description-7">Description</a>
+</h2>
+write
+<h2 id="interfaces-implemented-7">
+<a href="#interfaces-implemented-7">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-7">
+<a href="#notifiers-7">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-7"><a href="#dt:cell-change-7">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-7"><a href="#dt:object-delete-7">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-7"><a href="#dt:queue-change-7">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.data_write_miss"><a href="#g-cache.data_write_miss">g-cache.data_write_miss</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-8">
+<a href="#description-8">Description</a>
+</h2>
+write miss
+<h2 id="interfaces-implemented-8">
+<a href="#interfaces-implemented-8">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-8">
+<a href="#notifiers-8">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-8"><a href="#dt:cell-change-8">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-8"><a href="#dt:object-delete-8">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-8"><a href="#dt:queue-change-8">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.dev_data_read"><a href="#g-cache.dev_data_read">g-cache.dev_data_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-9">
+<a href="#description-9">Description</a>
+</h2>
+device read
+<h2 id="interfaces-implemented-9">
+<a href="#interfaces-implemented-9">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-9">
+<a href="#notifiers-9">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-9"><a href="#dt:cell-change-9">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-9"><a href="#dt:object-delete-9">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-9"><a href="#dt:queue-change-9">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.dev_data_write"><a href="#g-cache.dev_data_write">g-cache.dev_data_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-10">
+<a href="#description-10">Description</a>
+</h2>
+device write
+<h2 id="interfaces-implemented-10">
+<a href="#interfaces-implemented-10">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-10">
+<a href="#notifiers-10">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-10"><a href="#dt:cell-change-10">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-10"><a href="#dt:object-delete-10">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-10"><a href="#dt:queue-change-10">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.inst_fetch"><a href="#g-cache.inst_fetch">g-cache.inst_fetch</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-11">
+<a href="#description-11">Description</a>
+</h2>
+instruction fetch
+<h2 id="interfaces-implemented-11">
+<a href="#interfaces-implemented-11">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-11">
+<a href="#notifiers-11">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-11"><a href="#dt:cell-change-11">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-11"><a href="#dt:object-delete-11">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-11"><a href="#dt:queue-change-11">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.inst_fetch_miss"><a href="#g-cache.inst_fetch_miss">g-cache.inst_fetch_miss</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-12">
+<a href="#description-12">Description</a>
+</h2>
+instruction fetch miss
+<h2 id="interfaces-implemented-12">
+<a href="#interfaces-implemented-12">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-12">
+<a href="#notifiers-12">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-12"><a href="#dt:cell-change-12">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-12"><a href="#dt:object-delete-12">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-12"><a href="#dt:queue-change-12">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.mesi_exclusive_to_shared"><a href="#g-cache.mesi_exclusive_to_shared">g-cache.mesi_exclusive_to_shared</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-13">
+<a href="#description-13">Description</a>
+</h2>
+MESI exclusive to shared
+<h2 id="interfaces-implemented-13">
+<a href="#interfaces-implemented-13">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-13">
+<a href="#notifiers-13">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-13"><a href="#dt:cell-change-13">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-13"><a href="#dt:object-delete-13">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-13"><a href="#dt:queue-change-13">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.mesi_invalidate"><a href="#g-cache.mesi_invalidate">g-cache.mesi_invalidate</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-14">
+<a href="#description-14">Description</a>
+</h2>
+MESI invalidate
+<h2 id="interfaces-implemented-14">
+<a href="#interfaces-implemented-14">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-14">
+<a href="#notifiers-14">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-14"><a href="#dt:cell-change-14">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-14"><a href="#dt:object-delete-14">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-14"><a href="#dt:queue-change-14">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.mesi_modified_to_shared"><a href="#g-cache.mesi_modified_to_shared">g-cache.mesi_modified_to_shared</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-15">
+<a href="#description-15">Description</a>
+</h2>
+MESI modified to shared
+<h2 id="interfaces-implemented-15">
+<a href="#interfaces-implemented-15">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-15">
+<a href="#notifiers-15">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-15"><a href="#dt:cell-change-15">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-15"><a href="#dt:object-delete-15">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-15"><a href="#dt:queue-change-15">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.transaction"><a href="#g-cache.transaction">g-cache.transaction</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-16">
+<a href="#description-16">Description</a>
+</h2>
+transaction
+<h2 id="interfaces-implemented-16">
+<a href="#interfaces-implemented-16">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-16">
+<a href="#notifiers-16">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-16"><a href="#dt:cell-change-16">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-16"><a href="#dt:object-delete-16">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-16"><a href="#dt:queue-change-16">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.uc_data_read"><a href="#g-cache.uc_data_read">g-cache.uc_data_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-17">
+<a href="#description-17">Description</a>
+</h2>
+uncached read
+<h2 id="interfaces-implemented-17">
+<a href="#interfaces-implemented-17">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-17">
+<a href="#notifiers-17">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-17"><a href="#dt:cell-change-17">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-17"><a href="#dt:object-delete-17">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-17"><a href="#dt:queue-change-17">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.uc_data_write"><a href="#g-cache.uc_data_write">g-cache.uc_data_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-18">
+<a href="#description-18">Description</a>
+</h2>
+uncached write
+<h2 id="interfaces-implemented-18">
+<a href="#interfaces-implemented-18">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-18">
+<a href="#notifiers-18">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-18"><a href="#dt:cell-change-18">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-18"><a href="#dt:object-delete-18">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-18"><a href="#dt:queue-change-18">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="g-cache.uc_inst_fetch"><a href="#g-cache.uc_inst_fetch">g-cache.uc_inst_fetch</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-19">
+<a href="#description-19">Description</a>
+</h2>
+uncached instruction fetch
+<h2 id="interfaces-implemented-19">
+<a href="#interfaces-implemented-19">Interfaces Implemented</a>
+</h2>conf_object, log_object, scalar_time
+<h2 id="notifiers-19">
+<a href="#notifiers-19">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-19"><a href="#dt:cell-change-19">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-19"><a href="#dt:object-delete-19">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-19"><a href="#dt:queue-change-19">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-ftp-service.html">ftp-service</a>
+<a href="rm-class-gdb-remote.html">gdb-remote</a>
+</div>

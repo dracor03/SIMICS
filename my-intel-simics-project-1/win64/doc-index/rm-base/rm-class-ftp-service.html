@@ -1,0 +1,116 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ftp-service</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ftp-data.html">ftp-data</a>
+<a href="rm-class-g-cache.html">g-cache</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ftp-service"><a href="#ftp-service">ftp-service</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The ftp-service class implements a simple FTP server in the service node. There is no authentication, all user names and passwords will be accepted and give access to all files the Simics process may access. The most commonly used FTP commands are implemented such as RETR, STOR, PWD, CWD, CDUP, MODE, USER, PASS, TYPE, PASV, PORT, NOOP, STRU, LIST, NSLT and QUIT. Unimplemented features include IPv6, creation and deletion of directories and file deletion and renaming. ASCII transfers will handled as binary ones.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, tcp_service
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ftp-service.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ftp-service.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:tcp"><a href="#dt:tcp">
+<i>tcp</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>TCP layer. Must implement the tcp interface.</dd>
+<dt id="dt:enabled"><a href="#dt:enabled">
+<i>enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to true (default) if the FTP server will listen for connections on the IP addresses specified in the server_ip_list attribute.</dd>
+<dt id="dt:server_ip_list"><a href="#dt:server_ip_list">
+<i>server_ip_list</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[s*]</code>
+<br>Server IPv4 addresses. Typically one for each interface of the service node. New addresses may be added at the end of the list, but removal is not supported.</dd>
+<dt id="dt:ftp_helpers"><a href="#dt:ftp_helpers">
+<i>ftp_helpers</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[oo]</code>
+<br>FTP helper objects. One ftp-control object and one ftp-data object.</dd>
+<dt id="dt:ftp_root_directory"><a href="#dt:ftp_root_directory">
+<i>ftp_root_directory</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>The directory in which files read or written over FTP are located; the default is the current working directory. The client can read and write to any subdirectories of the root directory. The Simics search path is always used to locate files to read.</dd>
+<dt id="dt:c_sessions"><a href="#dt:c_sessions">
+<i>c_sessions</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[ssisi]*]</code>
+<br>The active control sessions in the FTP service. The sub-entries for each session are: <i>server IP address</i>, <i>client IP address</i>, <i>client port</i>, <i>current directory</i>, <i>dsession id</i>.</dd>
+<dt id="dt:d_sessions"><a href="#dt:d_sessions">
+<i>d_sessions</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[bbbs|niisi]*]</code>
+<br>The active data sessions in the FTP service. The sub-entries for each session are: <i>passive mode</i>, <i>connected (in passive mode)</i>, <i>write</i> <i>file name</i>, <i>file offset</i>, <i>write buffer size</i>, <i>directory listing</i>, <i>c_session id</i>.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ftp-service.html">ftp-service</a>
+</section>
+<div class="chain">
+<a href="rm-class-ftp-data.html">ftp-data</a>
+<a href="rm-class-g-cache.html">g-cache</a>
+</div>

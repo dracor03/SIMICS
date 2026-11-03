@@ -1,0 +1,55 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;probes&gt;.subscribe</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-probes.status.html">&lt;probes&gt;.status</a>
+<a href="rm-cmd-probes.unsubscribe.html">&lt;probes&gt;.unsubscribe</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="probes.subscribe"></a>
+<h1 id="probes.subscribe"><a href="#probes.subscribe">&lt;probes&gt;.subscribe</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;probes&gt;.subscribe</b> [<i>"probe-kind"</i>] [<i>object</i>] [-recursive] [<i>"substr"</i>] ([ <i>"categories"</i> ... ] | list of <i>"categories"</i>) ([ <i>probe-types</i> ... ] | list of <i>probe-types</i>) <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Some probes cannot be read without someone first subscribing to them. These subscription probes typically need to activate some feature which could reduce run-time performance. Hence, they are only accessible when someone wants to read them.
+<p>
+Without any arguments, all probes that requires subscription will be subscribed too.
+</p><p>
+To more precisely select the probes that should be subscribed to, there are a number of filters to reduce the scope.
+</p><p>
+The <i>probe-kind</i> filter specifies which probe-kinds to include. This can be the full name of a specific probe kind, or the string can be a partial kind, for example specifying <tt>cpu.exec_modes.</tt> would include all probe-kinds starting with this string.
+</p><p>
+The <i>substr</i> argument filter allows only probes which has a specific string in the probe name to be displayed.
+</p><p>
+To find probes in a particular object the <i>object</i> argument can be used, only showing the probes on that specific object.
+</p><p>
+In combination with the <i>object</i> argument the <tt>-recursive</tt> switch can be used to look at the probes that exists beneath the specified object, in the object hierarchy. This allows zooming in on the probes within a particular subsystem of the entire target system.
+</p><p>
+Each probe might be assigned with a number of categories represented as strings that describe some property of what they measure. The <i>categories</i> filter can be used to only include the probes which have <b>all</b> of the requested categories included.
+</p><p>
+Probes can returned different types when read. The <i>probe-types</i> argument allows only certain types to be shown.
+</p><p>
+
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probes-singleton.html">probes-singleton</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-probes.status.html">&lt;probes&gt;.status</a>
+<a href="rm-cmd-probes.unsubscribe.html">&lt;probes&gt;.unsubscribe</a>
+</div>

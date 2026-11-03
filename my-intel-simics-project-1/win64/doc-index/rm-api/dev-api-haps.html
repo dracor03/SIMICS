@@ -1,0 +1,224 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Haps</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-global-notifiers.html">Global Notifiers</a>
+<a href="dev-api-logging.html">Logging</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Haps</h1>
+<h2 id="SIM_hap_add_type"><a href="#SIM_hap_add_type">SIM_hap_add_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_add_type — register a new hap type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+hap_type_t
+SIM_hap_add_type(const char *NOTNULL hap,
+                 const char *NOTNULL params,
+                 const char *param_desc,
+                 const char *index,
+                 const char *desc,
+                 int unused);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_add_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>Creates a run-time defined hap type.</p>
+<p>The <code>params</code> parameter specifies the argument that callbacks for this hap is called with; e.g., <code>"s"</code> or <code>"II"</code>. The first two arguments are always <code>lang_void *</code> and <code>conf_object_t *</code> respectively, and should not be included in that string. The table below shows which characters may be used, and what their meaning is:</p>
+<table><thead><tr><th style="text-align: center"></th><th style="text-align: left"></th></tr></thead><tbody>
+<tr><td style="text-align: center">i</td><td style="text-align: left">an int</td></tr>
+<tr><td style="text-align: center">I</td><td style="text-align: left">an int64 (64 bit integer)</td></tr>
+<tr><td style="text-align: center">e</td><td style="text-align: left">an <code>exception_type_t</code></td></tr>
+<tr><td style="text-align: center">o</td><td style="text-align: left">a script specific object; <code>void *</code> in C and any Python object in Python</td></tr>
+<tr><td style="text-align: center">s</td><td style="text-align: left">a string</td></tr>
+<tr><td style="text-align: center">m</td><td style="text-align: left">a memory transaction (<code>generic_transaction_t *</code>)</td></tr>
+<tr><td style="text-align: center">c</td><td style="text-align: left">a configuration object (<code>conf_object_t *</code>)</td></tr>
+</tbody></table>
+<p><code>param_desc</code> should be a string of space-separated parameter names, or <code>nullptr</code> if <code>params</code> is the empty string. There should be one word in <code>param_desc</code> for each character in <code>params</code>.</p>
+<p><code>index</code> is a string describing the index value for this hap, or <code>nullptr</code> if there is no index value.</p>
+<p><code>desc</code> is a description string for the hap.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if hap is already defined.  However, consequent calls with the same parameters will be successful, and return the same hap type number each time.</p>
+<h2>Return Value</h2>
+<p>The hap type number or -1 on error.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_hap_get_name"><a href="#SIM_hap_get_name">SIM_hap_get_name</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_get_name — get hap name by number</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+const char *
+SIM_hap_get_name(hap_type_t hap);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_get_name(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the name of <code>hap</code>, or <code>NULL</code> for no such hap. The returned value is a static string that should not be modified or freed by the caller.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_hap_get_number"><a href="#SIM_hap_get_number">SIM_hap_get_number</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_get_number — get hap number by name</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+hap_type_t
+SIM_hap_get_number(const char *NOTNULL hap);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_get_number(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return the runtime number associated with a hap identifier. All haps are listed in the <em>Haps</em> chapter in each reference manual.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Lookup</strong> Thrown if no hap is associated with name <code>hap</code>.</p>
+<h2>Return Value</h2>
+<p>The hap type number, or 0 on failure.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_hap_is_active"><a href="#SIM_hap_is_active">SIM_hap_is_active, SIM_hap_is_active_obj, SIM_hap_is_active_obj_idx</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_is_active, SIM_hap_is_active_obj, SIM_hap_is_active_obj_idx — check if hap has callbacks</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_hap_is_active(hap_type_t hap);
+
+bool
+SIM_hap_is_active_obj(hap_type_t hap, conf_object_t *NOTNULL obj);
+
+bool
+SIM_hap_is_active_obj_idx(hap_type_t hap, conf_object_t *NOTNULL obj,
+                          int64 index);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_is_active(...)
+simics.SIM_hap_is_active_obj(...)
+simics.SIM_hap_is_active_obj_idx(...)
+</code></pre>
+<h2>Description</h2>
+<p>Indicate whether the hap has any callback functions to be called when the hap is triggered with the given arguments (object and index). The return value is approximate: if false, no functions would be called; if true, there may be functions to call.</p>
+<p>The <code>SIM_hap_is_active</code> function should be avoided; it may be slower and less precise than the other variants.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_hap_occurred_always"><a href="#SIM_hap_occurred_always">SIM_hap_occurred</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_occurred — trigger a hap occurrence</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+int
+SIM_hap_occurred_always(hap_type_t hap, conf_object_t *obj,
+                        int64 value, attr_value_t *NOTNULL list);
+
+int
+SIM_c_hap_occurred_always(hap_type_t hap, conf_object_t *obj,
+                          int64 value, ...);
+
+int
+SIM_hap_occurred(hap_type_t hap, conf_object_t *obj,
+                 int64 value, attr_value_t *NOTNULL list);
+
+int
+SIM_c_hap_occurred(hap_type_t hap, conf_object_t *obj,
+                   int64 value, ...);
+
+// not available in DML
+
+int
+SIM_c_hap_occurred_always_vararg(hap_type_t hap, conf_object_t *obj,
+                                 int64 value, va_list ap);
+
+int
+SIM_c_hap_occurred_vararg(hap_type_t hap, conf_object_t *obj,
+                          int64 value, va_list ap);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_occurred_always(...)
+simics.SIM_hap_occurred(...)
+</code></pre>
+<h2>Description</h2>
+<p>These functions are used to trigger a hap of type <code>hap</code>. When a hap triggers, all callback functions installed on the hap are called.</p>
+<p>The <code>obj</code> argument is the object that the hap triggering is associated with. It may be <code>nullptr</code> for haps that are not associated with an object.</p>
+<p>The <code>value</code> argument is used for filtering out callback functions to call based on the index or range that they are installed for. What the index or range corresponds to is hap specific, but could for example be the exception number for the <a href="../rm-base/rm-haps.html#Core_Exception"><code>Core_Exception</code></a> hap.</p>
+<p><code>SIM_hap_occurred()</code> will only call the callbacks once every simulated cycle; if this hap is triggered several times during one cycle, the callbacks will still only be called once. The <code>SIM_hap_occurred_always()</code> function will always call the hap callback functions every time. It is recommended that <code>SIM_hap_occurred_always()</code> is used.</p>
+<p>These hap triggering functions return whether or not there were any matching callback function registered on the hap. This can be useful information when one wants a default behavior to be triggered (for example, stopping the simulation) if nobody is listening to the hap.</p>
+<p>The hap-specific parameters to the callback function can be passed in various ways: The <code>SIM_c_hap_occurred...</code> functions are only available in C/C++ and are variadic or take a <code>va_list</code> as argument. <code>SIM_hap_occurred</code> and <code>SIM_hap_occurred_always</code> are mainly intended to be used from Python, taking the parameters from an attribute value of list type, or an empty list (<code>[]</code>) if no parameters are passed. In all cases, the number and types of passed parameters must agree with the hap type definition.</p>
+<h2>Return Value</h2>
+<p>The return value is 0 if no callbacks are registered on the hap and non-zero if there are callbacks registered.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if <code>hap</code> is not a valid hap type or if the values in the <code>list</code> argument are of the wrong type.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_hap_remove_type"><a href="#SIM_hap_remove_type">SIM_hap_remove_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_remove_type — remove a hap type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_hap_remove_type(const char *NOTNULL hap);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_remove_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>Remove a run-time defined hap type.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<div class="chain">
+<a href="dev-api-global-notifiers.html">Global Notifiers</a>
+<a href="dev-api-logging.html">Logging</a>
+</div>

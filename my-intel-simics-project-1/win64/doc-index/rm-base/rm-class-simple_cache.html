@@ -1,0 +1,389 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>simple_cache</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-simple-tty.html">simple-tty</a>
+<a href="rm-class-simple_cache_connection.html">simple_cache_connection</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="simple_cache"><a href="#simple_cache">simple_cache</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Simple cache structure
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, simple_cache, table
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-simple_cache.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-simple_cache.print-cache-content.html">print-cache-content</a>
+ – meta content</li>
+<li>
+<a href="rm-cmd-simple_cache.print-statistics.html">print-statistics</a>
+ – print statistics</li>
+<li>
+<a href="rm-cmd-simple_cache.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="commands-for-interface-table">
+<a href="#commands-for-interface-table">Commands for interface table</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-table.export-table-csv.html">export-table-csv</a>
+ – print table to file in csv format</li>
+<li>
+<a href="rm-cmd-table.print-table.html">print-table</a>
+ – print table</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cache_block_size"><a href="#dt:cache_block_size">
+<i>cache_block_size</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>cache_block_size</dd>
+<dt id="dt:cache_set_number"><a href="#dt:cache_set_number">
+<i>cache_set_number</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>cache_set_number</dd>
+<dt id="dt:cache_ways"><a href="#dt:cache_ways">
+<i>cache_ways</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>cache_ways</dd>
+<dt id="dt:read_penalty"><a href="#dt:read_penalty">
+<i>read_penalty</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Read penalty</dd>
+<dt id="dt:write_penalty"><a href="#dt:write_penalty">
+<i>write_penalty</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Write penalty</dd>
+<dt id="dt:read_miss_penalty"><a href="#dt:read_miss_penalty">
+<i>read_miss_penalty</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Read miss penalty</dd>
+<dt id="dt:write_miss_penalty"><a href="#dt:write_miss_penalty">
+<i>write_miss_penalty</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Write miss penalty, also read for ownership penalty.</dd>
+<dt id="dt:snoop_penalty"><a href="#dt:snoop_penalty">
+<i>snoop_penalty</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Extra penalty for issuing snooping transaction.</dd>
+<dt id="dt:stat_data_write"><a href="#dt:stat_data_write">
+<i>stat_data_write</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of writes</dd>
+<dt id="dt:stat_data_write_miss"><a href="#dt:stat_data_write_miss">
+<i>stat_data_write_miss</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of writes misses</dd>
+<dt id="dt:stat_data_write_back"><a href="#dt:stat_data_write_back">
+<i>stat_data_write_back</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of writes</dd>
+<dt id="dt:stat_data_write_back_miss"><a href="#dt:stat_data_write_back_miss">
+<i>stat_data_write_back_miss</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of writes misses</dd>
+<dt id="dt:stat_data_read"><a href="#dt:stat_data_read">
+<i>stat_data_read</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of reads</dd>
+<dt id="dt:stat_data_read_miss"><a href="#dt:stat_data_read_miss">
+<i>stat_data_read_miss</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of reads misses</dd>
+<dt id="dt:stat_data_prefetch"><a href="#dt:stat_data_prefetch">
+<i>stat_data_prefetch</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of prefetches</dd>
+<dt id="dt:stat_data_prefetch_miss"><a href="#dt:stat_data_prefetch_miss">
+<i>stat_data_prefetch_miss</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of prefetch misses</dd>
+<dt id="dt:stat_data_prefetch_read_for_ownership"><a href="#dt:stat_data_prefetch_read_for_ownership">
+<i>stat_data_prefetch_read_for_ownership</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of read for ownership prefetches</dd>
+<dt id="dt:stat_data_prefetch_read_for_ownership_miss"><a href="#dt:stat_data_prefetch_read_for_ownership_miss">
+<i>stat_data_prefetch_read_for_ownership_miss</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of read for ownership prefetch misses</dd>
+<dt id="dt:stat_data_read_for_ownership"><a href="#dt:stat_data_read_for_ownership">
+<i>stat_data_read_for_ownership</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of read for ownership</dd>
+<dt id="dt:stat_data_read_for_ownership_miss"><a href="#dt:stat_data_read_for_ownership_miss">
+<i>stat_data_read_for_ownership_miss</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of read for ownership misses</dd>
+<dt id="dt:stat_instr_fetch_miss"><a href="#dt:stat_instr_fetch_miss">
+<i>stat_instr_fetch_miss</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of instr miss</dd>
+<dt id="dt:stat_instr_fetch"><a href="#dt:stat_instr_fetch">
+<i>stat_instr_fetch</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of instr</dd>
+<dt id="dt:evicted_modified"><a href="#dt:evicted_modified">
+<i>evicted_modified</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of eviction of modified data</dd>
+<dt id="dt:evicted_total"><a href="#dt:evicted_total">
+<i>evicted_total</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of total eviction.</dd>
+<dt id="dt:stat_prefetches_used"><a href="#dt:stat_prefetches_used">
+<i>stat_prefetches_used</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>n. of prefetched lines used.</dd>
+<dt id="dt:next_level"><a href="#dt:next_level">
+<i>next_level</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>next hierarchy object</dd>
+<dt id="dt:prev_level"><a href="#dt:prev_level">
+<i>prev_level</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o|n*]|n</code>
+<br>Previous caches in hierarchy</dd>
+<dt id="dt:level"><a href="#dt:level">
+<i>level</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Cache level 1 - N</dd>
+<dt id="dt:policy"><a href="#dt:policy">
+<i>policy</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Cache policy, either 'inclusive', 'exclusive', or 'nine' which is default</dd>
+<dt id="dt:ip_read_prefetcher"><a href="#dt:ip_read_prefetcher">
+<i>ip_read_prefetcher</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Use instruction pointer based read stride prefetcher.</dd>
+<dt id="dt:ip_write_prefetcher"><a href="#dt:ip_write_prefetcher">
+<i>ip_write_prefetcher</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Use instruction pointer based write stride prefetcher.</dd>
+<dt id="dt:prefetch_additional"><a href="#dt:prefetch_additional">
+<i>prefetch_additional</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Additional consecutive lines to prefetch</dd>
+<dt id="dt:prefetch_adjacent"><a href="#dt:prefetch_adjacent">
+<i>prefetch_adjacent</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Prefetch the adjacent cache line as well so the total fetch region is block size * 2, naturally aligned.</dd>
+<dt id="dt:cache_conn"><a href="#dt:cache_conn">
+<i>cache_conn</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The instrumentation connection</dd>
+<dt id="dt:write_allocate"><a href="#dt:write_allocate">
+<i>write_allocate</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, write misses reads the cache line first, and then the line is modified, otherwise write through on write miss.</dd>
+<dt id="dt:write_back"><a href="#dt:write_back">
+<i>write_back</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, modified cache line is written back to memory when line is flushed, otherwise write through.</dd>
+<dt id="dt:meta_content"><a href="#dt:meta_content">
+<i>meta_content</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[iiiii]*]</code>
+<br>Cache meta content for each line: [State, tag, accessed, in prefetch stride, prefetched line].State is encoded as: 0 in Invalid, 1 is Shared, 2 is Exclusive, and 3 is Modified.</dd>
+<dt id="dt:directory"><a href="#dt:directory">
+<i>directory</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Directory controlling this cache level</dd>
+<dt id="dt:cpu"><a href="#dt:cpu">
+<i>cpu</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n|[o*]</code>
+<br>The cpus connected to the cache</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simple-cache-tool.html">simple-cache-tool</a>
+</section>
+<div class="chain">
+<a href="rm-class-simple-tty.html">simple-tty</a>
+<a href="rm-class-simple_cache_connection.html">simple_cache_connection</a>
+</div>

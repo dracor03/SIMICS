@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 Limitations</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="execution-of-systemc-models-in-the-simics-simulator.html">6 Execution of SystemC Models in the Simics Simulator</a>
+<a href="building-with-cmake.html">8 Building with CMake</a>
+</div>
+<div class="path">
+<a href="index.html">SystemC* Library</a>
+&nbsp;/&nbsp;</div><h1 id="limitations"><a href="#limitations">7 Limitations</a></h1>
+<ul>
+<li>The kernel must be statically linked with the model in order to satisfy the
+isolation properties expected by all Simics modules</li>
+<li>Awareness for sockets only supports a BUSWIDTH of 32 and 64</li>
+<li>Awareness for processes does not track spawned processes at run-time</li>
+<li>The memory profiling feature does not support threads instantiated using
+SC_CTHREAD. Allocations made by threads instantiated using SC_THREAD are
+supported</li>
+<li>The memory profiling results include allocations made by the SystemC kernel</li>
+<li>SystemC adapters from the same (Simics) module cannot be instantiated in
+multiple cells. This limitation comes from the SystemC kernel itself, having a
+global/shared sc_simcontext pointer. Simics supports multiple instances of
+the kernel, by allocating a new context for each instance and updating the
+global context at the enter/exit of each instance. To run the same SystemC
+model in multiple cells, the model must be wrapped in separate modules.
+<ul>
+<li>Hint: with CMake it is possible to produce multiple modules from the same
+directory, thus making it easy to re-use the same sources</li>
+</ul>
+</li>
+<li>Similar with the previous limitation, SystemC adapters from the same (Simics)
+module do not work in multicore accelerator mode.</li>
+<li>Static SystemC objects are only supported for the first instance of each
+<code>Adapter</code> created in Simics</li>
+<li>The <code>simics2tlm::Transaction</code> gasket does not support checkpointing of
+asynchronous transactions</li>
+<li>The TLM transaction injected to a multi passthrough initiator socket is only
+sent to the first bound target socket.</li>
+</ul>
+
+<div class="chain">
+<a href="execution-of-systemc-models-in-the-simics-simulator.html">6 Execution of SystemC Models in the Simics Simulator</a>
+<a href="building-with-cmake.html">8 Building with CMake</a>
+</div>

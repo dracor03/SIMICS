@@ -1,0 +1,42 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;state-assertion&gt;.add</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-standard_pcie_switch_comp.status.html">&lt;standard_pcie_switch_comp&gt;.status</a>
+<a href="rm-cmd-state-assertion.add-mem-lis.html">&lt;state-assertion&gt;.add-mem-lis</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="state-assertion.add"></a>
+<h1 id="state-assertion.add"><a href="#state-assertion.add">&lt;state-assertion&gt;.add</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;state-assertion&gt;.add</b> <i>obj</i> <i>steps</i> [<i>type</i>] [<i>"attribute"</i>] [<i>step-obj</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Add an object to a state assertion file so its state will be recorded.<br>
+ - <i>obj</i> is the name of the object to be added.<br>
+ - <i>steps</i> is the number of steps between each save.<br>
+ - <i>type</i> is the type of state saved in the file (for devices that provide several, the most complete state is saved by default).<br>
+ - <i>attribute</i> is the attribute to save. If specified, the save_state interface is not used and the attribute is saved instead. This is useful for object not implementing the <tt>save_state</tt> interface.<br>
+ - <i>step-obj</i> is the object that implements the event queue you want to post the event to. If not specified, the obj must implement step interface. 
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.state-assertion.html">state-assertion</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-standard_pcie_switch_comp.status.html">&lt;standard_pcie_switch_comp&gt;.status</a>
+<a href="rm-cmd-state-assertion.add-mem-lis.html">&lt;state-assertion&gt;.add-mem-lis</a>
+</div>

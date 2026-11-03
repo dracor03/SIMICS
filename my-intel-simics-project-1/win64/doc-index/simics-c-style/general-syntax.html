@@ -1,0 +1,220 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 General syntax</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="language.html">2 Language</a>
+<a href="comments.html">4 Comments</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for C</a>
+&nbsp;/&nbsp;</div><h1 id="general-syntax"><a href="#general-syntax">3 General syntax</a></h1>
+<p>The C style is Kernighan &amp; Ritchie with 8 steps indentation.
+Spaces are used, not tabs.
+Braces are put on the same line as the keyword.</p>
+<p>Put a single space:</p>
+<ul>
+<li>between <code>if</code>, <code>while</code>, <code>switch</code> and <code>for</code> and their opening parenthesis</li>
+<li>between <code>else</code>, <code>while</code> and <code>do</code> and nearby braces</li>
+<li>around binary operators except comma, dot and arrow (<code>-&gt;</code>)</li>
+<li>around <code>?</code> and <code>:</code></li>
+<li>after but not before colon (after goto or switch labels), semicolon and comma</li>
+<li>around the <code>##</code> operator if it makes the code clearer</li>
+<li>between a type and the <code>*</code> marking a pointer</li>
+</ul>
+<p>There should be no space:</p>
+<ul>
+<li>between a function/macro name and its opening parenthesis</li>
+<li>immediately inside parentheses or brackets</li>
+<li>between an unary operator (including casts) and its operand</li>
+<li>after the <code>*</code> marking a pointer in a declaration</li>
+</ul>
+<p>Function <em>definitions</em> are written with the function name starting in the
+leftmost column, so the return type is on the preceding line; this is so it can
+be easily found by grepping.
+Function <em>prototypes</em> are written the function name after the return type as
+usual.</p>
+<p>Example:</p>
+<pre><code>person_t *godfather(child);
+
+person_t *
+father(person_t *child)
+{
+        if (child-&gt;parent[0].sex == Male) {
+                if (child-&gt;parent[1].sex == Male)
+                        return child-&gt;parent[random() &amp; 1];
+                else
+                        return child-&gt;parent[0];
+        } else {
+                if (child-&gt;parent[1].sex == Male)
+                        return child-&gt;parent[1];
+                else
+                        return godfather(child);
+        }
+}
+</code></pre>
+<p>Case labels are outdented 8 spaces relative the current level, so that they are
+on the same level as the <code>switch</code> statement.
+The same applies to <code>goto</code> labels, but keep an indentation of at least one
+space, to avoid mistaking them for top-level definitions.</p>
+<p>Example:</p>
+<pre><code>int
+bonus(player_t *p)
+{
+        int b = 0;
+        switch (p-&gt;what) {
+        case Winning:
+                b = 1000;
+                goto mystery;
+        case Losing:
+                b = -1000; break;
+        }
+        return b;
+ mystery:
+        b += random() % 500;
+        return b;
+}
+</code></pre>
+<p>No braces are required around single-statement blocks (but see the rule for
+comments in section <a class="reference" href="comments.html#comment-formatting">4.1</a>).</p>
+<p>If one or more branches of an “if-else” statement require braces, then all
+branches should be wrapped inside braces.</p>
+<pre><code>if (check(value)) {
+        apply(value);
+        return 0;
+} else  /* BAD */
+        return -1;
+
+if (check(value)) {
+        apply(value);
+        return 0;
+} else {  /* GOOD */
+        return -1;
+}
+</code></pre>
+<p>When the body of a while or for loop is left empty, indent the semicolon to the
+appropriate statement level:</p>
+<pre><code>for (s = 0; (1 &lt;&lt; s) &lt; x; s++)
+        ;
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>A very common style which yields dense yet readable code.
+8 steps indentation is common as well and gives very good separation of levels
+but may lead to excessive indentation; changing indentation width would be a
+major source code change.</p>
+</blockquote>
+<h2 id="line-length-and-breaking"><a href="#line-length-and-breaking">3.1 Line length and breaking</a></h2>
+<p>Lines should be kept shorter than 80 characters.
+Longer lines wrap or become partially invisible in editors whose windows have
+the standard width of 80 columns, which makes the code much harder to read.</p>
+<blockquote class="markdown-alert-note">
+<p>Having longer lines than the width of the screen (editor window) is
+unacceptable since it makes it much harder to read and completely destroys
+any structure given by indentation.
+Most lines are short, so forcing all programmers to have an editor window
+wide enough for a minority of lines wastes screen space, or forces people to
+use a smaller font that is harder on the eyes, especially for programmers
+without perfect eyesight.</p>
+<p>A window width of 80 columns is as close to standard as can be found anywhere,
+being used by many terminals and terminal emulators.
+It also matches normal width used by text printing software, which is
+important for printing source code for inspection.
+Additionally, printed text rarely has longer lines than this since it would
+make them harder to read.
+Finally, lines exactly 80 characters long are undesirable since they often
+wrap around in editors.</p>
+</blockquote>
+<p>Excessive indentation gives less room to write code without exceeding the line
+length limit.
+To avoid this in good coding style, you can:</p>
+<ul>
+<li>use <code>continue</code>, <code>break</code> or <code>return</code> to bypass code rather than putting code
+inside the body of a conditional</li>
+<li>factor out code into functions (possibly declared inline), which often
+improves legibility and sometimes speed as well</li>
+<li>only indent the first level of C code inside SimGen files one step (8 spaces)</li>
+</ul>
+<p>Break long lines before binary operators, not after:</p>
+<pre><code>x = (a_very_long_expression
+     + another_very_long_expression)
+    * a_third_long_expression;
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>This clearly indicates that a line continues an expression, and it is also
+consistent with several other standard styles.
+It also makes the operator easier to recognize, and is more in line with the
+familiar prefix notation used by function calls.</p>
+</blockquote>
+<p>Break conditional expressions before the <code>?</code>, or both before the <code>?</code> <em>and</em>
+before the <code>:</code>.
+Example:</p>
+<pre><code>harvest_resource(my-&gt;gas &lt; GAS_THRESHOLD
+                 ? Rsrc_Gas
+                 : (my-&gt;minerals &lt; MINERAL_THRESHOLD
+                    ? Rsrc_Minerals : nearest_resource()));
+</code></pre>
+<p>Following lines should be indented at their natural position, as shown above.
+Add parentheses if it makes indenting easier.</p>
+<p>Alternatively, conditional expressions may be structured in a chained fashion:</p>
+<pre><code>printf("Good %s!",
+       hour &lt; 12 ? "morning"
+       : hour &lt; 18 ? "afternoon"
+       : hour &lt; 22 ? "evening"
+       : "night");
+</code></pre>
+<p>The conditions may be put inside round brackets if that improves readability.</p>
+<p>You may also add spaces in expressions if you really want them to line up:</p>
+<pre><code>if (   (flags &amp; 0x86000001) == 0x84000001
+    || (flags &amp; 0xfc000003) == 0x38000002
+    || (flags &amp; 0x0000003f) == 0x0000001b)
+        ...
+</code></pre>
+<p>Long strings should be broken before a space between words, not after:</p>
+<pre><code>const char *letter = "Dear John,\n\tI did not want to write this"
+                     " letter but I cannot live with you any"
+                     " longer. You can keep the elephant and the"
+                     " zebra, but the giant squid is mine! MINE!";
+</code></pre>
+<p>This makes the spaces easier to find, and to prevent missing spaces where the
+strings are broken up.</p>
+<h2 id="parentheses"><a href="#parentheses">3.2 Parentheses</a></h2>
+<p>Parentheses not required by the language may be added to expressions for clarity
+or indentation.</p>
+<p>Parentheses <em>should</em> be added when the operator precedence is not intuitively
+obvious.
+This is <em>mandatory</em> to resolve precedence between the following operators, even
+if it is well-defined by the language:</p>
+<ul>
+<li><code>||</code> vs <code>&amp;&amp;</code></li>
+<li>bitwise operators (<code>|</code>, <code>&amp;</code>, <code>^</code>) vs each other</li>
+<li>bitwise operators vs arithmetic operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>)</li>
+<li>bitwise operators vs comparisons (<code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>)</li>
+<li>shift operators (<code>&lt;&lt;</code>, <code>&gt;&gt;</code>) vs arithmetic operators</li>
+<li>comparisons vs each other</li>
+<li>shift operators vs each other</li>
+</ul>
+<p>When neither language nor understanding or layout require parentheses, they
+should be omitted.</p>
+<blockquote class="markdown-alert-note">
+<p>C has some defects in its operator precedence rules for historical reasons;
+also, while it may be obvious to a hardware engineer that <code>&amp;</code> has higher
+precedence than <code>|</code>, it is not linguistically obvious.
+Gcc kindly warns in some but not all of these cases.
+Superfluous parentheses often make the code harder to read for a programmer
+who is familiar with the language, and may give false hints that something
+unusual is going on.</p>
+</blockquote>
+<p>Parentheses should also be added to assignment statements inside expressions, to
+clearly show that they were intended.</p>
+<p>Do not put parentheses around the <code>sizeof</code> operand when it is an expression:</p>
+<pre><code>int_size = sizeof(int);    // int is a type.
+x_size = sizeof x;         // x is an expression.
+</code></pre>
+
+<div class="chain">
+<a href="language.html">2 Language</a>
+<a href="comments.html">4 Comments</a>
+</div>

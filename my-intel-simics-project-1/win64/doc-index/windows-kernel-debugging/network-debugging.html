@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Windows Kernel Debugging Over a Network</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="windows-kernel-debugging-overview.html">1 Overview of Windows Kernel Debugging in Simics</a>
+<a href="target-network-card.html">2.1 Target System Network Card</a>
+</div>
+<div class="path">
+<a href="index.html">Windows Kernel Debugging</a>
+&nbsp;/&nbsp;</div><h1 id="windows-kernel-debugging-over-a-network"><a href="#windows-kernel-debugging-over-a-network">2 Windows Kernel Debugging Over a Network</a></h1>
+<blockquote class="markdown-alert-note">
+<p>This chapter uses <code>QSP-x86</code> model as an example target platform model. Some of the instructions will need to be adjusted to the particular target model where it differs from <code>QSP-x86</code> model.</p>
+<p>In order to be able to adapt <code>QSP-x86</code> examples to the particular target model familiarity with target model and general Simics environment is required.</p>
+</blockquote>
+<p>Windows kernel debugging configuration in Simics could be created in such a way, that Windows debugger client connects to the target kernel debugger via a real network. More specifically, Windows kernel running on Simics target systems communicates with Windows kernel debugger running on real host over a real network connection (figure <a class="reference" href="#windbg-network-setup">1</a>). For more detailed information about setting the network connection up please refer to “Windows Kernel Debugging Over a Network” (section <a class="reference" href="network-debugging.html">2</a>).</p>
+<figure id="windbg-network-setup">
+<p><img alt="" src="windbg-network-setup.png"> </p><figcaption>Figure 1. Windows kernel debugger connection over a network.</figcaption><p></p>
+</figure>
+
+<ul class="subsections">
+<li>
+<a href="target-network-card.html">2.1 Target System Network Card</a>
+</li>
+<li>
+<a href="target-ip-address.html">2.2 Target System IP Address</a>
+</li>
+<li>
+<a href="setup-windows-debug.html">2.3 Setting up Windows Target for Debug</a>
+</li>
+<li>
+<a href="connect-windbg.html">2.4 Connect Windows Kernel Debugger to the Target</a>
+</li>
+</ul>
+<div class="chain">
+<a href="windows-kernel-debugging-overview.html">1 Overview of Windows Kernel Debugging in Simics</a>
+<a href="target-network-card.html">2.1 Target System Network Card</a>
+</div>

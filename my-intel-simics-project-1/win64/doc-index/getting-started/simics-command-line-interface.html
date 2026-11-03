@@ -1,0 +1,209 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Command Line Interface (CLI)</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="launch-exit.html">3 Launching and Exiting</a>
+<a href="running-simics-cli.html">5 Running the Simulator</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;</div><h1 id="command-line-interface-cli"><a href="#command-line-interface-cli">4 Command Line Interface (CLI)</a></h1>
+<p>This section focuses on some practical information related to the use of the
+CLI. Particularly, the following information is presented:</p>
+<ul>
+<li>a brief <a href="#introduction">introduction</a> to the CLI</li>
+<li>how to use <a href="#command-line-completion">command line completion</a>, also known as
+<em>tab completion</em></li>
+<li>how to use the <a href="#the-help-command">help command</a></li>
+<li>where to find <a href="#further-reading">more information</a> about the CLI</li>
+</ul>
+<p>This section doesn’t cover all available CLI commands, but here
+are some examples of what can be done with commands:</p>
+<ul>
+<li><a href="running-simics-cli.html#create-a-target-machine">load</a> a target</li>
+<li><a href="running-simics-cli.html#run-and-stop-the-simulation">run and stop</a> the
+simulation</li>
+<li><a href="hardware-inspection.html">inspect</a> the state of target machines</li>
+<li><a href="target-software-debugging.html#debugging">set breakpoints and tracepoints</a></li>
+<li><a href="checkpoints-snapshots-.html">save and roll back to checkpoints</a></li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the user has followed the installation steps in the
+<a href="installation.html">installation</a> section and knows how to
+<a href="running-simics-cli.html">launch</a> the simulator.</p>
+</blockquote>
+<h2 id="introduction"><a href="#introduction">4.1 Introduction</a></h2>
+<p>As a short introduction to the functionality of the CLI:</p>
+<ul>
+<li>The CLI allows running (and combining):
+<ul>
+<li>CLI commands (which also can be run from Python)</li>
+<li>Python code (prefixed with <code>@</code> or in <code>python-mode</code>)</li>
+<li>Host shell commands (prefixed with <code>!</code> or <code>shell</code>)</li>
+<li>Most of the Intel Simics simulator interfaces can be executed as Python
+functions</li>
+</ul>
+</li>
+<li>Each executed command is saved to a <em>command history</em>.</li>
+<li>The state of objects can be inspected by accessing attributes, commands, and
+interfaces.</li>
+<li>The CLI has variables which are prefixed with <code>$</code>. The <code>$</code> prefix is used both
+when assigning and retrieving value (for example <code>$var = 1</code> or <code>echo $var</code>).</li>
+<li>There are built-in command <em>aliases</em>, but it’s also possible to create
+<em>custom</em> aliases with the <code>alias</code> command.</li>
+<li>Comments are created with <code>#</code> (# this is a comment).</li>
+</ul>
+<h3 id="cli-prompts"><a href="#cli-prompts">4.1.1 CLI Prompts</a></h3>
+<p>When launching the simulator (<code>simics.bat</code> on Windows or <code>./simics</code> on Linux),
+the CLI is started automatically. The CLI has several prompts, but here are most
+important.</p>
+<ul>
+<li><em>Simulation stopped (default)</em> The default prompt is <code>simics&gt;</code>. This also
+indicates that the simulation is not running.</li>
+<li><em>Simulation running</em> When the simulation is running, the prompt changes to
+<code>running&gt;</code>. Note that <em>most commands</em> (such as <code>stop</code>) can be issued while the
+simulation is running.</li>
+<li><em>Python Mode</em><br>
+The simulator has a Python mode for using Python interactively.
+When running the <code>python-mode</code> command, the prompt changes to <code>simics&gt;&gt;&gt;</code>.</li>
+</ul>
+<h3 id="keyboard-shortcuts"><a href="#keyboard-shortcuts">4.1.2 Keyboard Shortcuts</a></h3>
+<p>These are some shortcuts that may be useful:</p>
+<ul>
+<li><em>Control-C</em><br>
+A running simulation (<code>running&gt;</code>) can be interrupted with <em>Control-C</em>, as an
+alternative to typing <code>stop</code>.</li>
+<li><em>Arrow up</em> Put the previous command (from the <em>command history</em>) on prompt
+without having to re-type it. To see older commands, press <em>Arrow up</em> again.</li>
+<li><em>Control-R</em> Search the command history by first pressing <em>Control-R</em> and then
+type a substring to search for in the <em>command history</em>. Press <em>Control R</em>
+again to see the next matching.</li>
+<li><em>Tab</em><br>
+The <em>Tab</em> key is used for <a href="#command-line-completion">command line completion</a>.</li>
+</ul>
+<h2 id="command-line-completion"><a href="#command-line-completion">4.2 Command Line Completion</a></h2>
+<p>To simplify interactive use, the CLI implements <em>command line completion</em>, also
+known as <em>tab completion</em>. The CLI can complete commands, arguments, file names,
+and some other entities. Let’s see how command line completion works for the
+<code>load-target</code> command:</p>
+<ul>
+<li>
+<p><a href="launch-exit.html">Launch</a> the simulator.</p>
+</li>
+<li>
+<p>Use tab-completion to complete the command <code>load-target</code> by typing only
+<code>load-t</code> and then press tab:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-t # press tab once to complete command</strong>
+simics&gt; <strong>load-target</strong>
+</code></pre>
+</li>
+<li>
+<p>To get further with command line completion, press the tab key twice. The CLI
+will print the list of parameters and flags which can be passed
+to the <code>load-target</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target # press tab twice to get arguments</strong>
+namespace =  preset =  preset_yml =  presets =  target =
+simics&gt; <strong></strong>
+</code></pre>
+</li>
+</ul>
+<p>Please note that we had to press the tab key twice. It is because the command
+completion system could not unambiguously complete the command after the tab key
+was pressed once. After the tab key is pressed again, the command completion
+system shows all possible completions.</p>
+<ul>
+<li>
+<p>Let’s proceed with our current command line entry and expand arguments that
+begin with the letter <code>t</code>. Enter <code>t</code> followed by the tab key and observe that
+the <code>target</code> argument appears:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target t # press tab to expand the 'target' argument</strong>
+simics&gt; <strong>load-target target = </strong>
+</code></pre>
+</li>
+<li>
+<p>We would like to load the target <code>qsp-x86/firststeps</code>. The command line
+completion can help with this. With the current command entry, type <code>q</code> and
+then tab once to expand all targets that begin with <code>q</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = q # press tab once to complete qsp-x86</strong>
+simics&gt; <strong>load-target target = "qsp-x86/</strong>
+</code></pre>
+</li>
+<li>
+<p>Now type <code>f</code> and then tab to expand the target named <code>qsp-x86/firststeps</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = "qsp-x86/f # press tab to complete target name</strong>
+simics&gt; <strong>load-target target = "qsp-x86/firststeps"</strong>
+</code></pre>
+</li>
+<li>
+<p>We now have the complete command for loading the <code>qsp-x86/firststeps</code> target.
+Press enter to load this target machine:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = "qsp-x86/firststeps"</strong>
+"firststeps"
+simics&gt;
+</code></pre>
+</li>
+</ul>
+<p>We have now used command line completion to load the <code>qsp-x86/firststeps</code>
+target.</p>
+<h2 id="the-help-command"><a href="#the-help-command">4.3 The help command</a></h2>
+<p>The simulator documentation can be accessed in the CLI with the <code>help</code> command.
+The <code>help</code> command provides access to the documentation for:</p>
+<ul>
+<li>commands</li>
+<li>scripts</li>
+<li>objects</li>
+<li>classes</li>
+<li>modules</li>
+<li>attributes</li>
+<li>API functions</li>
+</ul>
+<p>To try the command, enter the following command to see the documentation for the
+load-target command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help load-target</strong>
+Command load-target
+
+   Synopsis
+      load-target "target" ["namespace"] ["preset"|presets|"preset_yml"]
+...
+</code></pre>
+<p>To get the documentation for any command just run the <code>help</code> command specifying
+the command you are interested in:</p>
+<pre><code class="language-simics">simics&gt; <strong>help &lt;command-of-interest&gt;</strong>
+</code></pre>
+<p>More information on the <code>help</code> command can be obtained by reading the
+documentation for the help command itself:</p>
+<pre><code class="language-simics">simics&gt; <strong>help help</strong>
+Command help
+
+   Alias
+      h, man
+
+   Synopsis
+      help ["topic"]
+...
+</code></pre>
+<p>The <code>help-search</code> command allows you to search the documentation for a
+particular string. Here is a sample usage of the <code>help-search</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help-search python</strong>
+The text 'python' appears in the documentation
+for the following items:
+
+Command        %
+Command        &lt;bp-manager.log&gt;.break
+Command        &lt;bp-manager.log&gt;.run-until
+Command        &lt;bp-manager.log&gt;.trace
+...
+</code></pre>
+<h2 id="further-reading"><a href="#further-reading">4.4 Further Reading</a></h2>
+<p>More information about the CLI can be found in
+<a href="../simics-user-guide/index.html"><em>Simics User’s Guide</em></a>,
+section <a href="../simics-user-guide/cli.html"><em>The Command Line Interface</em></a>.</p>
+
+<div class="chain">
+<a href="launch-exit.html">3 Launching and Exiting</a>
+<a href="running-simics-cli.html">5 Running the Simulator</a>
+</div>

@@ -1,0 +1,63 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Link-Specific Interfaces</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="class-definitions.html">4 Class Definitions</a>
+<a href="communication-interfaces.html">6 Communication Interfaces</a>
+</div>
+<div class="path">
+<a href="index.html">Link Library Programming Guide</a>
+&nbsp;/&nbsp;</div><h1 id="link-specific-interfaces"><a href="#link-specific-interfaces">5 Link-Specific Interfaces</a></h1>
+<p>Endpoints always need to implement interfaces specific to the link type, so they can accept messages from the connected devices.
+Here, <code>datagram_link</code> registers a <code>datagram_link</code> interface for its endpoint class.</p>
+<pre><code>void
+init_local()
+{
+        /* The link library must always be initialised first. */
+        SIMLINK_init_library();
+
+        const class_info_t cl_methods = {
+                .alloc = datagram_link_alloc,
+                .init = datagram_link_init,
+                .finalize = datagram_link_finalize,
+                .deinit = datagram_link_deinit,
+                .dealloc = datagram_link_dealloc,
+                .short_desc = "link that broadcasts byte strings",
+                .description = "A link that broadcasts byte strings."
+        };
+        conf_class_t *cl = SIM_create_class("datagram_link_impl",
+                                              &amp;cl_methods);
+
+        /* Tell the link library what class represents the link */
+        SIMLINK_register_class(cl);
+
+        const class_info_t epcl_methods = {
+                .alloc = datagram_link_endpoint_alloc,
+                .init = datagram_link_endpoint_init,
+                .finalize = datagram_link_endpoint_finalize,
+                .deinit = SIMLINK_endpoint_disconnect,
+                .dealloc = datagram_link_endpoint_dealloc,
+                .short_desc = "endpoint for datagram links",
+                .description = "Endpoint for datagram link objects."
+        };
+        conf_class_t *epcl = SIM_create_class("datagram_link_endpoint",
+                                                &amp;epcl_methods);
+
+        static const datagram_link_interface_t dgram_link_if = {
+                .receive = receive
+        };
+        SIM_REGISTER_INTERFACE(epcl, datagram_link, &amp;dgram_link_if);
+
+        /* Tell the link library what class we use for endpoints */
+        SIMLINK_register_endpoint_class(epcl, "d");
+}
+</code></pre>
+
+<div class="chain">
+<a href="class-definitions.html">4 Class Definitions</a>
+<a href="communication-interfaces.html">6 Communication Interfaces</a>
+</div>

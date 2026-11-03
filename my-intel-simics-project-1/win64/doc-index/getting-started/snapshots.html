@@ -1,0 +1,173 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.4 Snapshots (in-memory)</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="checkpoints-snapshots-.html">8.3 Checkpoints (on-disk)</a>
+<a href="scripting.html">8.5 Writing Custom Scripts</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="snapshots-in-memory"><a href="#snapshots-in-memory">8.4 Snapshots (in-memory)</a></h1>
+<p>In addition to checkpoints, the Intel Simics simulator can save the state of
+simulation in memory. We refer to such saved states as snapshots. Snapshots are
+not preserved after one quits the simulator. Once snapshots have been taken it
+is possible to jump between them.</p>
+<p>In this section:</p>
+<ul>
+<li>how to take snapshots</li>
+<li>how to jump between snapshots</li>
+</ul>
+<p>Creation and use of snapshots:</p>
+<ol>
+<li>
+<p>load the <code>qsp-x86/firststeps</code> target using the <code>load-target</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>start the created target machine:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>wait until Linux has booted. When Linux has booted, a text terminal window
+connected to a serial port of the target machine will look like this:
+<img alt="" src="linux-grml-booted.png"></p>
+</li>
+</ol>
+<ol>
+<li>
+<p>stop simulation:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>take a snapshot by running the <code>take-snapshot</code> command and specifying a name
+for the snapshot:</p>
+<pre><code class="language-simics">simics&gt; <strong>take-snapshot booted</strong>
+</code></pre>
+<p>where “booted” is a name we picked for a snapshot.</p>
+</li>
+<li>
+<p>resume simulation:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>do some changes to the target machine. As an example of such changes, the
+screenshot below shows how to identify where the <code>cat</code> utility is located,
+delete it and check that it cannot be found after it has been deleted:</p>
+<p><img alt="" src="bookmarks-2.png"></p>
+</li>
+<li>
+<p>stop simulation:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>restore the simulation state to the one which was saved in step 5:</p>
+<pre><code class="language-simics">simics&gt; <strong>restore-snapshot booted</strong>
+</code></pre>
+</li>
+</ol>
+<p>where <code>restore-snapshot</code> is a command to restore the simulation state from a
+snapshot, and “booted” is the name which we gave to the snapshot created in step
+5.</p>
+<ol>
+<li>
+<p>the text terminal of the simulated machine looks now like it did before we
+deleted the <code>cat</code> utility in step 7:</p>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+</ol>
+<p>What will happen now if we run the simulation after we restored the state from
+the snapshot? By default, the simulation will just resume from the state of the
+snapshot. The input and modifications done in step 7 will not occur.</p>
+<ol>
+<li>
+<p>resume simulation by executing the <code>run</code> command and observe on the text
+terminal windows of the target machine how nothing happens, the console
+output will remain as after booted in step 3.</p>
+</li>
+<li>
+<p>stop simulation by executing the <code>stop</code> command.</p>
+</li>
+</ol>
+<p>In order to repeat input one can use a recorder to record input and then replay
+it after loading a snapshot:</p>
+<ol>
+<li>
+<p>restore the simulation state “booted” again:</p>
+<pre><code class="language-simics">simics&gt; <strong>restore-snapshot booted</strong>
+</code></pre>
+</li>
+<li>
+<p>start recording to a file using the <code>start-recording</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>start-recording file = "myrecording.rec"</strong>
+Recording of asynchronous input started
+</code></pre>
+</li>
+<li>
+<p>resume simulation with the <code>run</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>enter some input to the terminal window, in this case the same input as in
+the earlier example, step 7:</p>
+<p><img alt="" src="bookmarks-2.png"></p>
+</li>
+<li>
+<p>stop the simulation and then stop the recording with the <code>stop-recording</code>
+command:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>stop-recording</strong>
+Recording of asynchronous input stopped
+</code></pre>
+</li>
+<li>
+<p>restore the simulation state “booted” again:</p>
+<pre><code class="language-simics">simics&gt; <strong>restore-snapshot booted</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>replay the recording:</p>
+<pre><code class="language-simics">simics&gt; <strong>start-playback file = "myrecording.rec"</strong>
+Playback of recorded async input started
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+<p>The terminal input will be replayed:
+<img alt="" src="bookmarks-2.png"></p>
+<pre><code class="language-simics">simics&gt; <strong>stop</strong>
+running&gt;
+</code></pre>
+</li>
+</ol>
+<p>We can see that the same inputs were replayed with the same output as a result.</p>
+<p>The existing snapshots can be listed using the <code>list-snapshots</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-snapshots</strong>
+</code></pre>
+<p>When a snapshot is no longer needed it can be deleted using the
+<code>delete-snapshot</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>delete-snapshot booted</strong>
+</code></pre>
+
+<div class="chain">
+<a href="checkpoints-snapshots-.html">8.3 Checkpoints (on-disk)</a>
+<a href="scripting.html">8.5 Writing Custom Scripts</a>
+</div>

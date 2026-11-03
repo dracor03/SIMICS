@@ -1,0 +1,66 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>transaction-ckpt</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-trans-staller.html">trans-staller</a>
+<a href="rm-class-transaction_splitter.html">transaction_splitter</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="transaction-ckpt"><a href="#transaction-ckpt">transaction-ckpt</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Transaction checkpoint class.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction_subscribe
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:transaction-wait-all-completed"><a href="#dt:transaction-wait-all-completed">transaction-wait-all-completed</a></dt>
+<dd>Notifier that is triggered when all calls to the <tt>SIM_transaction_wait</tt> function have completed. The notifier can be useful in cases where there are issues with saving a checkpoint because the <tt>SIM_transaction_wait</tt> function is used for simulation. Simics cannot save a checkpoint when there are transactions whose completion is waited for with <tt>SIM_transaction_wait</tt>. In such cases, one can advance simulation to the point where no calls to <tt>SIM_transaction_wait</tt> are in progress and then save a checkpoint. The following command advances simulation to such a point: <pre>bp.notifier.run-until name = transaction-wait-all-completed
+</pre>
+<p>
+In Simics scripts one can use the following code snippet to ensure that a checkpoint is saved when no calls to <tt>SIM_transaction_wait</tt> are in progress: </p><pre>if (list-transactions -show-only-waited) {
+    bp.notifier.run-until name = transaction-wait-all-completed
+}
+write-configuration my_checkpoint.ckpt
+</pre> </dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:transactions"><a href="#dt:transactions">
+<i>transactions</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[[o|n,is]*]*]</code>
+<br>List with deferred transaction chains, where each element is of the form [owner, id, state], where state is one of '', 'monitored', 'chained', or 'deferred'</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-class-trans-staller.html">trans-staller</a>
+<a href="rm-class-transaction_splitter.html">transaction_splitter</a>
+</div>

@@ -1,0 +1,79 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Frontend Exceptions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="device-api.html">Device API</a>
+<a href="device-api-data-types.html">Device API Data Types</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;</div>
+<h1>Frontend Exceptions</h1>
+<h2 id="sim_exception_t"><a href="#sim_exception_t">sim_exception_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>sim_exception_t — frontend exceptions</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum sim_exception {
+        SimExc_No_Exception,
+        SimExc_General,
+        SimExc_Lookup,
+        SimExc_Attribute,
+        SimExc_IOError,
+        SimExc_Index,
+        SimExc_Memory,
+        SimExc_InquiryOutsideMemory,
+        SimExc_InquiryUnhandled,
+        SimExc_Type,
+        SimExc_Break,
+        SimExc_PythonTranslation,
+        SimExc_License,
+        SimExc_IllegalValue,
+        SimExc_InterfaceNotFound,
+        SimExc_AttrNotFound,
+        SimExc_AttrNotReadable,
+        SimExc_AttrNotWritable
+} sim_exception_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SimExc_Memory
+simics.SimExc_License
+simics.SimExc_IllegalValue
+simics.SimExc_IOError
+simics.SimExc_AttrNotWritable
+simics.Sim_Exceptions
+simics.SimExc_AttrNotReadable
+simics.SimExc_PythonTranslation
+simics.SimExc_Index
+simics.SimExc_Lookup
+simics.SimExc_Type
+simics.SimExc_InquiryUnhandled
+simics.SimExc_No_Exception
+simics.SimExc_Stop
+simics.SimExc_Attribute
+simics.SimExc_InquiryOutsideMemory
+simics.SimExc_InterfaceNotFound
+simics.SimExc_General
+simics.SimExc_Break
+simics.SimExc_AttrNotFound
+</code></pre>
+<h2>Description</h2>
+<p>Whenever an error occurs in a Simics API function, that function will raise an <em>exception</em>. An exception consists of an <em>exception type</em> and an error message.</p>
+<p>Note that API users writing in C must use <a href="dev-api-errors.html#SIM_clear_exception"><code>SIM_clear_exception()</code></a> and <a href="dev-api-errors.html#SIM_last_error"><code>SIM_last_error()</code></a> since C does not support exceptions. In Python, the Simics API exceptions will trigger actual Python exceptions, which you can capture using <code>try ... except</code>.</p>
+</section>
+<div class="chain">
+<a href="device-api.html">Device API</a>
+<a href="device-api-data-types.html">Device API Data Types</a>
+</div>

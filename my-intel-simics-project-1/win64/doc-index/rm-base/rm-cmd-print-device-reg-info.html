@@ -1,0 +1,47 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>print-device-reg-info</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-print-device-access-stats.html">print-device-access-stats</a>
+<a href="rm-cmd-print-device-regs.html">print-device-regs</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="print-device-reg-info"></a>
+<h1 id="print-device-reg-info"><a href="#print-device-reg-info">print-device-reg-info</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>print-device-reg-info</b> (<i>"register"</i>|<i>"bank"</i>) [<i>offset</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Print detailed information about a device register. The <i>register</i> argument is of the form <tt>device.bank.register</tt>. The information includes the register width in bits, byte offset within the register bank, its current value and all bit fields. If the device bank is mapped into memory, the command will try to resolve which physical address or addresses the register is mapped at.
+<p>
+Alternatively, the <i>bank</i> argument can be a bank object (of the form <tt>device.bank.&lt;bank-name&gt;</tt>) together with the optional <i>offset</i> argument, which specifies a byte offset in the bank. This will show detailed information for the register at that offset. If the offset falls in the middle of a register, the covering register is shown with a note about the misalignment.
+</p><p>
+When used in an expression, the return value is a list with register offset within the bank, the register width in bits, the current value, and the physical addresses where the register is mapped, together with the corresponding memory spaces. If the register is not mapped or does not hold any value, the return value will still report them as 0. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-print-device-regs.html">print-device-regs</a>, 
+<a href="rm-cmd-get-device-reg.html">get-device-reg</a>, 
+<a href="rm-cmd-get-device-offset.html">get-device-offset</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-print-device-access-stats.html">print-device-access-stats</a>
+<a href="rm-cmd-print-device-regs.html">print-device-regs</a>
+</div>

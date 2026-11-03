@@ -1,0 +1,1710 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>C++ Device API v2</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="c-device-api-v2"><a href="#c-device-api-v2">C++ Device API v2</a></h1>
+<h2 id="introduction"><a href="#introduction">1 Introduction</a></h2>
+<p>This document describes the Simics C++ Device API, which is a C++ layer built on top of the Simics C API. See the
+<a href="../model-builder-user-guide/index.html">Model Builder User’s Guide</a> for more information about the C API. The C++ Device API is also used when integrating SystemC models into the Simics framework. See the
+<a href="../systemc-library/index.html">SystemC Library Programming Guide</a> for more information about Simics and SystemC models.</p>
+<p>We recommend that you use DML for writing new simulation models, but it is often necessary to port existing simulations models from a different environment to Simics. If these are written in C++ or SystemC, you can use the <em>C++ Device API</em> to simplify the task. For SystemC there is further support described in the
+<a href="../systemc-library/index.html">SystemC Library Programming Guide</a>.</p>
+<p>The Simics C++ Device API is a collection of C++ functions, data types, and templates that make it easier to connect a C++ simulation model to the Simics framework. The C++ Device API is implemented as a layer on top of the Simics C API, and the detailed API documentation is found in the <em>Simics C++ Device API Reference Manual</em>. The source code is found in <code>[simics]/src/extensions/c++-api</code>.</p>
+<p>While this application note aims to cover most aspects of porting C++ device models to the Simics APIs, it is assumed that you are familiar with the Simics device modeling concepts described in the
+<a href="../model-builder-user-guide/index.html">Model Builder User’s Guide</a>.</p>
+<h2 id="about-the-simics-c-device-api-version-2"><a href="#about-the-simics-c-device-api-version-2">2 About the Simics C++ Device API version 2</a></h2>
+<p>Version 2 of the Simics C++ Device API replaces the old Simics C++ Device API, which has been retroactively named as the Simics C++ Device API v1. The v1 API was developed before the C++11 standard was introduced. The v1 API also has some technical limitations; for example, no support for Simics port objects that was introduced in Simics version 6.</p>
+<h3 id="minimal-requirements"><a href="#minimal-requirements">2.1 Minimal requirements</a></h3>
+<p>The v2 API utilizes C++11 and C++14 features to improve productivity. It has been designed to be easier to use and adds support for Simics port objects. To use the v2 API, your C++ compiler must support C++14, which means that the minimal GCC compiler version is 6.3 and the minimal MSVC compiler version is 2015. Later versions are typically used.</p>
+<p>Different features have different minimal C++ language standard requirements:</p>
+<table><thead><tr><th style="text-align: left">Feature</th><th style="text-align: left">Description</th><th style="text-align: left">Minimal C++ language standard requirement</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>Register Banks</code></td><td style="text-align: left">Used for modelling memory mapped device. The feature is included in a separate header file <code>cc-modeling-api.h</code>. See <a class="reference" href="#register-banks-2">7</a> for how to create and use the <em>register banks</em>.</td><td style="text-align: left">C++17</td></tr>
+<tr><td style="text-align: left">Other features</td><td style="text-align: left">Included in header file <code>cc-api.h</code></td><td style="text-align: left">C++14</td></tr>
+</tbody></table>
+<p><img alt="Overview of the Simics C++ device API version 2" src="block_diagram.svg"></p>
+<p>Figure: Overview of the Simics C++ device API version 2</p>
+<p>The diagram above shows the high-level observation of the Simics C++ device API version 2. The v2 API consists of several parts. First it provides support for registration of a Simics class which connects with your C++ device. It also provides <em>Port</em> and <em>Connect</em> concept to communicate with other Simics modules. Then for inspection and checkpointing, it also includes support for <em>Attribute</em>. The <em>Event</em> concept helps to register events which are driven by the Simics scheduler. Last but not least, a tech-preview feature to support programming registers is included.</p>
+<p>To use the v2 API, you must set <code>USE_CC_API = 2</code> in your module’s <code>Makefile</code> and <code>#include &lt;simics/cc-api.h&gt;</code> in your C++ source files. The Simics C++ Device API is exported in the <em>simics</em> namespace.</p>
+<blockquote>
+<p><strong>NOTE:</strong>
+Functions and classes within the <code>simics::detail</code> namespace are internal implementation details and should not be called directly by user code. Always use the public API functions and classes defined in the <code>simics</code> namespace instead.</p>
+</blockquote>
+<p>The module <code>sample-device-c++</code> provides source code that shows how to use the API described in this document. Use <code>bin/project-setup --copy-module sample-device-c++</code> to copy the code to your Simics project for easy reference.</p>
+<h2 id="preparations"><a href="#preparations">3 Preparations</a></h2>
+<p>Before you start to connect your C++ device to the Simics API, you need to consider which the logical components of your device model are, and how they are connected to each other and the rest of the simulation environment.</p>
+<p>In Simics, device models are implemented as separate objects that are dynamically connected to each other using the Simics configuration system, and the objects communicate using explicitly requested interfaces. This is in contrast to C++, where the objects are often aggregated at compile time or by running compiled startup code and interfaces are resolved during compilation and linking. The
+<em>Model Builder User’s Guide</em> has a more complete description of the Simics object system.</p>
+<p>Similar to C++, <em>objects</em> in the Simics simulator are instances of <em>classes</em>. However, Simics classes are not C++ classes but instead defined by Simics <em>modules</em>. Simics modules declare Simics classes by calling the Simics API when the module is loaded. Simics classes have attributes, interfaces, port objects, and callbacks to allocate and delete instances of the class. The C++ API provides a convenient way to express these Simics simulator concepts in C++, but there is not a 1-to-1 correspondence between C++ classes and Simics classes.</p>
+<h3 id="designing-the-simics-classes"><a href="#designing-the-simics-classes">3.1 Designing the Simics classes</a></h3>
+<p>The first step is to decide how the C++ model should appear within Simics. For a simple C++ model that models a small piece of hardware, it is probably sufficient to make the entire model into a single Simics class.</p>
+<p>But for a C++ model that consists of several components connected together, it is worth considering exposing it as several Simics classes. One reason for this is that it makes the Simics configuration more natural by creating a model that fits better with the Simics framework. And it allows for future separation of the model parts without major changes to the configurations.</p>
+<p>Simply exposing the model as several classes will not automatically make the classes independent under the surface; they are still implemented as one conglomerate of C++ objects inside the implementation. To fully take advantage of the flexibility of the Simics configuration system, the device should be split into discrete pieces that communicate only using Simics interfaces. By using well-known interfaces, the devices will become replaceable by newer implementations individually, and will allow experimentation in reconfiguration without having to recompile the model sources, or even having access to the source code.</p>
+<p>This document focuses on creating Simics modules wrapping simple C++ models which define a single Simics class, but it easily extends to modules with several classes.</p>
+<h3 id="defining-attributes"><a href="#defining-attributes">3.2 Defining Attributes</a></h3>
+<p>A Simics object <em>attribute</em> is a named, typed value used to configure, inspect, and checkpoint simulation models. Attributes serve three main purposes:</p>
+<ol>
+<li><strong>Configuration</strong> - Specify model parameters (frequencies, buffer sizes, connections to other objects) when creating the model instance.</li>
+<li><strong>Checkpointing</strong> - Save and restore the complete model state for creating and loading simulation checkpoints.</li>
+<li><strong>Inspection</strong> - Allow runtime inspection and control of the model state from scripts or the Simics CLI.</li>
+</ol>
+<p>Attributes are a model-to-simulator mechanism for state management. Models should communicate with each other through interfaces, not attributes.</p>
+<h4 id="design-guidelines"><a href="#design-guidelines">3.2.1 Design Guidelines</a></h4>
+<p>Ensure all configurable aspects of your C++ model are exposed as attributes. Prefer runtime configuration over compile-time configuration, as this makes your model more versatile and reusable.</p>
+<p>For checkpointing support, design attributes to represent the external state of your model in a portable, stable format. The checkpoint format should not depend on implementation details, compiler, or platform. Never serialize raw C++ object memory or use binary representations—use logical data types (integers, strings, lists, etc.) instead.</p>
+<h3 id="interfaces"><a href="#interfaces">3.3 Interfaces</a></h3>
+<p>A Simics configuration consists of a number of interacting configuration objects, and the interaction between these objects is done through <em>interfaces</em>. The most commonly implemented interfaces are those used to simulate memory transactions between processors, devices, and memory. For more information about Simics interfaces, see the <a href="../model-builder-user-guide/device-modeling-overview.html#simics-interfaces">Model Builder User’s Guide</a>.</p>
+<p>A Simics <em>interface</em> can be implemented either on the device model itself or on a separate port object. See <a href="#ports-and-interfaces">Ports and Interfaces</a> for details on how to implement a Simics interface.</p>
+<p>A Simics C++ model can use the Simics C interface directly, but it can also use the Simics C++ interface provided by the C++ API for a more idiomatic C++ approach. There is a 1-to-1 mapping from each Simics C interface to its corresponding Simics C++ interface. For example, to use the <code>transaction</code> interface, include the header <code>simics/c++/model-iface/transaction.h</code> in your C++ source files. For a user-defined interface, a Simics C++ interface can be generated. See <a href="#user-defined-interface">User-Defined Interface</a> for instructions on creating and using a user-defined Simics C++ interface.</p>
+<p>Due to the possible ABI (Application Binary Interface) compatibility issues, calling the Simics C++ interface directly between C++ classes is not allowed unless they are built from the same Simics module. It is recommended to use the <a href="#connect">Connect</a> class which translates C++ method calls into C function calls as expected by the Simics API. This approach leverages the C language’s stable and well-defined ABI.</p>
+<h3 id="register-banks"><a href="#register-banks">3.4 Register Banks</a></h3>
+<p>A memory-mapped I/O Simics device model interacts with the memory bus using <em>register banks</em>. Each <em>register bank</em> is a separate <em>port object</em>. One device model can have many <em>register banks</em>.</p>
+<p>The <em>register bank</em> processes the received transaction and passes it down to the related <code>register</code>s on the bank. Each <code>register</code> is generally used to model a hardware register. Typically some model behavior is triggered when the <code>register</code> is being accessed. A <code>register</code> can be further divided into <code>field</code>s on the bit level.</p>
+<p>By using <em>register banks</em>, the rich Simics features are automatically enabled. The <em>register banks</em> can be easily inspected, traced and manipulated using Simics tools. The <code>register</code>s are registered as Simics <code>attribute</code>s and automatically saved in a Simics checkpoint. See <a class="reference" href="#register-banks-2">7</a> for how to create and use the <em>register banks</em>.</p>
+<p>For more information about how to design a model for Simics, see
+<a href="../model-builder-user-guide/index.html">Model Builder User’s Guide</a>.</p>
+<h2 id="simics-modules"><a href="#simics-modules">4 Simics Modules</a></h2>
+<p>The first step of building a C++ simulation model for Simics is to create a Simics <em>module</em>. Typically, you put each Simics class in a module of its own. It is also common to have multiple closely-related classes in a single module (to simplify distribution if the classes would typically be used together anyway).</p>
+<p>To create a Simics C++ module skeleton, you use <code>project-setup</code>:</p>
+<dl>
+<dt id="dt:windows"><a href="#dt:windows">Windows</a></dt>
+<dd>
+<pre><code class="language-bash">&gt; cd my-simics-project
+project&gt; bin\project-setup --c++-device my_cc_device
+</code></pre>
+</dd>
+<dt id="dt:linux"><a href="#dt:linux">Linux</a></dt>
+<dd>
+<pre><code class="language-bash">$ cd my-simics-project
+project$ ./bin/project-setup --c++-device my_cc_device
+</code></pre>
+</dd>
+</dl>
+<p>See the <a href="../model-builder-user-guide/build-environment.html#build-environment">Build Environment chapter in the Model Builder User’s Guide</a> for details on how to set up a project and creating Simics module skeletons.</p>
+<p>When a Simics module is loaded into Simics, it should register the Simics classes within the module with the Simics core. Additionally, it can execute other initialization code for these Simics classes. For detailed instructions on registering Simics classes and running their initialization code, see Chapter <a class="reference" href="#register-the-simics-class">5.1</a>.</p>
+<h3 id="module-configuration"><a href="#module-configuration">4.1 Module Configuration</a></h3>
+<p>The standard Simics memory tracking allocator is used by Simics C++ device API by default, by providing it as a custom allocator for new and delete. This is done per module. For a module to use its own custom allocators or even the default new allocator, this feature can be disabled.</p>
+<p>To disable the feature, set the <code>USE_CC_MEMORY_MANAGEMENT</code> build parameter to <code>no</code> and rebuild the module.</p>
+<h2 id="simics-classes"><a href="#simics-classes">5 Simics Classes</a></h2>
+<p>A Simics class defines the properties of an object, including its attributes, interfaces, ports, and class name. Objects are created by instantiating a Simics class and setting the required attributes. The main registration API is <code>simics::ConfClass</code>, which provides overloaded <code>add</code> methods to register each property:</p>
+<table><thead><tr><th>Method</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>add(const Attribute &amp;attr)</code></td><td>Register an instance attribute</td></tr>
+<tr><td><code>add(const ClassAttribute &amp;attr)</code></td><td>Register a class attribute</td></tr>
+<tr><td><code>add(const iface::InterfaceInfo &amp;iface)</code></td><td>Register an interface</td></tr>
+<tr><td><code>add(const LogGroups &amp;names)</code></td><td>Register log groups</td></tr>
+<tr><td><code>add(const char* const *names)</code></td><td>Register log groups (C array)</td></tr>
+<tr><td><code>add(ConfClass *port, const std::string &amp;name)</code></td><td>Register a port object</td></tr>
+<tr><td><code>add(const ConfClassPtr &amp;port, const std::string &amp;name)</code></td><td>Register a port object</td></tr>
+<tr><td><code>add(EventInfo &amp;&amp;event)</code></td><td>Register an event</td></tr>
+</tbody></table>
+<p>The <code>simics::ConfClass</code> must be registered with the Simics module. For detailed instructions, refer to Chapter <a class="reference" href="#register-the-simics-class">5.1</a>.</p>
+<p>To enable registration, you need a C++ class that inherits from <code>simics::ConfObject</code> or <code>simics::Port</code>(for port object). This class will be instantiated with a configuration object within Simics. For further details about this class and usage, see chapter <a class="reference" href="#confobject-and-confobjectref">5.2</a>.</p>
+<h3 id="register-the-simics-class"><a href="#register-the-simics-class">5.1 Register the Simics Class</a></h3>
+<p>Each Simics class implemented by a module must be registered with Simics using the Simics API. This is typically done in the <code>init_local</code> entry point for the Simics module, but in C++ it can also be registered via a static variable.</p>
+<h4 id="parameters-for-simics-class-registration"><a href="#parameters-for-simics-class-registration">5.1.1 Parameters for Simics Class Registration</a></h4>
+<p>In either approach to registering a Simics class, you provide the following parameters:</p>
+<p>name: The name of the Simics class.
+short_desc: A short description of the class.
+description: A longer, more detailed description of the class.
+kind (optional): The class kind, which defaults to <code>Sim_Class_Kind_Vanilla</code>.
+See the documentation for <code>SIM_create_class</code> for more information about these parameters.</p>
+<p>The template argument specifies the C++ class to instantiate as the Simics object or as a port object of the Simics object. This class must be publicly derived from simics::ConfObject. Optionally, a second template argument may be provided to pass additional information when creating the C++ model.</p>
+<h4 id="define-the-init_local-c-function"><a href="#define-the-init_local-c-function">5.1.2 Define the <code>init_local</code> C function</a></h4>
+<p>One approach is to invoke the <code>simics::make_class</code> function within the <code>init_local</code> function to register the Simics class with the Simics core.</p>
+<pre><code>extern "C" void init_local() {
+    simics::make_class&lt;SampleClass&gt;(
+        // Simics class name
+        "sample_device_cxx_class_with_init_class",
+        // short description
+        "sample C++ class device with init_class",
+        // class documentation
+        "This is a sample Simics device written in C++.");
+    simics::make_class&lt;SampleClassWithArg, int&gt;(
+        // Simics class name
+        "sample_device_cxx_class_with_arg_init_class",
+        // short description
+        "sample C++ class device with arg &amp; init_class",
+        // class documentation
+        "This is a sample Simics device written in C++.",
+        // extra argument for SampleClassWithArg
+        0x1234);
+}
+</code></pre>
+<p>Sometimes it is necessary to know the Simics class that is being registered. The function returns a <code>ConfClassPtr</code>, which can be used to register attributes, interfaces, log groups, and ports. In the example above, the return value is not used, and only the class is registered.</p>
+<p>If the class passed as a template argument defines a static function <code>init_class</code>, that function is called during registration. It is recommended to perform any class-related registration of properties inside this static function to improve data encapsulation. Other types of registration can be done inside <code>init_local</code> using the return value from <code>make_class</code>.</p>
+<pre><code>extern "C" void init_local() {
+    auto cls = simics::make_class&lt;SampleClass&gt;(
+        "sample_device_cxx_class_without_init_class",
+        "sample C++ class device without init_class",
+        "This is a sample Simics device written in C++.");
+
+    // use cls to register the class properties like attribute, port,
+    // event, interface and logging settings
+}
+</code></pre>
+<h4 id="define-a-static-variable-of-type-registerclasswithsimics"><a href="#define-a-static-variable-of-type-registerclasswithsimics">5.1.3 Define a Static Variable of Type <code>RegisterClassWithSimics</code></a></h4>
+<p>Alternatively, you can register a Simics class automatically by defining a static variable of type <code>RegisterClassWithSimics</code>. Static variables are initialized when the module is loaded.</p>
+<pre><code>// coverity[global_init_order]
+static simics::RegisterClassWithSimics&lt;SampleClass&gt; init {
+    "sample_device_cxx_class_without_init_local",
+    "sample C++ class device without init_local",
+    "This is a sample Simics device written in C++."
+};
+</code></pre>
+<p>This approach only works for modules built with CMake. For modules built with GNU Make, an empty <code>init_local</code> function is still required.</p>
+<h3 id="confobject-and-confobjectref"><a href="#confobject-and-confobjectref">5.2 ConfObject and ConfObjectRef</a></h3>
+<p>The C++ Device API introduces two closely related concepts that every model implements or uses:</p>
+<table><thead><tr><th>Concept</th><th>Purpose</th><th>When you interact with it</th></tr></thead><tbody>
+<tr><td><code>simics::ConfObject</code></td><td>Base C++ class for any Simics configuration object (device or port object)</td><td>When writing the C++ class for your model</td></tr>
+<tr><td><code>simics::ConfObjectRef</code></td><td>Lightweight reference wrapper around the underlying <code>conf_object_t *</code></td><td>When accessing Simics core API for the current object or a referenced object</td></tr>
+</tbody></table>
+<h4 id="confobject"><a href="#confobject">5.2.1 ConfObject</a></h4>
+<p>All C++ model classes that represent Simics configuration objects must publicly inherit from <code>simics::ConfObject</code> (or from a subclass like <code>simics::MappableConfObject</code> or <code>simics::Port</code>). This base class supplies:</p>
+<ul>
+<li>Storage of the originating <code>simics::ConfObjectRef</code> (accessible via <code>obj</code>).</li>
+<li>A default <code>finalized</code> implementation mapping to <code>SIM_object_is_configured</code>.</li>
+<li>Two overridable lifecycle hooks:
+<ul>
+<li><code>finalize</code> – called after all attributes in the current object have been set. Use this for initialization that requires attribute values.</li>
+<li><code>objects_finalized</code> – called after <code>finalize</code> has run on all simultaneously created objects indicating that the configuration is complete and communication with other objects is permitted.</li>
+</ul>
+</li>
+</ul>
+<pre><code>#include &lt;simics/cc-api.h&gt;
+
+class SampleClass : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    // This static method is invoked from simics::make_class
+    static void init_class(simics::ConfClass *cls) {
+        // register the class properties like attribute, port, event,
+        // interface and logging settings
+    }
+};
+</code></pre>
+<p>Your C++ object instance is created by the framework via the factory registered with <code>make_class</code> / <code>RegisterClassWithSimics</code>. The underlying <code>conf_object_t</code> is allocated first; then the C++ object is constructed with a <code>simics::ConfObjectRef</code>. The C++ object is destroyed when the corresponding configuration object is deleted.</p>
+<p>Optionally, the constructor of <code>simics::ConfObject</code> can take a second parameter of any user-defined type. This type and its value are specified when registering the Simics class. See the chapter <a class="reference" href="#register-the-simics-class">5.1</a> for more details.</p>
+<h4 id="confobjectref"><a href="#confobjectref">5.2.2 ConfObjectRef</a></h4>
+<p><code>simics::ConfObjectRef</code> is a small value type that stores a pointer to a Simics <code>conf_object_t</code> plus (optionally) a port name. It provides helper methods:</p>
+<ul>
+<li><code>object</code> / implicit conversion – raw <code>conf_object_t *</code> access for C API calls.</li>
+<li><code>name</code> – current hierarchical name; never cache permanently since moves/renames can change it.</li>
+<li><code>configured</code> – true once the object has passed Simics configuration/initialization.</li>
+<li><code>require</code> – forces instantiation (equivalent to <code>SIM_require_object</code>).</li>
+<li><code>get_interface</code> – fetch a C interface pointer (cache the result for performance).</li>
+<li><code>as_conf_object</code> – returns a reference to the associated C++ <code>simics::ConfObject</code>. This throws if called before <code>init</code> has finished.</li>
+</ul>
+<p>The <code>group_id</code> method is deprecated; prefer the <code>GROUP_ID(NAME)</code> macro or <code>ConfClass::getGroupId</code>.</p>
+<h2 id="ports-and-interfaces"><a href="#ports-and-interfaces">6 Ports and Interfaces</a></h2>
+<p>As mentioned in <a href="#interfaces">Interfaces</a>, a Simics C++ model can either use the Simics C interface directly, or use the Simics C++ interface provided by the C++ API for a more idiomatic C++ approach. For a user-defined interface, the C++ interface header can be generated from its C interface header using a helper script.</p>
+<h3 id="use-simics-c-interface"><a href="#use-simics-c-interface">6.1 Use Simics C interface</a></h3>
+<p>A Simics C++ model can use the Simics C interface directly. Below is an example using the Simics <em>signal</em> interface:</p>
+<pre><code>class SampleInterfaceC : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls);
+
+    bool signal_raised {false};
+};
+
+static void signal_raise(conf_object_t *obj) {
+    simics::from_obj&lt;SampleInterfaceC&gt;(obj)-&gt;signal_raised = true;
+}
+
+static void signal_lower(conf_object_t *obj) {
+    simics::from_obj&lt;SampleInterfaceC&gt;(obj)-&gt;signal_raised = false;
+}
+
+void SampleInterfaceC::init_class(simics::ConfClass *cls) {
+    cls-&gt;add(simics::Attribute("signal_raised", "b", "If signal is raised",
+                               ATTR_CLS_VAR(SampleInterfaceC, signal_raised)));
+
+    static const signal_interface_t signal_interface = {
+        signal_raise,
+        signal_lower
+    };
+    SIM_REGISTER_INTERFACE(*cls, signal, &amp;signal_interface);
+}
+</code></pre>
+<p>The advantages of using the Simics C interface directly are:</p>
+<ol>
+<li>Simplicity. The registered static function is directly called when the interface is used, with no intermediate layers;</li>
+<li>The interface definition is separate from the class behavior. This means the C++ model’s behavior is independent of the interfaces exposed to other configuration objects, making it easy to switch to another Simics interface without modifying the behavior.</li>
+</ol>
+<p>The disadvantages of using the Simics C interface directly are:</p>
+<ol>
+<li>Limited Access. The registered function calls can only access public members and functions of the C++ model. Non-public members and functions are not accessible;</li>
+<li>Lack of C++ Friendliness. The type of the C++ model needs to be explicitly specified in the registered function calls, which means there is no support for C++ polymorphism. For example, another set of function calls is required for a different C++ class that inherits from the <code>SampleDeviceC</code> class.</li>
+</ol>
+<h3 id="use-simics-c-interface-2"><a href="#use-simics-c-interface-2">6.2 Use Simics C++ interface</a></h3>
+<p>A Simics C++ model can use the Simics C++ interfaces provided by the C++ API. The C++ device class or the port object class needs to inherit from the Simics C++ interface class and implement the required interface methods. Additionally, the interface must be registered with the <code>ConfClass</code> instance.</p>
+<p>Take the Simics <em>signal</em> interface as an example. The C++ signal interface is declared in the <code>simics::iface::SignalInterface</code> class. The C++ device class needs to inherit from this class and override the two pure virtual methods.</p>
+<pre><code>class SampleInterface : public simics::ConfObject,
+                        public simics::iface::SignalInterface {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls);
+
+    // simics::iface::SignalInterface
+    void signal_raise() override;
+    void signal_lower() override;
+
+    bool signal_raised {false};
+};
+</code></pre>
+<pre><code>void SampleInterface::signal_raise() {
+    signal_raised = true;
+}
+
+void SampleInterface::signal_lower() {
+    signal_raised = false;
+}
+
+</code></pre>
+<p>The interface method declarations are straightforward. They should have the same signature as the interface methods in the <em>Simics Reference Manual</em> (or as shown with the Simics command api-help), except that the first C argument of type <code>conf_object_t *</code> is omitted, as it corresponds to the C++ class instance. The C++ override keyword ensures that the function is virtual and checked by the compiler.</p>
+<p>The interface method is called when the Simics interface is accessed. The implementation should handle the call in a device-specific manner.</p>
+<p>To expose the interface to other Simics configuration objects, the interface needs to be registered on the <code>ConfClass</code> object using the add function, similar to registering a Simics attribute:</p>
+<pre><code>void SampleInterface::init_class(simics::ConfClass *cls) {
+    cls-&gt;add(simics::Attribute("signal_raised", "b", "If signal is raised",
+                               ATTR_CLS_VAR(SampleInterface, signal_raised)));
+
+    cls-&gt;add(simics::iface::SignalInterface::Info());
+}
+</code></pre>
+<p>The only parameter is an instance of <code>SignalInterface::Info</code>, which provides the registry support for the <code>signal</code> interface.</p>
+<p>For better data encapsulation, it is recommended to register the interface in the instance’s static method <code>init_class</code>.</p>
+<h4 id="interface-lookup"><a href="#interface-lookup">6.2.1 Interface Lookup</a></h4>
+<p>The C++ API allows enabling an interface lookup that improves the performance of the call chain from an interface call at the C API into the implementation in the C++ device. To use the interface lookup, a device needs to derive from the template class <code>InterfaceLookup</code>, which takes two or more template parameters: first the type name of the derived class, and then all the interfaces that the derived class implements. Using the interface lookup for the example shown in <a href="#use-simics-c-interface-2">Use Simics C++ interface</a> would look like this:</p>
+<pre><code>class SampleInterfaceWithLookup : public simics::ConfObject,
+                                  public simics::InterfaceLookup&lt;
+                                      SampleInterfaceWithLookup,
+                                      simics::iface::SignalInterface&gt; {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls);
+
+    // simics::iface::SignalInterface
+    void signal_raise() override;
+    void signal_lower() override;
+
+    bool signal_raised {false};
+};
+</code></pre>
+<p>The interface lookup impacts binary compatibility and is hence an opt-in feature. It can be enabled by setting the CMake variable <code>SIMICS_CC_API_ENABLE_INTERFACE_LOOKUP</code> to <code>ON</code>. Even if enabled, the use of the lookup is still gated by C++17 support.
+If either of the two requirements is not met, class <code>InterfaceLookup</code> will not speed up the call chain, but the class can still be used to avoid the need for conditional derivation (i.e., the device code can stay the same).</p>
+<p>If the performance gain from the interface lookup is insufficient, or C++17 cannot be used, the more code-heavy use of <a href="#custom-interface-info">Custom Interface Info</a> is possible.</p>
+<p>There is also a micro-optimization possible: The order of interfaces in the interface parameter pack impacts the time it takes to look an interface up. Hence, it is advisable to place regularly used interfaces in the front of the pack to speed up their lookup.</p>
+<p>In case you need to inherit from an existing device class that already uses <code>InterfaceLookup</code>, and the derived class also wants to use <code>InterfaceLookup</code>, then you need to implement the function <code>query_interface_impl</code> in your new device class to resolve the ambiguity between the two <code>InterfaceLookup</code> instances, which both provide <code>query_interface_impl</code> implementations. In that function, you call <code>query_interface_impl</code> on either the base device class or your own <code>InterfaceLookup</code> first, and if that returns <code>nullptr</code>, you call the other <code>query_interface_impl</code>. Which of the two you call first depends on which interface you expect to be queried more frequently.</p>
+<p>An example of inheriting from the device class <code>SampleInterfaceWithLookup</code> is shown below. There, we assume the interface from <code>SampleInterfaceWithLookup</code> is the one that is less likely to be used, so we check it last.</p>
+<pre><code>class SampleInterfaceWithSubClassedLookup
+: public SampleInterfaceWithLookup,
+  public simics::InterfaceLookup&lt;
+      SampleInterfaceWithSubClassedLookup,
+      simics::iface::Uint64StateInterface&gt; {
+  public:
+    using SampleInterfaceWithLookup::SampleInterfaceWithLookup;
+
+    static void init_class(simics::ConfClass *cls);
+
+    // simics::iface::Uint64StateInterface
+    void set(uint64) override;
+
+    void* query_interface_impl(const void* iface_id) override {
+        void* tmp = simics::InterfaceLookup&lt;
+            SampleInterfaceWithSubClassedLookup,
+            simics::iface::Uint64StateInterface&gt;
+            ::query_interface_impl(iface_id);
+        if (!tmp)
+            tmp = SampleInterfaceWithLookup::query_interface_impl(iface_id);
+        return tmp;
+    }
+
+    uint64 state {0};
+};
+</code></pre>
+<p>To highlight that this approach is the same regardless of the layers of <code>InterfaceLookup</code> classes in the class hierarchy, below is also an example where we inherit from the class that already inherited from <code>SampleInterfaceWithLookup</code>.</p>
+<pre><code>class SampleInterfaceWithSubSubClassedLookup
+: public SampleInterfaceWithSubClassedLookup,
+  public simics::InterfaceLookup&lt;
+      SampleInterfaceWithSubSubClassedLookup,
+      simics::iface::FrequencyInterface&gt; {
+  public:
+    using SampleInterfaceWithSubClassedLookup
+        ::SampleInterfaceWithSubClassedLookup;
+
+    static void init_class(simics::ConfClass *cls);
+
+    // simics::iface::FrequencyInterface
+    double get() override;
+
+    void* query_interface_impl(const void* iface_id) override {
+        void* tmp = simics::InterfaceLookup&lt;
+                    SampleInterfaceWithSubSubClassedLookup,
+                    simics::iface::FrequencyInterface&gt;
+                    ::query_interface_impl(iface_id);
+        if (!tmp)
+            tmp = SampleInterfaceWithSubClassedLookup
+                  ::query_interface_impl(iface_id);
+        return tmp;
+    }
+};
+</code></pre>
+<h4 id="custom-interface-info"><a href="#custom-interface-info">6.2.2 Custom Interface Info</a></h4>
+<p>The interface info class, such as <code>SignalInterface::Info</code>, includes a method <code>cstruct()</code> that returns a pointer to a static, constant structure (<code>simics::iface::SignalInterface::ctype</code>). This structure contains function pointers for signal operations, which point to static functions defined in the <code>SignalInterface</code> class. These functions convert C interface calls to C++ interface calls, utilizing dynamic_cast for conversion. However, this may impact performance if there are numerous interface calls.</p>
+<p>If performance is a concern, users can define a custom interface info class to redirect C interface function calls to local functions that directly invoke the C++ interface methods. Below is an example:</p>
+<pre><code>class SampleInterfaceWithCustomInfo : public SampleInterface {
+  public:
+    using SampleInterface::SampleInterface;
+    using SampleInterface::signal_raise;
+    using SampleInterface::signal_lower;
+
+    static void init_class(simics::ConfClass* cls);
+
+    static void signal_raise(conf_object_t *obj) {
+        return simics::from_obj&lt;SampleInterfaceWithCustomInfo&gt;(
+                obj)-&gt;signal_raise();
+    }
+
+    static void signal_lower(conf_object_t *obj) {
+        return simics::from_obj&lt;SampleInterfaceWithCustomInfo&gt;(
+                obj)-&gt;signal_lower();
+    }
+
+    class CustomSignalInfo : public simics::iface::SignalInterface::Info {
+      public:
+        const interface_t *cstruct() const override {
+            static constexpr simics::iface::SignalInterface::ctype funcs {
+                signal_raise,
+                signal_lower,
+            };
+            return &amp;funcs;
+        }
+    };
+};
+</code></pre>
+<h3 id="user-defined-interface"><a href="#user-defined-interface">6.3 User defined interface</a></h3>
+<p>The C++ bindings for interfaces are only available for standard Simics interfaces. To support user-defined interfaces, new C++ bindings in the form of generated C++ interface classes are needed.</p>
+<p>For CMake-based modules, use the <code>simics_generate_cc_interface()</code> helper (available automatically via <code>Simics.cmake</code>):</p>
+<pre><code class="language-cmake">simics_generate_cc_interface(my-module
+  HEADER my-interface.h
+)
+</code></pre>
+<p>This generates a C++ wrapper under <code>${CMAKE_CURRENT_BINARY_DIR}/gen/c++/my-interface.h</code>, wires it as a build dependency of the target, and exposes it through the module’s <code>::includes</code> target so consumers can use it without extra include path setup. In the C++ source file, include the generated header as:</p>
+<pre><code class="language-cpp">#include "c++/my-interface.h"
+</code></pre>
+<p>The <code>c++/</code> prefix distinguishes the generated C++ wrapper from the original C header of the same name. Only <code>gen/</code> is added to the include path, so the rest of the binary directory is not exposed. The generated file does not need to be checked into source control or distributed.</p>
+<p>The <code>HEADER</code> path must be relative. It is resolved first against the module’s source directory, then its binary directory, which supports generated C interface headers. Use the <code>PARENTS</code> and <code>NAMESPACE</code> options to customize the generated header path.</p>
+<p>For GNU Make, generate the header directly with the legacy <code>bin/gen-cc-interface</code> tool (for usage, see <a class="reference" href="#generator-of-simics-c-interface-header">12.1</a>).</p>
+<pre><code class="language-bash">  project&gt; bin/gen-cc-interface my-module/my-interface.h
+</code></pre>
+<h3 id="port"><a href="#port">6.4 Port</a></h3>
+<p>The same interface cannot be registered twice on a single Simics object. However, port objects can be used to expose the same interface multiple times. They can also be utilized to separate certain functionalities into distinct objects within the namespace of the parent object.</p>
+<p>A port object is a child object that is automatically created alongside its parent. For more details about port objects, refer to the <a href="../model-builder-user-guide/port-objects.html">Model Builder User Guide</a>. Port objects are intended to replace port interfaces.</p>
+<p>A C++ configuration class that inherits from the <code>simics::ConfObject</code> class can be registered as a port object of another C++ configuration class. Below is an example of this use case:</p>
+<pre><code>// An example class derived from ConfObject, designed to be used as a port
+// object for SamplePortDeviceUseConfObject
+class SamplePortUseConfObject : public simics::ConfObject,
+                                public simics::iface::SignalInterface {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::iface::SignalInterface::Info());
+        cls-&gt;add(simics::Attribute(
+                         "raised", "b",
+                         "Return if signal is raised or not",
+                         ATTR_GETTER(SamplePortUseConfObject, raised_),
+                         nullptr,
+                         Sim_Attr_Pseudo));
+    }
+
+    // simics::iface::SignalInterface
+    void signal_raise() override {raised_ = true;}
+    void signal_lower() override {raised_ = false;}
+
+  private:
+    bool raised_ {false};
+};
+
+class SamplePortDeviceUseConfObject : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        auto port = simics::make_class&lt;SamplePortUseConfObject&gt;(
+                cls-&gt;name() + ".sample", "sample C++ port", "");
+        // Register port class with the device class
+        cls-&gt;add(port, "port.sample");
+    }
+};
+
+static simics::RegisterClassWithSimics&lt;SamplePortDeviceUseConfObject&gt;
+// coverity[global_init_order]
+init_port_use_confobject {
+    "sample_device_cxx_port_use_confobject",
+    "a C++ test device",
+    "No description"
+};
+</code></pre>
+<p>The port class is created similarly to a device class by using the <code>make_class</code> function. Interfaces are added in the same way as with device classes, by invoking the <code>add</code> function with the relevant interface information.</p>
+<p>Once the port class is defined, it can be registered by calling the <code>add</code> function on its parent class (the device class). This function requires two parameters:</p>
+<ul>
+<li>The port class itself.</li>
+<li>A name for the port object.</li>
+</ul>
+<p>While a port class can use <code>simics::ConfObject</code>, C++ API also provides the <code>simics::Port</code> template class. It provides utilities to access the parent object from the port object and the ability to retrieve the port array index. The example below demonstrates its usage:</p>
+<pre><code>class SamplePortDeviceUsePort : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        auto port = simics::make_class&lt;SamplePort&gt;(
+                cls-&gt;name() + ".sample", "sample C++ port", "");
+        port-&gt;add(simics::iface::SignalInterface::Info());
+
+        // Registers a port class with an array-like naming convention.
+        // Upon device creation, two port objects are instantiated with names:
+        // &lt;dev_name&gt;.port.sample[0] and &lt;dev_name&gt;.port.sample[1].
+        cls-&gt;add(port, "port.sample[2]");
+
+        cls-&gt;add(simics::Attribute("state", "i", "A value",
+                                   ATTR_CLS_VAR(SamplePortDeviceUsePort,
+                                                state)));
+    }
+
+    // Define a C++ port class which implements the signal interface
+    class SamplePort : public simics::Port&lt;SamplePortDeviceUsePort&gt;,
+                       public simics::iface::SignalInterface {
+      public:
+        using Port&lt;SamplePortDeviceUsePort&gt;::Port;
+
+        // simics::iface::SignalInterface
+        void signal_raise() override;
+        void signal_lower() override;
+    };
+
+  private:
+    // An integer simulates the signal state, each bit represents one signal
+    int state {0};
+};
+
+void SamplePortDeviceUsePort::SamplePort::signal_raise() {
+    // method index() returns the index of the port object array
+    if (index() == 0) {
+        // method parent() returns pointer to the parent C++ class
+        parent()-&gt;state |= 1;
+    } else {
+        parent()-&gt;state |= 2;
+    }
+}
+
+void SamplePortDeviceUsePort::SamplePort::signal_lower() {
+    if (index() == 0) {
+        parent()-&gt;state &amp;= 2;
+    } else {
+        parent()-&gt;state &amp;= 1;
+    }
+}
+
+static simics::RegisterClassWithSimics&lt;SamplePortDeviceUsePort&gt;
+// coverity[global_init_order]
+init_port_use_port {
+    "sample_device_cxx_port_use_port",
+    "a C++ test device",
+    "No description"
+};
+</code></pre>
+<p>The template class typename for <code>simics::Port</code>, <code>TParent</code>, typically represents the C++ class of the port’s parent. A complete definition of <code>TParent</code> is necessary, so it is advisable to define the port class after the <code>TParent</code> class or as an inner class within <code>TParent</code> to ensure proper access to its private members.</p>
+<p><strong>Hint:</strong>
+The <code>simics::Port</code> template defines a type alias <code>ParentType</code> for its template parameter <code>TParent</code>.</p>
+<p>The helper method <code>parent</code> returns a pointer to the parent object, allowing access to the class members of its Simics parent class. Additionally, the helper method <code>index</code> provides the current index of this port object within the registered port array. For instance, in the example above, these methods can be used to raise different bits based on the port object’s index.</p>
+<p>It is recommended that port objects follow a designated port namespace for naming. For example, using <code>port.sample</code> indicates that the created port objects will be accessible as <code>&lt;dev_name&gt;.port.sample</code>.</p>
+<p>When the name is given in an array format (e.g., <code>port.sample[2]</code>), it signifies that an array of port objects is being created. This allows for easy management and access to multiple port instances associated with the same device.</p>
+<h4 id="methods-collision"><a href="#methods-collision">6.4.1 Methods collision</a></h4>
+<p>In C++ two overloaded functions must not have the same signature. When implementing interfaces that expose the same function this collision can be avoided by introducing an intermediate class that provides the implementation and then inherit from these intermediate classes as shown in the following example. Another option is to implement the interface in a port object. Note: The classes <code>ImplementOne</code> and <code>ImplementAnother</code> can also be wrapped into an <code>InterfaceLookup</code> as described in section <a href="#interface-lookup">Interface Lookup</a>.</p>
+<pre><code>extern "C" {
+SIM_INTERFACE(one) {
+    void (*iface_fun)(conf_object_t*);
+};
+SIM_INTERFACE(another) {
+    void (*iface_fun)(conf_object_t*);
+};
+}
+
+namespace simics {
+namespace iface {
+
+class OneInterface {
+  public:
+    // Function override and implemented by user
+    virtual void iface_fun() = 0;
+};
+
+class AnotherInterface {
+  public:
+    // Function override and implemented by user
+    virtual void iface_fun() = 0;
+};
+
+}  // namespace iface
+}  // namespace simics
+
+class ImplementOne : public simics::iface::OneInterface {
+    void iface_fun() override {
+        // This is implementation for OneInterface
+    }
+};
+
+class ImplementAnother : public simics::iface::AnotherInterface {
+    void iface_fun() override {
+        // This is implementation for AnotherInterface
+    }
+};
+
+class MethodsCollision : public simics::ConfObject,
+                         public ImplementOne,
+                         public ImplementAnother {
+  public:
+    explicit MethodsCollision(simics::ConfObjectRef o)
+        : simics::ConfObject(o) { }
+};
+
+</code></pre>
+<h3 id="connect"><a href="#connect">6.5 Connect</a></h3>
+<p>To call a Simics interface on another configuration object, the other object must be <code>connected</code> with the current object. This connection is represented by having a <code>Connect</code> instance that points to the other object. The instance is then used to extract the interface pointer used in the interface call.</p>
+<p>The template based class <code>Connect</code> performs these two things; it takes an object reference and extracts the interfaces requested from this object. If the object passed to the <code>Connect</code> variable does not provide all required interfaces a Simics log message is emitted indicating which interface is missing and the <code>set</code> ignores the object passed.</p>
+<p>The <code>Connect</code> class optionally takes a parameter of type <code>ConnectConfig</code>. It can be used to specify optional interfaces.</p>
+<p>The following example shows a <code>Connect</code> instance named <code>irq_dev</code>. When passing a Simics configuration object to it, the object must implement the <code>SimpleInterruptInterface</code>/<code>simple_interrupt</code> interface and in addition optionally can implement the <code>SignalInterface</code>/<code>signal</code> interface as well.</p>
+<pre><code>#include &lt;simics/cc-api.h&gt;
+#include &lt;simics/c++/devs/signal.h&gt;
+#include &lt;simics/c++/devs/interrupt.h&gt;
+
+class SampleConnect : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    // use the connect after all objects are finalized
+    void objects_finalized() override;
+
+    static void init_class(simics::ConfClass *cls);
+
+    simics::Connect&lt;simics::iface::SimpleInterruptInterface,
+                    simics::iface::SignalInterface&gt; irq_dev {
+        simics::ConnectConfig::optional&lt;simics::iface::SignalInterface&gt;()
+    };
+};
+</code></pre>
+<p>The Simics C++ interface struct is fetched through a template based function <code>iface</code>. The template parameter can be omitted when fetching the first interface type of the template parameter list.</p>
+<pre><code>void SampleConnect::objects_finalized() {
+    if (irq_dev) {
+        if (irq_dev.iface&lt;simics::iface::SignalInterface&gt;().get_iface()) {
+            irq_dev.iface&lt;simics::iface::SignalInterface&gt;().signal_raise();
+        } else {
+            irq_dev.iface().interrupt(0);
+        }
+    }
+}
+</code></pre>
+<p>In Simics, device models are dynamically connected to each other. To facilitate this dynamic connection, the Connect instance must be registered as a Simics attribute. This allows different objects to be passed dynamically during the simulation. For more details, see the chapter <a href="#connect-as-attribute">Connect as attribute</a>.</p>
+<h2 id="register-banks-2"><a href="#register-banks-2">7 Register Banks</a></h2>
+<blockquote>
+<p><strong>NOTE:</strong>
+The C++ device API for register banks is currently considered as a technology preview feature and is subject to change without notice.</p>
+<p>To use the C++ device API for register banks, you must set <code>USE_CC_MODELING_API = yes</code> in your module’s <code>Makefile</code> and <code>#include &lt;simics/cc-modeling-api.h&gt;</code> in your C++ source files.</p>
+</blockquote>
+<p>Memory-mapped I/O (MMIO) devices are mapped to (associated with) an address space with an address value. The device connects the data bus to the desired device’s hardware register banks. In C++, the device API for register banks makes the connection and modeling of such MMIO devices easier.</p>
+<p>To support register banks, include <code>cc-modeling-api.h</code>. This header provides object types similar to those in DML, including <code>Bank</code>, <code>Register</code>, and <code>Field</code>. A <code>Bank</code> holds a collection of <code>Register</code> objects, each typically representing a hardware register but can also contain unmapped registers. <code>Register</code>s can be further divided into bit-level <code>Field</code>s. These types form a hierarchy and are referred to as hierarchical objects. Additionally, the C++ device class must inherit from <code>MappableConfObject</code> to enable device-level configuration. Further details on these types are provided in the following subsections.</p>
+<h3 id="mappableconfobject"><a href="#mappableconfobject">7.1 MappableConfObject</a></h3>
+<p>To model an MMIO device, the C++ device class needs to inherit from class <code>simics::MappableConfObject</code> instead of class <code>simics::ConfObject</code>. The class <code>simics::MappableConfObject</code> extends <code>simics::ConfObject</code> class with the support for device level configurations. For example, the bit order representation used for the device.</p>
+<p>The bit field representation defaults to little-endian bit order, i.e., bit number 0 is the least significant bit. It can be changed to big-endian bit order by overriding the function <code>big_endian_bitorder</code> from class <code>simics::MappableConfObject</code>.</p>
+<p>The bit order setting determines how bit fields are displayed, but does not affect the internal representation or value of the register. For example, in Simics:</p>
+<ul>
+<li>For a 8-bytes register on a little-endian (LE) bank, bit fields are shown as <code>[63:0]</code>, with bit 0 as the least significant bit.</li>
+<li>For a 8-bytes register on a big-endian (BE) bank, bit fields are shown as <code>[0:63]</code>, with bit 0 as the most significant bit.</li>
+</ul>
+<p>Despite this difference in display, the underlying value and bit storage remain unchanged.</p>
+<p>An instance of the <code>simics::MappableConfObject</code> class maintains a one-to-one mapping between the full name of a hierarchical object and its corresponding access interface. The access interface map uses hierarchical object names as keys, such as <code>b0</code>, <code>b0.r1</code>, or <code>b0.r1.f2</code>, where each level separated by a dot (<code>.</code>) represents a bank, register, or field, respectively. The map returns the corresponding interface for each object:</p>
+<ul>
+<li>For a bank: <code>BankInterface</code></li>
+<li>For a register: <code>RegisterInterface</code></li>
+<li>For a field: <code>FieldInterface</code></li>
+</ul>
+<p>Each interface provides methods appropriate for its level, such as reading, writing, getting, setting, or initializing the object.</p>
+<p>This map is dynamically updated whenever a new hierarchical object instance is created. Hierarchical object instances can be created in various locations, such as within the constructor of base classes of the C++ device class, as class members of the C++ device class, or within the constructor body of the C++ device class.</p>
+<p>It is allowed to create hierarchical objects with the same name multiple times; in such cases, the most recently created instance takes precedence, following the C++ object creation order. This mechanism is useful for overriding the behavior of an existing hierarchical object without modifying its original implementation, enabling straightforward substitution. See the diagram below for the order of the object creation flow.</p>
+<p><img alt="Creation flow of C++ device and its port object instances" src="creation_flow.svg"></p>
+<p>Figure: Creation flow of C++ device and its port object instances</p>
+<p>Occasionally, it may be necessary to modify the behavior of the one-to-one map. For instance, you might want to prevent overwriting a hierarchical object once it has been created, even if another object with the same name is instantiated later. To accomplish this, users can utilize the <code>write_protect_iface_maps</code> method to control the write protect status of the interface associated with a hierarchical object.</p>
+<blockquote>
+<p><strong>NOTE:</strong>
+The access interface to the hierarchical object saved in the <code>map</code> must be available during the life cycle of the <code>MappableConfObject</code>. One way to guarantee that is to instantiate the object as a class member of the C++ device class.</p>
+</blockquote>
+<p>During the simulation, the access interface for a hierarchical object can be easily retrieved from the map using its name. This is useful for cross-object access inside the device. For example, a register’s access side-effect could be to update a field in some other register. If this is a common access pattern this lookup should be cached by storing the interface as a private member.</p>
+<h3 id="modeling-the-register-banks"><a href="#modeling-the-register-banks">7.2 Modeling the register banks</a></h3>
+<p>The Simics C++ API offers two approaches for modeling register banks, distinguished by how mapping and hierarchy information is provided. The first approach, referred to as “by code,” involves supplying mapping information as input to class members within a class hierarchy constructed from C++ code. The second approach, known as “by data,” involves providing both mapping and hierarchy information in a separate data structure.</p>
+<h4 id="by-code-information-provided-by-c-classes-and-class-hierarchy"><a href="#by-code-information-provided-by-c-classes-and-class-hierarchy">7.2.1 By Code: Information Provided by C++ Classes and Class Hierarchy</a></h4>
+<p>In this approach, banks/registers/fields are modeled in C++ by declaring themselves as class members of other classes.</p>
+<p>To simplify modeling, several C++ classes are provided. The <code>PortBank&lt;TBank&gt;</code> class facilitates the creation and addition of a bank to a port. The <code>BankRegister&lt;TRegister&gt;</code> class aids in creating and adding a register to a bank, while the <code>RegisterField&lt;TField&gt;</code> class helps create and add a field to a register. These classes use template type parameters to create different object types, defaulting to basic hierarchical object types like <code>simics::Bank</code>. The parameter can be any provided class, such as <code>ReadOnlyRegister</code>, or a user-defined class. For a complete list of provided classes, see <a class="reference" href="#standard-templates">7.4.4</a>.</p>
+<p>While nesting classes for banks, registers, and fields using C++ nested class is optional, it can help reduce scope and make the code resemble a corresponding DML device.</p>
+<p>Below is an example using this option:</p>
+<pre><code>class SampleBank : public simics::PortBank&lt;&gt; {
+  public:
+    using PortBank::PortBank;
+
+    class SampleRegister : public simics::BankRegister&lt;&gt; {
+      public:
+        using BankRegister::BankRegister;
+
+        class SampleField : public simics::RegisterField&lt;&gt; {
+          public:
+            using RegisterField::RegisterField;
+
+            // Override to print a log when being written
+            void write(uint64_t value, uint64_t enabled_bits) override {
+                SIM_LOG_INFO(3, bank_obj_ref(), 0, "Write to SampleField");
+                simics::Field::write(value, enabled_bits);
+            }
+        };
+
+        uint64_t read(uint64_t enabled_bits) override {
+            SIM_LOG_INFO(3, bank_obj_ref(), 0, "Read from SampleRegister");
+            return simics::Register::read(enabled_bits);
+        }
+
+      private:
+        SampleField f0 {
+            this, Name("f0"), Description("a sample field"),
+            Offset(0), BitWidth(16)
+        };
+        simics::RegisterField&lt;&gt; f1 {
+            this, Name("f1"), Description("a default field"),
+            Offset(16), BitWidth(16)
+        };
+    };
+
+  private:
+    SampleRegister r0 {
+        this, Name("r[0]"),
+        Description("A register with init value 42"),
+        Offset(0), ByteSize(4), InitValue(42)
+    };
+    SampleRegister r1 {
+        this, Name("r[1]"),
+        Description("A register with init value 42"),
+        Offset(0x10), ByteSize(4), InitValue(42)
+    };
+};
+</code></pre>
+<p>In this option, the hierarchy of ports, banks, registers, and fields is embedded within the C++ class. Both mapping information and behavior are defined in the code during object creation, hence the term “by code.”</p>
+<h4 id="by-data-information-provided-as-a-struct"><a href="#by-data-information-provided-as-a-struct">7.2.2 By Data: Information Provided as a Struct</a></h4>
+<p>In the second approach, resource mapping information for banks, registers, and fields is provided as data using an arbitrary format. A data importer converts this data and calls the C++ device API to register the mapping, keeping resource mapping separate from behavior. This allows users to create custom generators to produce data in the required format and enables importers to read data from files, facilitating mapping changes without recompiling the model.</p>
+<blockquote>
+<p><strong>NOTE:</strong>
+Simics does not provide ready-to-use generators; only the API for registering user-defined mapping.</p>
+</blockquote>
+<p>The API method for registering mapping is <code>create_hierarchy_from_register_data</code>. The first parameter is a pointer to <code>simics::ConfClass</code>, and the second can be either <code>simics::bank_t</code> or a braced-init-list of <code>simics::bank_t</code>. Since the API method must be invoked when the module is loaded into Simics, the most suitable place to call it is <code>init_class</code>. It can be invoked multiple times with different register data. The address of the <code>bank</code> object will be stored and used after the function call, so it must remain valid for the lifetime of the simulation.</p>
+<p>The <code>simics::bank_t</code> type describes bank information, including the bank’s name, description, and register information. Register information is defined using <code>simics::register_t</code>, which includes name, description, memory address offset, size in bytes, initialized value, and field information. Field information is defined using <code>simics::field_t</code>, including name, description, bit offset, and bit width.</p>
+<p>Using the second option, a C++ model with default read/write behavior can run in a Simics simulation without user-defined behaviors. To change default behavior, users can use a standard class from the modeling library or subclass it. For a complete list of standard classes, see <a class="reference" href="#standard-templates">7.4.4</a>. If no customized behavior is registered, the default base class for the corresponding resource is used.</p>
+<p>Below is an example using this option. The mapping information for <code>SampleBankByData</code> is registered by calling the <code>import_data</code> method from a data importer, which invokes <code>create_hierarchy_from_register_data</code> with mapping data. Each resource in the example is assigned default behavior (read and write), except for registers <code>b[0].r[0]</code>, <code>b[0].r[1]</code>, <code>b[1].r[0]</code>, and <code>b[1].r[1]</code>, defined as custom write-clear registers.</p>
+<blockquote>
+<p><strong>NOTE:</strong>
+This example demonstrates providing a customized subclass; for write-clear, the <code>Write1ClearsRegister</code> class is already available in the modeling library.</p>
+</blockquote>
+<pre><code>#include &lt;simics/cc-modeling-api.h&gt;
+
+#include "register-as-data.h"
+
+class SampleRegister : public simics::Register {
+  public:
+    using Register::Register;
+
+    class SampleField : public simics::Field {
+      public:
+        using Field::Field;
+
+        void write(uint64_t value, uint64_t enabled_bits) override {
+            SIM_LOG_INFO(3, bank_obj_ref(), 0, "Write to SampleField");
+            simics::Field::write(value, enabled_bits);
+        }
+    };
+
+    uint64_t read(uint64_t enabled_bits) override {
+        SIM_LOG_INFO(3, bank_obj_ref(), 0, "Read from SampleRegister");
+        return simics::Register::read(enabled_bits);
+    }
+
+  private:
+    SampleField f0 {dev_obj(), hierarchical_name() + ".f0"};
+};
+
+class DataImporter {
+  public:
+    explicit DataImporter(simics::MappableConfObject *obj)
+        : obj_(obj) {}
+
+    template &lt;typename T&gt;
+    static void import_data(simics::ConfClass *cls) {
+        simics::create_hierarchy_from_register_data&lt;T&gt;(cls, register_as_data);
+    }
+
+  private:
+    simics::MappableConfObject *obj_;
+    SampleRegister b0_r0 {obj_, "b[0].r[0]"};
+    SampleRegister b0_r1 {obj_, "b[0].r[1]"};
+    SampleRegister b1_r0 {obj_, "b[1].r[0]"};
+    SampleRegister b1_r1 {obj_, "b[1].r[1]"};
+};
+</code></pre>
+<pre><code>#include &lt;simics/cc-api.h&gt;
+#include &lt;simics/cc-modeling-api.h&gt;
+#include "data-importer.h"
+
+class SampleBankByData : public simics::MappableConfObject,
+                         public DataImporter {
+  public:
+    explicit SampleBankByData(simics::ConfObjectRef obj)
+        : MappableConfObject(obj),
+          DataImporter(this) {}
+
+    static void init_class(simics::ConfClass *cls) {
+        DataImporter::import_data&lt;SampleBankByData&gt;(cls);
+    }
+};
+
+// coverity[global_init_order]
+static simics::RegisterClassWithSimics&lt;SampleBankByData&gt; init_bank_by_data {
+    "sample_device_cxx_bank_by_data",
+    "sample C++ device with a bank by data",
+    "Sample C++ device with a bank by data"
+};
+</code></pre>
+<p>In Simics, the device model is instantiated before port objects, so hierarchical objects defined in the device model are instantiated first. Hierarchical objects with the same name can be instantiated multiple times, with behavior defined by the last instantiation based on C++ object instantiation order.</p>
+<p>Default behavior hierarchical objects are instantiated during port object instantiation if no behavior is already defined for them. They are allocated on the heap memory.</p>
+<h3 id="bankport"><a href="#bankport">7.3 BankPort</a></h3>
+<p>A device can have multiple bank ports, each containing a single bank, which can have multiple registers. Registers are accessible to the simulated system through the Simics <code>transaction</code> interface and are exposed to scripting and user interfaces via the <code>register_view</code>, <code>register_view_read_only</code>, and <code>bank_instrumentation_subscribe</code> Simics interfaces.</p>
+<p>The <code>simics::BankPort</code> template class is used to model the bank port object. It inherits from <code>simics::Port</code> and implements the necessary Simics bank interfaces. The template type parameter should be set to the C++ device class. If the bank port is not accessing any class member from the C++ device class, then the template type can be <code>simics::MappableConfObject</code>.</p>
+<p>As outlined in the previous section, there are two approaches to modeling register banks. The <code>simics::BankPort</code> template class provides two constructors corresponding to each approach. For the “by-code” option, the constructor requires only a <code>ConfObjectRef</code> parameter, which represents the Simics configuration port object. For the “by-data” option, in addition to the required <code>ConfObjectRef</code> parameter, the constructor accepts a second parameter to provide bank mapping information.</p>
+<p>The <code>make_bank_port</code> function facilitates the creation of a Simics port class. The port class is then registered with its parent <code>ConfClass</code> using the <code>add</code> function, typically within the <code>init_class</code> function of the device model class.</p>
+<p>Simics attributes can be directly registered on the bank port, which is useful for storing the state of the bank, registers, or fields. Bank attributes are automatically saved to the Simics checkpoint by <code>write-configuration</code>. To register an attribute, simply add an <code>Attribute</code> instance (see <a class="reference" href="#attributes">8</a> for more details).</p>
+<p>Banks can also be organized into arrays, with each element in the bank array representing a separate configuration object in Simics. This allows for individual mapping in a memory space. For details on registering a bank array, see <a href="#port">Port</a>.</p>
+<blockquote>
+<p><strong>NOTE:</strong>
+Multidimensional bank array is not supported.</p>
+</blockquote>
+<p>Instead of defining a custom BankPort class that inherits from <code>simics::BankPort</code>, users can directly utilize the existing <code>simics::SimpleBankPort</code> class to create a bank port. This class is a template class that accepts the type of the port bank as a template parameter. A port bank of the specified type is instantiated as a member of the <code>SimpleBankPort</code>. Additionally, extra arguments can be provided to the bank through a second template parameter. Below is an example of how to use this in code:</p>
+<pre><code>void SampleBankByCode::init_class(simics::ConfClass *cls) {
+    cls-&gt;add(simics::make_bank_port&lt;simics::SimpleBankPort&lt;SampleBank&gt;&gt;(
+                     cls-&gt;name() + ".SampleBank", "sample bank"), "bank.b[2]");
+}
+</code></pre>
+<h3 id="hierarchical-object"><a href="#hierarchical-object">7.4 Hierarchical object</a></h3>
+<p>There are 3 kinds of hierarchical objects: <code>bank</code>, <code>register</code> and <code>field</code>. These concepts are the same as the concepts used in the DML. The class hierarchy is shown in the diagram below. The generic <code>HierarchicalObject</code> class serves as the abstract base class.</p>
+<p><img alt="Class hierarchy for hierarchical object classes" src="hierarchicalobject_classes.svg"></p>
+<p>Figure: Class hierarchy for hierarchical object classes</p>
+<p>A hierarchical object is instantiated with a pointer to a <code>MappableConfObject</code> instance and a unique name. As described in the previous section, the <code>MappableConfObject</code> instance maintains a map from the hierarchical object’s name to its access interface.</p>
+<p>All hierarchical objects in a device should have a unique name that begins with the bank’s name. The name should consist of a sequence of characters from the character set [A–Z][a–z][0–9], underscore(<code>_</code>), square brackets (<code>[]</code>) and dot (<code>.</code>). Square brackets should only be used to represent items in an array. A dot (<code>.</code>) can only be used between different hierarchical levels. For example, following names are invalid to use as a hierarchical object’s name:</p>
+<pre><code class="language-text">.bank_x
+bank[1].reg2.
+_x.._y
+*.reg_?.+
+</code></pre>
+<h4 id="bank"><a href="#bank">7.4.1 Bank</a></h4>
+<p>Bank is a hierarchical object that implements the <code>simics::BankInterface</code> interface. Its main role is dispatching the incoming transaction access to the corresponding registers on the bank. The entry point for the transaction access is the function <code>transaction_access</code>.</p>
+<p>Simics configuration objects for bank instances are named like the bank but with a <code>bank</code> prefix. For instance, if a device class has added a bank with declaration <code>bank.regs[2]</code>, and a device instance is named <code>dev</code> in Simics, then the two banks are represented in Simics by configuration objects named <code>dev.bank.regs[0]</code> and <code>dev.bank.regs[1]</code>.</p>
+<h4 id="register"><a href="#register">7.4.2 Register</a></h4>
+<p>A register is an object that contains an integer value. Typically, a register corresponds to a segment of consecutive locations in the address space of the bank; however, it is also possible (and often useful) to have registers that are not mapped to any address within the bank. All registers must be part of a register bank.</p>
+<p>The following information is needed to map a register to the address space of the enclosing bank:</p>
+<ul>
+<li>Name: The name of a register follows the Simics naming rules and must be unique within the bank where the register is mapped.</li>
+<li>Description: A short description of the register. The description can be empty if no additional information is needed.</li>
+<li>Offset: The address within the bank where the register is mapped. No overlap is allowed between registers mapped to the same bank; each register must occupy a unique address range within its bank.</li>
+<li>Size: An integral, nonzero number of 8-bit bytes. A single register cannot be wider than 8 bytes.</li>
+<li>Initial Value: Defines the register’s value when the object is created and reset.</li>
+<li>Fields: A register may optionally be divided into several fields, which are described in the next section. The fields information is required, but it can be empty to indicate that the register has no fields.</li>
+</ul>
+<p>The above information can be provided in two ways; either as structured data or through explicit C++ object construction.</p>
+<p>In the <strong>by data</strong> approach, these properties are specified using a <code>bank_t</code> data structure, for example:</p>
+<pre><code>const std::initializer_list&lt;simics::bank_t&gt; register_as_data {
+    {"b[2]", "sample bank array of size 2", {
+            {"r[2 stride 16]", "register always reads 42",
+                0, 4, 42, {
+                    {"f0", "a sample field", 0, 16},
+                    {"f1", "a default field", 16, 16},
+                }},
+        }
+    }
+};
+</code></pre>
+<p>Alternatively, in the <strong>by code</strong> approach, the same information is provided directly inside a PortBank in C++ code when constructing the register object, such as:</p>
+<pre><code class="language-cpp">SampleRegister r0 {
+    this, Name("r[0]"),
+    Description("A register with init value 42"),
+    Offset(0), ByteSize(4), InitValue(42)
+};
+SampleRegister r1 {
+    this, Name("r[1]"),
+    Description("A register with init value 42"),
+    Offset(0x10), ByteSize(4), InitValue(42)
+};
+</code></pre>
+<p>The default Register class provides methods for reading, writing, setting, and getting register values. These methods interact with the fields contained within the register, invoking corresponding methods on each field.</p>
+<ul>
+<li><code>set(uint64_t value)</code>: Sets the register value by invoking the <code>set</code> method on each field within the register. This ensures that each field is updated according to its specific bit range.</li>
+<li><code>uint64_t get()</code>: Retrieves the register value by invoking the <code>get</code> method on each field and combining their values. This provides a complete view of the register’s current state.</li>
+<li><code>write(uint64_t value, uint64_t enabled_bits)</code>: Writes the specified bits of value by invoking the <code>write</code> method on each field. This may trigger side-effects specific to each field. The <code>enabled_bits</code> argument specifies which bits of the register are accessed.</li>
+<li><code>uint64_t read(uint64_t enabled_bits)</code>: Reads the register value by invoking the <code>read</code> method on each field, potentially triggering side-effects. The <code>enabled_bits</code> argument specifies which bits of the register are accessed.</li>
+</ul>
+<p>To define an array of registers, similar to a C array, specify the number of registers within square brackets, e.g., <code>r[8]</code>. By default, the stride of the array is the size of the register, but it can be customized, e.g., <code>r[8 stride 4]</code>. For multidimensional arrays, the default stride is calculated based on the size of all registers in the inner dimension. For instance, the stride of the outermost dimension for <code>r[2][8 stride 4]</code> is calculated as 8 * 4 = 32 bytes.</p>
+<h5 id="register-attribute"><a href="#register-attribute">7.4.2.1 Register Attribute</a></h5>
+<p>For every register, an attribute of integer type is automatically added to the containing bank. The name of the register is used as the name of the attribute; e.g., a register named <code>r1</code> will get a corresponding attribute on the bank named <code>r1</code>. The register value is automatically saved when Simics creates a checkpoint.</p>
+<h5 id="not-mapping-addresses-to-registers"><a href="#not-mapping-addresses-to-registers">7.4.2.2 Not Mapping Addresses To Registers</a></h5>
+<p>An important thing to note is that registers do not have to be mapped at all. This may be useful for internal registers that are not directly accessible from software. By using an unmapped register, you can get the advantages of using register, such as automatic checkpointing and register fields. This internal register can then be used from the implementations of other registers, or other parts of the model. For simply storing state, consider using bank port attributes instead.</p>
+<blockquote>
+<p><strong>NOTE:</strong>
+the <code>register_view</code> interface and breakpoints only work on mapped registers.</p>
+</blockquote>
+<p>To create an unmapped register, simply instantiate a register of type <code>UnmappedRegister</code> (or a subtype of it). The static method <code>Register::offset</code> will return <code>Register::NO_OFFSET</code> for unmapped registers.</p>
+<h4 id="field"><a href="#field">7.4.3 Field</a></h4>
+<p>Real hardware registers often consist of multiple fields, each with a distinct meaning. For example, the lowest three bits of a register might represent a status code, the next six bits could be a set of flags, and the remaining bits might be reserved.</p>
+<p>To facilitate this representation, a register object can contain multiple field objects, with each field corresponding to a specific bit range within the enclosing register. The value of a field is stored in the corresponding bits of the register’s storage.</p>
+<p>The default <code>Field</code> class provides methods for reading, writing, setting, and getting field values. Typically, one could inherit and override one or more of these methods—<code>read</code>, <code>write</code>, <code>get</code>, and <code>set</code>—to customize the behavior of the field according to specific requirements.</p>
+<p>The default behaviour of these methods are:</p>
+<ul>
+<li><code>set(uint64_t value)</code>: Sets the field value without triggering any side-effects. This method directly updates the field’s value.</li>
+<li><code>uint64_t get()</code>: Retrieves the field value without triggering any side-effects. This method directly returns the field’s value.</li>
+<li><code>write(uint64_t value, uint64_t enabled_bits)</code>: Writes the specified bits of <code>value</code>, potentially triggering side-effects. It uses the <code>get</code> method to form the new value to be set using the <code>set</code> method. The <code>enabled_bits</code> argument specifies which bits of the field are accessed.</li>
+<li><code>uint64_t read(uint64_t enabled_bits)</code>: Reads the field value, potentially triggering side-effects. It uses the <code>get</code> method to obtain the underlying value. The <code>enabled_bits</code> argument specifies which bits of the field are accessed.</li>
+</ul>
+<p>It is important that <code>set</code> and <code>get</code> methods are guaranteed to be side-effect free. Any side effects should be handled by the <code>read</code> or <code>write</code> methods.</p>
+<p>To define an array of fields, similar to a C array, specify the number of fields within square brackets, e.g., <code>f[8]</code>. By default, the stride of the array is the size of the field, but it can be customized, e.g., <code>f[8 stride 4]</code>. For multidimensional arrays, the default stride is calculated based on the size of all fields in the inner dimension. For instance, the stride of the outermost dimension for <code>f[2][8 stride 4]</code> is 8 * 4 = 32 bits.</p>
+<h4 id="standard-templates"><a href="#standard-templates">7.4.4 Standard Templates</a></h4>
+<p>This chapter describes the standard templates for C++ registers and fields.</p>
+<p>Note that many standard templates have the same functionality and only differ by name or log-messages printed when writing or reading them. The name of the template helps developers to get a quick overview of the device functionality. Two such examples are the <code>undocumented</code> and <code>reserved</code> templates. Both have the same functionality. However, the <code>undocumented</code> template hints that something in the device documentation is unclear or missing, and the <code>reserved</code> template that the register or field should not be used by software.</p>
+<p>Software reads and writes are defined as accesses using the <code>transaction</code> interface (write/reads to memory/io mapped device). Software reads and writes use the built-in <code>read</code> and <code>write</code> methods. Hardware access is defined as access made from within the model itself, using either <code>set/get</code> for side-effect free access or <code>read/write</code> for an access with side-effects.</p>
+<h5 id="templates-for-banks"><a href="#templates-for-banks">7.4.4.1 Templates for banks</a></h5>
+<p>The default class <code>Bank</code> models a bank of little endian byte order. To model a big endian byte order bank, the class <code>BigEndianBank</code> can be used. It does not affect the internal data representation, only matters when the data is read out and presented in some format. For example, the <code>Bank</code> method <code>read</code> returns a vector of <code>uint8_t</code>. The output of this method is by default a little endian byte ordered vector of bytes, while a big endian byte order bank has the order reversed.</p>
+<p>By default, reading an address range on a bank that is not fully mapped by registers triggers <code>unmapped_read</code>, which prints a spec-violation log and fails the read transaction. This behavior can be altered by using the <code>MissPatternBank</code> class. Its constructor takes an extra third parameter called <code>miss_pattern</code>, which is used to fill the unmapped bytes in the read transaction. With this, the function <code>unmapped_read</code> is not triggered, so no spec-violation log is printed and the read transaction does not fail. This parameter defaults to zero if not set.</p>
+<p>Similarly, the method <code>unmapped_get</code> is provided for inquiry read transactions. By default, it fails the inquiry read transaction and returns <code>Sim_PE_Inquiry_Outside_Memory</code> for the transaction.</p>
+<p>By default, a write to unmapped addresses triggers <code>unmapped_write</code>, which prints a spec-violation log and fails the write transaction. When using the <code>MissPatternBank</code> class, this behavior is suppressed, so <code>unmapped_write</code> is not triggered and the write transaction does not fail.</p>
+<p>Typically, each bank has its own memory dedicated to storing its registers. The memory is identified by a unique ID, which is the bank’s name. However, in certain cases, multiple banks can share the same memory. This functionality is supported by the <code>SharedMemoryBank</code> class. The third parameter of the class constructor, <code>name_of_bank_memory</code>, is a string that serves as the unique ID for this shared memory across different banks. By specifying a common <code>name_of_bank_memory</code>, multiple banks can access and manipulate the shared memory collectively.</p>
+<h5 id="templates-for-registers-and-fields"><a href="#templates-for-registers-and-fields">7.4.4.2 Templates for registers and fields</a></h5>
+<p>The read and write behaviour of registers and fields is in most cases controlled by class inheritance and method overriding. The <code>read</code> and <code>write</code> provided in <code>Register</code> and <code>Field</code> is virtual and can be override by an implementation in a derived class. The default implementation can still be referenced using a explicit namespace from the base class.</p>
+<p>The following templates are provided and most of them can be applied to both registers and fields. The section use <code>object</code> as a combined name for registers and fields. Most of them affect either the write or read operation; if applied on a register it will disregard fields. For instance, when inheriting from the <code>ReadUnimplRegister</code> class on a register with fields, then the read will ignore any implementations of read overrides in fields, and return the current register value (through <code>get</code>). However, writes will still propagate to the fields.</p>
+<table><thead><tr><th style="text-align: left">Class name</th><th style="text-align: left">Description</th><th style="text-align: left">Log output</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>IgnoreWriteRegister</code>, <code>IgnoreWriteField</code></td><td style="text-align: left">Writes are ignored. This template might also be useful for read-only fields inside an otherwise writable register. See the documentation for the <code>ReadOnlyRegister</code> template for more information.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>Read0Register</code>, <code>Read0Field</code></td><td style="text-align: left">Reads return 0, regardless of register/field value. Writes are unaffected by this template.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>ReadOnlyRegister</code>, <code>ReadOnlyField</code></td><td style="text-align: left">The object value is read-only for software, the object value can be modified by hardware.</td><td style="text-align: left">First software write results in a spec_violation log-message on log-level 1, remaining writes on log-level 2. Fields will only log if the written value is different from the old value. <br><br> If the register containing the read-only field also contains writable fields, it may be better to use the <code>IgnoreWriteRegister</code> template instead, since software often do not care about what gets written to a read-only field, causing unnecessary logging.</td></tr>
+<tr><td style="text-align: left"><code>WriteOnlyRegister</code>, <code>WriteOnlyField</code></td><td style="text-align: left">The register/field value can be modified by software but can’t be read back, reads return 0 regardless of register/field value. Writes are unaffected by this template.</td><td style="text-align: left">For register, the first time the object is read there is a spec_violation log-message on log-level 1, remaining reads on log-level 2. For field, only logs on log-level 4.</td></tr>
+<tr><td style="text-align: left"><code>Write1ClearsRegister</code>, <code>Write1ClearsField</code></td><td style="text-align: left">Software can only clear bits. This feature is often used when hardware sets bits and software clears them to acknowledge. Software write 1’s to clear bits. The new object value is a bitwise AND of the old object value and the bitwise complement of the value written by software.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>ClearOnReadRegister</code>, <code>ClearOnReadField</code></td><td style="text-align: left">Software reads return the object value. The object value is then reset to 0 as a side-effect of the read.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>Write1OnlyRegister</code>, <code>Write1OnlyField</code></td><td style="text-align: left">Software can only set bits to 1. The new object value is the bitwise OR of the old object value and the value written by software.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>Write0OnlyRegister</code>, <code>Write0OnlyField</code></td><td style="text-align: left">Software can only set bits to 0. The new object value is the bitwise AND of the old object value and the value written by software.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>ReadConstantRegister</code>, <code>ReadConstantField</code></td><td style="text-align: left">Reads return a constant value. <br><br> Writes are unaffected by this template. The read value is unaffected by the value of the register or field. <br><br> The template is intended for registers or fields that have a stored value that is affected by writes, but where reads disregard the stored value and return a constant value. The attribute for the register will reflect the stored value, not the value that is returned by read operations. For constant registers or fields that do not store a value, use the <code>Constant</code> template instead.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>ConstantRegister</code>, <code>ConstantField</code></td><td style="text-align: left">Writes are forbidden and have no effect. <br><br> The object still has backing storage, which affects the value being read. Thus, an end-user can modify the constant value by writing to the register’s attribute. Such tweaks will survive a reset. <br><br> Using the <code>Constant</code> template marks that the object is intended to stay constant, so the model should not update the register value, and not override the <code>read</code> method. Use the template <code>ReadOnly</code> if that is desired.</td><td style="text-align: left">First write to register or field (if field value is not equal to write value) results in a spec_violation log-message on log-level 1, remaining writes on log-level 2.</td></tr>
+<tr><td style="text-align: left"><code>SilentConstantRegister</code>, <code>SilentConstantField</code></td><td style="text-align: left">The object value will remain constant. Writes are ignored and do not update the object value. <br><br> The end-user can tweak the constant value; any tweaks will survive a reset. <br><br> By convention, the object value should not be modified by the model; if that behaviour is wanted, use the <code>IgnoreWrite</code> template instead.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>ZerosRegister</code>, <code>ZerosField</code></td><td style="text-align: left">The object value is constant 0. Software writes are forbidden and do not update the object value.</td><td style="text-align: left">First software write to register or field (if field value is not equal to write value) results in a spec_violation log-message on log-level 1, remaining writes on log-level 2.</td></tr>
+<tr><td style="text-align: left"><code>OnesRegister</code>, <code>OnesField</code></td><td style="text-align: left">The object is constant all 1’s. Software writes do not update the object value. The object value is all 1’s.</td><td style="text-align: left">First software write to register or field (if field value is not equal to write value) results in a spec_violation log-message on log-level 1, remaining writes on log-level 2.</td></tr>
+<tr><td style="text-align: left"><code>IgnoreRegister</code>, <code>IgnoreField</code></td><td style="text-align: left">The object’s functionality is unimportant. Reads return 0. Writes are ignored.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>ReservedRegister</code>, <code>ReservedField</code></td><td style="text-align: left">The object is marked reserved and should not be used by software. Writes update the object value. Reads return the object value.</td><td style="text-align: left">First software write to register or field (if field value is not equal to write value) results in a `spec-viol` log-message on log-level 2. No logs on subsequent writes.</td></tr>
+<tr><td style="text-align: left"><code>UnimplRegister</code>, <code>UnimplField</code></td><td style="text-align: left">The object functionality is unimplemented. Warn when software is using the object. Writes and reads are implemented as default writes and reads.</td><td style="text-align: left">First read from a register results in an unimplemented log-message on log-level 1, remaining reads on log-level 3. Reads from a field does not result in a log-message. First write to a register results in an unimplemented log-message on log-level 1, remaining writes on log-level 3. First write to a field (if field value is not equal to write value) results in an unimplemented log-message on log-level 1, remaining writes on log-level 3.</td></tr>
+<tr><td style="text-align: left"><code>ReadUnimplRegister</code>, <code>ReadUnimplField</code></td><td style="text-align: left">The object functionality associated to a read access is unimplemented. Write access is using default implementation and can be overridden (for instance by the <code>ReadOnly</code> template).</td><td style="text-align: left">First software read to a register results in an unimplemented log-message on log-level 1, remaining reads on log-level 3. Software reads to fields does not result in a log-message.</td></tr>
+<tr><td style="text-align: left"><code>WriteUnimplRegister</code>, <code>WriteUnimplField</code></td><td style="text-align: left">The object functionality associated to a write access is unimplemented. Read access is using default implementation and can be overridden (for instance by the <code>WriteOnly</code> template).</td><td style="text-align: left">First software write to registers results in an unimplemented log-message on log-level 1, remaining writes on log-level 3. First write to a field (if field value is not equal to write value) results in an unimplemented log-message on log-level 1, remaining writes on log-level 3.</td></tr>
+<tr><td style="text-align: left"><code>SilentUnimplRegister</code>, <code>SilentUnimplField</code></td><td style="text-align: left">The object functionality is unimplemented, but do not print a lot of log-messages when reading or writing. Writes and reads are implemented as default writes and reads.</td><td style="text-align: left">First software read to a register results in an unimplemented log-message on log-level 2, remaining reads on log-level 3. Software reads to fields does not result in a log-message. First software write to a register results in an unimplemented log-message on log-level 2, remaining writes on log-level 3. First write to a field (if field value is not equal to write value) results in an unimplemented log-message on log-level 2, remaining writes on log-level 3.</td></tr>
+<tr><td style="text-align: left"><code>UndocumentedRegister</code>, <code>UndocumentedField</code></td><td style="text-align: left">The object functionality is undocumented or poorly documented. Writes and reads are implemented as default writes and reads.</td><td style="text-align: left">First software write and read result in a spec_violation log-message on log-level 1, remaining on log-level 2.</td></tr>
+<tr><td style="text-align: left"><code>UnmappedRegister</code></td><td style="text-align: left">The register is excluded from the address space of the containing bank.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>DesignLimitationRegister</code>, <code>DesignLimitationField</code></td><td style="text-align: left">The object’s functionality is not in the model’s scope and has been left unimplemented as a design decision. Software and hardware writes and reads are implemented as default writes and reads. Debug registers are a prime example of when to use this template. This is different from <em>unimplemented</em> which is intended to be implement (if required) but is a limitation in the current model.</td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left"><code>AliasRegister</code></td><td style="text-align: left">The register is an alias for another register. All operations are forwarded to the other register.</td><td style="text-align: left"></td></tr>
+</tbody></table>
+<h3 id="bank-instrumentation"><a href="#bank-instrumentation">7.5 Bank Instrumentation</a></h3>
+<p>C++ devices using the C++ device API for register banks automatically support bank instrumentation, allowing register bank accesses to be monitored and controlled. For more details, see <a href="../simics-user-guide/instrumentation.html#instrumentation">Simulator User’s Guide</a>.</p>
+<h4 id="example"><a href="#example">7.5.1 Example</a></h4>
+<p>After loading the configuration, instantiate and connect the bank coverage tool to all banks in the system like so:</p>
+<pre><code class="language-simics">simics&gt; <strong>new-bank-coverage-tool -connect-all</strong>
+Created coverage_tool0 (connected to 2 banks)
+</code></pre>
+<p>Once the tool is instantiated, you can run the workload. At any time you can stop the simulation and use the coverage command to view the coverage collected so far, ordered by coverage percentage by default:</p>
+<pre><code class="language-simics">simics&gt; <strong>coverage_tool0.coverage</strong>
+
+┌─────┬──────┬──────────────────────┬─────────────┬─────────┐
+│Row #│Device│No. accessed registers│No. registers│Coverage%│
+├─────┼──────┼──────────────────────┼─────────────┼─────────┤
+│    1│dev   │                     2│            4│   50.00%│
+├─────┼──────┼──────────────────────┼─────────────┼─────────┤
+│Sum  │      │                     2│            4│         │
+└─────┴──────┴──────────────────────┴─────────────┴─────────┘
+</code></pre>
+<h2 id="attributes"><a href="#attributes">8 Attributes</a></h2>
+<p>A Simics <em>attribute</em> is the mechanism for exposing model state to the Simics configuration system. Internally, all attributes are represented using the <code>attr_value_t</code> type, a tagged union that can hold many different data types (integers, strings, lists, objects, etc.). The C++ API automatically converts between your C++ types and <code>attr_value_t</code> representations, so you can work with familiar C++ types like <code>int</code>, <code>std::string</code>, <code>std::vector</code>, and custom objects.</p>
+<h3 id="attribute-type"><a href="#attribute-type">8.1 Attribute Type</a></h3>
+<p>The Simics underlying type <code>attr_value_t</code> is documented in <a href="../rm-api/dev-api-types-generic.html#attr_value_t">Reference Manual API</a>. It is a tagged union with different kinds, each represented by a string when defining a Simics attribute. C++ primitive types map directly to Simics attribute kinds, while C++ container types offer multiple mapping options. The following table shows the recommended mappings between C++ types and <code>attr_value_t</code> kinds:</p>
+<table><thead><tr><th><strong>C++ Type</strong></th><th><strong>C Payload</strong></th><th><strong>attr_value_t Kind</strong></th></tr></thead><tbody>
+<tr><td><code>char</code>, <code>short</code>, <code>int</code>, <code>long</code>, <code>long long</code> (signed and unsigned variants)</td><td><code>int64</code> or <code>uint64</code></td><td><code>Sim_Val_Integer</code></td></tr>
+<tr><td><code>bool</code></td><td><code>bool</code></td><td><code>Sim_Val_Boolean</code></td></tr>
+<tr><td><code>double</code>, <code>float</code></td><td><code>double</code></td><td><code>Sim_Val_Floating</code></td></tr>
+<tr><td><code>std::string</code>, <code>const char*</code></td><td><code>const char*</code></td><td><code>Sim_Val_String</code></td></tr>
+<tr><td><code>simics::ConfObjectRef</code>, <code>simics::Connect</code></td><td><code>conf_object_t*</code></td><td><code>Sim_Val_Object</code></td></tr>
+<tr><td><code>std::map</code>, <code>std::unordered_map</code></td><td>array of key-value pairs</td><td><code>Sim_Val_Dict</code></td></tr>
+<tr><td><code>std::vector&lt;uint8_t&gt;</code></td><td>array of bytes</td><td><code>Sim_Val_Data</code></td></tr>
+<tr><td>Other STL container types</td><td>array of <code>attr_value_t</code></td><td><code>Sim_Val_List</code></td></tr>
+</tbody></table>
+<p>The <code>ATTR_TYPE_STR</code> macro generates a default type string based on your C++ type, following the mapping in the table above. You can also specify a custom type string. The type string format is documented in <a href="../rm-api/dev-api-configuration.html#SIM_register_attribute">Reference Manual API</a>. Since some C++ types can map to multiple type strings, it is recommended to choose the one that best fits the variable’s meaning and usage. For example, if you have a <code>std::list&lt;int&gt;</code> variable with a size that varies between 0 and 5, register it using the type string <code>[i{0:5}]</code>. The type string must remain stable between model revisions to support Simics configuration scripts and checkpointing.</p>
+<p>Simics automatically validates attribute types based on the type string you provide. You do not need to implement type validation in your getter or setter functions. Simply ensure that you use the correct type string when registering the attribute (either through <code>ATTR_TYPE_STR</code> macro or by specifying a custom type string). Simics enforces type constraints, validates sizes and ranges, and rejects invalid values with appropriate error messages before your getter or setter function is called.</p>
+<h3 id="attribute-definition"><a href="#attribute-definition">8.2 Attribute Definition</a></h3>
+<p>The attribute is defined by creating an object of type <code>Attribute</code> and adding it to the <code>ConfClass</code> instance using the <code>add</code> function. See <a class="reference" href="#simics-classes">5</a> for more information about Simics classes.</p>
+<p>There are several constructors with different sets of parameters. The following parameters must be provided for all constructors: a string <code>name</code>, a string <code>type</code> and a string <code>doc</code>. These parameters have the same meaning as in <code>SIM_register_attribute</code>. The <code>name</code> specifies the attribute name, and must be unique for the class and stable between revisions of the model. The <code>type</code> specifies the Simics attribute type—see <a class="reference" href="#attribute-type">8.1</a> above for the mapping between C++ types and Simics attribute types. The <code>doc</code> describes the attribute.</p>
+<p>Get and set callbacks can be registered for the attribute through <code>getter</code> and <code>setter</code> parameters. For a C++ class member variable, <code>AttributeAccessor</code> can be used for the registration.</p>
+<p>There is an optional <code>attr</code> parameter which is one of <code>Sim_Attr_Required</code>, <code>Sim_Attr_Optional</code> or <code>Sim_Attr_Pseudo</code>. This can be used to indicate that an attribute is required (<code>Sim_Attr_Required</code>) or that it should not be part of checkpoints (<code>Sim_Attr_Pseudo</code>). The default value is <code>Sim_Attr_Optional</code> if no explicit value is set.</p>
+<p>A required attribute (<code>attr</code> set to <code>Sim_Attr_Required</code>) will be initialized to the value given by the configuration. For attribute of other types the initial value must be explicitly initialized by the C++ class that owns the member pointed to by the attribute. In C++, unlike DML, the variables are not zero-initialized implicitly.</p>
+<p>Depending on how the state variable is stored in the C++ class, there are different ways to register the attribute.</p>
+<pre><code>class SampleAttributeClassMemberVariable : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::Attribute(
+                         "flags", "[bb]", "Two boolean flags in an array",
+                         ATTR_CLS_VAR(SampleAttributeClassMemberVariable,
+                                      flags)));
+    }
+
+    std::array&lt;bool, 2&gt; flags {false, false};
+};
+
+static simics::RegisterClassWithSimics&lt;SampleAttributeClassMemberVariable&gt;
+// coverity[global_init_order]
+init_class_member_variable {
+    "sample_device_cxx_attribute_class_member_variable",
+    "sample C++ attr device use cls member variable",
+    "Sample C++ attribute device use cls member variable"
+};
+</code></pre>
+<p>This example uses <code>ATTR_CLS_VAR(SampleAttributeClassMemberVariable, flags)</code> to locate the flags variable, given an instance of <code>SampleAttributeClassMemberVariable</code>. The macro <code>ATTR_CLS_VAR</code> expands to an <code>AttributeAccessor</code>.</p>
+<p>A public state variable member of a C++ build-in type or a C++ standard container of build-in type can be registered directly using <code>ATTR_CLS_VAR</code>. For example, an <code>array</code> of two boolean values.</p>
+<p>If a state variable is not in public scope, indirect access is needed. It is quite common that a C++ class provides a public get and set function for its private state variable member. To register the variable as a Simics attribute, simply wrap the public get and set function pointers using macro <code>ATTR_GETTER</code> and <code>ATTR_SETTER</code> respectively and pass them as the parameters to the <code>Attribute</code> constructor.</p>
+<pre><code>class SampleAttributeClassMemberMethod : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::Attribute(
+                         "value", "i", "A value.",
+                         ATTR_GETTER(SampleAttributeClassMemberMethod,
+                                     getValue),
+                         ATTR_SETTER(SampleAttributeClassMemberMethod,
+                                     setValue),
+                         Sim_Attr_Required));
+    }
+
+    int getValue() const;
+    void setValue(const int &amp;v);
+
+  private:
+    int value {0};
+};
+
+// ...
+
+int SampleAttributeClassMemberMethod::getValue() const {
+    return value;
+}
+
+void SampleAttributeClassMemberMethod::setValue(const int &amp;v) {
+    if (v &lt; 256) {
+        value = v;
+    } else {
+        throw std::runtime_error("Too large value");
+    }
+}
+
+static simics::RegisterClassWithSimics&lt;SampleAttributeClassMemberMethod&gt;
+// coverity[global_init_order]
+init_class_member_method {
+    "sample_device_cxx_attribute_class_member_method",
+    "sample C++ attr device use cls member method",
+    "Sample C++ attribute device use cls member method"
+};
+</code></pre>
+<p>By wrapping the value with functions, it is also possible to add extra checks. The getter function simply returns the value. The setter function takes a reference to a value, and can accept or reject it by throwing a runtime_error with a string message describing why it was rejected. The exception is caught in the Simics attribute setter function and converted to a proper Simics log message.</p>
+<p>Note the use of <code>Sim_Attr_Required</code> when constructing the <code>simics::Attribute</code>. It means a value must be provided when creating the Simics object.</p>
+<p>The getter and setter functions can be global functions as well. Then they should take the main C++ object as a function parameter.</p>
+<pre><code>class SampleAttributeGlobalMethod : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls);
+
+    std::string name;
+    size_t id {0};
+};
+
+// ...
+
+std::pair&lt;std::string, size_t&gt; getNameAndId(
+        const SampleAttributeGlobalMethod &amp;obj) {
+    return {obj.name, obj.id};
+}
+
+void setNameAndId(SampleAttributeGlobalMethod &amp;obj,  // NOLINT
+                  const std::pair&lt;std::string, size_t&gt; &amp;name_and_id) {
+    std::tie(obj.name, obj.id) = name_and_id;
+}
+
+void SampleAttributeGlobalMethod::init_class(simics::ConfClass *cls) {
+    cls-&gt;add(simics::Attribute("name_and_id", "[si]", "A pair of a name and id",
+                               ATTR_GETTER(getNameAndId),
+                               ATTR_SETTER(setNameAndId)));
+}
+
+static simics::RegisterClassWithSimics&lt;SampleAttributeGlobalMethod&gt;
+// coverity[global_init_order]
+init_global_method {
+    "sample_device_cxx_attribute_global_method",
+    "sample C++ attr device use global method",
+    "Sample C++ attribute device use global method"
+};
+</code></pre>
+<p>The same macros, <code>ATTR_GETTER</code> and <code>ATTR_SETTER</code> are used to help convert getters and setters into the functions required by the Simics attribute.</p>
+<p>If the getter is <code>nullptr</code>, it means that the attribute is write-only. If the setter is <code>nullptr</code>, it means that it is read-only. If either is <code>nullptr</code>, the attribute cannot be checkpointed and if <code>attr</code> is left out, <code>Sim_Attr_Pseudo</code> is automatically chosen.</p>
+<p>The help macros <code>ATTR_CLS_VAR</code>, <code>ATTR_GETTER</code>, <code>ATTR_SETTER</code> and <code>ATTR_TYPE_STR</code> support all C++ native build-in types or STL containers that consist of them. A complete list of equivalent types supported by the help macros are listed in the following table. The pointer and the <code>enum</code> are supported if the underlying type is one of the types listed in the table.</p>
+<table><thead><tr><th><strong>Type category</strong></th><th><strong>Include types</strong></th></tr></thead><tbody>
+<tr><td><strong>Boolean type</strong></td><td><code>bool</code></td></tr>
+<tr><td><strong>Character types</strong></td><td><code>char</code>, <code>signed char</code>, <code>unsigned char</code></td></tr>
+<tr><td><strong>Integer types</strong></td><td><code>short int</code>, <code>unsigned short int</code>, <code>int</code>, <code>unsigned int</code>, <code>long int</code>, <code>unsigned long int</code>, <code>long long int</code>, <code>unsigned long long int</code></td></tr>
+<tr><td><strong>Floating-point types</strong></td><td><code>float</code>, <code>double</code></td></tr>
+<tr><td><strong>Object type</strong></td><td><code>simics::ConfObjectRef</code>, <code>simics::Connect</code></td></tr>
+<tr><td><strong>Container type</strong></td><td><code>array</code>, <code>list</code>, <code>vector</code>, <code>deque</code>, <code>pair</code>, <code>map</code>, <code>tuple</code>, <code>set</code></td></tr>
+</tbody></table>
+<blockquote>
+<p><strong>NOTE:</strong>
+Traditional C-style arrays, or Raw Arrays, are only supported by the <code>ATTR_GETTER</code> macro (and no other help macro). Either replace them with C++ <code>array</code>, or use custom get and set functions as described below.</p>
+<p><strong>NOTE:</strong>
+The help macros, such as <code>ATTR_GETTER</code> and <code>ATTR_SETTER</code>, are designed to simplify the registration of Simics attributes. However, they cannot address all scenarios. These macros have limitations, such as not supporting overloaded functions. In scenarios where the macros are insufficient, alternative approaches can be employed, such as writing custom getter and setter functions to manage the desired C++ variables.</p>
+</blockquote>
+<p>Nested STL containers composed of the types listed in the table above are also supported. An example is provided below. For these types, the type string is often too complex, so it is recommended to use the helper macro <code>ATTR_TYPE_STR</code> to construct the type string.</p>
+<pre><code>class SampleAttributeNestedStlContainer : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::Attribute(
+                    "id_strs",
+                    ATTR_TYPE_STR(SampleAttributeNestedStlContainer::id_strs),
+                    "a map where each ID maps to a list of strings",
+                    ATTR_CLS_VAR(SampleAttributeNestedStlContainer,
+                                 id_strs)));
+    }
+
+    std::map&lt;int, std::vector&lt;std::string&gt;&gt; id_strs;
+};
+</code></pre>
+<h3 id="creating-custom-get-and-set-functions"><a href="#creating-custom-get-and-set-functions">8.3 Creating Custom get and set functions</a></h3>
+<p>For other types not listed in table above, including user defined types, there are many ways to support that. Here two of the ways are shown, first way creating custom get and set functions and implement them as shown in the example below:</p>
+<pre><code>// The buffer class is used as an example to show how to register
+// a custom type Simics attribute. It is not a reference
+// implementation of how to write a custom buffer class.
+// coverity[rule_of_three_violation:FALSE]
+class buffer {
+  public:
+    buffer(const unsigned char *d, size_t size) {
+        aux_.assign(d, d + size);
+    }
+    buffer(const buffer &amp;other) {
+        aux_.assign(other.data(), other.data() + other.size());
+    }
+    buffer&amp; operator=(const buffer &amp;other) = delete;
+    virtual ~buffer() = default;
+
+    const unsigned char *data() const { return aux_.data(); }
+    size_t size() const { return aux_.size(); }
+
+  private:
+    std::vector&lt;unsigned char&gt; aux_;
+};
+
+class SampleAttributeCustomMethod : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+    static void init_class(simics::ConfClass *cls);
+
+    buffer getBlob() const;
+    void setBlob(const buffer &amp;v);
+
+  private:
+    unsigned char blob_[1024] {};
+};
+
+buffer SampleAttributeCustomMethod::getBlob() const {
+    return buffer(blob_, sizeof blob_);
+}
+
+void SampleAttributeCustomMethod::setBlob(const buffer &amp;v) {
+    if (v.size() == sizeof blob_) {
+        memcpy(blob_, v.data(), v.size());
+    } else {
+        throw std::runtime_error { "Wrong size of data buffer" };
+    }
+}
+
+namespace {
+attr_value_t getBlobHelper(conf_object_t *obj) {
+    auto *o = simics::from_obj&lt;SampleAttributeCustomMethod&gt;(obj);
+    return SIM_make_attr_data(1024, o-&gt;getBlob().data());
+}
+
+set_error_t setBlobHelper(conf_object_t *obj, attr_value_t *val) {
+    auto *o = simics::from_obj&lt;SampleAttributeCustomMethod&gt;(obj);
+    try {
+        o-&gt;setBlob(buffer(SIM_attr_data(*val), SIM_attr_data_size(*val)));
+    } catch (const std::exception &amp;e) {
+        SIM_LOG_INFO(1, o-&gt;obj(), 0, "%s", e.what());
+        return Sim_Set_Illegal_Value;
+    }
+    return Sim_Set_Ok;
+}
+}  // namespace
+
+void SampleAttributeCustomMethod::init_class(simics::ConfClass *cls) {
+    cls-&gt;add(simics::Attribute("blob", "d", "Some data",
+                               &amp;getBlobHelper, &amp;setBlobHelper));
+}
+
+static simics::RegisterClassWithSimics&lt;SampleAttributeCustomMethod&gt;
+// coverity[global_init_order]
+init_custom_method {
+    "sample_device_cxx_attribute_custom_method",
+    "sample C++ attr device use custom method",
+    "Sample C++ attribute device use custom method"
+};
+</code></pre>
+<p>Besides the above way, it is also possible to specialize the converters to/from the user defined type. An example is shown below:</p>
+<pre><code>struct MyType {
+    uint64_t ull;
+    std::string message;
+    simics::ConfObjectRef some_object;
+};
+
+class SampleAttributeSpecializedConverter : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::Attribute("my_type", "[iso|n]",
+                                   "An attribute of MyType",
+                                   ATTR_CLS_VAR(
+                                           SampleAttributeSpecializedConverter,
+                                           my_type)));
+    }
+
+    MyType my_type;
+};
+
+// Specialize the template converter
+namespace simics {
+template &lt;&gt;
+inline MyType attr_to_std&lt;MyType&gt;(attr_value_t src) {
+    MyType result;
+    result.ull = attr_to_std&lt;uint64&gt;(SIM_attr_list_item(src, 0));
+    result.message = attr_to_std&lt;std::string&gt;(SIM_attr_list_item(src, 1));
+    result.some_object = attr_to_std&lt;ConfObjectRef&gt;(SIM_attr_list_item(src, 2));
+    return result;
+}
+
+template &lt;&gt;
+inline attr_value_t std_to_attr&lt;MyType&gt;(const MyType &amp;src) {
+    attr_value_t result = SIM_alloc_attr_list(3);
+    SIM_attr_list_set_item(&amp;result, 0, std_to_attr&lt;uint64&gt;(src.ull));
+    SIM_attr_list_set_item(&amp;result, 1, std_to_attr&lt;std::string&gt;(src.message));
+    SIM_attr_list_set_item(&amp;result, 2,
+                           std_to_attr&lt;ConfObjectRef&gt;(src.some_object));
+    return result;
+}
+}  // namespace simics
+
+static simics::RegisterClassWithSimics&lt;SampleAttributeSpecializedConverter&gt;
+// coverity[global_init_order]
+init_specialized_converter {
+    "sample_device_cxx_attribute_specialized_converter",
+    "sample C++ attr device with specialized converter",
+    "Sample C++ attribute device with specialized converter"
+};
+</code></pre>
+<h3 id="connect-as-attribute"><a href="#connect-as-attribute">8.4 Connect as attribute</a></h3>
+<p>Registering a <code>Connect</code> variable as an attribute is done the same way as any other variable. User can use the help macros described above. The following code will create an <code>irq_dev</code> attribute that uses the Connect instance shown in <a href="#connect">Connect</a> as a value.</p>
+<pre><code>void SampleConnect::init_class(simics::ConfClass *cls) {
+    cls-&gt;add(simics::Attribute("irq_dev", "o|n",
+                               "IRQ device",
+                               ATTR_CLS_VAR(SampleConnect, irq_dev)));
+}
+</code></pre>
+<h4 id="connect-templates"><a href="#connect-templates">8.4.1 Connect templates</a></h4>
+<p>The template based class <code>ConnectToDescendant</code> helps to set the connect attribute by default to a automatically created object. It is similar to DML’s connect template <code>init_as_subobj</code>. To achieve this, user needs to first register a port object and pass the name of it to the CTOR of class <code>ConnectToDescendant</code>.</p>
+<pre><code>class SampleConnectToDescendant : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+    static constexpr const char * PORT_MEMORY_SPACE = "port.memory_space";
+    static void init_class(simics::ConfClass *cls);
+
+    simics::ConnectToDescendant&lt;
+        simics::iface::MemorySpaceInterface&gt; target_mem_space {
+        this, PORT_MEMORY_SPACE
+    };
+};
+
+void SampleConnectToDescendant::init_class(simics::ConfClass *cls) {
+    // Register the port object as default target memory space
+    SIM_register_port(*cls, PORT_MEMORY_SPACE,
+                      SIM_get_class("memory-space"),
+                      "Target memory space as descendant");
+    // It can also be optionally connected to other memory-space
+    cls-&gt;add(simics::Attribute("target_mem_space", "o|n",
+                               "Target port to a memory space",
+                               ATTR_CLS_VAR(SampleConnectToDescendant,
+                                            target_mem_space)));
+}
+</code></pre>
+<p>The <code>MapTargetConnect</code> class facilitates the creation and return of a new map target. A map target can be viewed as an opaque representation of an object/interface pair which can function either as an endpoint for a memory transaction or as an address space where a memory transaction can be performed.</p>
+<p>When an object is assigned to the MapTargetConnect attribute, it is systematically examined for the presence of specific interfaces in the following order: <code>ram</code>, <code>rom</code>, <code>io_memory</code>, <code>port_space</code>, <code>translator</code>, <code>transaction_translator</code>, <code>transaction</code> or <code>memory_space</code>. The first interface found determines the “type” of the map target. For example, if obj implements both the <code>io_memory</code> and the <code>translator</code> interface, then the created map target will direct memory transactions to the <code>io_memory</code> interface.</p>
+<p>The generated map target offers convenient methods such as <code>read</code>, <code>read_bytes</code>, <code>write</code>, and <code>write_bytes</code>. Additionally, users have the option to interact directly with transactions using the <code>issue</code> method, providing flexibility in handling memory operations.</p>
+<pre><code>class SampleConnectMapTarget : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::Attribute("map_target", "o|n",
+                                   "Map Target",
+                                   ATTR_CLS_VAR(SampleConnectMapTarget,
+                                                map_target)));
+    }
+
+    simics::MapTargetConnect map_target {this-&gt;obj()};
+};
+</code></pre>
+<h3 id="required-attributes-for-device-configuration"><a href="#required-attributes-for-device-configuration">8.5 Required Attributes for Device Configuration</a></h3>
+<p>Some device configurations require certain attributes to be set before the device can be properly initialized. Use the <code>Sim_Attr_Required</code> flag when defining attributes that are mandatory for device operation. Required attributes must be set before the device is finalized.</p>
+<p>This pattern is useful for allocating resources based on configuration values. For example, a device that needs to allocate a dynamic array of channels based on the <code>num_channels</code> attribute can use a required attribute combined with the <code>finalize()</code> override to validate and initialize resources.</p>
+<pre><code>class SampleAttributeRequired : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::Attribute("num_channels", "i",
+                                   "Number of channels for the device",
+                                   ATTR_CLS_VAR(SampleAttributeRequired,
+                                                num_channels_),
+                                   Sim_Attr_Required));
+    }
+
+    void finalize() override {
+        // The attribute num_channels_ is set before finalize is called
+        // and can be used to allocate resources.
+        if (num_channels_ &lt;= 0) {
+            throw std::runtime_error(
+                    "num_channels must be greater than 0");
+        }
+        channel_data_.resize(num_channels_);
+    }
+
+    int num_channels_ {1};
+    std::vector&lt;int&gt; channel_data_;
+};
+
+static simics::RegisterClassWithSimics&lt;SampleAttributeRequired&gt;
+// coverity[global_init_order]
+init_attribute_required {
+    "sample_device_cxx_attribute_required",
+    "sample C++ attr device with required attribute",
+    "Sample C++ attribute device with required attribute"
+};
+</code></pre>
+<p>In this example:</p>
+<ul>
+<li>The <code>num_channels</code> attribute is marked as <code>Sim_Attr_Required</code>, meaning it must be set during device configuration</li>
+<li>The <code>finalize()</code> method is overridden as the Simics attribute is not ready to use in the class constructor.</li>
+<li>Resources are allocated in the <code>finalize()</code> method based on the configured value after the attribute is validated</li>
+</ul>
+<h3 id="class-attribute"><a href="#class-attribute">8.6 Class Attribute</a></h3>
+<p>To register a class attribute in Simics, you can use the <code>ClassAttribute</code> class. This class allows you to define attributes that are associated with a Simics class rather than a Simics object.</p>
+<p>You need to create an instance of the <code>ClassAttribute</code> class, providing the attribute name, type, description, getter, setter, and attribute type. And then register it with the <code>ConfClass</code> using the <code>add</code> method.</p>
+<pre><code>class SampleAttributeClassAttribute : public simics::ConfObject {
+  public:
+    explicit SampleAttributeClassAttribute(simics::ConfObjectRef obj)
+        : ConfObject(obj) {
+        ++instance_count_;
+    }
+    virtual ~SampleAttributeClassAttribute() {
+        --instance_count_;
+    }
+
+    static attr_value_t getInstanceCount(conf_class_t *cls) {
+        return simics::std_to_attr&lt;int&gt;(instance_count_);
+    }
+
+    static void init_class(simics::ConfClass *cls) {
+        cls-&gt;add(simics::ClassAttribute("instance_count", "i",
+                                        "Instance count of the class",
+                                        getInstanceCount, nullptr,
+                                        Sim_Attr_Pseudo));
+    }
+
+  private:
+    static int instance_count_;
+};
+
+int SampleAttributeClassAttribute::instance_count_ = 0;
+
+static simics::RegisterClassWithSimics&lt;SampleAttributeClassAttribute&gt;
+// coverity[global_init_order]
+init_class_attribute {
+    "sample_device_cxx_attribute_class_attribute",
+    "sample C++ attr device with class attribute",
+    "Sample C++ attribute device with class attribute"
+};
+</code></pre>
+<h3 id="attrvalue"><a href="#attrvalue">8.7 AttrValue</a></h3>
+<p>The <code>AttrValue</code> class in Simics is a RAII (Resource Acquisition Is Initialization) class designed to manage the lifetime of a <code>attr_value_t</code> object. This class ensures that the memory allocated for the <code>attr_value_t</code> object is properly freed when the <code>AttrValue</code> object is destroyed, preventing memory leaks and ensuring proper resource management.</p>
+<p>It is typically constructed or assigned from a Simics API call which returns an <code>attr_value_t</code> object.</p>
+<h2 id="logging"><a href="#logging">9 Logging</a></h2>
+<p>Logging is an essential tool for tracking the behavior of the model and diagnosing issues. While standard C++ logging mechanisms such as <code>std::cout</code> and <code>std::cerr</code> are available and could be used, leveraging the full power of Simics logging is highly recommended. Simics provides a robust logging system that offers several advantages over standard logging methods. Simics logging supports the selection of log objects, levels, and groups. For more information about Simics logging, see the <a href="../model-builder-user-guide/device-modeling-overview.html#logging">Model Builder User’s Guide</a>.</p>
+<p>For performance reasons, always use the logging macros below instead of invoking the Simics logging API directly:</p>
+<ul>
+<li><code>SIM_LOG_&lt;type&gt;</code> basic macros are provided by the Simics C API and have printf-like formatting.</li>
+<li><code>SIM_LOG_&lt;type&gt;_STR</code> extended macros are provided by the Simics C++ API and supports string-link object. The strings can be formatted using FMT library that is also shipped with Simics.</li>
+</ul>
+<p>Both type of macros invoke the corresponding <code>SIM_log_&lt;type&gt;</code> functions internally but are wrapped in an additional layer that does not expand the code when log level conditions are not met.</p>
+<p>The macros expect:</p>
+<ol>
+<li>the log level/verbosity</li>
+<li>the log object</li>
+<li>the log group (can be ORd to log for multiple groups)</li>
+<li>the message</li>
+<li>For the C macros, additional arguments for printf-like formatting passed as the 4th argument</li>
+</ol>
+<p>The <code>type</code> placeholder should be one of the following: INFO, SPEC_VIOLATION, UNIMPLEMENTED, ERROR, WARNING, or CRITICAL.</p>
+<h3 id="example-usage"><a href="#example-usage">9.1 Example usage</a></h3>
+<p>An example using C++ logging:
+</p><pre><code>    SIM_LOG_INFO_STR(1, obj(), GROUP_ID(Signal),
+                     fmt::format("Lowering signal (new level: {})", --level_));
+    </code></pre>
+<p>An example using C logging:
+</p><pre><code>    SIM_LOG_INFO(1, obj(), GROUP_ID(Signal), "Raising signal (new level: %d)",
+                 ++level_);
+    </code></pre>
+<p>New log groups can be registered with the Simics class in the <code>init_class</code> method:
+</p><pre><code>void SampleLogging::init_class(simics::ConfClass *cls) {
+    simics::LogGroups lg {"CTOR", "Signal"};
+    cls-&gt;add(lg);
+</code></pre>
+<blockquote>
+<p><strong>NOTE:</strong>
+The Simics API <code>SIM_log_register_groups</code> can only be called once per Simics class. If you need to register log groups incrementally, such as adding more groups in an extended C++ class, it is recommended to use <code>cls-&gt;add</code> for registering log groups.</p>
+</blockquote>
+<h3 id="logstream"><a href="#logstream">9.2 LogStream</a></h3>
+<p>If a custom log API is being used, it is often possible to enable it to support multiple front ends. One simple approach is to specialize it to work in Simics using the standard set of <code>SIM_log*</code> functions, as described in the <em>API Reference Manual</em>. If the log API works with streams Simics provides a convenience class called <code>LogStream</code> that can be used. The convenience class has the following signature:</p>
+<pre><code>template&lt;log_type_t Type = Sim_Log_Info,
+         int Level = 1,
+         uint64_t Groups = 0&gt;
+class LogStream : public std::ostream {
+    static_assert(Type &gt;= Sim_Log_Info &amp;&amp; Type &lt; Sim_Log_Num_Types,
+                  "Type must be a valid log_type_t enum value");
+    static_assert(Level &gt;= MIN_LOG_LEVEL &amp;&amp; Level &lt;= MAX_LOG_LEVEL,
+                  "Level must be between MIN_LOG_LEVEL and MAX_LOG_LEVEL");
+
+  public:
+    explicit LogStream(ConfObjectRef log_obj)
+        : std::ostream(&amp;str_buf_), str_buf_(log_obj) {}
+</code></pre>
+<p><code>LogStream</code> is a subclass of <code>std::ostream</code> that buffers output and emits it as a single Simics log message on <code>flush()</code> or when the stream is destroyed. Use it when you prefer <code>&lt;&lt;</code> stream-style logging over printf-style SIM_LOG_* macros.</p>
+<p><strong>Tip:</strong> If you prefer formatted strings instead of stream-style <code>&lt;&lt;</code> logging, you can use the FMT library to build a message and pass it to the corresponding macro, e.g. <code>SIM_LOG_INFO_STR(obj, group, fmt::format("..."))</code>, instead of using a <code>LogStream</code>.</p>
+<h4 id="basic-logstream-usage"><a href="#basic-logstream-usage">9.2.1 Basic LogStream Usage</a></h4>
+<p>A typical use case is to declare a <code>LogStream</code> member variable initialized with a <code>ConfObjectRef</code> and use it for logging with the familiar stream operators:</p>
+<pre><code>class SampleLogStream : public simics::ConfObject,
+                        public simics::iface::SignalInterface {
+  public:
+    explicit SampleLogStream(simics::ConfObjectRef o)
+        : simics::ConfObject(o),
+          log_(o) {}
+
+    static void init_class(simics::ConfClass *cls) {
+        simics::LogGroups lg {"Signal"};
+        cls-&gt;add(lg);
+        cls-&gt;add(simics::iface::SignalInterface::Info());
+    }
+
+    // simics::iface::SignalInterface
+    void signal_raise() override {
+        log_ &lt;&lt; "Raising signal (new level: " &lt;&lt; ++level_ &lt;&lt; ")";
+        log_.flush();
+    }
+    void signal_lower() override {
+        log_ &lt;&lt; "Lowering signal (new level: " &lt;&lt; --level_ &lt;&lt; ")";
+        log_.flush();
+    }
+
+  private:
+    int level_ {0};
+    simics::LogStream&lt;Sim_Log_Info, 1, 1&gt; log_;
+</code></pre>
+<p>It is possible to use multiple <code>LogStream</code> objects to map different types of output to different Simics log-types, log-levels, and log-groups. The streams can be used wherever the logging API outputs to a <code>std::ostream</code> object and the log will automatically be turned into a Simics log message with the appropriate type, level, and group.</p>
+<h4 id="redirecting-standard-streams"><a href="#redirecting-standard-streams">9.2.2 Redirecting Standard Streams</a></h4>
+<p>The <code>LogStream</code> can also be used to redirect standard streams, for example <code>std::cout</code>. This is done by replacing the stream’s <code>streambuf</code> with the <code>streambuf</code> of the Simics <code>LogStream</code> as is shown in the example below.</p>
+<pre><code>class CoutRedirect : public simics::ConfObject {
+  public:
+    explicit CoutRedirect(simics::ConfObjectRef o)
+        : simics::ConfObject(o),
+          simLog_(o) {
+        std::cout.rdbuf(simLog_.rdbuf());
+    }
+
+    static void init_class(simics::ConfClass *cls);
+
+  private:
+    void print_a_log() const {
+        std::cout &lt;&lt; "Print a simple message to std::cout" &lt;&lt; std::flush;
+    }
+
+    simics::LogStream&lt;Sim_Log_Info, 2&gt; simLog_;
+</code></pre>
+<h2 id="event"><a href="#event">10 Event</a></h2>
+<p>Events are used to schedule actions that should occur after a specified amount of simulated time. By posting an event to a queue, a callback function is scheduled and will be invoked later during simulation. For more details, see <a href="../understanding-simics-timing/events.html">Understanding Simics Timing</a>.</p>
+<p>Simics event classes are created using the <code>simics::ConfClass</code> member function <code>add(simics::EventInfo &amp;&amp;)</code>, typically called within the <code>init_class</code> function. The <code>simics::EventInfo</code> class provides the parameters required to register a Simics event class.</p>
+<p>Instead of interacting directly with the Simics Event API, the C++ API offers a set of classes that simplify event management. Depending on the time unit used to specify the delay—such as seconds, cycles, or steps—users should inherit from the appropriate Simics-provided class:</p>
+<ul>
+<li><code>simics::TimeEvent</code>: For delays measured in seconds</li>
+<li><code>simics::CycleEvent</code>: For delays measured in cycles</li>
+<li><code>simics::StepEvent</code>: For delays measured in steps</li>
+</ul>
+<p>For clarity, the following sections focus on the <code>TimeEvent</code> class as an example. Note that <code>CycleEvent</code> and <code>StepEvent</code> work in a similar manner.</p>
+<p>Event support in the C++ API covers several key aspects: declaring event behavior, registering the event, and managing its lifecycle.</p>
+<p>The example below demonstrates how to declare, register, and manage an event using the <code>SampleEvent</code> class:</p>
+<pre><code>class SampleEvent : public simics::ConfObject {
+  public:
+    using ConfObject::ConfObject;
+
+    void finalize() override {
+        // Post the user_event after 1 second
+        user_event.post(1.0);
+    }
+
+    class UserTimeEvent : public simics::TimeEvent&lt;SampleEvent&gt; {
+      public:
+        explicit UserTimeEvent(simics::ConfObject *obj)
+            : TimeEvent(obj, "user_event") {}
+
+        // Callback method invoked when the event is triggered
+        void callback(lang_void *data = nullptr) override {
+            dev_-&gt;some_side_effects();
+        }
+    };
+
+    void some_side_effects() {
+        // Implementation of side effects goes here
+    }
+
+    static void init_class(simics::ConfClass *cls) {
+        // Registering the event with a callback
+        cls-&gt;add(simics::EventInfo("user_event",
+                                   EVENT_CALLBACK(SampleEvent,
+                                                  user_event)));
+    }
+
+    // Instance of UserTimeEvent initialized with this object
+    UserTimeEvent user_event {this};
+};
+</code></pre>
+<h3 id="defining-the-behavior-of-an-event"><a href="#defining-the-behavior-of-an-event">10.1 Defining the Behavior of an Event</a></h3>
+<p>To specify the event name and define the event callback, you must implement a user-defined event class.</p>
+<p><strong>Requirements for a user-defined event class:</strong></p>
+<ol>
+<li>
+<p><strong>Base Class</strong>:
+Inherit from the appropriate base class, such as <code>simics::TimeEvent</code>. The template parameter should match your C++ device class type.</p>
+</li>
+<li>
+<p><strong>Constructor</strong>:
+Provide a constructor that accepts a pointer to a Simics object (<code>simics::ConfObject</code>). When calling the base class constructor, also pass a string parameter for the event name. This name must match the one registered with the Simics class.</p>
+</li>
+<li>
+<p><strong>Callback Override</strong>:
+Override the <code>callback</code> method. This method is invoked when the event is triggered.</p>
+</li>
+</ol>
+<p><strong>Optional overrides:</strong></p>
+<ul>
+<li><code>void destroy(void *data)</code>: Called when the event is removed from the queue without being triggered.</li>
+<li><code>attr_value_t get_value(void *data)</code>: Converts event data into a value suitable for saving in a configuration.</li>
+<li><code>void *set_value(attr_value_t value)</code>: Converts a configuration value back into event data.</li>
+<li><code>char *describe(void *data)</code>: Generates a human-readable description of the event, used by the <code>print-event-queue</code> command.</li>
+</ul>
+<h3 id="registering-the-event"><a href="#registering-the-event">10.2 Registering the Event</a></h3>
+<p>To register an event, call <strong>add</strong> on the <code>ConfClass</code> object. For example, in the <code>init_class</code> method, an instance of <code>simics::EventInfo</code> is constructed with the registration details and passed to <code>add</code>.</p>
+<p><code>simics::EventInfo</code> can be constructed in two ways:</p>
+<ul>
+<li>For events with the <code>Sim_EC_No_Flags</code> flag, provide the event name as a string and use the <code>EVENT_CALLBACK</code> macro, which takes the device class and the name of the class member variable for the user-defined event instance.</li>
+<li>For events with other flags, provide the event name and the desired flag, followed by the <code>EVENT_CLS_VAR</code> macro, which also takes the device class and the name of the class member variable for the user-defined event instance.</li>
+</ul>
+<h3 id="posting-and-removing-events"><a href="#posting-and-removing-events">10.3 Posting and Removing Events</a></h3>
+<p>Events are posted using the <code>post(duration)</code> method:</p>
+<ul>
+<li>The <strong>duration</strong> parameter specifies how long (in seconds, cycles, or steps) until the event triggers, depending on its type.</li>
+</ul>
+<p>Events can be canceled before they trigger using <code>remove(match_data)</code>:</p>
+<ul>
+<li>The <strong>match_data</strong> argument is optional; if provided, it matches a specific event; if not given, all events are canceled.</li>
+</ul>
+<p>In addition to post and remove, users can also utilize:</p>
+<ul>
+<li><code>posted(match_data)</code>: Checks if an event has been posted.</li>
+<li><code>next(match_data)</code>: Retrieves the time until the next event in the queue.</li>
+</ul>
+<h2 id="after"><a href="#after">11 After</a></h2>
+<p>The <code>after</code> feature is a lightweight event mechanism that schedules a specified method call (the callback) to be executed at a future point with the provided arguments. This feature is particularly useful for managing timed events in simulation environments.</p>
+<h3 id="example-2"><a href="#example-2">11.1 Example</a></h3>
+<p>Here’s an example demonstrating how to use the <code>after</code> feature in a Simics C++ device class:</p>
+<pre><code>
+// Log on sim object. Used from global function since no other Simics
+// objects can be used there.
+void logOnSim(const std::string &amp;msg) {
+    static auto sim_obj = SIM_get_object("sim");
+    SIM_LOG_INFO_STR(1, sim_obj, 0, msg);
+}
+
+void twoStrsArgumentGlobalFunction(std::string s1, std::string s2) {
+    logOnSim("Hello, I am twoStrsArgumentGlobalFunction(" + \
+             s1 + ", " + s2 + ")");
+}
+
+class SampleAfter : public simics::ConfObject,
+                    public simics::EnableAfterCall&lt;SampleAfter&gt; {
+  public:
+    explicit SampleAfter(simics::ConfObjectRef obj)
+        : ConfObject(obj), simics::EnableAfterCall&lt;SampleAfter&gt;(this) {
+    }
+
+    void cancel_after(bool trigger) {
+        if (trigger) {
+            // cancel all suspended method calls associated with
+            // this object
+            cancel_all();
+        }
+    }
+
+    void oneUint64ArgumentClassFunction(uint64_t a) {
+        logOnSim("Hello, I am oneUint64ArgumentClassFunction("
+                 + std::to_string(a) + ")");
+    }
+
+    void finalize() override {
+        if (SIM_is_restoring_state(obj())) {
+            return;
+        }
+
+        AFTER_CALL(this, 1.0, &amp;twoStrsArgumentGlobalFunction,
+                   std::string("abc"), std::string("def"));
+        AFTER_CALL(this, 2.0, &amp;SampleAfter::oneUint64ArgumentClassFunction,
+                   obj(), one_uint64_);
+    }
+
+    static void init_class(simics::ConfClass *cls);
+
+  private:
+    uint64_t one_uint64_ {0xdeadbeef};
+};
+
+void SampleAfter::init_class(simics::ConfClass *cls) {
+    // Registering functions for later after call invocation
+    REGISTER_AFTER_CALL(&amp;twoStrsArgumentGlobalFunction);
+    REGISTER_AFTER_CALL(&amp;SampleAfter::oneUint64ArgumentClassFunction);
+
+    // Register the after event on SampleAfter with default name "after_event"
+    cls-&gt;add(SampleAfter::afterEventInfo());
+
+    cls-&gt;add(simics::Attribute(
+                     "cancel_after", "b",
+                     "When being set, cancel all after callbacks",
+                     nullptr,
+                     ATTR_SETTER(SampleAfter, cancel_after),
+                     Sim_Attr_Pseudo));
+}
+</code></pre>
+<h3 id="breakdown-of-the-example"><a href="#breakdown-of-the-example">11.2 Breakdown of the Example</a></h3>
+<ol>
+<li>
+<p><strong>Sample Class</strong>:
+The <code>SampleAfter</code> class inherits from <code>simics::ConfObject</code> and <code>simics::EnableAfterCall&lt;SampleAfter&gt;</code>, enabling it to utilize the <code>after</code> feature.</p>
+<p>To suspend a method call, a pointer to the class must be passed as the first parameter to the <code>AFTER_CALL</code> macro.</p>
+</li>
+<li>
+<p><strong>Method Calls</strong>:
+Two method calls are suspended in this example using the <code>after</code> feature:</p>
+<ul>
+<li>The <code>twoStrsArgumentGlobalFunction</code> takes two strings as arguments and logs a message indicating its invocation.</li>
+<li>The <code>oneUint64ArgumentClassFunction</code> is a class member function which logs a message with a single <code>uint64_t</code> argument.</li>
+</ul>
+<p>The method call suspended by <code>after</code> can be a free global function, a static class member function, or a class member function. For class member functions, the class must either inherit from <code>simics::ConfObject</code> (indicating it is a Simics C++ device class) or be a Bank/Register/Field class. The method must not return any value and can accept an arbitrary number of arguments. It will be invoked at most once per <code>after</code> statement; it does not recur. If recurring behavior is desired, the method must invoke <code>after</code> to schedule another call to itself.</p>
+<p>The function pointer for the method call must be passed to two macros: <code>REGISTER_AFTER_CALL</code> or <code>REGISTER_REG_BANK_AFTER_CALL</code>, as well as to <code>AFTER_CALL</code>.</p>
+</li>
+<li>
+<p><strong>After Call</strong>:
+Two method calls are scheduled using the <code>AFTER_CALL</code> macro:</p>
+<ul>
+<li>The first call to <code>twoStrsArgumentGlobalFunction</code> occurs after 1 second with two string arguments.</li>
+<li>The second call to <code>SampleAfter::oneUint64ArgumentClassFunction</code> occurs after 2 seconds with a <code>uint64_t</code> argument.</li>
+</ul>
+<p>This <code>AFTER_CALL</code> macro requires four parameters:</p>
+<ol>
+<li>A pointer to the device class that supports <code>after</code> calls.</li>
+<li>A delay specified in seconds (as a float) or cycles (as a uint64).</li>
+<li>A pointer to the suspended method.</li>
+<li>The arguments for the function.</li>
+</ol>
+</li>
+<li>
+<p><strong>Class Initialization</strong>:</p>
+<ul>
+<li>The <code>after</code> feature is built upon an internal event mechanism. To utilize this feature, you must register the event within the Simics class using the <code>add</code> function</li>
+<li>The <code>init_class</code> method also registers the functions for later invocation via after calls. This is required by checkpointing to be able to resume a suspended method call after loading a checkpoint. This can be done using another macro: <code>REGISTER_AFTER_CALL</code>, or <code>REGISTER_REG_BANK_AFTER_CALL</code> for methods on Bank/Register/Field classes.</li>
+</ul>
+</li>
+</ol>
+<h2 id="utilities"><a href="#utilities">12 Utilities</a></h2>
+<h3 id="generator-of-simics-c-interface-header"><a href="#generator-of-simics-c-interface-header">12.1 Generator of Simics C++ interface header</a></h3>
+<p>The file <code>bin/gen-cc-interface</code> (or <code>bin/gen-cc-interface.bat</code> on Windows) is used to generate a Simics C++ interface header which is used for a Simics C++ module from the given Simics C interface header. Required argument is the path to the C interface header file.</p>
+<p>For instance the following line specifies that <code>example.h</code> should be parsed by the tool and converted to a C++ interface header file.</p>
+<pre><code class="language-bash">  project&gt; bin/gen-cc-interface modules/example-interface/example.h
+</code></pre>
+<p>The generator parses the C interface header, searches for <code>SIM_INTERFACE</code> and generates corresponding C++ interface class to the output C++ header file.</p>
+<p>By default, the output C++ interface header is generated under <em>c++</em> subdirectory of where the input C header file is located. This can be altered by providing an optional argument by <code>-o</code> with the desired output location.</p>
+<p>By default, the following code is generated to locate the original C interface header in the parent folder:</p>
+<pre><code class="language-c++">    #include "../c-header.h"
+</code></pre>
+<p>When <code>-o</code> is used, the desired include path must be provided by the optional argument <code>-p</code>.</p>
+<h2 id="migration-guide-from-c-api-v1"><a href="#migration-guide-from-c-api-v1">13 Migration Guide from C++ API V1</a></h2>
+<p>From a device model’s point of view there are only a few incompatible changes between Simics C++ API v1 and v2 to consider. Migration should thus be straight forward and trivial.</p>
+<p>Here is the list of known changes that can cause problems when migrating from Simics C++ API v1:</p>
+<ul>
+<li>The C++ compiler must support C++14</li>
+<li>Set <code>USE_CC_API</code> to 2 in the Makefile.</li>
+<li>The header to include has been changed to <code>simics/cc-api.h</code> instead of <code>simics/c++/device-api.h</code>.</li>
+<li>A model-defined class inherits from the <code>simics::ConfObject</code> class instead of <code>simics::SimicsObject</code>.</li>
+<li>The C++ class constructor argument type is changed to <code>simics::ConfObjectRef</code> instead of <code>simics::SimicsObjectRef</code>.</li>
+<li>Method <code>simics_obj</code> of <code>ConfObject</code> has been renamed to <code>obj</code>.</li>
+<li>Use <code>make_class</code> to register a class. The parameters are same as the previous <code>ClassDef</code>.</li>
+<li>Register Simics attribute with <code>simics::Attribute</code>.</li>
+<li>Register Simics class attribute with <code>simics::ClassAttribute</code></li>
+<li>Add attributes, interfaces, port objects and log groups via the <code>add</code> method.</li>
+<li>Interfaces are registered with the help of an interface info class.</li>
+<li>Port interface is no longer supported. Use port object instead.</li>
+<li>The model-defined class is recommended to register its property through its static function <code>init_class</code>, but can use the old way of registering everything in the <code>init_local</code> static function</li>
+<li>The state variable set function, or attribute setter, should return <code>void</code> instead of <code>simics::SetResult</code>. If an error occurs during the setting process, a C++ <code>runtime_error</code> exception should be thrown.</li>
+<li>There is no need for <code>state_mapper</code> anymore. Any existing <code>state_mapper</code> is dead code and can be removed.</li>
+</ul>
+
+<div class="chain">
+<span></span>
+</div>

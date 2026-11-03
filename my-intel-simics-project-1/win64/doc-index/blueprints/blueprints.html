@@ -1,0 +1,918 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Blueprints</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="blueprints"><a href="#blueprints">Blueprints</a></h1>
+<p>This document is a guide to the usage and design of the Simics
+blueprint framework.</p>
+<h2 id="introduction"><a href="#introduction">1 Introduction</a></h2>
+<p>The Simics configuration system consists of classes, objects and
+attributes on objects. To set up a configuration involving more than
+one object, some code must be written. There is typically a need to
+also share the configuration setup and let others add more objects to
+it in a controlled manner. Therefore, the problem that arises is that
+of creating re-usable parameterized sub-systems. These sub-systems
+typically correspond to hardware blocks, and hence this is a modelling
+problem.</p>
+<p>Examples of sub-systems are:</p>
+<ul>
+<li>a processor, which typically consists of
+several individual cores that are modeled as Simics objects</li>
+<li>an SOC</li>
+<li>a motherboard</li>
+</ul>
+<p>In principle, sub-systems can be created in any way, but the type of
+problems that arise when modelling sub-systems are fundamentally
+different than when modelling devices, i.e. individual pieces of
+hardware. Experience has also shown that it is not natural or
+convenient to create sub-systems in the same style as devices,
+e.g. using DML or C.</p>
+<p>Instead, experience has shown that Python is well-suited for this type
+of programming problem, and it is also convenient, since Simics
+includes Python as a built-in supported programming language, and most
+of the Simics API is available there.</p>
+<p>To aid in sub-system modelling, and to standardise it, for easier
+sharing and other benefits, Simics includes a Python framework for
+sub-system modelling, called <em>blueprints</em>.</p>
+<p>The two most basic requirements in sub-system modelling are the ability
+to “connect” different sub-systems to create larger systems, and the
+ability to parameterize a sub-system in order to facilitate re-use.</p>
+<h2 id="motivation"><a href="#motivation">2 Motivation</a></h2>
+<p>To show how the blueprint framework can help, we can look at examples
+which create small Simics configurations.</p>
+<p>Consider this small baseline configuration. We have a PCIe bus
+target with a virtio block device and associated image.</p>
+<pre><code>def create_pci_blk_device0(name):
+    top = simics.pre_conf_object(name, 'namespace')
+    top.mem = simics.pre_conf_object('memory-space')
+    top.bus = simics.pre_conf_object('pcie-downstream-port',
+                                     upstream_target=top.mem)
+    top.blk = simics.pre_conf_object('virtio_pcie_blk',
+                                     upstream_target=top.bus)
+    top.blk.image = simics.pre_conf_object('image', size=1024)
+    top.blk.attr.image = top.blk.image
+    top.bus.devices = [[1, 0, top.blk]]
+    simics.SIM_add_configuration([top], None)
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>@create_pci_blk_device0("bus0")</strong>
+simics&gt; <strong>list-objects -tree namespace = bus0</strong>
+┐
+├ blk ┐
+│     ├ image 
+│     └ upstream_ingress_targets ┐
+│                                ├ config 
+│                                ├ io 
+│                                ├ memory 
+│                                └ message 
+├ bus ┐
+│     ├ cfg_space 
+│     ├ io_space 
+│     ├ mem_space 
+│     └ msg_space 
+└ mem 
+</code></pre>
+<p>This small configuration can be created easily using the Simics API
+directly, or even in the Simics static configuration format. But
+normally we need to extend and parameterise our configuration.</p>
+<p>Consider an improved example. The target has four physical PCIe slots
+0 - 3 corresponding to PCI device ID 1, 2, 5, and 8 on the bus. We
+also want to allow different sizes of the block device. Easy, we add
+two more parameters to the create-function:</p>
+<pre><code>def id_from_slot(slot):
+    return [1, 2, 5, 8][slot]
+
+def create_pci_blk_device1(name, size, pci_slot):
+    top = simics.pre_conf_object(name, 'namespace')
+    top.mem = simics.pre_conf_object('memory-space')
+    top.bus = simics.pre_conf_object('pcie-downstream-port',
+                                     upstream_target=top.mem)
+    top.blk = simics.pre_conf_object('virtio_pcie_blk',
+                                     upstream_target=top.bus)
+    top.blk.image = simics.pre_conf_object('image', size=size)
+    top.blk.attr.image = top.blk.image
+    top.bus.devices = [[id_from_slot(pci_slot), 0, top.blk]]
+    simics.SIM_add_configuration([top], None)
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>@create_pci_blk_device1("bus1", 4096, 2)</strong>
+simics&gt; <strong>list-objects -tree namespace = bus1</strong>
+┐
+├ blk ┐
+│     ├ image 
+│     └ upstream_ingress_targets ┐
+│                                ├ config 
+│                                ├ io 
+│                                ├ memory 
+│                                └ message 
+├ bus ┐
+│     ├ cfg_space 
+│     ├ io_space 
+│     ├ mem_space 
+│     └ msg_space 
+└ mem 
+</code></pre>
+<p>Now consider an even more advanced case.</p>
+<ul>
+<li>
+<p>We want to be able to plugin any of the two PCIe cards variants in
+the four PCIe slots in any combination.</p>
+</li>
+<li>
+<p>We want to reuse the two PCIe cards for other targets that do not have this
+particular mapping between PCIe slot and device ID on the bus. Similarly, we
+want to be able to connect PCIe cards developed in other projects.</p>
+</li>
+<li>
+<p>We need to separate the creation of the PCIe bus and the PCIe cards in our
+example target system and standardize the connection between them!</p>
+</li>
+<li>
+<p>The blueprint framework helps the target developer with partitioning the
+simulated system into reusable parts with standardized connections
+between them. It also provides many other features needed when building
+target systems, such as propagating configuration data all the way through
+the hierarchy, clearly defining the user-visible target parameters, and
+guiding the addition of relevant target metadata in a standardized format
+to be presented in a target viewer/browser.</p>
+</li>
+</ul>
+<pre><code># Data about a single PCIe device
+class PCIEDevice(NamedTuple):
+    device_id: int
+    function_id: int
+    dev: ConfObject
+
+# State shared between PCIe bus and PCIe device blueprints
+class PCIEBusData(State):
+    bus: ConfObject = None
+    devices: list[PCIEDevice] = []
+
+# Blueprint creating a PCIe bus
+def pcie_bus(builder: Builder, name: Namespace, data: PCIEBusData):
+    # Register creation of PCIe bus
+    data.bus = builder.obj(name, "pcie-downstream-port",
+                           upstream_target=name.mem,
+                           devices=data.devices)
+    # Register creation of associated devices
+    builder.obj(name.mem, "memory-space")
+
+# Blueprint for PCIe device
+def pcie_device(builder: Builder, name: Namespace, data: PCIEBusData,
+                size=0, device_id=0):
+    # Register creation of PCIe device
+    builder.obj(name, "virtio_pcie_blk", upstream_target=data.bus)
+    builder.set(name.attr, image=name.image)
+    data.devices.extend([PCIEDevice(device_id, 0, ConfObject(name))])
+    # Register creation of associated devices
+    builder.obj(name.image, "image", size=size)
+
+# Whole system state
+class Fabric(State):
+    pcie_bus = PCIEBusData()
+
+# Blueprint for whole system
+def system(builder: Builder, name: Namespace):
+    # Create whole system state
+    fabric = builder.expose_state(name, Fabric)
+    # Expose PCIe bus state
+    builder.expose_state(name, fabric.pcie_bus)
+    # Expand PCIe bus blueprint in the PCIe object hierarchy
+    builder.expand(name, "pci", pcie_bus)
+    # Expand PCIe device blueprint
+    builder.expand(name, "blk", pcie_device,
+                   size=4096, device_id=id_from_slot(2))
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>@instantiate("bus2", system)</strong>
+simics&gt; <strong>list-objects -tree namespace = bus2</strong>
+┐
+├ blk ┐
+│     ├ image 
+│     └ upstream_ingress_targets ┐
+│                                ├ config 
+│                                ├ io 
+│                                ├ memory 
+│                                └ message 
+└ pci ┐
+      ├ cfg_space 
+      ├ io_space 
+      ├ mem 
+      ├ mem_space 
+      └ msg_space 
+</code></pre>
+<p>Notice how the creation of the PCI bus and the devices are separated
+into different blueprints. Hence we can replace any of them with a
+different variant, as long as it uses the same type of state. Only at
+the system level are all pieces put together.</p>
+<h2 id="description"><a href="#description">3 Description</a></h2>
+<p>In this section we will describe the blueprint framework concepts, how
+they work, and how to use them.</p>
+<h3 id="example"><a href="#example">3.1 Example</a></h3>
+<p>Consider the following small example of a blueprint.</p>
+<pre><code>class UARTState(State):
+    uart: ConfObject = None
+    console: ConfObject = None
+
+def uart(builder: Builder, name: Namespace):
+    con = builder.read_state(name, UARTState)
+    con.uart = builder.obj(name, "NS16550", console=con.console)
+
+def console(builder: Builder, name: Namespace):
+    con = builder.read_state(name, UARTState)
+    con.console = builder.obj(name, "textcon", device=con.uart,
+                              recorder=name.recorder)
+    builder.obj(name.recorder, "recorder")
+
+def board(builder: Builder, name: Namespace):
+    builder.expose_state(name, UARTState)
+    builder.obj(name, "blueprint-namespace", info="UART example")
+    builder.expand(name, "uart", uart)
+    builder.expand(name, "console", console)
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>@builder = expand("board", board)</strong>
+simics&gt; <strong>@builder.instantiate()</strong>
+simics&gt; <strong>list-objects -tree -with-class-name substr = board max-depth = 2</strong>
+┐
+└ board (blueprint-namespace) ┐
+                              ├ console (textcon) 
+                              └ uart (NS16550) 
+Verify blueprint attribute value
+board
+</code></pre>
+<p>The intention of this code is to obtain a Simics configuration with a
+text console and a UART object, pointing at each other via
+attributes. Exactly how this happens will become clear in the
+following sections.</p>
+<p>The example illustrates three core concepts of the blueprint
+framework: the <em>blueprints</em> themselves, the <em>State</em> and the
+<em>expansion</em>.</p>
+<h3 id="blueprint-functions"><a href="#blueprint-functions">3.2 Blueprint functions</a></h3>
+<p>The <em>blueprints</em> are Python functions. As can be seen in the
+example, they have some fixed parameters mandated by the framework
+but can also take other parameters if needed. The blueprint functions can:</p>
+<ul>
+<li>
+<p>Register with the framework where in the resulting Simics
+configuration (pre) objects should be created. As can be seen in the
+example, this is done via <code>builder.obj()</code> method.</p>
+</li>
+<li>
+<p>Register that additional blueprints should be included/called by the
+framework. This is done via the <code>builder.expand()</code> method.</p>
+</li>
+<li>
+<p>Create and expose or read <code>State</code> structures (used to “connect”
+blueprints), done via the <code>builder.expose_state()</code> and <code>builder.read_state()</code>
+methods.</p>
+</li>
+<li>
+<p>Set data members in <code>State</code> structures.</p>
+</li>
+<li>
+<p>Register post-instantiate functions which are run after instantiation,
+done via <code>builder.at_post_instantiate()</code>.</p>
+</li>
+</ul>
+<p>In addition, a blueprint can provide information which can be extracted
+from the complete configuration.</p>
+<ul>
+<li>
+<p>Information about the built system and which blueprint was used to
+create it. In the example this is done by adding an object of class
+<code>blueprint-namespace</code>. This is described in a later section.</p>
+</li>
+<li>
+<p>User parameters that are presented to the user in the form of target
+parameters. This is described in a later section.</p>
+</li>
+</ul>
+<p>Note that a blueprint describes how a specific part of the system
+should be built. A blueprint is <strong>not</strong> a representation of a part of
+the <em>built</em> system, i.e. the way the model is split into different
+blueprints have no direct connection to how the Simics configuration
+looks like in terms of its object hierarchy. The blueprints themselves
+do not leave any trace in the resulting configuration.</p>
+<p><strong>Note:</strong> A blueprint function is actually a pure function, without
+side-effects. At first glance, this is not readily apparent. However,
+the <code>builder.expand</code> statement is actually just a convenient way to
+compile a set (the “return value”) with objects and blueprints to
+be constructed.</p>
+<h3 id="namespaces"><a href="#namespaces">3.3 Namespaces</a></h3>
+<p>Blueprint functions take a namespace parameter, usually called
+<code>name</code>. The namespace is the location in the Simics object hierarchy
+where the blueprint is expanded, i.e. the sub-tree where the blueprint
+is expected to register its objects, or expose or read <code>State</code>. The
+blueprint should not access the rest of the hierarchy.</p>
+<p>The <code>Namespace</code> class is basically a string with some
+extra functionality to make it easy to create derived object names in a
+convenient manner, e.g.:</p>
+<pre><code>    ns = Namespace("qsp.system.mb")
+
+    str(ns) == "qsp.system.mb"
+    str(ns.kappa) == "qsp.system.mb.kappa"
+    str(ns.kappa[1][2]) == "qsp.system.mb.kappa[1][2]"
+    str(ns.dev@2) == f"qsp.system.mb.dev2"
+</code></pre>
+<h3 id="state"><a href="#state">3.4 State</a></h3>
+<p>The <code>State</code> class is used for defining the shared state used by the
+blueprints. As seen in the example, it is read or written by the
+blueprints involved and used to set attributes on the created Simics
+objects. The blueprint functions themselves have no state. A <code>State</code>
+structure should be thought of as a Python <code>dict</code> and is basically a
+pure data container.</p>
+<p>Essentially, all attribute values on registered objects should come
+from <code>State</code> data members, if the value is not computed from other
+data members or if it is something local to a single blueprint. In the
+example above, the name of the <code>recorder</code> object is not part of any
+<code>State</code> since it is not needed by any other blueprint.</p>
+<p>Blueprint functions do not have access to internals of other
+blueprints. In particular, a blueprint cannot access attributes of
+objects registered in another blueprint. All such accesses are done by
+having those values coming from a <code>State</code> structure. Only values
+defined as a data member of a <code>State</code> can be shared by multiple blueprints.</p>
+<p>A state class often includes connectivity data, like in the
+example above, but can hold arbitrary data that needs to be passed
+between different blueprints.</p>
+<p>In the example we define <code>UARTState</code> which carries the
+necessary state of an UART connection, namely the objects which are
+the end points of the connection: the UART device in the machine and
+the text console.</p>
+<p>The <code>ConfObject</code> class used in the example is a trivial wrapper of the
+Namespace class, providing improved typing (for details, see the
+typing section).</p>
+<p>As seen in the example, blueprints can both read and write state
+fields. At first glance, this seems to violate the principle that
+blueprints are pure functions without side effects. However, setting a
+<code>State</code> field actually results in a “return” value, where the returned
+value is an encoding that the field in a specific instance of the
+<code>State</code> sub-class should be set to a specific value. The state in
+question is not owned by the blueprint, but is handled by the
+framework.</p>
+<p>The blueprints can create and pick up instances of the particular
+<code>State</code> sub-class that they need. The <code>builder.expose_state()</code> method
+creates an instance and makes it available in the sub-tree rooted at
+the specified namespace location. The <code>builder.read_state()</code> method
+looks for a state instance in the specified namespace location.</p>
+<p>This hierarchical way of passing state implies:</p>
+<ul>
+<li>
+<p>Blueprints in the middle of an hierarchy do not need to “forward”
+state. It is sufficient to just publish state from a top level blueprint
+to make it available to leaf blueprints.</p>
+</li>
+<li>
+<p>Less boilerplate code. An SOC built from various small, internal,
+blueprints can easily get hold of the state describing the SOC
+“backplane”.</p>
+</li>
+<li>
+<p>Open design. It is possible to drop in additional blueprints into an
+existing blueprints, or combine multiple blueprints (in a
+mixin-manner).</p>
+</li>
+</ul>
+<h3 id="expansion"><a href="#expansion">3.5 Expansion</a></h3>
+<p>Blueprint <em>expansion</em> is the process of running the specified
+blueprint function (and any blueprints expanded recursively) at the
+specified namespace location and create a list of pre-objects from
+it. It is done via the global <code>expand()</code> function as well as
+<code>builder.expand()</code>.</p>
+<p>Expansion is iterative: since the blueprint framework handles all
+state, it can keep track of when the state changes, i.e. when the
+blueprints write to <code>State</code> member fields. It will re-run the
+blueprint tree, i.e. the function given to <code>expand()</code> and all its
+descendants added using <code>builder.expand()</code>, until the state no longer
+changes.</p>
+<p>In fact, the state used in each iteration is immutable. When
+blueprints “change” the state, they write to the state that will be
+used in the next iteration of the expansion. I.e. updated state fields
+are not immediately visible. Instead, the entire blueprint tree is
+re-expanded from scratch, this time using updated field values in the
+state structures. This ensures that the expansion result is
+consistent:</p>
+<ul>
+<li>state fields are constant during expansion</li>
+<li>blueprints can be expanded in any order</li>
+</ul>
+<p>This iterative behaviour of expansion is the key to why blueprints can
+be written in a declarative manner: it does not matter exactly in
+which order the state members are read or written. In the example
+above, one blueprint writes to the state member that is used by the
+other blueprint and this will work since in some iteration the state
+will be updated and the reading blueprint will obtain correct data.</p>
+<p>The expansion can be performed many times. The same result is obtained
+every time. Moreover, expansion does not necessitate instantiation of
+the pre-object tree. For instance, expanding blueprints is useful in
+order to extract data from the configuration.</p>
+<h3 id="state-sub-types"><a href="#state-sub-types">3.6 State sub-types</a></h3>
+<p>As mentioned above, the <code>State</code> class is used for defining shared state
+that can be read or written by the blueprints involved in the
+expansion.</p>
+<p>If one wants to define input <em>configuration parameters</em> to the model,
+this can be done in a similar way, but sub-classing <code>Config</code> instead
+of <code>State</code>. The meaning of configuration parameter is a value that
+does not change during blueprint expansion, it is only an input value
+used to configure the model, i.e. used in the blueprint function logic
+or passed directly to attributes.</p>
+<p>Hence a <code>Config</code> sub-class instance is read-only in the blueprints.</p>
+<p>To create an instance of a <code>Config</code> sub-class, the blueprints use
+<code>builder.create_config()</code>, which is similar to
+<code>builder.expose_state()</code>. The equivalent of <code>builder.read_state()</code> is
+<code>builder.get_config()</code>.</p>
+<p>Another situation is when one wants to define 1-1 channels, some part
+of the state should only be used by exactly one reader blueprint. For
+this case, one can sub-class <code>Binding</code> instead of <code>State</code>. It is
+illegal for multiple blueprints to do <code>builder.read_state()</code> on a
+particular <code>Binding</code> instance.</p>
+<h3 id="state-passing-shorthand"><a href="#state-passing-shorthand">3.7 State passing shorthand</a></h3>
+<p>In the example above, the blueprints do explicit
+<code>builder.read_state()</code> to obtain in necessary instances. The blueprint
+framework has syntactic sugar for this. If a blueprint function
+parameter is of a sub-type to <code>State</code>, then the framework will do an
+automatic <code>builder.read_state()</code> and provide the instance as that
+parameter, without the caller blueprint (the one doing
+<code>builder.expand()</code>) having to do anything. The <code>uart</code> blueprint in the
+example can therefore be written like this:</p>
+<pre><code>def uart(builder: Builder, name: Namespace, con: UARTState):
+    con.uart = builder.obj(name, "NS16550", console=con.console)
+</code></pre>
+<p>In a similar way, if a function argument is a sub-type of <code>Config</code>,
+the framework will do an automatic <code>builder.get_config()</code> and provide
+the instance.</p>
+<h3 id="time-queue-assignment"><a href="#time-queue-assignment">3.8 Time queue assignment</a></h3>
+<p>Simics objects have a <code>queue</code> attribute, which should be set to the
+processor or clock object that the object is related to. A common case
+is that all objects in each cell are connected to one of the processor
+objects in the cell.</p>
+<p>When creating Simics objects, each object will inherit the <code>queue</code>
+attribute value from its parent object, unless explicitly set. A
+modeller writing a blueprint for a sub-system can therefore make sure
+the attribute is set for the whole hierarchy by setting the attribute
+on the top object.</p>
+<p>Moreover, the blueprint framework defines a standard state class named
+<code>Queue</code>. Each top blueprint in a sub-system should typically expose
+this state on the top level namespace. This facilitates letting
+another blueprint easily picking up the same queue object when
+integrating several blueprints (by writing wrapper blueprints).</p>
+<p>An example illustrating this:
+</p><pre><code>class ClockParams(Config):
+    freq_mhz = 42
+
+class SystemFabric(State):
+    clk: ConfObject = None
+
+def my_clock(builder: Builder, name: Namespace,
+             params: ClockParams, fabric: SystemFabric):
+    fabric.clk = builder.obj(name, "clock",
+                             freq_mhz=params.freq_mhz)
+
+def board(builder: Builder, name: Namespace, clock_freq=10):
+    # Expose main state
+    fabric = builder.expose_state(name, SystemFabric)
+    # Expose Queue state, useful for external blueprints
+    queue = builder.expose_state(name, Queue)
+    # Set queue on whole hierarchy
+    builder.obj(name, "blueprint-namespace", queue=queue.queue)
+    # Create config for sub-blueprints
+    clk_conf = builder.create_config(name.clk, ClockParams)
+    clk_conf.freq_mhz = clock_freq
+    queue.queue = fabric.clk
+    # Expand sub-blueprints
+    builder.expand(name, "clk", my_clock)
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>@instantiate("board", board)</strong>
+simics&gt; <strong>board.clk-&gt;freq_mhz</strong>
+&lt;
+10.0
+simics&gt; <strong>board.clk-&gt;queue</strong>
+&lt;
+board.clk
+</code></pre>
+<h3 id="blueprint-parameters"><a href="#blueprint-parameters">3.9 Blueprint parameters</a></h3>
+<p>As seen above, blueprints are easily made small and modular. They are
+regular Python functions and can declare additional function
+parameters if necessary. This is useful when blueprints expand other
+blueprints within a certain subsystem.</p>
+<p>Blueprints can also declare user-facing parameters, which are exposed
+outside of the blueprint world, e.g. to Simics targets.</p>
+<p>An example of how to define blueprint parameters:</p>
+<pre><code>class CPUParams(Config):
+    freq_mhz = 10
+
+class SystemBackplane(Config):
+    member = 4711
+
+# Define parameters for all Config members 
+@blueprint(params_from_config(CPUParams))
+def cpu_bp(builder: Builder, name: Namespace, config: CPUParams):
+    # State classes can be converted to a Python dict
+    builder.obj(name, "my-cpu-class", **config.asdict())
+
+@blueprint([
+    Param(name="member", desc="Parameter description", config=SystemBackplane),
+    ParamGroup(name="cpu", desc="CPU parameters", import_bp="cpu_bp"),
+])
+def board(builder: Builder, name: Namespace, plane: SystemBackplane):
+    # Namespace must match the parameter group name
+    builder.expand(name, "cpu", cpu_bp)
+</code></pre>
+<p>The parameters form a tree. Each parameter definition can either be an
+actual parameter (a leaf node) or a parameter group declaration, which
+is used to import parameters from another blueprint.</p>
+<p>The user-facing name of a parameter definition is of the form
+<code>&lt;parent&gt;:&lt;name&gt;</code> where <code>&lt;parent&gt;</code> is the user-facing name of
+the parent node and <code>&lt;name&gt;</code> is the name provided in the parameter
+definition.</p>
+<p>Each parameter is tied to a specific data member in some <code>Config</code>, and
+obtains its default value and type from there. If the default value is
+<code>None</code> an explicit type annotation must be used. When a blueprint
+import parameters from another blueprint, it must also add that
+blueprint (using <code>builder.expand</code>) and the namespace must match the
+parameter group that is used in the import.</p>
+<p>When expanding and/or instantiating a blueprint, values of the
+user-facing parameters can be provided as a Python dictionary, where
+the user-facing names are the keys. This results in the corresponding
+<code>Config</code> data members being overridden. Example:</p>
+<pre><code>builder = expand("board", board, 
+                 params={"member": 42, "cpu:freq_mhz": 100}})
+</code></pre>
+<p>However, it is rarely needed to do this explicitly since it is handled
+by the target parameter framework, as explained in the next
+section.</p>
+<p>Two cases of dynamic parameters are supported:</p>
+<ol>
+<li>
+<p>A blueprint <code>X</code> adds <code>N</code> copies of a blueprint <code>Y</code> in a loop, where
+<code>N</code> is a user-facing parameter defined by <code>X</code>. In this case, <code>X</code>
+should define a parameter group declaration that imports from <code>Y</code> and
+set the <em>count</em> constructor argument of <code>ParamGroup</code> to the name of
+the <code>N</code> parameter, which must be of integer type.</p>
+</li>
+<li>
+<p>A blueprint <code>X</code> adds a blueprint <code>Y</code> if a flag is set, and the flag
+is a user-facing parameter defined by <code>X</code>. In this case, <code>X</code> should
+define a parameter group declaration that imports from <code>Y</code> and set the
+<em>enable</em> constructor argument of <code>ParamGroup</code> to the name of the flag
+parameter, which must be of boolean type.</p>
+</li>
+</ol>
+<h3 id="target-parameter-connection"><a href="#target-parameter-connection">3.10 Target parameter connection</a></h3>
+<p>The primary use of blueprint parameters is for inclusion in Simics
+targets. The target parameter framework has built-in support for
+directly importing blueprint parameters, as mentioned in the <em>Target
+parameters reference</em> Technology Guide. The result is that the
+blueprint parameters become target parameters for the target importing
+the blueprint, and the parameters can therefore be inspected using the
+target parameter Simics commands.</p>
+<p>The target parameter framework also handles expansion and
+instantiation of the imported blueprints. Loading a target therefore
+has three steps:</p>
+<ol>
+<li>
+<p>The target parameter framework parses the YAML scripts that the
+target consists of (via script imports) and collects all imported
+blueprints. All blueprint parameters and their default values are
+inserted in the target parameter tree at their corresponding nodes.</p>
+</li>
+<li>
+<p>All the blueprints are expanded using the same blueprint Builder,
+allowing them to expose and read state from each other. In this
+expansion, all the target parameter overrides coming from any preset
+files or command line arguments are used to set blueprint
+parameters. The result of the blueprint expansion is instantiated.</p>
+</li>
+<li>
+<p>The target script code is executed in the usual manner.</p>
+</li>
+</ol>
+<p>This process facilitates integrating sub-systems modelled as
+blueprints with targets on top of them. The natural way of integrating
+blueprint models is to create a wrapper blueprint that does
+<code>builder.expand()</code> but there may be a situation where the sub-system
+model inherently consists of a blueprint with a target script on top
+that has important logic, so that the integration entry point is the
+target script.</p>
+<p>In that case, two such sub-systems can be integrated by creating a
+wrapper target script that imports the sub-system scripts. By the
+above mentioned process when loading the target, the blueprints in the
+sub-systems will be expanded together so that they can share state,
+and hence “connect”.</p>
+<h3 id="simics-cli-support"><a href="#simics-cli-support">3.11 Simics CLI support</a></h3>
+<p>The blueprint framework provides some Simics CLI commands for inspection:</p>
+<ul>
+<li>
+<p><code>print-blueprint-state</code> displays the state of the last blueprint
+expansion. This is useful for debug purposes.</p>
+</li>
+<li>
+<p><code>list-blueprint-state</code> displays or returns the state used by the
+specified blueprint.</p>
+</li>
+<li>
+<p><code>list-blueprint-params</code> displays or returns the parameters of the
+specified blueprint.</p>
+</li>
+<li>
+<p><code>list-blueprints</code> lists the known blueprints.</p>
+</li>
+</ul>
+<p>Note that apart from the first command, these work on blueprints that
+have been registered with Simics. The registration is done by the same
+Python decorator <code>blueprint</code> that is used to define blueprint
+parameters (i.e. the parameter list is optional). The decorator has an
+optional parameter <code>name</code> for assigning the name used by the CLI
+commands, defaulting to the Python function name.</p>
+<h3 id="blueprint-meta-data"><a href="#blueprint-meta-data">3.12 Blueprint meta-data</a></h3>
+<p>When blueprints register object creation using <code>builder.obj()</code>, they
+do not need to register objects at every level of the tree. At tree
+nodes which have no explicit object registered, the blueprint
+framework will automatically register objects of class <code>namespace</code>.</p>
+<p>The exception to this rule is the top level in each blueprint,
+i.e. the node of the given <code>name</code> argument. If no object is registered
+at this node, an object of class <code>blueprint-namespace</code> is
+automatically registered.</p>
+<p>This Simics class has an attribute <code>blueprint</code> which records the name
+of the blueprint. The attribute is set automatically on all such
+objects that are registered at the top level in each blueprint, whether
+or not the registration is done explicitly in the blueprint or by the
+framework.</p>
+<p>The class also has other attributes that are used to store meta-data
+about the sub-system modelled by the blueprint, and these are used by
+e.g. the Simics command <code>print-target-info</code>. Those attributes are not
+set on objects automatically registered by the blueprint framework, so
+if specific values are needed, then the blueprint must register the
+<code>blueprint-namespace</code> objects explicitly. This is why it is done in
+the example above.</p>
+<h3 id="typing"><a href="#typing">3.13 Typing</a></h3>
+<p>The blueprint framework makes full use of the typing system in Python.</p>
+<p><code>State</code> structures are defined using the preferred syntax to declare typed
+named tuples in Python. The main difference is that default values
+are required for all fields.</p>
+<p>With a properly configured editor, the blueprint writer has</p>
+<ul>
+<li>auto-completion for all state fields</li>
+<li>access to field documentation</li>
+<li>full type checking</li>
+</ul>
+<p>Standard Python types are used.</p>
+<p>When assigned to an object attribute, a Namespace object name is converted
+to the corresponding Simics pre-object. The Namespace type is also wrapped
+in some other pre-defined types:</p>
+<ul>
+<li><code>ConfObject</code> (simple <code>Namespace</code> wrapping, used to signify that the
+<code>Namespace</code> specifies an object)</li>
+<li><code>SignalPort</code> (<code>o|[os]</code> tuple, representing a signal target)</li>
+<li><code>Port</code> (<code>o|[os]</code> representing a generic Simics object interface)</li>
+<li><code>MapEntry</code> (entry suitable the <code>memory-space.map</code> attribute)</li>
+</ul>
+<h3 id="debugability"><a href="#debugability">3.14 Debugability</a></h3>
+<p>What a blueprint does is completely determined by looking at all
+values in the state (this is available through the
+<code>print-blueprint-state</code> command).</p>
+<p>To debug a blueprint, it is sufficient to look at the state that the
+blueprint uses, and to look at what the blueprint does itself. It does
+not interact with anything else.</p>
+<p>The state structures themselves provide a bus-centric view of the
+system, describing exactly how the system is connected.</p>
+<h3 id="hotplugging"><a href="#hotplugging">3.15 Hotplugging</a></h3>
+<p>Hotplugging is the act of connecting already instantiated blueprints
+or objects. The blueprint framework does not try to unify hotplugging and
+the task of creating the initial configuration. There are several
+reasons for this:</p>
+<p>The requirements for hotplugging/initial configuration are generally
+quite different:</p>
+<ol>
+<li>
+<p>Pre-objects vs configured Simics objects:</p>
+<ul>
+<li>The initial configuration is built from scratch using pre-objects.</li>
+<li>Hotplugging <em>modifies</em> the state of existing Simics objects.</li>
+</ul>
+</li>
+<li>
+<p>A hotplug connect/disconnect is a simulation event:</p>
+<ul>
+<li>Inserting e.g. a cable should generally result in a signal being raised.</li>
+<li>Creating a system in a connected state should <em>not</em> result in a hotplug
+signal.</li>
+</ul>
+</li>
+<li>
+<p>Blueprint size:</p>
+<ul>
+<li>Hotplugging is generally used to connect large blocks with each other.</li>
+<li>Blueprints are usually much smaller (e.g. a single functional unit
+in a SOC).</li>
+</ul>
+</li>
+<li>
+<p>Connection kind:</p>
+<ul>
+<li>Hotplug connections often use a natural 1-1 connection style.</li>
+<li>Blueprints within a SOC often have a much more complex structure, with
+spider-like connections.</li>
+</ul>
+</li>
+<li>
+<p>Simplicity:</p>
+<ul>
+<li>Keeping the blueprint framework as something that is only used during
+the initial construction of the configuration keeps both the hotplug
+system and the blueprint framework simple.</li>
+</ul>
+</li>
+</ol>
+<p>Hotplugging is currently handling using the existing framework for connectors.</p>
+<p>In general, hotplugging should be reserved for things that can be
+modified while the simulation is running, while the blueprint framework
+is used to build constituents.</p>
+<p>The blueprint framework can also build configurations that contain
+either connected or disconnected hotplug connections, with minimal
+double work.</p>
+<h2 id="expansion-example"><a href="#expansion-example">4 Expansion example</a></h2>
+<p>Here we again consider the example above, i.e. keep the definition of
+the blueprint function <code>board</code>, but look more closely at the
+expansion. The <code>expand()</code> function has a parameter <code>logger</code> which can
+be set to a standard Python <code>logging.Logger</code> object; the default is to
+use the Python root logger object. The expansion uses this object for
+logging.</p>
+<pre><code class="language-simics">simics&gt; <strong>@logging.basicConfig(format="%(message)s", stream=sys.stdout, level=logging.INFO)</strong>
+simics&gt; <strong>@expand("board", board)</strong>
+Expansion of blueprint "board" at node "board"
+Expansion roots:
+[(board, 'board', {})]
+Expansion presets:
+[]
+Iteration start: 0
+
+Iteration end: 0
+Iteration start: 1
+UARTState[board]
+  uart                    None
+  console                 None
+Iteration end: 1
+Iteration start: 2
+UARTState[board]
+  uart                    board.uart
+  console                 board.console
+Iteration end: 2
+</code></pre>
+<p>At the start of the first iteration, the state is of course
+empty. Since the framework does another iteration, the blueprints must
+have exposed more state or written something new to the state. At the
+start of the second iteration, we see that there is now the expected
+<code>UARTState</code> state exposed at the node <code>board</code> but it is empty</p>
+<p>Since the framework does a third iteration, the blueprints must again
+have written something new to the state during the second
+iteration. Indeed, at the start of the third iteration, we see that
+the state is now populated with the expected values. It is clear from
+the blueprint code these will not change and indeed the expansion is
+finished after this iteration.</p>
+<h2 id="blueprint-python-import"><a href="#blueprint-python-import">5 Blueprint Python import</a></h2>
+<p>The blueprint framework is distributed as a Simics module, but it has
+a bespoke Python import hook. When importing Python functions
+from the blueprint framework, the usual <code>simmod</code> syntax should not be
+used. Imports should be done like in this example:</p>
+<pre><code>from blueprints import expand, Builder, Namespace
+
+def top(builder: Builder, name: Namespace):
+    builder.obj(name.clk, "clock", freq_mhz=1)
+    
+expand("top", top)
+</code></pre>
+<p>Note that there is also no need to explicitly load the blueprint
+Simics module beforehand.</p>
+<h2 id="blueprint-sub-system-integration"><a href="#blueprint-sub-system-integration">6 Blueprint sub-system integration</a></h2>
+<p>A blueprint is written in Python and included in a Simics module like
+other Python code. Delivering a model or sub-system written as a
+blueprint is no different than delivering other Simics modules.</p>
+<p>If the blueprint is not a model of a whole system but of a sub-system,
+then it typically does <code>builder.read_state()</code> or
+<code>builder.get_config()</code> somewhere to pick up a <code>State</code> or <code>Config</code>
+instance which it reads or writes from.</p>
+<p>To integrate such a sub-system into a larger system written as a
+blueprint, the sub-system must document which <code>State</code> or <code>Config</code> it
+expects to have exposed and on what namespace nodes. As mentioned in
+earlier sections, the sub-system should also typically either expose
+or read a <code>Queue</code> state (depending on if it creates clocks/processors
+or expects them from elsewhere). The integrator can then write wrapper
+blueprints that exposes the necessary state.</p>
+<p>The integrator can reference blueprint functions in Python files in
+other Simics modules using the <code>simmod</code> syntax that Simics provides,
+like in this example:</p>
+<pre><code># Refer to blueprint function board in board.py 
+from simmod.qsp_x86_bp.board import board as qsp_board
+
+def top(builder: Builder, name: Namespace):
+    builder.expand(name, "qsp", qsp_board)
+</code></pre>
+<p>The Simics module containing a blueprint should make sure to import
+the Python files from its <code>module_load.py</code>. This makes sure that any
+usage of the Python decorator <code>blueprint</code> mentioned earlier is run, so
+that the blueprints are registered with Simics and the blueprint CLI
+commands can refer to the blueprint after the Simics module is loaded.</p>
+<h2 id="comparison-with-components"><a href="#comparison-with-components">7 Comparison with components</a></h2>
+<p>The blueprint framework solves similar problems as the older component
+system, which it is meant to replace.</p>
+<p>The component system has the <em>connector</em> concept. A component can
+expose connection points of certain types and separate connector
+objects are implemented for each type. A connector type defines which
+connection data can be transferred using the connector.</p>
+<p>Moreover, connectors have direction and a component either exposes the
+connection point as “up” or “down”. An “up” component con connect to a
+“down” component that has a connection point of the same type. When
+they connect they can transfer some data.</p>
+<p>The connector concept was meant for external connections, typically of
+hotplugging type, such as USB or serial connectors, and worked well
+for this use case. However it was the only way to transfer data
+between components and was therefore used for all kinds of
+connections. In many such cases the connector concept was too
+opinionated and hence difficult to work with. Connector data was hard to
+change and connectors required lots of boilerplate code.</p>
+<p>As explained in earlier sections, the blueprint framework introduces
+the <em>shared state</em> concept. This is the replacement of the connectors.
+It allows blueprints to transfer data, by reading and writing to the
+shared state. This is a much more light weight mechanism than
+connectors, and therefore easier to use for “internal” connections
+within a sub-system modelled as several blueprints.</p>
+<p>The up/down nature of connectors came from a general assumption in the
+component system that the modelled system consists of sub-systems in a
+tree structure. This assumption is generally true in the use cases
+that connectors were meant for, but in modern systems it is frequently
+not true.</p>
+<p>The blueprint framework makes no such assumptions on the model. The
+shared state can be read or written by any blueprint that picks it
+up. There are still two hierarchies: the Simics object hierarchy which
+is related to where state is exposed, and also the hierarchy of
+blueprints expanding other blueprints. But this is not directly
+related to how blueprints “connect”. Two blueprints anywhere in these
+hierarchies can “connect” if they can pick up the same shared
+state. As a result, the blueprint framework is less strict in how it
+enforces the data flow in the model. It makes it easier to split up
+the model into smaller blueprints, which can become reusable parts.</p>
+<p>The component system was written in an object oriented style, and
+required a fair amount of boilerplate code, not just in connectors but
+also to e.g. define component parameters. The blueprint framework is
+instead based on a functional style and each blueprint is very terse,
+as can be seen from the example above.</p>
+<h3 id="porting-from-components-to-blueprints"><a href="#porting-from-components-to-blueprints">7.1 Porting from components to blueprints</a></h3>
+<p>The blueprint framework is quite different from the component
+system. To make porting a platform from components to blueprints
+easier, the blueprint framework includes an adapter that exposes a
+blueprint (and child blueprints) as a component. It is only intended to be
+used to support step-by-step porting.</p>
+<p>The adapter converts exposed state, that is never read during the
+blueprint expansion, to down connectors. State that is read but not
+exposed anywhere is assumed to be input and is converted to up
+connectors.</p>
+<p>Blueprint parameters are converted to component configuration attributes.</p>
+<p>To make the adapter work, one has to potentially implement methods on
+the <code>State</code> sub-classes that define the connector type and data. The
+methods are:</p>
+<pre><code># return connector type
+def legacy_type(self) -&gt; str:
+
+# similar to get_connect_data() on connectors
+def legacy_data(self, is_up, comp, cnt, data) -&gt; list:
+
+# similar to connect() on connectors
+def legacy_connect(self, is_up, comp, cnt, attr) -&gt; list:
+</code></pre>
+<p>Here is an example of using the adapter:</p>
+<pre><code>@bp_legacy_comp([ParamGroup("board", "", import_bp="system")])
+def qsp_config_comp(builder: Builder, name: Namespace):
+    builder.expand(name, "board", system)
+
+cli.global_cmds.new_qsp_config_comp(name="qsp", **{'board_memory_size_mb': 8192, 'board_disk_bp': "clear_linux"})
+</code></pre>
+<p>As a general rule, a platform that includes a tree of
+components is likely most easily ported to blueprints in a bottom-up
+manner.</p>
+<ol>
+<li>
+<p>Start with the leaf components (without down connections) and
+rewrite them into blueprints. Surrounding code has to be changed to
+instantiate a blueprint instead of a component. In particular, a
+component one level up in the tree has to be modified to not expect
+component connections. The blueprint-component adapter may be useful
+in this case to make the blueprint still look like a component, if the
+component one level up is hard to update.</p>
+</li>
+<li>
+<p>Continue in the same way up the component hierarchy and rewrite
+components to blueprints. These blueprints will likely expand the
+blueprints already ported.</p>
+</li>
+<li>
+<p>When the whole tree has been converted to blueprints, any use of
+the adapter can be removed, and the platform can be simplified since
+it is now not dependent on the structure imposed by the component
+system.</p>
+</li>
+</ol>
+
+<div class="chain">
+<span></span>
+</div>

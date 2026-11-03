@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;ethernet_vlan_switch&gt;.get-free-trunk-connector</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-ethernet_vlan_switch.get-free-connector.html">&lt;ethernet_vlan_switch&gt;.get-free-connector</a>
+<a href="rm-cmd-ethernet_vlan_switch.info.html">&lt;ethernet_vlan_switch&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="ethernet_vlan_switch.get-free-trunk-connector"></a>
+<h1 id="ethernet_vlan_switch.get-free-trunk-connector"><a href="#ethernet_vlan_switch.get-free-trunk-connector">&lt;ethernet_vlan_switch&gt;.get-free-trunk-connector</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;ethernet_vlan_switch&gt;.get-free-trunk-connector</b> [<i>vlan_id</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Returns the name of a trunk connector that is not connected to anything. The new trunk connector can have a native VLAN id if <i>vlan_id</i> is provided. In this case, untagged packets passing through this port will all be assumed to belong to its native VLAN. An ordinary trunk port is created if <i>vlan_id</i> is not specified, in which case untagged packets will not be tagged to any VLAN and will be dropped to all but other ordinary trunk ports.
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.eth-links.html">eth-links</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-ethernet_vlan_switch.get-free-connector.html">&lt;ethernet_vlan_switch&gt;.get-free-connector</a>
+<a href="rm-cmd-ethernet_vlan_switch.info.html">&lt;ethernet_vlan_switch&gt;.info</a>
+</div>

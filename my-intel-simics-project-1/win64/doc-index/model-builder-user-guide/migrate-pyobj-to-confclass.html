@@ -1,0 +1,453 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>16.3 Migrating to confclass</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="writing-module-with-confclass.html">16.2 Modeling with Python (confclass)</a>
+<a href="writing-model-tests.html">17 Writing Model Tests</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;
+<a href="writing-module-with-python.html">16 Modeling with Python</a>
+&nbsp;/&nbsp;</div><h1 id="migrating-to-confclass"><a href="#migrating-to-confclass">16.3 Migrating to confclass</a></h1>
+<p>This is a short guide on how to migrate <a href="writing-module-with-pyobj.html"><em>pyobj</em></a>
+classes to <a href="writing-module-with-confclass.html"><em>confclass</em></a>. Below are <code>pyobj</code>
+example classes together with a <code>confclass</code> example class that works like the
+<code>pyobj</code> class when possible.</p>
+<h2 id="basic-class"><a href="#basic-class">16.3.1 Basic Class</a></h2>
+<p>We start with the simplest example possible, just an empty class named
+<code>my_basic</code>. The class will have:</p>
+<ul>
+<li>Documentation:
+<ul>
+<li>long documentation (<code>help class:my_basic</code>)</li>
+<li>short documentation (<code>list-classes substr = my_basic</code>)</li>
+</ul>
+</li>
+<li>Standard interfaces, <code>conf_object</code> and <code>log_object</code> (<code>list-interfaces class = my_basic</code>)</li>
+<li>Info and status commands (<code>list-commands class = my_basic</code>)</li>
+</ul>
+<h3 id="pyobj"><a href="#pyobj">16.3.1.1 pyobj</a></h3>
+<pre><code>import pyobj
+class my_basic(pyobj.ConfObject):
+    """Longer description."""
+    _class_desc = 'one-line description'
+</code></pre>
+<p>See also section
+<a class="reference" href="writing-module-with-pyobj.html#confobject-class-basic-methods">16.1.3</a>.</p>
+<h3 id="confclass"><a href="#confclass">16.3.1.2 confclass</a></h3>
+<p>A similar class implemented with <code>confclass</code> would be:</p>
+<pre><code>import simics
+class MyBasic:
+    cls = simics.confclass(
+        classname="my_basic",
+        short_doc="one-line description",
+        doc="Longer description.")
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-confclass.html#creating-a-device-class">16.2.3</a>.</p>
+<h2 id="overriding-object-callbacks"><a href="#overriding-object-callbacks">16.3.2 Overriding Object Callbacks</a></h2>
+<p>When creating a Simics class, custom functions can be specified as callbacks
+that are called during the creation of the class. For examples of callbacks, see
+section <a class="reference" href="writing-module-with-c.html#classes">15.2</a> for information on callbacks
+that can be specified when creating a class in C. Some of these callbacks can be
+specified in <code>pyobj</code> and <code>confclass</code>.</p>
+<p>The following table contains a list of the functions available in <code>pyobj</code> and
+the corresponding namespaced decorators in <code>confclass</code>.</p>
+<table><thead><tr><th style="text-align: left">pyobj.ConfObject methods</th><th>confclass decorators</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>_initialize</code></td><td><code>&lt;confclass&gt;.init</code> (<a class="reference" href="writing-module-with-confclass.html#overriding-conf-object-methods">16.2.5</a>)</td></tr>
+<tr><td style="text-align: left"><code>_finalize</code></td><td><code>&lt;confclass&gt;.finalize</code> (<a class="reference" href="writing-module-with-confclass.html#overriding-conf-object-methods">16.2.5</a>)</td></tr>
+<tr><td style="text-align: left"><code>_pre_delete</code></td><td><code>&lt;confclass&gt;.deinit</code> (<a class="reference" href="writing-module-with-confclass.html#overriding-conf-object-methods">16.2.5</a>)</td></tr>
+<tr><td style="text-align: left"><code>_info</code></td><td><code>&lt;confclass&gt;.command.info</code> (<a class="reference" href="writing-module-with-confclass.html#info-and-status-commands">16.2.8</a>)</td></tr>
+<tr><td style="text-align: left"><code>_status</code></td><td><code>&lt;confclass&gt;.command.status</code> (<a class="reference" href="writing-module-with-confclass.html#info-and-status-commands">16.2.8</a>)</td></tr>
+</tbody></table>
+<p>If creating and deleting an object with the <code>my_device</code> from one of the below
+examples, the expected value of <code>calls</code> should be <code>["init", "finalize", "delete"]</code>.</p>
+<h3 id="pyobj-2"><a href="#pyobj-2">16.3.2.1 pyobj</a></h3>
+<pre><code>import pyobj
+calls = []
+class my_device(pyobj.ConfObject):
+    def _initialize(self):
+        super()._initialize()
+        global calls
+        calls.append("init")
+
+    def _finalize(self):
+        global calls
+        calls.append("finalize")
+
+    def _pre_delete(self):
+        global calls
+        calls.append("delete")
+</code></pre>
+<p>See also section
+<a class="reference" href="writing-module-with-pyobj.html#confobject-class-basic-methods">16.1.3</a></p>
+<h3 id="confclass-2"><a href="#confclass-2">16.3.2.2 confclass</a></h3>
+<pre><code>import simics
+calls = []
+class MyDevice:
+    cls = simics.confclass(classname="my_device")
+
+    @cls.init
+    def init(self):
+        global calls
+        calls.append("init")
+
+    @cls.finalize
+    def finalize(self):
+        global calls
+        calls.append("finalize")
+
+    @cls.deinit
+    def deinit(self):
+        global calls
+        calls.append("delete")
+</code></pre>
+<p>See also section
+<a class="reference" href="writing-module-with-confclass.html#overriding-conf-object-methods">16.2.5</a></p>
+<h2 id="hierarchy-_up"><a href="#hierarchy-_up">16.3.3 Hierarchy (_up)</a></h2>
+<p>One difference between <code>pyobj</code> and <code>confclass</code> is that <code>pyobj</code> requires <em>custom
+classes</em> for adding:</p>
+<ul>
+<li>Attributes (inherit from <code>pyobj.SimpleAttribute</code> or <code>pyobj.Attribute</code>)</li>
+<li>Interfaces (inherit from <code>pyobj.Interface</code>)</li>
+<li>Port Objects (inherit from <code>pyobj.PortObject</code>)</li>
+</ul>
+<p>This means that when adding any of these properties, it is possible to put the
+required state in the <code>ConfObject</code> class or in the property sub-class (for
+example <code>pyobj.Attribute</code>). In <code>confclass</code>, since inheritance is not required,
+the state is typically put in the main class directly.</p>
+<p>For example, using <code>pyobj</code> and and implementing an attribute (see where
+<code>self.my_attr</code> is set):</p>
+<ol>
+<li>
+<p>State in the custom <code>ConfObject</code> class <code>device1</code>:</p>
+<pre><code>import pyobj
+class device1(pyobj.ConfObject):
+    def _initialize(self):
+        super()._initialize()
+        self.my_attr = 1  # &lt;-- data in main class
+
+    class my_attr(pyobj.Attribute):
+        attrtype = 'i'
+        def getter(self):
+            return self._up.my_attr  # use _up to reach main class
+        def setter(self, val):
+            self._up.my_attr = val  # use _up to reach main class
+</code></pre>
+</li>
+<li>
+<p>State in the <code>Attribute</code>, <code>my_attr</code> sub-class to <code>device2</code>:</p>
+<pre><code>import pyobj
+class device2(pyobj.ConfObject):
+    def _initialize(self):
+        super()._initialize()
+
+    class my_attr(pyobj.Attribute):
+        attrtype = 'i'
+        def _initialize(self):
+            self.my_attr = 1  # &lt;-- data in attribute class
+        def getter(self):
+            return self.my_attr
+        def setter(self, val):
+            self.my_attr = val
+</code></pre>
+</li>
+</ol>
+<p>In <code>confclass</code>, the state must be put in the main class.
+The corresponding example to <code>device1</code> would be:</p>
+<pre><code>import simics
+class MyDevice:
+    cls = confclass(classname="device1")
+    cls.attr.my_attr("i", default=1)
+    @cls.attr.my_attr.getter
+    def getter(self):
+        return self.my_attr
+    @cls.attr.my_attr.setter
+    def setter(self, val):
+        self.my_attr = val
+</code></pre>
+<p>So the <em>migration action</em> needed when state is needed for <em>attributes</em>,
+<em>interfaces</em> or <em>port objects</em>, is to move the state to the main class.</p>
+<h2 id="attributes"><a href="#attributes">16.3.4 Attributes</a></h2>
+<h3 id="simple-attribute"><a href="#simple-attribute">16.3.4.1 Simple Attribute</a></h3>
+<p>The simplest way to add an attribute is an optional attribute with a default
+value, and no customized getter or setter. For <code>pyobj</code>, the <code>SimpleAttribute</code> is
+used to create simple attributes with default value, getter and setter, but for
+<code>confclass</code> the same mechanism is used for all attributes.</p>
+<h4 id="pyobj-3"><a href="#pyobj-3">16.3.4.1.1 pyobj</a></h4>
+<p>This class has an <em>optional</em> attribute named <code>simple</code> which contains a number
+(<code>i</code>), with the default value <code>0</code>.</p>
+<pre><code>import pyobj
+class my_device(pyobj.ConfObject):
+    class simple(pyobj.SimpleAttribute(0, "i")):
+        pass
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-pyobj.html#attributes">16.1.5</a></p>
+<h4 id="confclass-3"><a href="#confclass-3">16.3.4.1.2 confclass</a></h4>
+<p>In <code>confclass</code>, the attribute name is placed in the <code>cls.attr</code> namespace, and
+the <code>default</code> argument is used to set a default value and make the attribute
+<code>optional</code>.</p>
+<pre><code>import simics
+class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    cls.attr.simple("i", default=0)
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-confclass.html#attributes">16.2.7</a></p>
+<h3 id="attribute-with-getter-and-setter"><a href="#attribute-with-getter-and-setter">16.3.4.2 Attribute with Getter and Setter</a></h3>
+<h4 id="pyobj-4"><a href="#pyobj-4">16.3.4.2.1 pyobj</a></h4>
+<p>This is a more complete attribute example containing custom getters and setters.
+This class has an <em>optional</em> attribute named <code>my_attr</code> which contains a number
+(<code>i</code>), with the default value <code>1</code>.</p>
+<pre><code>import pyobj
+class my_device(pyobj.ConfObject):
+    def _initialize(self):
+        super()._initialize()
+        self.val = 1
+
+    class my_attr(pyobj.Attribute):
+        attrtype = 'i'
+
+        def getter(self):
+            return self._up.val
+
+        def setter(self, val):
+            self._up.val = val
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-pyobj.html#attributes">16.1.5</a></p>
+<h4 id="confclass-4"><a href="#confclass-4">16.3.4.2.2 confclass</a></h4>
+<p>In <code>confclass</code>, the attribute name is placed in the <code>cls.attr</code> namespace, and
+the <code>default</code> argument is used to set a default value. Further, the <em>getter and
+setter</em> are specified with decorators, for example <code>cls.attr.my_attr.getter</code> for
+the <em>getter</em>.</p>
+<pre><code>import simics
+class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    cls.attr.my_attr("i", default=1)
+
+    @cls.attr.my_attr.getter
+    def my_attr_getter(self):
+        return self.my_attr
+
+    @cls.attr.my_attr.setter
+    def my_attr_setter(self, new_value):
+        self.my_attr = new_value
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-confclass.html#attributes">16.2.7</a></p>
+<h2 id="interfaces"><a href="#interfaces">16.3.5 Interfaces</a></h2>
+<p>Below is demonstrated how to implement the <code>signal</code> interface. The <code>signal</code>
+interface updates the <code>signal_raised</code> attribute.</p>
+<h3 id="pyobj-5"><a href="#pyobj-5">16.3.5.1 pyobj</a></h3>
+<pre><code>import pyobj
+class my_device(pyobj.ConfObject):
+    class signal_raised(pyobj.SimpleAttribute(None, "b|n")):
+        pass
+
+    class signal(pyobj.Interface):
+        def signal_raise(self):
+            self._up.signal_raised.val = True
+
+        def signal_lower(self):
+            self._up.signal_raised.val = False
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-pyobj.html#interfaces">16.1.8</a></p>
+<h3 id="confclass-5"><a href="#confclass-5">16.3.5.2 confclass</a></h3>
+<pre><code>import simics
+class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    cls.attr.signal_raised("b|n", default=None)
+
+    @cls.iface.signal.signal_raise
+    def signal_raise(self):
+        self.signal_raised = True
+
+    @cls.iface.signal.signal_lower
+    def signal_lower(self):
+        self.signal_raised = False
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-confclass.html#interfaces">16.2.10</a></p>
+<h2 id="port-objects"><a href="#port-objects">16.3.6 Port Objects</a></h2>
+<p>Below is demonstrated how to implement the <code>signal</code> interface in a <em>port
+object</em>. The <code>signal</code> interface updates the <code>signal_raised</code> attribute in the
+main class (<code>my_device</code>).</p>
+<h3 id="pyobj-6"><a href="#pyobj-6">16.3.6.1 pyobj</a></h3>
+<pre><code>import pyobj
+class my_device(pyobj.ConfObject):
+    class signal_raised(pyobj.SimpleAttribute(None, "b|n")):
+        pass
+
+    class RESET(pyobj.PortObject):
+        class signal(pyobj.Interface):
+            def signal_raise(self):
+                self._up._up.signal_raised.val = True
+
+            def signal_lower(self):
+                self._up._up.signal_raised.val = False
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-pyobj.html#port-objects">16.1.9</a></p>
+<h3 id="confclass-6"><a href="#confclass-6">16.3.6.2 confclass</a></h3>
+<pre><code>import simics
+class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    cls.attr.signal_raised("b|n", default=None)
+    reset = cls.o.port.RESET()
+
+    @reset.iface.signal.signal_raise
+    def signal_raise(self):
+        self.signal_raised = True
+
+    @reset.iface.signal.signal_lower
+    def signal_lower(self):
+        self.signal_raised = False
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-confclass.html#port-objects">16.2.11</a></p>
+<h2 id="events"><a href="#events">16.3.7 Events</a></h2>
+<p>The class <code>pyobj.Event</code> provides event functionality. Currently <code>confclass</code> has
+no corresponding functionality, so the <code>confclass</code> example below instead use the
+Simics API to achieve the same functionality.</p>
+<h3 id="pyobj-7"><a href="#pyobj-7">16.3.7.1 pyobj</a></h3>
+<p>In this example, <code>my_device</code> contains <code>my_event</code> (subclass of <code>pyobj.Event</code>)
+which can be used to post and cancel events. When <code>my_event</code> triggers, the data
+is appended to the <code>my_event_data</code> attribute.</p>
+<pre><code>import pyobj
+class my_device(pyobj.ConfObject):
+    class my_event_data(pyobj.SimpleAttribute([], "[i*]")):
+        pass
+
+    class my_event(pyobj.Event):
+        def callback(self, data):
+            simics.SIM_log_info(
+                1, self._up.obj, 0, f"my_event triggered with {data}")
+            self._up.my_event_data.val.append(data)
+
+        def get_value(self, data):
+            return str(data)
+
+        def set_value(self, val):
+            return int(val)
+
+        def describe(self, data):
+            return 'event with %s' % data
+</code></pre>
+<p>This is an example of how the class can be used to post and cancel events, and
+also check if the event triggered by checking the <code>my_event_data</code> attribute.</p>
+<pre><code>def run_cycles(clock, cycles):
+    cli.quiet_run_command(f"continue {cycles} cycles")
+
+# Create objects.
+device_pre = simics.pre_conf_object("device", "my_device")
+clock_pre = simics.pre_conf_object("clock", "clock", freq_mhz=1)
+simics.SIM_add_configuration([device_pre, clock_pre], None)
+device = simics.SIM_get_object(device_pre.name)
+clock = simics.SIM_get_object(clock_pre.name)
+event = device.object_data.my_event
+
+# Test posting on the next cycle, run forward and check that the event triggers.
+data_1 = 11
+stest.expect_true(len(device.my_event_data) == 0)
+event.post(clock, data_1, cycles=1)
+run_cycles(clock, 1)
+stest.expect_equal(device.my_event_data, [data_1])
+
+# Test posting on the next cycle, cancel the event and run forward to check that
+# the event did not trigger.
+data_2 = 22
+event.post(clock, data_2, cycles=2)
+run_cycles(clock, 1)
+event.cancel_time(clock, match_fun=lambda d: d == data_2)
+run_cycles(clock, 1)
+stest.expect_equal(device.my_event_data, [data_1])  # unchanged data
+</code></pre>
+<p>See also section <a class="reference" href="writing-module-with-pyobj.html#events">16.1.10</a></p>
+<h3 id="confclass-7"><a href="#confclass-7">16.3.7.2 confclass</a></h3>
+<p>In <code>my_device</code>, the event <code>my_event</code> is registered along with the event
+callbacks that are are methods of <code>my_device</code>. The attribute <code>my_event_data</code>
+contains the <em>data</em> of events that have triggered. The event is registered in
+<code>@cls.objects_finalized</code>.</p>
+<pre><code>import simics
+class MyDevice:
+    event_name = "my_event"
+    cls = simics.confclass(classname="my_device")
+    cls.attr.my_event_data("[i*]", default=list)
+
+    @cls.objects_finalized
+    def objects_finalized(self):
+        self.ev_class = simics.SIM_register_event(
+            MyDevice.event_name, MyDevice.cls.classname, 0, self._callback,
+            self._destroy, self._get_value, self._set_value, self._describe)
+
+    def _callback(self, ev_obj, data):
+        simics.SIM_log_info(
+            1, self.obj, 0, f"my_event triggered with {data}")
+        self.my_event_data.append(data)
+
+    def _destroy(self, ev_obj, data):
+        pass
+
+    def _get_value(self, ev_obj, data):
+        return str(data)
+
+    def _set_value(self, ev_obj, val):
+        return int(data)
+
+    def _describe(self, ev_obj, data):
+        return f"event with {self._get_value(ev_obj, data)}"
+
+    def post_event(self, clock, data, cycles):
+        simics.SIM_event_post_cycle(
+            clock, self.ev_class, self.obj, cycles, data)
+
+    def cancel_event(self, clock, match_fun=None):
+        def pred(data, match_data): return bool(match_fun(data))
+        simics.SIM_event_cancel_time(
+            clock, self.ev_class, self.obj, pred if match_fun else None, None)
+</code></pre>
+<p>To <em>post and cancel</em>, the <code>post_event</code>, and <code>cancel_event</code> functions can be
+called from <code>&lt;my_device object&gt;.object_data</code>. This is an example of how the
+class can be used to post and cancel events, and also check if the event
+triggered by checking the <code>my_event_data</code> attribute.</p>
+<pre><code>def run_cycles(clock, cycles):
+    cli.quiet_run_command(f"continue {cycles} cycles")
+
+# Create objects.
+device_pre = simics.pre_conf_object("device", "my_device")
+clock_pre = simics.pre_conf_object("clock", "clock", freq_mhz=1)
+simics.SIM_add_configuration([device_pre, clock_pre], None)
+device = simics.SIM_get_object(device_pre.name)
+clock = simics.SIM_get_object(clock_pre.name)
+event = device.object_data
+
+# Test posting on the next cycle, run forward and check that the event triggers.
+data_1 = 11
+stest.expect_true(len(device.my_event_data) == 0)
+event.post_event(clock, data_1, 1)
+run_cycles(clock, 1)
+stest.expect_equal(device.my_event_data, [data_1])
+
+# Test posting on the next cycle, cancel the event and run forward to check that
+# the event did not trigger.
+data_2 = 22
+event.post_event(clock, data_2, 2)
+run_cycles(clock, 1)
+event.cancel_event(clock, match_fun=lambda d: d == data_2)
+run_cycles(clock, 1)
+stest.expect_equal(device.my_event_data, [data_1])  # unchanged data
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../rm-api/dev-api-events.html#SIM_register_event"><em>SIM_register_event</em></a></li>
+<li><a href="../rm-api/dev-api-events.html#SIM_event_post_time"><em>SIM_event_post_time</em></a></li>
+<li><a href="../rm-api/dev-api-events.html#SIM_event_post_time"><em>SIM_event_post_cycle</em></a></li>
+<li><a href="../rm-api/dev-api-events.html#SIM_event_post_time"><em>SIM_event_post_step</em></a></li>
+<li><a href="../rm-api/dev-api-events.html#SIM_event_cancel_time"><em>SIM_event_cancel_time</em></a></li>
+</ul>
+
+<div class="chain">
+<a href="writing-module-with-confclass.html">16.2 Modeling with Python (confclass)</a>
+<a href="writing-model-tests.html">17 Writing Model Tests</a>
+</div>

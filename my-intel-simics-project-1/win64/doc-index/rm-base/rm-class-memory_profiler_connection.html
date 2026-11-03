@@ -1,0 +1,97 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>memory_profiler_connection</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-memory_profiler.html">memory_profiler</a>
+<a href="rm-class-micron_mtfc128gap_emmc_card.html">micron_mtfc128gap_emmc_card</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="memory_profiler_connection"><a href="#memory_profiler_connection">memory_profiler_connection</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Instrumentation connection.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_connection
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:read_physical"><a href="#dt:read_physical">
+<i>read_physical</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enables profile of physical memory reads</dd>
+<dt id="dt:read_logical"><a href="#dt:read_logical">
+<i>read_logical</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enables profile of logical memory reads</dd>
+<dt id="dt:write_physical"><a href="#dt:write_physical">
+<i>write_physical</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enables profile of physical memory writes</dd>
+<dt id="dt:write_logical"><a href="#dt:write_logical">
+<i>write_logical</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enables profile of logical memory writes</dd>
+<dt id="dt:execute_physical"><a href="#dt:execute_physical">
+<i>execute_physical</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enables profile of physical memory reads</dd>
+<dt id="dt:execute_logical"><a href="#dt:execute_logical">
+<i>execute_logical</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enables profile of logical memory reads</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.memory-profiler.html">memory-profiler</a>
+</section>
+<div class="chain">
+<a href="rm-class-memory_profiler.html">memory_profiler</a>
+<a href="rm-class-micron_mtfc128gap_emmc_card.html">micron_mtfc128gap_emmc_card</a>
+</div>

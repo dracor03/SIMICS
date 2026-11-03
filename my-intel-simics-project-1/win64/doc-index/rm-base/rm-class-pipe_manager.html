@@ -1,0 +1,100 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pipe_manager</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-persistent-ram.html">persistent-ram</a>
+<a href="rm-class-port-forward-incoming-server.html">port-forward-incoming-server</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="pipe_manager"><a href="#pipe_manager">pipe_manager</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A class that receives and transmits data through a magic pipe connection to a pipe agent running in the target system.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pipe_manager.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-pipe_manager.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:haps"><a href="#dt:haps">
+<i>haps</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Magic hap count</dd>
+<dt id="dt:input"><a href="#dt:input">
+<i>input</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Input file</dd>
+<dt id="dt:magic"><a href="#dt:magic">
+<i>magic</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Magic number of the pipe agent</dd>
+<dt id="dt:output"><a href="#dt:output">
+<i>output</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Output file</dd>
+<dt id="dt:pipe"><a href="#dt:pipe">
+<i>pipe</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Connected pipe object or NIL</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.pipe-manager-example.html">pipe-manager-example</a>
+</section>
+<div class="chain">
+<a href="rm-class-persistent-ram.html">persistent-ram</a>
+<a href="rm-class-port-forward-incoming-server.html">port-forward-incoming-server</a>
+</div>

@@ -1,0 +1,92 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 Layout and lexical details</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="code-organisation.html">2 Code organisation</a>
+<a href="structures-of-data.html">4 Structures of data</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="layout-and-lexical-details"><a href="#layout-and-lexical-details">3 Layout and lexical details</a></h1>
+<p>The indentation step is 4 spaces.
+Do not use tabs.
+Keep lines shorter than 80 characters.</p>
+<p>Put a space:</p>
+<ul>
+<li>around binary operators such as <code>+</code></li>
+<li>after but not before comma, colon or semicolon</li>
+<li>after the <code>assert</code> statement</li>
+<li>between a keyword (such as <code>while</code>) and its argument</li>
+</ul>
+<p>Put no space:</p>
+<ul>
+<li>before comma, colon or semicolon</li>
+<li>immediately inside parentheses, braces or brackets</li>
+<li>between the function name and the opening parenthesis in a function call</li>
+</ul>
+<p>It is customary to not put spaces around <code>=</code> inside parameter lists of function
+calls and definitions, but it is permitted to use a single space on each side if
+that makes the code look nicer:</p>
+<pre><code>draw(figure, options =None, paper= "A4")          # BAD
+draw(figure, options=None, paper="A4")            # GOOD
+play(frequency = f0 + delta, duration = d + 0.5)  # GOOD
+</code></pre>
+<p>Put spaces around colons when used in sliced indexing, but not where an index is
+omitted:</p>
+<pre><code>a[i + 1:j + 5]        # BAD
+a[i + 1 : j + 5]      # GOOD
+
+a[ : j + 5]   	      # BAD
+a[:j + 5]     	      # BAD
+a[: j + 5]    	      # GOOD
+
+a[i + 1:]             # BAD
+a[i + 1 : ]           # BAD
+a[i + 1 :]            # GOOD
+
+a[i + 1:j + 5:s]      # BAD
+a[i + 1 : j + 5 : s]  # GOOD
+
+a[i + 1::s]           # BAD
+a[i + 1 : : s]        # BAD
+a[i + 1 :: s]         # GOOD
+</code></pre>
+<p>If neither index contains spaces, the spaces around colon may be omitted, per
+PEP8:</p>
+<pre><code>a[i : j]         # OK
+a[i:j]           # OK
+a[i + c:j + d]   # BAD
+</code></pre>
+<p>To fold long lines, it is usually better to use parentheses rather than
+backslashes.
+I.e., instead of:</p>
+<pre><code>result = extremely_long_expression \
+         + another_very_long_expression \
+         + yet_another_long_expression
+</code></pre>
+<p>please use:</p>
+<pre><code>result = (extremely_long_expression
+          + another_very_long_expression
+          + yet_another_long_expression)
+</code></pre>
+<p>Long lines are broken before binary operators, not after.</p>
+<p>Avoid C-isms such as parentheses around the condition of <code>if</code> statements or
+terminating semicolons.</p>
+<p>In multi-line lists, put a trailing comma after each element, even the last one:</p>
+<pre><code>muppets = [
+    "Kermit",
+    "Miss Piggy",
+    "Gonzo",
+]
+</code></pre>
+<p>This way, there is less of a risk of forgetting a comma when adding an element
+at the end, and diffs and merges become neater.</p>
+
+<div class="chain">
+<a href="code-organisation.html">2 Code organisation</a>
+<a href="structures-of-data.html">4 Structures of data</a>
+</div>

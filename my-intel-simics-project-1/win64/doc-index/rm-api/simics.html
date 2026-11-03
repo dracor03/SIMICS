@@ -1,0 +1,258 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>simics</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="cli.html">cli</a>
+<a href="blueprints.html">blueprints</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="simics"><a href="#simics">simics</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>simics — A Python framework for creating Simics classes.</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import simics
+</code></pre>
+</section>
+<h2 id="simics.confclass"><a href="#simics.confclass">class simics.confclass</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class simics.confclass(
+    classname: 'str' = '',
+    parent: "Optional['confclass']" = None,
+    *,
+    pseudo: 'bool' = False,
+    doc: 'Optional[str]' = None,
+    short_doc: 'Optional[str]' = None,
+    register: 'Optional[bool]' = None,
+    **kwd: 'Any'
+)
+</code></pre>
+<h2>Description</h2>
+<p>The class <code>confclass</code> is used to define and register a Simics class. The intended use is to create a <code>confclass</code> object as a class member in the custom Python class implementation used to implement the Simics class. The <code>confclass</code> instance also has specific <code>namespace</code> members that allows adding attributes and other other features (see below).</p>
+<p>The class <code>confclass</code> is available either from <code>confclass.confclass</code> or from <code>simics.confclass</code>.</p>
+<h2>Arguments</h2>
+<dl>
+<dt id="dt:classname"><a href="#dt:classname">classname</a></dt>
+<dd>Set <code>classname</code> to the chosen Simics class name.</dd>
+<dt id="dt:parent"><a href="#dt:parent">parent</a></dt>
+<dd>To inherit from another Simics class created with <code>confclass</code>, set <code>parent</code> to the parent’s <code>confclass</code> instance.</dd>
+<dt id="dt:pseudo"><a href="#dt:pseudo">pseudo</a></dt>
+<dd>Set <code>pseudo</code> to True to make a <code>Sim_Class_Kind_Pseudo</code> class.</dd>
+<dt id="dt:short_doc-doc"><a href="#dt:short_doc-doc">short_doc / doc</a></dt>
+<dd>To document the class, set <code>short_doc</code> to a one-liner describing the class and set <code>doc</code> to a longer description text.</dd>
+<dt id="dt:register"><a href="#dt:register">register</a></dt>
+<dd>By default, the Simics class is registered when the Python class is created and bound. To prevent this automatic registration, set <code>register</code> to false. The Simics class can be registered by calling <code>register</code> on the <code>confclass</code> instance.</dd>
+</dl>
+<h2>Custom conf_class_t callbacks</h2>
+<p>To override the <a href="dev-api-configuration.html#SIM_get_class"><code>conf_class_t</code></a> <a href="../model-builder-user-guide/object-lifetime.html">callbacks</a>, use these decorators:</p>
+<ul>
+<li><a href="#simics.confclass.init"><code>&lt;confclass&gt;.init</code></a></li>
+<li><a href="#simics.confclass.finalize"><code>&lt;confclass&gt;.finalize</code></a></li>
+<li><a href="#simics.confclass.objects_finalized"><code>&lt;confclass&gt;.objects_finalized</code></a></li>
+<li><a href="#simics.confclass.deinit"><code>&lt;confclass&gt;.deinit</code></a></li>
+</ul>
+<h2>Namespaces for Adding Features</h2>
+<dl>
+<dt id="dt:attr"><a href="#simics.confclass.attr">attr</a></dt>
+<dd>Add <em>attribute name</em> and call it to define an attribute.</dd>
+<dt id="dt:command"><a href="#simics.confclass.command">command</a></dt>
+<dd>Use <code>&lt;confclass&gt;.command.info</code> or <code>&lt;confclass&gt;.command.status</code> as decorator for the methods used to implement the <em>info</em> and <em>status</em> commands.</dd>
+<dt id="dt:iface"><a href="#simics.confclass.iface">iface</a></dt>
+<dd>Use <code>&lt;confclass&gt;.&lt;interface name&gt;&lt;function name&gt;</code> as decorator on the method that implements the <code>&lt;function name&gt;</code> in the <code>&lt;interface name&gt;</code> interface.</dd>
+<dt id="dt:o"><a href="#simics.confclass.o">o</a></dt>
+<dd>Add a port object by appending the port object name and then call it.</dd>
+</dl>
+<h2>Example</h2>
+<p>Here is a simple example of how to add a Simics class named <code>class1</code> with attribute <code>attr1</code> using the <code>.attr</code> <em>namespace</em>:</p>
+<pre><code>class Class1:
+    cls = simics.confclass(classname="class1")
+    cls.attr.attr1("i", default=1)
+</code></pre>
+<h2>See Also</h2>
+<p>For more extensive tutorials on how to write custom Simics class with <code>confclass</code>, see section <a href="../model-builder-user-guide/writing-module-with-confclass.html">Modeling with Python (confclass)</a> in <code>Model Builder User's Guide</code>.</p>
+</section>
+<h2 id="simics.confclass.attr"><a href="#simics.confclass.attr">simics.confclass.attr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.attr
+</code></pre>
+<h2>Description</h2>
+<p>Namespace for adding attributes. Append a valid <em>attribute name</em>, and call (arguments below) it to create an attribute.</p>
+<p>After the call, the namespace entry contains an object that has <code>getter</code> and <code>setter</code> properties that can be used to decorate custom attribute accessor functions.</p>
+<p>If no custom getter or setter is provided, default accessors are automatically created. These default accessors read and write to the Python instance attribute with the same name as the Simics attribute (e.g., <code>self.my_attr</code>).</p>
+<h2>Arguments</h2>
+<dl>
+<dt id="dt:attr_type"><a href="#dt:attr_type">attr_type</a></dt>
+<dd>The Simics type string for the attribute (e.g., <code>"i"</code>, <code>"[i*]"</code>).</dd>
+<dt id="dt:kind"><a href="#dt:kind">kind</a></dt>
+<dd>The attribute kind (<code>attr_attr_t</code>). Default is <code>Sim_Attr_Required</code>.</dd>
+<dt id="dt:optional"><a href="#dt:optional">optional</a></dt>
+<dd>If True, makes the attribute optional.</dd>
+<dt id="dt:pseudo-2"><a href="#dt:pseudo-2">pseudo</a></dt>
+<dd>If True, makes the attribute a pseudo-attribute.</dd>
+<dt id="dt:doc"><a href="#dt:doc">doc</a></dt>
+<dd>The documentation string for the attribute.</dd>
+<dt id="dt:default"><a href="#dt:default">default</a></dt>
+<dd>The default value for the attribute.</dd>
+<dt id="dt:read_only"><a href="#dt:read_only">read_only</a></dt>
+<dd>If True, the attribute cannot be written to.</dd>
+<dt id="dt:write_only"><a href="#dt:write_only">write_only</a></dt>
+<dd>If True, the attribute cannot be read from.</dd>
+</dl>
+<p>The <code>kind</code> argument defaults to <code>Sim_Attr_Required</code>. It is modified by other arguments:</p>
+<ul>
+<li>If <code>default</code> is provided and <code>kind</code> is <code>Sim_Attr_Required</code>, <code>kind</code> becomes <code>Sim_Attr_Optional</code>.</li>
+<li>If <code>optional</code> is True, <code>kind</code> becomes <code>Sim_Attr_Optional</code>.</li>
+<li>If <code>pseudo</code> is True, <code>kind</code> becomes <code>Sim_Attr_Pseudo</code>.</li>
+</ul>
+<p>If <code>read_only</code> or <code>write_only</code> is True, <code>pseudo</code> must also be True, as attributes saved in checkpoints must be both readable and writable.</p>
+</section>
+<h2 id="simics.confclass.command"><a href="#simics.confclass.command">simics.confclass.command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.command
+</code></pre>
+<h2>Description</h2>
+<p>Contains <code>info</code> and <code>status</code> properties that should be used as decorators on functions that works as info or status commands.</p>
+</section>
+<h2 id="simics.confclass.deinit"><a href="#simics.confclass.deinit">simics.confclass.deinit</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.deinit
+</code></pre>
+<h2>Description</h2>
+<p>Decorator for ‘deinit’ class method.</p>
+</section>
+<h2 id="simics.confclass.event"><a href="#simics.confclass.event">simics.confclass.event</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.event
+</code></pre>
+<h2>Description</h2>
+<p>Namespace for adding events. Append an event name and call it to declare an event. Use decorators on the resulting object to set callback, destroy, describe, get_value, and set_value.</p>
+</section>
+<h2 id="simics.confclass.finalize"><a href="#simics.confclass.finalize">simics.confclass.finalize</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.finalize
+</code></pre>
+<h2>Description</h2>
+<p>Decorator for ‘finalize’ class method.</p>
+</section>
+<h2 id="simics.confclass.iface"><a href="#simics.confclass.iface">simics.confclass.iface</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.iface
+</code></pre>
+<h2>Description</h2>
+<p>Namespace for adding interface implementations. Use the <code>&lt;confclass&gt;&lt;interface name&gt;.&lt;function name&gt;</code> as decorator to decorate interface functions. The interface must be accessible from Python.</p>
+<h2>Example</h2>
+<p>In the below example, the <code>signal</code> interface is implemented by using <code>cls.iface.signal.signal_raise</code> and <code>cls.iface.signal.signal_lower</code> to decorate the custom interface functions <code>signal_raise</code> and <code>signal_lower</code>.</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+
+    @cls.iface.signal.signal_raise
+    def signal_raise(self):
+        pass
+
+    @cls.iface.signal.signal_lower
+    def signal_lower(self):
+        pass
+</code></pre>
+</section>
+<h2 id="simics.confclass.init"><a href="#simics.confclass.init">simics.confclass.init</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.init
+</code></pre>
+<h2>Description</h2>
+<p>Decorator for ‘init’ class method.</p>
+</section>
+<h2 id="simics.confclass.o"><a href="#simics.confclass.o">simics.confclass.o</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.o
+</code></pre>
+<h2>Description</h2>
+<p>Namespace for adding port objects. Append a valid <em>object name</em>, possibly a hierarchy, and call add a port object.</p>
+<h2>Arguments</h2>
+<dl>
+<dt id="dt:classname-2"><a href="#dt:classname-2">classname</a></dt>
+<dd>
+<p>If unset, a class name will be chosen based on the last item in the namespaced name. If <code>classname</code> is set to a string starting with a dot, the classname will be prefixed with the parent’s class name. In these two cases (unset or starting with a dot), the Python class will be the parent’s Python class, and a new <code>confclass</code> object will be returned.</p>
+<p>It is also possible to specify an existing class name. In this case, the call will return None, and the port object’s Python class will be an instance of the existing class, if such exists.</p>
+</dd>
+<dt id="dt:desc"><a href="#dt:desc">desc</a></dt>
+<dd>
+<p>Optional string that describes the port object in the documentation of the parent object.</p>
+</dd>
+</dl>
+</section>
+<h2 id="simics.confclass.objects_finalized"><a href="#simics.confclass.objects_finalized">simics.confclass.objects_finalized</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.confclass.objects_finalized
+</code></pre>
+<h2>Description</h2>
+<p>Decorator for ‘objects_finalized’ class method.</p>
+</section>
+<h2 id="simics.CriticalErrors"><a href="#simics.CriticalErrors">class simics.CriticalErrors</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class simics.CriticalErrors(errors, function=None)
+</code></pre>
+<h2>Description</h2>
+<p>Represents critical errors caused by C code called from Python.</p>
+<p>This exception is raised when returning to Python from a C function that directly or indirectly caused one or more serious, but recoverable, errors. Elaborate error descriptions are printed when the errors occur, but because of error recovery, the C function will be able to continue without being aware of the error.</p>
+<p>A C function can cause more than one error; all these are combined into a single Python exception. The main purpose of the exception is to aid debugging, usually by providing a nice Python traceback.</p>
+</section>
+<h2 id="simics.pre_conf_object"><a href="#simics.pre_conf_object">class simics.pre_conf_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class simics.pre_conf_object(
+    object_or_class_name=None,
+    class_name=None,
+    build_id=None,
+    /,
+    **attrs
+)
+</code></pre>
+<h2>Description</h2>
+<p>A class for Simics configuration object to instantiate.</p>
+<p>A class representing a future Simics configuration object named <code>object_name</code>, of class <code>class_name</code>. If <code>object_name</code> is <code>None</code>, a unique name will be generated.</p>
+<p>The <code>build_id</code> of the object can be specified when using the <code>pre_conf_object</code> class during checkpoints update. Refer to <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a> for more information.</p>
+<p>Future configuration attributes are set using normal Python class members:</p>
+<pre><code>a = pre_conf_object("test_object", "test-class")
+a.value = 42
+</code></pre>
+<p>After using a <code>pre_conf_object</code> object to create a configuration object, the created object can be obtained by passing the <code>pre_conf_object</code>’s <code>name</code> member to <code>SIM_get_object()</code>.</p>
+</section>
+<h2 id="simics.pre_conf_object.classname"><a href="#simics.pre_conf_object.classname">simics.pre_conf_object.classname</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.pre_conf_object.classname
+</code></pre>
+<h2>Description</h2>
+<p>classname</p>
+</section>
+<h2 id="simics.pre_conf_object.name"><a href="#simics.pre_conf_object.name">simics.pre_conf_object.name</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>simics.pre_conf_object.name
+</code></pre>
+<h2>Description</h2>
+<p>object name</p>
+</section>
+<div class="chain">
+<a href="cli.html">cli</a>
+<a href="blueprints.html">blueprints</a>
+</div>

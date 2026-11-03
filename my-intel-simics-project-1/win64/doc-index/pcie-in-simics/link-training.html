@@ -1,0 +1,385 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Link Training</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sriov.html">Single Root I/O Virtualization and Sharing (SR-IOV)</a>
+<a href="peer-to-peer-routing.html">Peer-to-Peer Routing</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="link-training"><a href="#link-training">Link Training</a></h1>
+<p>Link training in the PCIe library is essentially a simplification of the T1 and
+T2 ordered sets that are actually communicated in a real PCIe link. The template
+<code>pcie_phy</code> adds a port to a device with the name <code>phy</code>. This is intended to be
+used as a target for transactions which are related to the physical layer in
+PCIe. This port is only added in PCIe Downstream Components (not to be confused
+with Downstream Port, the Downstream component on a Link is the component
+farther from the Root Complex) which includes Endpoints and Upstream Switch
+Ports.</p>
+<p>Transactions in this layer are expected to have a BDF in <code>address[31:16]</code>. The
+bus number is unused as the transactions only traverse over <em>one</em> link. The
+function is currently also unused as the transaction will end up in the
+top-level of a device.</p>
+<p>Note that there is no implementation of a Link Training and Status State Machine
+(LTSSM).</p>
+<h2 id="link-training-upstream-components"><a href="#link-training-upstream-components">Link Training: Upstream Components</a></h2>
+<p>The Upstream component is the initiator of link training, in the sense that it
+is the sender of the link training transaction. This is done by sending a
+transaction to the <code>phy</code> port of the Downstream component. For this to happen
+when devices are added to the <code>pcie-downstream-port</code> associated with the
+Upstream component, the <code>pcie_link_training</code> template must be instantiated on
+the Upstream Component. Otherwise it will only happen when the Retrain Link
+field in the Link Control register is written to, or when a Downstream
+Component requests link re-training (see <a href="#downstream-initiated-link-retraining">Downstream-Initiated Link
+Retraining</a> below).</p>
+<p>Link training is triggered via the <code>invoke()</code> function of the
+<code>pcie_link_training</code> interface. The <code>trigger(device_id)</code> function of that
+interface is deprecated and should not be used; its <code>device_id</code> argument is
+ignored by the implementation.</p>
+<p>The Upstream component advertises its target link speed adding the
+<code>pcie_link_negotiation</code> atom to the transaction. It also advertises that it
+supports Flit Mode by including the <code>pcie_link_flit_mode</code> atom to the
+transaction. Upstream components are also capable of handling Device Readiness
+Status (DRS) messages. Link training is triggered in the <code>do_link_training()</code>
+method of the <code>exp_link</code> capability (which is instantiated in the
+<code>exp_capability</code> template if the <code>has_links</code> param is set to true). The
+<code>do_link_training()</code> method issues a transaction to the Upstream component which
+includes atoms for negotiation of the link properties.</p>
+<p>The link training method inspects the following register (all in the PCI Express
+Capability Structure) fields during handling of link training:</p>
+<ul>
+<li>The Target Link Speed field in the Link Control 2 register and the Maximum
+Link Width field in the Link Capabilities register. If both these values are
+non-zero, the link training transaction will contain a <code>pcie_link_negotiation</code>
+atom.</li>
+<li>The Flit Mode Supported field in the Capabilities register, the Flit Mode
+Disable field in the Link Control register and the DRS Supported field in the
+Link Capabilities 2 register. If Flit Mode Supported is 1, Flit Mode Disable
+is 0 and DRS Supported is 1, the link training transaction will contain a
+<code>pcie_link_flit_mode</code> atom. This indicates to the Downstream component that
+the Upstream component wants to enable Flit Mode in the link.</li>
+</ul>
+<p>The link training method sets the following register fields during handling of
+link training:</p>
+<ul>
+<li>The Current Link Speed field in the Link Status register and the Negotiated
+Link Width in the Link Status register.</li>
+<li>The Flit Mode Status field in the Link Status 2 register based on if the
+Downstream component decided that Flit Mode should be enabled.</li>
+<li>The Downstream Component Presence in the Link Status 2 register if the device
+supports DRS and the link training was successful.</li>
+<li>When a DRS message is received, the DRS Message Received field in the Link
+Status 2 register is set, followed by a modification to the Downstream
+Component Presence field.</li>
+</ul>
+<h2 id="link-training-downstream-components"><a href="#link-training-downstream-components">Link Training: Downstream Components</a></h2>
+<p>The current default transaction handler of the <code>phy</code> port handles certain
+aspects of link training. This includes link speed and width negotiation, as
+well as Flit Mode negotiation. The handler also sends a DRS PCIe message to the
+link training initiator (Upstream Component). The handler thus inspects the
+following atoms:</p>
+<ul>
+<li><code>pcie_link_negotiation</code>. Includes the link speed and link width the
+Upstream component wants to target. The Downstream component sets the
+negotiated link speed and link width to the minimum of the values the Upstream
+component included in this atom and the link speed and width it has support
+for.</li>
+<li><code>pcie_link_flit_mode</code>. Indicates that the Upstream component wants to
+enable Flit Mode. The Downstream component sets the <code>enabled</code> field in this
+atom if it also wants to enable Flit Mode.</li>
+</ul>
+<p>The handler inspects the following register (all in the PCI Express Capability
+Structure) fields during handling of link training:</p>
+<ul>
+<li>In the presence of the <code>pcie_link_negotiation</code> atom
+<ul>
+<li>Max Link Speed field in the Link Capabilities register. Used during
+negotiation of link speed as a minimum value comparison to the Upstream
+component’s target link speed.</li>
+<li>The Maximum Link Width field in the Link Capabilities register. Used during
+negotiation of link width as a minimum value comparison to the Upstream
+component’s maximum link width.</li>
+</ul>
+</li>
+<li>In the presence of the <code>pcie_link_flit_mode</code>
+<ul>
+<li>Flit Mode Supported field in the Capabilities register. Used during Flit
+Mode negotiation to determine if the Downstream component supports Flit Mode.</li>
+<li>Flit Mode Disable field in the Link Control Register. Used during Flit Mode
+negotiation to determine if the Downstream component should stop Flit Mode
+from being enabled even though it supports it.</li>
+</ul>
+</li>
+<li>DRS Supported field in the Link Capabilities 2 register. Used to determine if
+a DRS message should be sent after Link Training handling is completed.</li>
+</ul>
+<p>The handler sets the following register fields during handling of link training:</p>
+<ul>
+<li>In the presence of the <code>pcie_link_negotiation</code> atom
+<ul>
+<li>If negotiation is successful, the Current Link Speed field in the Link
+Status register is set to the negotiated link speed.</li>
+<li>If negotiation is successful, the Negotiated Link Width field in the Link
+Status Register is set to the negotiated link width.</li>
+</ul>
+</li>
+<li>In the presence of the <code>pcie_link_flit_mode</code> atom
+<ul>
+<li>If negotiation is successful, the Flit Mode Status field in the Link Status
+2 register is set.</li>
+</ul>
+</li>
+</ul>
+<p>The Downstream component finally sends a DRS message to the Upstream component
+if both link speed/width and Flit Mode negotiation were successful. This PCIe
+message includes the <code>pcie_message_type</code> atom set to
+<code>PCIE_Vendor_Defined_Type_1</code>, <code>pcie_msg_vdm_vendor_id_t</code> atom set to 0x0001 and
+<code>pcie_msg_vdm_subtype_t</code> atom set to <code>PCIE_VDM_Device_Readiness_Status</code>.</p>
+<h2 id="downstream-initiated-link-retraining"><a href="#downstream-initiated-link-retraining">Downstream-Initiated Link Retraining</a></h2>
+<p>A Downstream Component (PCIe Endpoint or Switch Upstream Port) can request that
+the link be re-trained, even though the Upstream Component remains the sender of
+the actual link training transaction. This is done by calling
+<code>request_link_retraining()</code> on the <code>pcie_link_control</code> interface implemented by
+the parent <code>pcie-downstream-port</code>, which in turn forwards the request to its
+upstream target.</p>
+<h2 id="link-blocking-and-tear-down"><a href="#link-blocking-and-tear-down">Link Blocking and Tear-down</a></h2>
+<p>Both Upstream and Downstream Components on a link can block link training and
+tear down the negotiated link. This is controlled through the
+<code>pcie_link_control</code> interface on the <code>pcie-downstream-port</code>, which exposes:</p>
+<ul>
+<li><code>downstream_component_blocking(bool is_blocking)</code> — intended for a Downstream
+Component to mark the link as blocked/unblocked from its side.</li>
+<li><code>upstream_component_blocking(bool is_blocking)</code> — the equivalent for the
+Upstream Component.</li>
+<li><code>request_link_retraining()</code> — request a re-training on an unblocked link.</li>
+</ul>
+<p>When either side transitions the link to a blocked state, the
+<code>pcie-downstream-port</code> notifies both peers via the <code>pcie_link_readiness</code>
+interface and the negotiated link attributes are reset. The default
+implementation of <code>pcie_link_readiness.link_down()</code> resets applicable link
+registers of the notified device. For Downstream Components, the
+<code>pcie_link_readiness</code> interface is implemented on the <code>phy</code> port; for Upstream
+Components it is implemented on the top level as part of the
+<code>pcie_link_training</code> template. When neither peer is blocking the link anymore,
+the <code>pcie-downstream-port</code> calls <code>pcie_link_readiness.link_not_blocking()</code> on
+both peers; the Upstream Component’s default implementation then re-initiates
+link training via <code>pcie_link_training.invoke()</code>. This ensures that link
+training is only triggered once both peers have unblocked the link, rather
+than once per side clearing its local block condition.</p>
+<h2 id="overriding-link-training-behavior"><a href="#overriding-link-training-behavior">Overriding Link Training Behavior</a></h2>
+<p>The link training handling can be overridden, both on the initiator side of the
+link (Upstream component) and the Downstream component. One reason for wanting
+to override the link training implementation provided by this library could be
+that the negotiated aspects of the link provided might not be enough. An
+override could thus add additional custom atoms and act upon those in both the
+Upstream and Downstream component.</p>
+<h3 id="overriding-upstream-components"><a href="#overriding-upstream-components">Overriding Upstream Components</a></h3>
+<p>To override the link training of the link training initiator, it makes the most
+sense to override the default implementation of the
+<code>do_link_training_custom(uint16 device_id, atom_t *extra_atoms)</code> and the
+<code>link_training_result_custom(const transaction_t *t, exception_type_t exc) -&gt; (bool)</code> methods in the <code>exp_link</code> capability.</p>
+<p>The most sensible override for <code>do_link_training_custom()</code> would be to
+create a new atom array where any potential atoms passed to the method
+to begin are added, as well as any custom atoms that required the override. Then
+call the <code>default()</code> implementation. See the example below for more details.</p>
+<pre><code class="language-dml">dml 1.4;
+device rp_link_training_override;
+
+import "pcie/common.dml";
+
+is pcie_root_port;
+is pcie_link_training;
+
+bank pcie_config {
+    is defining_exp_capability;
+    param exp_offset = 0x40;
+    param exp_next_ptr = 0;
+    param exp_dp_type = PCIE_DP_Type_RP;
+    group exp {
+        param has_links = true;
+        group link {
+            method do_link_training_custom(uint16 device_id, atom_t *extra_atoms) -&gt;
+                (bool) {
+                local int num_extra_atoms;
+                if (extra_atoms != NULL) {
+                    local const atom_t *a;
+                    for (a = extra_atoms; a-&gt;id != Sim_Atom_Id_list_end; a++)
+                        num_extra_atoms++;
+                }
+
+                /*
+                  Let's assume we want to add one atom in this override
+                  We need two extra slots in the array to also fit ATOM_list_end(0)
+                */
+                local atom_t atoms[num_extra_atoms + 2];
+                local int j;
+
+                atoms[j++] = ATOM_pcie_ecs(PCIE_ECS_Extended);
+                for (local int i = 0; i &lt; num_extra_atoms; i++)
+                    atoms[j++] = extra_atoms[i];
+                atoms[j] = ATOM_list_end(0);
+
+                return default(device_id, atoms);
+            }
+        }
+    }
+}
+</code></pre>
+<p><code>link_training_result_custom</code> is called after the transaction has been processed
+by the Downstream component. This call is done by the default implementation of
+the <code>do_link_training()</code> method. An override of the
+<code>link_training_result_custom()</code> could for example inspect values of custom atoms
+if they were to be pointers expected to be set by the Downstream component. It
+is also possible to override the methods <code>link_training_width_speed_result()</code>
+and <code>link_training_flit_mode_result()</code> if it is desired to modify the default
+behavior of the library regarding link speed, width and Flit Mode negotiation in
+an Upstream component.</p>
+<h3 id="overriding-downstream-components"><a href="#overriding-downstream-components">Overriding Downstream Components</a></h3>
+<p>To override the link training in a Downstream component, it makes the most sense
+to override the <code>shared method handle_link_custom(const transaction_t *t) -&gt; (exception_type_t)</code> method of the <code>phy</code> port in Downstream components. This
+handler should be treating any custom atoms that may potentially have been added
+by the Upstream component. If it is desired to modify the default behavior of
+the library for link speed, width, and Flit mode negotiation
+(<code>handle_link_speed_width()</code> and <code>handle_link_flit_mode()</code>).</p>
+<h2 id="downstream-port-of-switch-supporting-link-training-and-hot-plug"><a href="#downstream-port-of-switch-supporting-link-training-and-hot-plug">Downstream Port of Switch Supporting Link Training and Hot-Plug</a></h2>
+<p>Take the standard PCIe switch distributed as part of Simics Base. It indicates
+support of link speeds and widths using extended capability structures.
+Additionally, the supported values have been set in the link registers of the
+PCI Express Capability Structure. It also supports Hot-Plug along with having
+an attention button and a power indicator. The latter two are useful for
+Hot-Plug removal and software reporting status of Hot-Plug operations. Support
+for these features are enabled using <code>param</code>s found in the <code>exp_capability</code> and
+<code>exp_slot</code> templates. This will result in the device emitting interrupts for
+Slot and Link related events if software has enabled it. In the case where
+interrupts might be generated by firmware in the device rather by hardware in
+the device, shared methods found in the <code>exp_slot</code> template can be overridden to
+fit a certain use case.</p>
+<figure id="switch-example">
+<figcaption>Figure 19. PCIe Switch supporting Hot-Plug and Link Training</figcaption>
+<pre><code>dml 1.4;
+
+device standard_pcie_switch;
+param classname = "standard-pcie-switch";
+
+param desc = "standard PCIe switch";
+
+param documentation = "A standard PCIe switch with 4 downstream slots that"
+                    + " contains the mandatory capabilities for a PCIe"
+                    + " function in all ports.";
+
+import "pcie/common.dml";
+
+param pcie_version = 6.0;
+
+
+template switch_port is pcie_port {
+    bank pcie_config {
+        is configurable_pcie_link_speed_and_width;
+        register device_id { param init_val = 0x0370; }
+        register vendor_id { param init_val = 0x8086; }
+        register capabilities_ptr { param init_val = 0x40; }
+
+        register bar0 @ 0x10 is (memory_base_address_64) {
+            param size_bits = 14;
+        }
+
+        is defining_pm_capability;
+        param pm_offset = capabilities_ptr.init_val;
+        param pm_next_ptr = pm_offset + 0x08;
+
+        is defining_msix_capability;
+        param msix_offset = pm_next_ptr;
+        param msix_next_ptr = msix_offset + 0x0C;
+        param msix_num_vectors = 32;
+        param msix_table_offset_bir = 0;
+        param msix_pba_offset_bir = (0x10 * msix_num_vectors) &lt;&lt; 3;
+        param msix_data_bank = msix_data;
+
+        is defining_exp_capability;
+        param exp_offset = msix_next_ptr;
+        param exp_next_ptr = 0x0;
+        group exp {
+            param has_links = true;
+            group link {
+                param max_link_speed = PCIE_Link_Speed_32;
+                param max_link_width = PCIE_Link_Width_x8;
+            }
+        }
+
+        is defining_dlf_capability;
+        param dlf_offset = 0x100;
+        param dlf_next_ptr = dlf_offset + 0x0C;
+        is defining_pl16g_capability;
+        param pl16g_offset = dlf_next_ptr;
+        param pl16g_next_ptr = pl16g_offset + 0x28;
+        param pl16g_max_link_width = PCIE_Link_Width_x8;
+        param pl16g_max_lanes = PCIE_Link_Width_x8;
+        is defining_pl32g_capability;
+        param pl32g_offset = pl16g_next_ptr;
+        param pl32g_next_ptr = 0;
+        param pl32g_max_lanes = PCIE_Link_Width_x8;
+    }
+
+    bank msix_data is msix_table {
+        param msix_bank = pcie_config;
+    }
+}
+
+subdevice usp is (pcie_upstream_port, switch_port, post_init) {
+    bank pcie_config {
+        param exp_dp_type = PCIE_DP_Type_UP;
+    }
+
+    method post_init() {
+        if (SIM_is_restoring_state(dev.obj))
+            return;
+
+        local set_error_t ret;
+        local attr_value_t downstream_ports = SIM_alloc_attr_list(dsp.len);
+
+        for (local int i = 0; i &lt; dsp.len; i++) {
+            local attr_value_t dsp = SIM_make_attr_list(3, SIM_make_attr_uint64(i),
+                                  SIM_make_attr_uint64(0),
+                                  SIM_make_attr_object(dsp[i].obj));
+            SIM_attr_list_set_item(&amp;downstream_ports, i, dsp);
+        }
+
+        ret = SIM_set_attribute(downstream_port.obj, "devices", &amp;downstream_ports);
+        SIM_attr_free(&amp;downstream_ports);
+        assert(ret == Sim_Set_Ok);
+    }
+}
+
+subdevice dsp[i &lt; 4] is (pcie_downstream_port, pcie_link_training,
+                         switch_port) {
+    bank pcie_config {
+        param exp_dp_type = PCIE_DP_Type_DP;
+
+        group exp {
+            param has_hotplug_capable_slot = true;
+            param has_attention_button_slot = true;
+            group slot {
+                param has_power_indicator = true;
+            }
+        }
+    }
+}
+</code></pre>
+</figure>
+<p>Note that the downstream ports also have to instantiate the template
+<code>pcie_link_training</code> for link training support. This will ensure that when a
+device is connected, link training will be initiated to the device on the other
+side of the link. For link training to be successful, the device on the other
+side of the link also has to have a function(s) that contain link attributes in
+their PCIe Express Capability Structure (for example by setting the params
+<code>max_link_speed</code> and <code>max_link_width</code> in the link group) as done for the switch
+in the example above.</p>
+
+<div class="chain">
+<a href="sriov.html">Single Root I/O Virtualization and Sharing (SR-IOV)</a>
+<a href="peer-to-peer-routing.html">Peer-to-Peer Routing</a>
+</div>

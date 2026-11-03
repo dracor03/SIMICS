@@ -1,0 +1,606 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>qsp-x86-v2/user-provided-linux</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="hdd-boot-target.html">qsp-x86-v2/hdd-boot</a>
+<a href="yocto-linux-target.html">qsp-x86-v2/yocto-linux</a>
+</div>
+<div class="path">
+<a href="index.html">QSP-x86-v2 Target Guide</a>
+&nbsp;/&nbsp;
+<a href="targets.html">3 Targets</a>
+&nbsp;/&nbsp;</div>
+<h1>qsp-x86-v2/user-provided-linux</h1>
+<h2 id="about-the-target"><a href="#about-the-target">About the Target</a></h2>
+<p>The <code>user-provided-linux</code> target is designed to offer a convenient way to boot
+a Linux that the end user has built or obtained.
+The only mandatory element here is the kernel <code>software:linux:kernel</code>.
+All other parameters are
+optional, but most likely you will want to use the kernel command line parameter
+<code>software:linux:cmdline</code> and the root file system <code>software:linux:virtio_rootfs</code>
+and/or <code>software:linux:initrd</code> parameter.
+The root file system will use either a VirtIO block device (if the root file
+system parameter is a disk image) or a VirtIOFS device (if the root file system
+parameter is a directory).</p>
+<p>The requirements on the kernel are that it has drivers for PCI based VirtIO
+devices, PCI MSI drivers, and that it can be booted by GRUB 2.</p>
+<p><strong>Important note:</strong> When using VirtioFS, the daemon will always run as the user
+starting Simics. Hence, the root file system will appear with the user ID of
+this user. Whether this works depends on the Linux you are running. If your
+Linux insists that the root file system belongs to the root user, we recommend
+running Simics under <code>fakeroot</code>.</p>
+<h2 id="target-parameter-list"><a href="#target-parameter-list">Target Parameter List</a></h2>
+<ul>
+<li><em><strong>hardware</strong></em>
+<ul>
+<li><em><strong>name</strong></em> <br> Name of the machine. Used for the top-level component.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: qsp_v2</li>
+</ul>
+</li>
+<li><em><strong>memory_megs</strong></em> <br> Installed RAM in megabytes
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 8192</li>
+</ul>
+</li>
+<li><em><strong>post_instantiate_provider</strong></em> <br> A Python file providing a post_instantiate function: The file needs to define a function called ‘post_instantiate’ that takes two arguments. First, a list of all the cores in the created QSP-x86-v2 instance and, as the second argument, the object reference to the created QSP-x86-v2 instance.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: Not provided</li>
+</ul>
+</li>
+<li><em><strong>processor</strong></em>
+<ul>
+<li><em><strong>class</strong></em> <br> Class of processor objects
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: x86QSP3</li>
+</ul>
+</li>
+<li><em><strong>num_cores</strong></em> <br> Number of cores per module
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>freq_mhz</strong></em> <br> Frequency of cores
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1000</li>
+</ul>
+</li>
+<li><em><strong>cpi</strong></em> <br> Cycles per instruction
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>num_slots</strong></em> <br> Number of package slots
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>num_dies</strong></em> <br> Number of dies per package
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>num_modules</strong></em> <br> Number of modules per die
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>num_threads</strong></em> <br> Number of threads per core
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>apic_freq_mhz</strong></em> <br> APIC frequency
+<ul>
+<li><strong>Type</strong>: <code>float</code></li>
+<li><strong>Default value</strong>: 133.0</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>consoles</strong></em>
+<ul>
+<li><em><strong>con0</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create console object or not
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>show</strong></em> <br> Show console object at start if created
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>fg_color</strong></em> <br> Color of console foreground
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: black</li>
+</ul>
+</li>
+<li><em><strong>bg_color</strong></em> <br> Color of console background
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: white</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>con1</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create console object or not
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>show</strong></em> <br> Show console object at start if created
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>fg_color</strong></em> <br> Color of console foreground
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: black</li>
+</ul>
+</li>
+<li><em><strong>bg_color</strong></em> <br> Color of console background
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: white</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>gfx_con</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create console object or not
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>show</strong></em> <br> Show console object at start if created
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>storage</strong></em>
+<ul>
+<li><em><strong>disk0</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create disk object or not
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>image</strong></em> <br> Path to disk image (optional)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ^software:linux:boot_disk_image</li>
+</ul>
+</li>
+<li><em><strong>size</strong></em> <br> Size of disk (defaults to image size if used)
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 0</li>
+</ul>
+</li>
+<li><em><strong>type</strong></em> <br> Type of disk (virtio or nvme)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: nvme</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>disk1</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create disk object or not
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>image</strong></em> <br> Path to disk image (optional)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>:</li>
+</ul>
+</li>
+<li><em><strong>size</strong></em> <br> Size of disk (defaults to image size if used)
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 0</li>
+</ul>
+</li>
+<li><em><strong>type</strong></em> <br> Type of disk (virtio or nvme)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: nvme</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>rtc</strong></em>
+<ul>
+<li><em><strong>time</strong></em> <br> The RTC time in ‘yyyy-mm-dd hh:mm:ss’ format
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: auto</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>usb_tablet</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create USB tablet object or not
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>usb_host</strong></em>
+<ul>
+<li><em><strong>type</strong></em> <br> Type of the USB host controller (public or intel-internal)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: public</li>
+</ul>
+</li>
+<li><em><strong>create</strong></em> <br> Create USB host controller or not (needs a PCIe root port)
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>usb_keyboard</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create USB keyboard or not (needs USB host controller)
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>remap_unit</strong></em>
+<ul>
+<li><em><strong>class</strong></em> <br> Class from which remap units are instantiated. When this parameter does not match the default or ‘remap_unit_gen4’ the created remap units will not be connected in any way, as no generic connectivity pattern for remap units exists. That means, when changing this parameter, the end user or the target script must create all remap unit connectivity.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: pass_through_remap_unit</li>
+</ul>
+</li>
+<li><em><strong>rmug4</strong></em>
+<ul>
+<li><em><strong>paw</strong></em> <br> If set, the DMAR table shows the core’s physical address width for the RMUG4 remap unit instead of the default 36 bits
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>x2apic_opt_out</strong></em> <br> Enable or disable x2apic opt-out in the DMAR table for the RMUG4 remap unit
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>with_atsr</strong></em> <br> Enable or disable the ATSR sub-table in the DMAR table of the RMUG4 remap unit
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>root_ports</strong></em>
+<ul>
+<li><em><strong>class</strong></em> <br> Class of PCIe root port objects
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: simple_pcie_root_port</li>
+</ul>
+</li>
+<li><em><strong>config</strong></em> <br> PCIe root port configuration: Passed in as a string but the string should be in the format of a Python list of lists. Each sub list has two elements, the port ID and the port width. For example, ‘[[2,4],[6,2]]’ will define two ports, one with ID=2 and width=4, while the other has ID=6 and width=2.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: [[1,2],[2,2],[3,2],[4,2]]</li>
+</ul>
+</li>
+<li><em><strong>rc_routes_p2p</strong></em> <br> Whether to route root ports to each other for peer-to-peer communication
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>nic</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create NIC card or not (needs a PCIe root port)
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>mac</strong></em> <br> MAC address of NIC
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: 20:20:20:43:42:42</li>
+</ul>
+</li>
+<li><em><strong>type</strong></em> <br> Type of NIC (virtio or qsp-nic)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: virtio</li>
+</ul>
+</li>
+<li><em><strong>bootrom</strong></em> <br> Bootrom file of NIC
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>:</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>firmware</strong></em>
+<ul>
+<li><em><strong>bios</strong></em> <br> Path to BIOS image
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ^software:firmware:bios</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>simulation</strong></em>
+<ul>
+<li><em><strong>use_vmp</strong></em> <br> Enable or disable VMP in cores
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>create_cell</strong></em> <br> Create simulation cell or not
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>software</strong></em>
+<ul>
+<li><em><strong>firmware</strong></em>
+<ul>
+<li><em><strong>bios</strong></em> <br> BIOS file.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/qsp-x86-v2/images/QSPv2_r_1_9_0.fd</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>linux</strong></em>
+<ul>
+<li><em><strong>boot_from_disk_image</strong></em> <br> If set to true, just boot the disk image ignoring any kernel, initrd, or kernel command line setting.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>boot_disk_image</strong></em> <br> Bootable disk used with Simics agent and Grub used by UEFI to load kernel and boot OS.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/common/images/efi_agent_and_grub_only.craff</li>
+</ul>
+</li>
+<li><em><strong>startup_nsh</strong></em> <br> NSH script to run after UEFI Shell is reached
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/common/images/user_provided_linux.nsh</li>
+</ul>
+</li>
+<li><em><strong>host_tmp_dir</strong></em> <br> tmp dir on host to place generated grub config
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: /tmp</li>
+</ul>
+</li>
+<li><em><strong>kernel</strong></em> <br> path to the kernel file to boot from
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+</ul>
+</li>
+<li><em><strong>initrd</strong></em> <br> path to the initrd file to use (optional)
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+</ul>
+</li>
+<li><em><strong>virtio_rootfs</strong></em> <br> The root file system. Can be a disk image, a directory, or virtiofs daemon socket file. A disk image is applied as a Virtio PCIe block device, while a directory or daemon socket is used with a Virtio fs PCIe device. Virtio fs is only supported on Linux hosts.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+</ul>
+</li>
+<li><em><strong>cmdline</strong></em> <br> kernel command line
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>:</li>
+</ul>
+</li>
+<li><em><strong>virtiofs_tag</strong></em> <br> Virtio fs tag to be used for the Virtio fs root file system
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: myfs</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>network</strong></em>
+<ul>
+<li><em><strong>switch</strong></em>
+<ul>
+<li><em><strong>create_network</strong></em> <br> Creates an Ethernet switch and connects the primary Ethernet adapter to it.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>ethernet_switch</strong></em>
+<ul>
+<li><em><strong>name</strong></em> <br> Name of the created ethernet switch
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ethernet_switch</li>
+</ul>
+</li>
+<li><em><strong>global_id</strong></em> <br> Global ID for the link in a distributed setup (it should only be set if the link should be distributed and must match the links in other Simics sessions).
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 0</li>
+</ul>
+</li>
+<li><em><strong>goal_latency</strong></em> <br> Goal latency in seconds for communication (see also the set-min-latency command)
+<ul>
+<li><strong>Type</strong>: <code>float</code></li>
+<li><strong>Default value</strong>: 1e-05</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>service_node</strong></em>
+<ul>
+<li><em><strong>create</strong></em> <br> Create a service node.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>name</strong></em> <br> Name of the created service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: service_node</li>
+</ul>
+</li>
+<li><em><strong>ethernet_switch</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ^network:switch:ethernet_switch:name</li>
+<li><strong>Required</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>ip_address</strong></em> <br> IP address of the service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: 10.10.0.1</li>
+</ul>
+</li>
+<li><em><strong>clock</strong></em> <br> Name of clock to use for service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>connect_real_network</strong></em> <br> Connects the simulated Ethernet switch to the host network using NAPT (Network Address and Port Translation)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Allowed values</strong>: [‘napt’]</li>
+</ul>
+</li>
+<li><em><strong>dhcp</strong></em>
+<ul>
+<li><em><strong>setup</strong></em> <br> Setup service node DHCP service
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>domain</strong></em> <br> Domain name to use for the DHCP server in the service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: network.sim</li>
+</ul>
+</li>
+<li><em><strong>pool:starting_ip_address</strong></em> <br> First IP address to serve from the DHCP server in the service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: 10.10.0.100</li>
+</ul>
+</li>
+<li><em><strong>pool:size</strong></em> <br> Size of the IP address pool for the DHCP server in the service node
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 100</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>ip_address</strong></em> <br> The IP address to assign to the given MAC over DHCP
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: auto</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>output</strong></em>
+<ul>
+<li><em><strong>system</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>ip_address</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="chain">
+<a href="hdd-boot-target.html">qsp-x86-v2/hdd-boot</a>
+<a href="yocto-linux-target.html">qsp-x86-v2/yocto-linux</a>
+</div>

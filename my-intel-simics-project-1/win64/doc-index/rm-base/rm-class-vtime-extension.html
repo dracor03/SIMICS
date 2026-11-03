@@ -1,0 +1,61 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>vtime-extension</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-vtime.html">vtime</a>
+<a href="rm-class-vtune_measurement.html">vtune_measurement</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="vtime-extension"><a href="#vtime-extension">vtime-extension</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>vtime-extension</tt> extension class is used internally by Simics Core to augment objects with event posting functionality. This extension class should only be used by Simics Core.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:vtime"><a href="#dt:vtime">vtime</a></dt>
+<dd>
+<a href="rm-class-vtime.html#vtime">vtime</a>
+ – event handler</dd>
+<dt id="dt:vtime-cycles"><a href="#dt:vtime-cycles">vtime.cycles</a></dt>
+<dd>
+<a href="rm-class-cycle-counter.html#cycle-counter">cycle-counter</a>
+ – cycle queue</dd>
+<dt id="dt:vtime-ps"><a href="#dt:vtime-ps">vtime.ps</a></dt>
+<dd>
+<a href="rm-class-ps-clock.html#ps-clock">ps-clock</a>
+ – event queue (ps)</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-class-vtime.html">vtime</a>
+<a href="rm-class-vtune_measurement.html">vtune_measurement</a>
+</div>

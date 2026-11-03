@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;memory_space&gt;.set-string</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-memory_space.save-vmem.html">&lt;memory_space&gt;.save-vmem</a>
+<a href="rm-cmd-micron_mtfc128gap_emmc_card.info.html">&lt;micron_mtfc128gap_emmc_card&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="memory_space.set-string"></a>
+<a name="memory_space.write-string"></a>
+<a name="port_space.write-string"></a>
+<h1 id="memory_space.set-string"><a href="#memory_space.set-string">&lt;memory_space&gt;.set-string</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;memory_space&gt;.set-string</b> <i>"string"</i> <i>address</i> [<i>max-size</i>] [<i>term</i>] <br><b>&lt;memory_space&gt;.write-string</b> <i>"string"</i> <i>address</i> [<i>max-size</i>] [<i>term</i>] <br><b>&lt;port_space&gt;.write-string</b> <i>"string"</i> <i>address</i> [<i>max-size</i>] [<i>term</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Write up to <i>max-size</i> characters from the string <i>string</i> to physical memory at location <i>address</i>. The <i>term</i> argument determines how the string is terminated in memory. If <i>term</i> is "none", no string terminator is written. If it is "null" (default), a null-terminator is written at the end of the string (meaning that at most <i>max-size</i> - 1 bytes from the string will be written) and for "optional-null", a null-terminator is only added it fits within the <i>max-size</i> character count. Any null characters embedded in the CLI string will be written to memory and not treated as string terminators.
+<p>
+The <code>&lt;memory_space&gt;.set-string</code> command performs the access in inquiry mode without triggering any side-effects while <code>&lt;memory_space&gt;.write-string</code> may trigger side-effects.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-memory_space.get-string.html">&lt;memory_space&gt;.get-string</a>, 
+<a href="rm-cmd-memory_space.set-string.html">&lt;memory_space&gt;.write-string</a>, 
+<a href="rm-cmd-set.html">&lt;memory_space&gt;.set</a>, 
+<a href="rm-cmd-set.html">&lt;memory_space&gt;.write</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-memory_space.save-vmem.html">&lt;memory_space&gt;.save-vmem</a>
+<a href="rm-cmd-micron_mtfc128gap_emmc_card.info.html">&lt;micron_mtfc128gap_emmc_card&gt;.info</a>
+</div>

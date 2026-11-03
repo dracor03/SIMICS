@@ -1,0 +1,309 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Transactions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-types-generic.html">Generic Data Types</a>
+<a href="dev-api-types-model-specific.html">Model Specific Data Types</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-data-types.html">Device API Data Types</a>
+&nbsp;/&nbsp;</div>
+<h1>Transactions</h1>
+<h2 id="atom_id_t"><a href="#atom_id_t">atom_id_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>atom_id_t — predefined atom ids</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Atom_Id_illegal = 0,
+        Sim_Atom_Id_list_end,
+        Sim_Atom_Id_flags,
+        Sim_Atom_Id_data,
+        Sim_Atom_Id_size,
+        Sim_Atom_Id_fill_value,
+        Sim_Atom_Id_initiator,
+        Sim_Atom_Id_user_data,
+        Sim_Atom_Id_completion,
+        Sim_Atom_Id_owner,
+        Sim_Atom_Id_memop,
+        Sim_Atom_Id_bytemap,
+        Sim_Atom_Id_trace_atom_access,
+        Sim_Atom_Id_target_type,
+        Sim_Atom_Id_pcie_type = 0x100,
+        Sim_Atom_Id_pcie_requester_id,
+        Sim_Atom_Id_pcie_msg_type,
+        Sim_Atom_Id_pcie_ecs,
+        Sim_Atom_Id_pcie_msg_route,
+        Sim_Atom_Id_pcie_pasid,
+        Sim_Atom_Id_pcie_at,
+        Sim_Atom_Id_pcie_error_ret,
+        Sim_Atom_Id_pcie_byte_count_ret,
+        Sim_Atom_Id_pcie_device_id,
+        Sim_Atom_Id_pcie_destination_segment,
+        Sim_Atom_Id_pcie_link_negotiation,
+        Sim_Atom_Id_pcie_link_flit_mode,
+        Sim_Atom_Id_pcie_ats_translation_request_cxl_src,
+        Sim_Atom_Id_pcie_ats_translation_request_no_write,
+        Sim_Atom_Id_pcie_ats_invalidate_request_itag,
+        Sim_Atom_Id_pcie_ats_invalidate_completion_itag_vector,
+        Sim_Atom_Id_pcie_ats_invalidate_completion_count,
+        Sim_Atom_Id_pcie_prs_page_request,
+        Sim_Atom_Id_pcie_prs_page_group_response,
+        Sim_Atom_Id_pcie_prs_stop_marker,
+        Sim_Atom_Id_pcie_requester_segment,
+        Sim_Atom_Id_pcie_ide_secured,
+        Sim_Atom_Id_pcie_msg_vdm_subtype,
+        Sim_Atom_Id_pcie_msg_vdm_vendor_id,
+        Sim_Atom_Id_pcie_link_l0p_support,
+        Sim_Atom_Id_pcie_msg_vdm_frs_reason,
+        Sim_Atom_Id_arm_privileged = 0x200,
+        Sim_Atom_Id_arm_nonsecure,
+        Sim_Atom_Id_arm_memory_attributes,
+        Sim_Atom_Id_arm_smmu_attributes,
+        Sim_Atom_Id_arm_nsaid,
+        Sim_Atom_Id_arm_device_id,
+        Sim_Atom_Id_arm_smmu_qtw_access_type,
+        Sim_Atom_Id_arm_axi_id,
+        Sim_Atom_Id_riscv_wg_wid = 0x300,
+        Sim_Atom_Id_riscv_device_id,
+        Sim_Atom_Id_riscv_process_id,
+        Sim_Atom_Id_riscv_io_error_ret,
+        Sim_Atom_Id_cxl_type = 0x400,
+} atom_id_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Atom_Id_arm_nonsecure
+simics.Sim_Atom_Id_arm_smmu_attributes
+simics.Sim_Atom_Id_riscv_wg_wid
+simics.Sim_Atom_Id_data
+simics.Sim_Atom_Id_pcie_msg_vdm_vendor_id
+simics.Sim_Atom_Id_initiator
+simics.Sim_Atom_Id_user_data
+simics.Sim_Atom_Id_pcie_link_l0p_support
+simics.Sim_Atom_Id_pcie_error_ret
+simics.Sim_Atom_Id_trace_atom_access
+simics.Sim_Atom_Id_cxl_type
+simics.Sim_Atom_Id_pcie_prs_page_group_response
+simics.Sim_Atom_Id_pcie_byte_count_ret
+simics.Sim_Atom_Id_arm_device_id
+simics.Sim_Atom_Id_pcie_ats_invalidate_request_itag
+simics.Sim_Atom_Id_pcie_prs_stop_marker
+simics.Sim_Atom_Id_completion
+simics.Sim_Atom_Id_pcie_msg_type
+simics.Sim_Atom_Id_pcie_link_flit_mode
+simics.Sim_Atom_Id_arm_axi_id
+simics.Sim_Atom_Id_bytemap
+simics.Sim_Atom_Id_pcie_msg_vdm_subtype
+simics.Sim_Atom_Id_riscv_process_id
+simics.Sim_Atom_Id_pcie_msg_route
+simics.Sim_Atom_Id_pcie_ecs
+simics.Sim_Atom_Id_pcie_ats_invalidate_completion_count
+simics.Sim_Atom_Id_riscv_io_error_ret
+simics.Sim_Atom_Id_pcie_type
+simics.Sim_Atom_Id_illegal
+simics.Sim_Atom_Id_pcie_at
+simics.Sim_Atom_Id_pcie_ats_translation_request_no_write
+simics.Sim_Atom_Id_size
+simics.Sim_Atom_Id_flags
+simics.Sim_Atom_Id_memop
+simics.Sim_Atom_Id_pcie_ide_secured
+simics.Sim_Atom_Id_arm_privileged
+simics.Sim_Atom_Id_pcie_link_negotiation
+simics.Sim_Atom_Id_owner
+simics.Sim_Atom_Id_pcie_requester_segment
+simics.Sim_Atom_Id_pcie_msg_vdm_frs_reason
+simics.Sim_Atom_Id_arm_nsaid
+simics.Sim_Atom_Id_pcie_ats_invalidate_completion_itag_vector
+simics.Sim_Atom_Id_riscv_device_id
+simics.Sim_Atom_Id_pcie_requester_id
+simics.Sim_Atom_Id_fill_value
+simics.Sim_Atom_Id_target_type
+simics.Sim_Atom_Id_pcie_ats_translation_request_cxl_src
+simics.Sim_Atom_Id_pcie_pasid
+simics.Sim_Atom_Id_arm_memory_attributes
+simics.Sim_Atom_Id_pcie_prs_page_request
+simics.Sim_Atom_Id_arm_smmu_qtw_access_type
+simics.Sim_Atom_Id_pcie_destination_segment
+simics.Sim_Atom_Id_pcie_device_id
+simics.Sim_Atom_Id_list_end
+</code></pre>
+<h2>Description</h2>
+<p>Each atom type is associated with a unique id, the <code>atom_id_t</code>. Most atoms types are pre-defined by Simics Core and have static ids, but there are also dynamically assigned ids which are used for custom atom types.</p>
+<p>Atom ids are internal to Simics Core and should never be used explicitly by a Simics models. Instead, there are API functions like e.g. <a href="dev-api-transactions.html#ATOM_flags"><code>ATOM_size</code></a> or <a href="dev-api-transactions.html#ATOM_flags"><code>ATOM_initiator</code></a> which should be used instead.</p>
+</section>
+<h2 id="atom_t"><a href="#atom_t">atom_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>atom_t — basic type used inside transactions</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct {
+        atom_id_t id;
+#ifndef PYWRAP
+        void *ptr;
+#endif
+} atom_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.atom_t
+</code></pre>
+<h2>Description</h2>
+<p>The <code>atom_t</code> type is a container type for tagged data associated with a transaction. The kind of data stored in the atom is determined by the <code>id</code> field, and a pointer to the data or the data itself is stored in the <code>ptr</code> field.</p>
+<p>Atoms should always be initialized using provided constructor functions like <a href="dev-api-transactions.html#ATOM_flags"><code>ATOM_flags</code></a> or <a href="dev-api-transactions.html#ATOM_flags"><code>ATOM_size</code></a>. Usage of the constructors ensures that the data payload is of the correct type and that the <code>id</code> is set to the correct value.</p>
+<p>Atom lists must be terminated with the special <code>ATOM_LIST_END</code> marker.</p>
+</section>
+<h2 id="transaction_completion_t"><a href="#transaction_completion_t">transaction_completion_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>transaction_completion_t — callback type for transaction completion</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef exception_type_t (*transaction_completion_t)(conf_object_t *obj,
+                                                     transaction_t *t,
+                                                     exception_type_t ex);
+</code></pre>
+<h2>Description</h2>
+<p>Callback invoked when an asynchronous transaction is completed. The callback is stored in a <code>completion</code> atom belonging to the transaction <code>t</code>. Similarly, <code>obj</code> is an object stored in either an <code>owner</code> atom or an <code>initiator</code> atom. The former takes precedence if both are present.</p>
+<p>Completion callbacks are only invoked for transactions monitored with either <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_transaction</code></a> or <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_chained_transaction</code></a>, or for transactions deferred with <a href="dev-api-transactions.html#SIM_defer_owned_transaction"><code>SIM_defer_owned_transaction</code></a>.</p>
+<p>The completion status for the operation is given in the <code>ex</code> argument, and is usually equal to <code>Sim_PE_No_Exception</code>.</p>
+<p>The return value of the callback is the completion status for the transaction <code>t</code>. This status is used to complete the parent transaction if the transaction is being monitored with <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_chained_transaction</code></a>. The return value is also returned by <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_transaction</code></a> or <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_chained_transaction</code></a> when a transaction is completed synchronously.</p>
+<p>If the callback returns <code>Sim_PE_Deferred</code>, then the transaction <code>t</code> is left uncompleted. It must then be completed later on by an explicit call to <a href="dev-api-transactions.html#SIM_complete_transaction"><code>SIM_complete_transaction</code></a>.</p>
+</section>
+<h2 id="transaction_flags_t"><a href="#transaction_flags_t">transaction_flags_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>transaction_flags_t — flags used with transaction_t</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Transaction_Fetch         = 1 &lt;&lt; 0,
+        Sim_Transaction_Write         = 1 &lt;&lt; 1,
+        Sim_Transaction_Control       = 1 &lt;&lt; 2,
+
+        Sim_Transaction_Inquiry       = 1 &lt;&lt; 8,
+        Sim_Transaction_Incoherent    = 1 &lt;&lt; 9,
+        Sim_Transaction_Atomic        = 1 &lt;&lt; 10,
+} transaction_flags_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Transaction_Atomic
+simics.Sim_Transaction_Write
+simics.Sim_Transaction_Inquiry
+simics.Sim_Transaction_Control
+simics.Sim_Transaction_Incoherent
+simics.Sim_Transaction_Fetch
+</code></pre>
+<h2>Description</h2>
+<p>The <code>transaction_flags_t</code> type is bitmask used to specify the transaction type. It is a combination of the following bits:</p>
+<p><code>Sim_Transaction_Fetch</code> indicates that the transaction is an instruction fetch.</p>
+<p><code>Sim_Transaction_Write</code> is set if the transaction is a write.</p>
+<p><code>Sim_Transaction_Control</code> is set if the transaction does not actually transfer any data. One example of such transactions is cache control operations.</p>
+<p>The <code>Sim_Transaction_Inquiry</code> bit signifies that side effects normally triggered by the transaction should be suppressed. Examples of side effects include triggering breakpoints and clearing “read-to-clear” device registers.</p>
+<p>When neither <code>Sim_Transaction_Fetch</code> nor <code>Sim_Transaction_Write</code> is set the transaction is a read transaction.</p>
+</section>
+<h2 id="transaction_t"><a href="#transaction_t">transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>transaction_t — type of transactions</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct transaction {
+#ifndef PYWRAP
+        atom_t *atoms;
+#endif
+        struct transaction *prev;
+#ifndef PYWRAP
+        struct transaction_cache *_cache;
+        uint64 _status;
+#endif
+} transaction_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.transaction_t(read = True, write = False, fetch = False, inquiry = False
+                  prev = None, &lt;atoms...&gt;)
+</code></pre>
+<h2>Description</h2>
+<p>A <code>transaction_t</code> represents a memory transaction. The properties of the transaction is stored in the form of an atom list, where each atom describes a particular aspect of the transaction, like the size of the transaction.</p>
+<p>The field <code>atoms</code> points to the atoms list, which must be terminated with the constant <code>ATOM_LIST_END</code>.</p>
+<p>The <code>prev</code> field points to an optional parent transaction. If a particular atom is not found in the atoms list, then the parent’s list of atoms is consulted instead. The <code>prev</code> pointer is also used when a chained transaction is monitored with <a href="dev-api-transactions.html#SIM_monitor_transaction"><code>SIM_monitor_chained_transaction</code></a>.</p>
+<p>Besides the fields above, the transaction contains some internal fields that should be initialized to 0. The internal fields should not be referenced explicitly since they are likely to change in future Simics releases.</p>
+<p>For details, please refer to <a href="../model-builder-user-guide/transactions.html">Transactions</a> chapter in the Model Builder’s User Guide.</p>
+</section>
+<h2 id="translation_t"><a href="#translation_t">translation_flags_t, translation_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>translation_flags_t, translation_t — structure used with translator_interface_t</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Translation_Dynamic = 1,
+        Sim_Translation_Ambiguous = 2
+} translation_flags_t;
+
+typedef struct translation {
+        const map_target_t *target;  /* target of translation */
+
+        physical_address_t base;     /* base address of translated range */
+        physical_address_t start;    /* start address in mapped object */
+        physical_address_t size;     /* size of translated range */
+
+        translation_flags_t flags;
+} translation_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Translation_Dynamic
+simics.Sim_Translation_Ambiguous
+class simics.translation_t(target=None, base=0, start=0, size=0, flags=0)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>translation_t</code> type is used for the implementation of the <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a> and <a href="model-to-model-interfaces.html#transaction_translator_interface_t"><code>transaction_translator</code></a> interfaces. It describes the range for which the translation is valid, its target as well as translation properties.</p>
+<p>The range for which the translation is valid is specified by the fields <code>base</code> and <code>size</code>. As a special case, if <code>size</code> and <code>base</code> are both 0, then the translation is valid for the entire address space. To allow optimizations (e.g., caching of translations) translators should return as wide ranges as possible.</p>
+<p>The <code>target</code> field specifies the object and interface port which is mapped into the address range in the form of a map target. Map targets can be created using the function <a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a>.</p>
+<p>Please note that the ownership over the returned map target is not transferred to the interface caller. This means that to avoid memory leaks the reference to the map target must be kept by the implementing object, and <a href="dev-api-translators.html#SIM_free_map_target"><code>SIM_free_map_target</code></a> function should be later used to deallocate the map target. Possible map targets include IO banks, RAM, ROM, memory spaces, port spaces, bridges, and translators. The <code>base</code> address in the source address space is mapped to the target address returned in the <code>start</code> field.</p>
+<p>A null value returned in the <code>target</code> field signifies that the translation cannot be done. This can happen if there is nothing mapped in the range defined by <code>base</code> and <code>size</code> (transactions directed to this region will be terminated with the pseudo exception <code>Sim_PE_IO_Not_Taken</code>) or if a translation valid for all requested accesses cannot be performed. In the latter case, the requestor is expected to repeat the interface call with just a single bit set in the access mask, e.g. <code>Sim_Access_Read</code>.</p>
+<p>If the returned translation is not static but instead depends on e.g. a device register, then the translator can set the flags field to <code>Sim_Translation_Dynamic</code>. This flag indicates that the translation must not be cached. If this flag is not used, then it is the responsibility of the translator to call either <a href="dev-api-translators.html#SIM_map_target_flush"><code>SIM_map_target_flush</code></a> (preferably) or <a href="dev-api-translators.html#SIM_translation_changed"><code>SIM_translation_changed</code></a> function when a previously performed translation is no longer valid.</p>
+<p>The <code>Sim_Translation_Ambiguous</code> flag should not generally be used by models. It is used by Simics objects of the <a href="../rm-base/rm-class-memory-space.html"><code>memory-space</code></a> class to indicate an error in the memory mapping when several destinations are specified for the address.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-translators.html#SIM_map_target_flush"><code>SIM_map_target_flush</code></a>,<a href="dev-api-translators.html#SIM_translation_changed"><code>SIM_translation_changed</code></a></p>
+</section>
+<div class="chain">
+<a href="dev-api-types-generic.html">Generic Data Types</a>
+<a href="dev-api-types-model-specific.html">Model Specific Data Types</a>
+</div>

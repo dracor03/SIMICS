@@ -1,0 +1,45 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-cell-and-clocks-comp</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-cdrom-image.html">new-cdrom-image</a>
+<a href="rm-cmd-new-context.html">new-context</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-cell-and-clocks-comp"></a>
+<h1 id="new-cell-and-clocks-comp"><a href="#new-cell-and-clocks-comp">new-cell-and-clocks-comp</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-cell-and-clocks-comp</b> [<i>"name"</i>] [<i>clock_number</i>] [<i>freq_mhz</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command creates an instantiated component of the class <tt>cell_and_clocks_comp</tt>.
+<p>
+The class description for the <tt>cell_and_clocks_comp</tt> class: The "cell_and_clock_comp" component builds a simulation cell with a configurable number of clocks. Each clock is exported as a connector. This component is meant to be used for building small test configurations.
+</p><p>
+</p><dl><dt id="dt:name-is-optional"><a href="#dt:name-is-optional"><i>name</i> is Optional</a></dt><dd>If not specified, the component will get a class-specific default name.</dd>
+<p>
+</p><dt id="dt:clock_number-is-optional"><a href="#dt:clock_number-is-optional"><i>clock_number</i> is Optional</a></dt><dd>Number of clocks to run</dd>
+<p>
+</p><dt id="dt:freq_mhz-is-optional"><a href="#dt:freq_mhz-is-optional"><i>freq_mhz</i> is Optional</a></dt><dd>Frequency of Clocks</dd></dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.clock.html">clock</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-cdrom-image.html">new-cdrom-image</a>
+<a href="rm-cmd-new-context.html">new-context</a>
+</div>

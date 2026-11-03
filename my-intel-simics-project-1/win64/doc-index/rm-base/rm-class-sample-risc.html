@@ -1,0 +1,236 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample-risc</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample-pcie-root-complex-ats.html">sample-pcie-root-complex-ats</a>
+<a href="rm-class-sample-risc-core.html">sample-risc-core</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample-risc"><a href="#sample-risc">sample-risc</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The sample RISC (Reduced Instructions Set Computer/Cosimulator).
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, simulator_cache, breakpoint_change, direct_memory_update, stall, execute, cycle, event_delta, frequency, step, frequency_listener
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:frequency-change"><a href="#dt:frequency-change">frequency-change</a></dt>
+<dd>Notifier that is triggered when frequency changes. New frequency can be read via the frequency interface of the object.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-cpu_frequency"><a href="#dt:port-cpu_frequency">port.cpu_frequency</a></dt>
+<dd>
+<a href="rm-class-sample-risc.html#sample-risc.cpu_frequency">sample-risc.cpu_frequency</a>
+ – Broadcasts changes in CPU frequency.</dd>
+<dt id="dt:vtime"><a href="#dt:vtime">vtime</a></dt>
+<dd>
+<a href="rm-class-vtime.html#vtime">vtime</a>
+ – event handler</dd>
+<dt id="dt:vtime-cycles"><a href="#dt:vtime-cycles">vtime.cycles</a></dt>
+<dd>
+<a href="rm-class-cycle-counter.html#cycle-counter">cycle-counter</a>
+ – cycle queue</dd>
+<dt id="dt:vtime-ps"><a href="#dt:vtime-ps">vtime.ps</a></dt>
+<dd>
+<a href="rm-class-ps-clock.html#ps-clock">ps-clock</a>
+ – event queue (ps)</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample-risc.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample-risc.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="commands-for-interface-cycle">
+<a href="#commands-for-interface-cycle">Commands for interface cycle</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-cycle.bp-break-cycle.html">bp-break-cycle</a>
+ – set cycle breakpoint</li>
+<li>
+<a href="rm-cmd-cycle.bp-break-time.html">bp-break-time</a>
+ – set time breakpoint</li>
+<li>
+<a href="rm-cmd-cycle.bp-run-until-cycle.html">bp-run-until-cycle</a>
+ – run until specified cycle</li>
+<li>
+<a href="rm-cmd-cycle.bp-run-until-time.html">bp-run-until-time</a>
+ – run until specified time</li>
+<li>
+<a href="rm-cmd-cycle.bp-trace-cycle.html">bp-trace-cycle</a>
+ – enable tracing of cycle points</li>
+<li>
+<a href="rm-cmd-cycle.bp-trace-time.html">bp-trace-time</a>
+ – enable tracing of time points</li>
+<li>
+<a href="rm-cmd-cycle.bp-wait-for-cycle.html">bp-wait-for-cycle</a>
+ – wait for specified cycle</li>
+<li>
+<a href="rm-cmd-cycle.bp-wait-for-time.html">bp-wait-for-time</a>
+ – wait for specified time</li>
+<li>
+<a href="rm-cmd-cycle.print-time.html">print-time</a>
+ – print number of steps and cycles executed</li>
+</ul>
+<h2 id="commands-for-interface-step">
+<a href="#commands-for-interface-step">Commands for interface step</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-step.bp-break-step.html">bp-break-step</a>
+ – set step breakpoint</li>
+<li>
+<a href="rm-cmd-step.bp-run-until-step.html">bp-run-until-step</a>
+ – run until specified step</li>
+<li>
+<a href="rm-cmd-step.bp-trace-step.html">bp-trace-step</a>
+ – enable tracing of step points</li>
+<li>
+<a href="rm-cmd-step.bp-wait-for-step.html">bp-wait-for-step</a>
+ – wait for specified step</li>
+<li>
+<a href="rm-cmd-force-step-instruction.html">force-step-instruction</a>
+ – step instructions while other processors stall</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:current_risc_core"><a href="#dt:current_risc_core">
+<i>current_risc_core</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Currently active core used for commands that normally target the current processor.</dd>
+<dt id="dt:cached_pages"><a href="#dt:cached_pages">
+<i>cached_pages</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[oiii]*]</code>
+<br>Cached pages; for debugging/testing purposes only</dd>
+<dt id="dt:do_not_schedule"><a href="#dt:do_not_schedule">
+<i>do_not_schedule</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to TRUE to prevent this object from being scheduled by the cell.</dd>
+<dt id="dt:cycles"><a href="#dt:cycles">
+<i>cycles</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Time measured in cycles from machine start.</dd>
+<dt id="dt:time_queue"><a href="#dt:time_queue">
+<i>time_queue</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[osaii]*]</code>
+<br>((<i>object</i>, <i>evclass</i>, <i>value</i>, <i>slot</i>, <i>step</i>)*).</dd>
+<dt id="dt:cell"><a href="#dt:cell">
+<i>cell</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Cell</dd>
+<dt id="dt:steps"><a href="#dt:steps">
+<i>steps</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Time measured in steps from machine start.</dd>
+<dt id="dt:step_queue"><a href="#dt:step_queue">
+<i>step_queue</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[osaii]*]</code>
+<br>((<i>object</i>, <i>evclass</i>, <i>value</i>, <i>slot</i>, <i>step</i>)*).</dd>
+<dt id="dt:freq_mhz"><a href="#dt:freq_mhz">
+<i>freq_mhz</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i|f</code>
+<br>Processor clock frequency in MHz.</dd>
+<dt id="dt:frequency"><a href="#dt:frequency">
+<i>frequency</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]|o|[os]</code>
+<br>Processor clock frequency in Hz, as a rational number [numerator, denominator].</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-risc.html">sample-risc</a>
+</section>
+<h2 id="sample-risc.cpu_frequency"><a href="#sample-risc.cpu_frequency">sample-risc.cpu_frequency</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+Broadcasts changes in CPU frequency.
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, simple_dispatcher
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-sample-pcie-root-complex-ats.html">sample-pcie-root-complex-ats</a>
+<a href="rm-class-sample-risc-core.html">sample-risc-core</a>
+</div>

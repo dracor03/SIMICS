@@ -1,0 +1,202 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ich10_usb_uhci</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_usb_ehci.html">ich10_usb_ehci</a>
+<a href="rm-class-irq_pin_to_ioapic.html">irq_pin_to_ioapic</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ich10_usb_uhci"><a href="#ich10_usb_uhci">ich10_usb_uhci</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+USB UHCI host controller in Intel® ICH10.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, pci_device, usb
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:chipset_config-optional"><a href="#dt:chipset_config-optional">chipset_config (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: int_register
+</dd>
+<dt id="dt:expansion_rom-optional"><a href="#dt:expansion_rom-optional">expansion_rom (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: rom
+</dd>
+<dt id="dt:pci_bus-required"><a href="#dt:pci_bus-required">pci_bus (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory, pci_bus
+</dd>
+<dd>
+<b>Optional interfaces</b>: pci_upstream_operation
+</dd>
+<dt id="dt:usb_devices-optional"><a href="#dt:usb_devices-optional">usb_devices (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: usb_device
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-pci_config"><a href="#dt:bank-pci_config">bank.pci_config</a></dt>
+<dd>
+<a href="rm-class-ich10_usb_uhci.html#ich10_usb_uhci.pci_config">ich10_usb_uhci.pci_config</a>
+</dd>
+<dt id="dt:bank-usb_ctrl"><a href="#dt:bank-usb_ctrl">bank.usb_ctrl</a></dt>
+<dd>
+<a href="rm-class-ich10_usb_uhci.html#ich10_usb_uhci.usb_ctrl">ich10_usb_uhci.usb_ctrl</a>
+</dd>
+<dt id="dt:bank-usb_regs"><a href="#dt:bank-usb_regs">bank.usb_regs</a></dt>
+<dd>
+<a href="rm-class-ich10_usb_uhci.html#ich10_usb_uhci.usb_regs">ich10_usb_uhci.usb_regs</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_usb_uhci.html#ich10_usb_uhci.HRESET">ich10_usb_uhci.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_usb_uhci.html#ich10_usb_uhci.SRESET">ich10_usb_uhci.SRESET</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ich10_usb_uhci.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ich10_usb_uhci.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:chipset_config"><a href="#dt:chipset_config">
+<i>chipset_config</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Chipset configuration registers
+<p>
+Required interface: <tt>int_register</tt></p></dd>
+<dt id="dt:config_registers"><a href="#dt:config_registers">
+<i>config_registers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[i*]</code>
+<br>The PCI configuration registers, each 32 bits in size.</dd>
+<dt id="dt:expansion_rom_size"><a href="#dt:expansion_rom_size">
+<i>expansion_rom_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the expansion ROM mapping.</dd>
+<dt id="dt:frame_list_polling_enabled"><a href="#dt:frame_list_polling_enabled">
+<i>frame_list_polling_enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Poll the frame list in 1ms intervals.</dd>
+<dt id="dt:frame_list_polling_interval"><a href="#dt:frame_list_polling_interval">
+<i>frame_list_polling_interval</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>The frame list polling interval in seconds, default is 0.001.</dd>
+<dt id="dt:frame_list_rescan"><a href="#dt:frame_list_rescan">
+<i>frame_list_rescan</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>i</code>
+<br>Force the USB host to rescan all frame descriptors to find new transfers.</dd>
+<dt id="dt:last_frame_update"><a href="#dt:last_frame_update">
+<i>last_frame_update</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Time for last frame update.</dd>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>The PCI bus this device is connected to, implementing the <tt>pci-bus</tt> interface.
+<p>
+Required interfaces: <tt>io_memory</tt>, <tt>pci_bus</tt>
+</p><p>
+Optional interface: <tt>pci_upstream_operation</tt></p></dd>
+<dt id="dt:pci_dev_num"><a href="#dt:pci_dev_num">
+<i>pci_dev_num</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>PCI device number on the ICH internal PCI bus</dd>
+<dt id="dt:pcidev_func_num"><a href="#dt:pcidev_func_num">
+<i>pcidev_func_num</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Function number in the PCI device</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ICH10.html">ICH10</a>
+</section>
+<h2 id="ich10_usb_uhci.HRESET"><a href="#ich10_usb_uhci.HRESET">ich10_usb_uhci.HRESET</a></h2>
+<h2 id="ich10_usb_uhci.SRESET"><a href="#ich10_usb_uhci.SRESET">ich10_usb_uhci.SRESET</a></h2>
+<h2 id="ich10_usb_uhci.pci_config"><a href="#ich10_usb_uhci.pci_config">ich10_usb_uhci.pci_config</a></h2>
+<h2 id="ich10_usb_uhci.usb_ctrl"><a href="#ich10_usb_uhci.usb_ctrl">ich10_usb_uhci.usb_ctrl</a></h2>
+<h2 id="ich10_usb_uhci.usb_regs"><a href="#ich10_usb_uhci.usb_regs">ich10_usb_uhci.usb_regs</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_usb_ehci.html">ich10_usb_ehci</a>
+<a href="rm-class-irq_pin_to_ioapic.html">irq_pin_to_ioapic</a>
+</div>

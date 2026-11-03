@@ -1,0 +1,308 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>apic</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ai_mode_log.html">ai_mode_log</a>
+<a href="rm-class-apic-bus.html">apic-bus</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="apic"><a href="#apic">apic</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>APIC</tt> class implements the functionality of the local (on-chip) APIC that is part of the Intel® Architecture and was first implemented in the Pentium® processor. Each APIC instance is connected to an I/O-APIC through the APIC bus (multiple I/O-APIC systems are not supported). Reference: <i>Intel Architecture Software Developer's Manual Volume 3</i>.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, apic_cpu, interrupt_cpu, int_register, apic_timer, apic_bus_to_apic
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-apic.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-apic.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:apic_id"><a href="#dt:apic_id">
+<i>apic_id</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>APIC ID.</dd>
+<dt id="dt:apic_bus"><a href="#dt:apic_bus">
+<i>apic_bus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Bus implementing the apic-bus interface.</dd>
+<dt id="dt:version"><a href="#dt:version">
+<i>version</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>APIC Version.</dd>
+<dt id="dt:apic_type"><a href="#dt:apic_type">
+<i>apic_type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>APIC Type ("P6", "P4" or "X2")</dd>
+<dt id="dt:cpu"><a href="#dt:cpu">
+<i>cpu</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Target processor implementing the X86 and PROCESSOR_INFO_V2 interfaces. The APIC will assume ownership of the APICBASE MSR if the processor implements the X86_MSR interface. If the processor does not implement the X86_MSR interface, then the APIC needs to be mapped and potentially moved by some other logic.</dd>
+<dt id="dt:task_priority"><a href="#dt:task_priority">
+<i>task_priority</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Task priority register.</dd>
+<dt id="dt:logical_destination"><a href="#dt:logical_destination">
+<i>logical_destination</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Logical destination register.</dd>
+<dt id="dt:destination_format"><a href="#dt:destination_format">
+<i>destination_format</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Destination format register.</dd>
+<dt id="dt:spurious_interrupt_vector"><a href="#dt:spurious_interrupt_vector">
+<i>spurious_interrupt_vector</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Spurious interrupt vector register.</dd>
+<dt id="dt:interrupt_command"><a href="#dt:interrupt_command">
+<i>interrupt_command</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt command register (all 64 bits).</dd>
+<dt id="dt:lvt_timer"><a href="#dt:lvt_timer">
+<i>lvt_timer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Local vector table, timer.</dd>
+<dt id="dt:lvt_lint0"><a href="#dt:lvt_lint0">
+<i>lvt_lint0</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Local vector table, local interrupt 0.</dd>
+<dt id="dt:lvt_lint1"><a href="#dt:lvt_lint1">
+<i>lvt_lint1</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Local vector table, local interrupt 1.</dd>
+<dt id="dt:lvt_error"><a href="#dt:lvt_error">
+<i>lvt_error</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Local vector table, error.</dd>
+<dt id="dt:lvt_performance_counter"><a href="#dt:lvt_performance_counter">
+<i>lvt_performance_counter</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Local vector table, performance counter.</dd>
+<dt id="dt:lvt_thermal_sensor"><a href="#dt:lvt_thermal_sensor">
+<i>lvt_thermal_sensor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Local vector table, thermal sensor.</dd>
+<dt id="dt:initial_count"><a href="#dt:initial_count">
+<i>initial_count</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Initial count register for timer.</dd>
+<dt id="dt:divisor_ln_2"><a href="#dt:divisor_ln_2">
+<i>divisor_ln_2</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Log2 of timer divisor. Note that this is not the format used in the divide configuration register.</dd>
+<dt id="dt:count_in_progress"><a href="#dt:count_in_progress">
+<i>count_in_progress</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Count is in progress.</dd>
+<dt id="dt:count_initial"><a href="#dt:count_initial">
+<i>count_initial</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Initial count when timer was started.</dd>
+<dt id="dt:count_start"><a href="#dt:count_start">
+<i>count_start</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Local CPU time when count was started.</dd>
+<dt id="dt:ext_int_obj"><a href="#dt:ext_int_obj">
+<i>ext_int_obj</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Object pending with delivery mode ExtINT.</dd>
+<dt id="dt:cpu_bus_divisor"><a href="#dt:cpu_bus_divisor">
+<i>cpu_bus_divisor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Divisor between CPU frequency and bus frequency used by the APIC timer.</dd>
+<dt id="dt:status"><a href="#dt:status">
+<i>status</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[i{3}]{256}]</code>
+<br>((<i>tm0</i>, <i>ir0</i>, <i>is0</i>), ..., (<i>tm255</i>, <i>ir255</i>, <i>is255</i>)). Status registers.</dd>
+<dt id="dt:priority"><a href="#dt:priority">
+<i>priority</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[[ii]{2}]{16}]</code>
+<br>(((<i>state</i>, <i>vector</i>){2}){16}). Interrupt slots.</dd>
+<dt id="dt:arbitration_id"><a href="#dt:arbitration_id">
+<i>arbitration_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Arbitration ID.</dd>
+<dt id="dt:error_status"><a href="#dt:error_status">
+<i>error_status</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Error status.</dd>
+<dt id="dt:remote_read"><a href="#dt:remote_read">
+<i>remote_read</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Remote read.</dd>
+<dt id="dt:interrupt_posted"><a href="#dt:interrupt_posted">
+<i>interrupt_posted</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt signal raised.</dd>
+<dt id="dt:physical_broadcast_address"><a href="#dt:physical_broadcast_address">
+<i>physical_broadcast_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current broadcast address for interprocessor interrupts and interrupts from the I/O-APIC. Default value is FFh (0Fh for Pentium® (classic) family or P6 family processors); FFFFFFFFh in x2APIC mode</dd>
+<dt id="dt:apicbase_msr"><a href="#dt:apicbase_msr">
+<i>apicbase_msr</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|i</code>
+<br>APICBASE MSR. Should be Nil if and only if the bound CPU does not implement the X86_MSR interface.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.apic.html">apic</a>
+</section>
+<div class="chain">
+<a href="rm-class-ai_mode_log.html">ai_mode_log</a>
+<a href="rm-class-apic-bus.html">apic-bus</a>
+</div>

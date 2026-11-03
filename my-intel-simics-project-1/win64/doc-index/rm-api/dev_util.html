@@ -1,0 +1,619 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>dev_util</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="stest.html">stest</a>
+<a href="script_branch.html">script_branch</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="dev_util"><a href="#dev_util">dev_util</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dev_util — A Python module for writing device model tests.</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import dev_util
+</code></pre>
+<h2>Description</h2>
+<p>It has three major parts:</p>
+<ul>
+<li>classes for accessing device registers,</li>
+<li>classes for writing device stubs, and</li>
+<li>classes for handling simulated memory and data structures in it. It also contains some auxiliary utilities.</li>
+</ul>
+<p>It uses the Simics API and can only be used by Python code running in Simics.</p>
+</section>
+<h2 id="dev_util.Error"><a href="#dev_util.Error">class dev_util.Error</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Error
+</code></pre>
+<h2>Description</h2>
+<p>Baseclass of all exceptions specified in this module.</p>
+</section>
+<h2 id="dev_util.InvalidBitfieldException"><a href="#dev_util.InvalidBitfieldException">class dev_util.InvalidBitfieldException</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.InvalidBitfieldException
+</code></pre>
+<h2>Description</h2>
+<p>Signals that a bitfield’s parameters are invalid.</p>
+</section>
+<h2 id="dev_util.RangeError"><a href="#dev_util.RangeError">class dev_util.RangeError</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.RangeError(msg, re=None)
+</code></pre>
+<h2>Description</h2>
+<p>Signals that a value is out of range for a bitfield.</p>
+</section>
+<h2 id="dev_util.MemoryError"><a href="#dev_util.MemoryError">class dev_util.MemoryError</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.MemoryError
+</code></pre>
+<h2>Description</h2>
+<p>Signals that a memory operation failed.</p>
+</section>
+<h2 id="dev_util.Bitfield"><a href="#dev_util.Bitfield">class dev_util.Bitfield</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Bitfield(
+    fields=None,
+    ones=0,
+    little_endian=True,
+    bits=None,
+    **kwargs
+)
+</code></pre>
+<h2>Description</h2>
+<p>Utility for bitfield manipulations.</p>
+<h2>Constructor Arguments</h2>
+<dl>
+<dt id="dt:fields"><a href="#dt:fields"><code>fields</code></a></dt>
+<dd>a dict on the following format, where sub-field is of type fields:
+<pre><code>{'field-name' : bit-number,
+ 'field-name' : (start-bit, stop-bit),
+ 'field-name' : (start-bit, sub-field)
+}
+</code></pre>
+</dd>
+<dt id="dt:ones"><a href="#dt:ones"><code>ones</code></a></dt>
+<dd>a bitmask that will be OR:ed in the complete bitfield value</dd>
+<dt id="dt:little_endian"><a href="#dt:little_endian"><code>little_endian</code></a></dt>
+<dd>set to True for a little-endian bitorder field and False for big-endian bitorder fields</dd>
+<dt id="dt:bits"><a href="#dt:bits"><code>bits</code></a></dt>
+<dd>the total size (in bits) of the fields; required by, as well as only allowed for, big-endian fields</dd>
+<dt id="dt:kwargs"><a href="#dt:kwargs"><code>**kwargs</code></a></dt>
+<dd>as <code>fields</code>, but specified using keyword arguments</dd>
+</dl>
+</section>
+<h2 id="dev_util.Bitfield.fields"><a href="#dev_util.Bitfield.fields">dev_util.Bitfield.fields</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Bitfield.fields(value)
+</code></pre>
+<h2>Description</h2>
+<p>Parse an integer into a dict with one item per field.</p>
+<p>Returns a dict consisting of all fields and their values, taken from the value argument.</p>
+</section>
+<h2 id="dev_util.Bitfield.mask"><a href="#dev_util.Bitfield.mask">dev_util.Bitfield.mask</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Bitfield.mask(**dict)
+</code></pre>
+<h2>Description</h2>
+<p>Returns a mask from the fields in dict.</p>
+</section>
+<h2 id="dev_util.Bitfield.mk_bitfield_map"><a href="#dev_util.Bitfield.mk_bitfield_map">dev_util.Bitfield.mk_bitfield_map</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Bitfield.mk_bitfield_map(m, prefix='', oset=0)
+</code></pre>
+<h2>Description</h2>
+<p>Make bitfield map.</p>
+<p>Convert a nested layout type to a map suitable for construction of a <a href="dev_util.html#dev_util.Bitfield"><code>dev_util.Bitfield</code></a> object.</p>
+</section>
+<h2 id="dev_util.Bitfield.value"><a href="#dev_util.Bitfield.value">dev_util.Bitfield.value</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Bitfield.value(*args, **kwargs)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the value of the fields given by <code>**kwargs</code>.</p>
+<p>For example, pass <code>foo=5</code> to return the value when field <code>foo</code> is 5. If the value is a list or dict rather than an integer, then a field array is assumed; e.g. <code>foo=[1,2]</code> is a shorthand for setting field <code>foo[0]</code> to 1 and field <code>foo[1]</code> to 2, and <code>foo={1:4}</code> is a shorthand for setting field <code>foo[1]</code> to 4.</p>
+<p>An optional positional argument can be supplied, to provide the values of bits not covered by the given fields.</p>
+</section>
+<h2 id="dev_util.Bitfield_LE"><a href="#dev_util.Bitfield_LE">class dev_util.Bitfield_LE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Bitfield_LE(fields=None, ones=0, **kwargs)
+</code></pre>
+<h2>Description</h2>
+<p>Little-endian bitfield.</p>
+<h2>Constructor Arguments</h2>
+<dl>
+<dt id="dt:fields-2"><a href="#dt:fields-2"><code>fields</code></a></dt>
+<dd>a dict on the following format, where sub-field is of type fields:
+<pre><code>{'field-name' : bit-number,
+ 'field-name' : (start-bit, stop-bit),
+ 'field-name' : (start-bit, sub-field)
+}
+</code></pre>
+</dd>
+<dt id="dt:ones-2"><a href="#dt:ones-2"><code>ones</code></a></dt>
+<dd>a bitmask that will be OR:ed in the complete bitfield value</dd>
+<dt id="dt:kwargs-2"><a href="#dt:kwargs-2"><code>**kwargs</code></a></dt>
+<dd>as <code>fields</code>, but specified using keyword arguments</dd>
+</dl>
+</section>
+<h2 id="dev_util.Bitfield_BE"><a href="#dev_util.Bitfield_BE">class dev_util.Bitfield_BE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Bitfield_BE(fields=None, ones=0, bits=None, **kwargs)
+</code></pre>
+<h2>Description</h2>
+<p>Big-endian bitfield.</p>
+<h2>Constructor Arguments</h2>
+<dl>
+<dt id="dt:fields-3"><a href="#dt:fields-3"><code>fields</code></a></dt>
+<dd>a dict on the following format, where sub-field is of type fields:
+<pre><code>{'field-name' : bit-number,
+ 'field-name' : (start-bit, stop-bit),
+ 'field-name' : (start-bit, sub-field)
+}
+</code></pre>
+</dd>
+<dt id="dt:ones-3"><a href="#dt:ones-3"><code>ones</code></a></dt>
+<dd>a bitmask that will be OR:ed in the complete bitfield value</dd>
+<dt id="dt:kwargs-3"><a href="#dt:kwargs-3"><code>**kwargs</code></a></dt>
+<dd>as <code>fields</code>, but specified using keyword arguments</dd>
+</dl>
+</section>
+<h2 id="dev_util.AbstractRegister"><a href="#dev_util.AbstractRegister">class dev_util.AbstractRegister</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.AbstractRegister(size=4, bitfield=None, little_endian=True)
+</code></pre>
+<h2>Description</h2>
+<p>Abstract register class.</p>
+<p>This class handles generic register stuff, like bitfield mapping and value construction/deconstruction. It depends on a subclass to implement the backend for data storage.</p>
+<p>Subclasses are expected to implement two functions:</p>
+<dl>
+<dt id="dt:raw_read-self"><a href="#dt:raw_read-self"><code>raw_read(self)</code></a></dt>
+<dd>should return a byte string from storage</dd>
+<dt id="dt:raw_write-self-bytes"><a href="#dt:raw_write-self-bytes"><code>raw_write(self, bytes)</code></a></dt>
+<dd>should write the <code>bytes</code> byte string to storage</dd>
+</dl>
+<p>Optionally, a bitfield can be applied to a register. For such a register, a specific field can be read through <code>reg.field.FIELDNAME.read()</code>. The <code>write()</code> method also has support for bitfields. Please see the documentation for <code>write()</code> for more information.</p>
+<p>There is an alternative deprecated shorthand for accessing fields: <code>reg.FIELDNAME</code> triggers a read that filters out the given field, and similarly, <code>reg.FIELDNAME = value</code> reads the field, adjusts the given field, and writes back the value. This syntax is deprecated, because it is not consistent with the API exposed by register objects that both support accesses with and without side-effects.</p>
+<h2>Constructor Arguments</h2>
+<dl>
+<dt id="dt:size"><a href="#dt:size"><code>size</code></a></dt>
+<dd>the size in bytes of the register</dd>
+<dt id="dt:bitfield"><a href="#dt:bitfield"><code>bitfield</code></a></dt>
+<dd>optional, if set should be an instance of Bitfield</dd>
+<dt id="dt:little_endian-2"><a href="#dt:little_endian-2"><code>little_endian</code></a></dt>
+<dd>should be set to True for a little-endian byte-order register, or False for a big-endian register</dd>
+</dl>
+</section>
+<h2 id="dev_util.AbstractRegister.fields"><a href="#dev_util.AbstractRegister.fields">dev_util.AbstractRegister.fields</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.AbstractRegister.fields()
+</code></pre>
+<h2>Description</h2>
+<p>Shortcut to read the bitfield representation of a device register.</p>
+</section>
+<h2 id="dev_util.AbstractRegister.read"><a href="#dev_util.AbstractRegister.read">dev_util.AbstractRegister.read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.AbstractRegister.read()
+</code></pre>
+<h2>Description</h2>
+<p>Read value.</p>
+</section>
+<h2 id="dev_util.AbstractRegister.write"><a href="#dev_util.AbstractRegister.write">dev_util.AbstractRegister.write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.AbstractRegister.write(*args, **fields)
+</code></pre>
+<h2>Description</h2>
+<p>Write value. The value will be truncated to the register size.</p>
+<p>You can either pass a single integer, or pass the fields as arguments, i.e., <code>write(field0=1, field1=23)</code>. For field arrays, the syntax <code>write(field=[1,23])</code> or <code>write(field={0: 1, 1: 23})</code> can be used to set the fields named <code>field[0]</code> and <code>field[1]</code>.</p>
+<p>If only a subset of fields is given, a positional arg should also be passed for the base value, which defines what to write to remaining bits. The value READ denotes that the <code>read()</code> method is called to retrieve the base value.</p>
+</section>
+<h2 id="dev_util.Register"><a href="#dev_util.Register">class dev_util.Register</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Register(
+    bank,
+    offset,
+    size=4,
+    bitfield=None,
+    little_endian=True,
+    initiator=None
+)
+</code></pre>
+<h2>Description</h2>
+<p>This class allows you to easily access a device register.</p>
+<p>The bank argument is normally the bank object. However, for backward compatibility it can also be a tuple (obj, bank, ofs); in this case the <code>offset</code> argument should be left out. The tuple denotes:</p>
+<dl>
+<dt id="dt:obj"><a href="#dt:obj"><code>obj</code></a></dt>
+<dd>the (simics) object implementing the register</dd>
+<dt id="dt:bank"><a href="#dt:bank"><code>bank</code></a></dt>
+<dd>the port-name or function number of the bank containing the register (function 0 if omitted).</dd>
+<dt id="dt:offset"><a href="#dt:offset"><code>offset</code></a></dt>
+<dd>the register offset in said bank</dd>
+</dl>
+<p>The tuple syntax was useful in old Simics versions where banks were not separate objects. It should be avoided in new versions.</p>
+<p>The initiator argument denotes the initiator of transactions accessing the register.</p>
+<p>See the AbstractRegister documentation for information about the rest of the parameters.</p>
+</section>
+<h2 id="dev_util.Register.raw_read"><a href="#dev_util.Register.raw_read">dev_util.Register.raw_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Register.raw_read()
+</code></pre>
+<h2>Description</h2>
+<p>Read raw data from the register.</p>
+</section>
+<h2 id="dev_util.Register.raw_write"><a href="#dev_util.Register.raw_write">dev_util.Register.raw_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Register.raw_write(val)
+</code></pre>
+<h2>Description</h2>
+<p>Write raw data to the register.</p>
+</section>
+<h2 id="dev_util.Register_LE"><a href="#dev_util.Register_LE">class dev_util.Register_LE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Register_LE(bank, offset, size=4, bitfield=None, initiator=None)
+</code></pre>
+<h2>Description</h2>
+<p>Little-endian device register.</p>
+<p>All arguments have the same semantics as in <a href="dev_util.html#dev_util.Register"><code>dev_util.Register</code></a>.</p>
+</section>
+<h2 id="dev_util.Register_BE"><a href="#dev_util.Register_BE">class dev_util.Register_BE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Register_BE(bank, offset, size=4, bitfield=None, initiator=None)
+</code></pre>
+<h2>Description</h2>
+<p>Big-endian device register.</p>
+<p>All arguments have the same semantics as in <a href="dev_util.html#dev_util.Register"><code>dev_util.Register</code></a>.</p>
+</section>
+<h2 id="dev_util.GRegister"><a href="#dev_util.GRegister">class dev_util.GRegister</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.GRegister(size=4, bitfield=None, init=0)
+</code></pre>
+<h2>Description</h2>
+<p>This class allows provides a standalone register.</p>
+</section>
+<h2 id="dev_util.GRegister.raw_read"><a href="#dev_util.GRegister.raw_read">dev_util.GRegister.raw_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.GRegister.raw_read()
+</code></pre>
+<h2>Description</h2>
+<p>Reads the raw contents of the register.</p>
+</section>
+<h2 id="dev_util.GRegister.raw_write"><a href="#dev_util.GRegister.raw_write">dev_util.GRegister.raw_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.GRegister.raw_write(value)
+</code></pre>
+<h2>Description</h2>
+<p>Write the raw contents of the register.</p>
+</section>
+<h2 id="dev_util.IRegister"><a href="#dev_util.IRegister">class dev_util.IRegister</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.IRegister(data, size=None, bitfield=None)
+</code></pre>
+<h2>Description</h2>
+<p>Register from int_register.</p>
+<p>This class allows you to easily access registers through the <a href="model-to-model-interfaces.html#int_register_interface_t"><code>int_register</code></a> interface. If the object <code>obj</code> does not implement the <a href="model-to-simulator-interfaces.html#processor_info_interface_t"><code>processor_info</code></a> you have to specify the size in <code>size</code>.</p>
+</section>
+<h2 id="dev_util.IRegister.raw_read"><a href="#dev_util.IRegister.raw_read">dev_util.IRegister.raw_read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.IRegister.raw_read()
+</code></pre>
+<h2>Description</h2>
+<p>Reads the raw contents of the register.</p>
+</section>
+<h2 id="dev_util.IRegister.raw_write"><a href="#dev_util.IRegister.raw_write">dev_util.IRegister.raw_write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.IRegister.raw_write(value)
+</code></pre>
+<h2>Description</h2>
+<p>Write the raw contents of the register.</p>
+</section>
+<h2 id="dev_util.bank_regs"><a href="#dev_util.bank_regs">dev_util.bank_regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.bank_regs(bank, inquiry=False, prefix='')
+</code></pre>
+<h2>Description</h2>
+<p>Return structure containing object to access a bank’s registers.</p>
+<p>Given a bank object, return a structure containing objects to access its registers.  The returned structure can be a hierarchy of objects; e.g., if a register instance is named <code>"g[2][3].r[1]"</code>, and the returned structure is <code>o</code>, then the corresponding register object can be obtained as <code>o.g[2][3].g[1]</code>.  The set of registers is extracted using the <code>register_view</code> interface, and uses offsets and bitfields as returned by that interface. The <code>inquiry</code> argument is deprecated and should not be used. If <code>prefix</code> is given, then the returned structure will only contain registers whose full name matches this prefix.</p>
+<p>The returned register objects have methods <code>read()</code> and <code>write()</code> that work like their <code>AbstractRegister</code> counterparts, reading and writing the register with side-effects. The register value can be read and written without side-effects objects by getting and setting a property <code>.val</code>, or by calling a method <code>set()</code>. The latter accepts keyword arguments for fields just like the <code>write()</code> method; bits not covered by fields are retrieved by reading <code>.val</code>.  The positional argument of the <code>write()</code> method is required and may be either an integer, or <code>READ</code> to denote that previous values are retrieved using <code>read()</code>, or <code>VAL</code> to denote that they are retrieved using <code>.val</code>.</p>
+<p>In addition to the <code>val</code> property and <code>set</code>, <code>read</code> and <code>write</code> methods mentioned above, register objects also have the following properties:</p>
+<ul>
+<li><code>bank</code>: The Simics configuration object of the bank</li>
+<li><code>size</code>, <code>offset</code>: the register’s location within the bank</li>
+<li><code>bitfield</code>: a <code>dev_util.Bitfield</code> describing the</li>
+<li><code>name</code>: the name of the register, relative to the bank.</li>
+</ul>
+<p>Objects that represent the fields of a register can be retrieved as <code>reg.field.FIELDNAME</code>; e.g., if a register <code>reg</code> has a field named <code>"a.b[2]"</code> then the field object is accessed as <code>reg.field.a.b[2]</code>. The field object has one method <code>read()</code> for performing a full-register read with side-effects and returning the bits corresponding to the field, and a property <code>.val</code> that allows side-effect free access to the field’s bits. Field objects provide a <code>read</code> method, which reads the parent register and returns the bits corresponding to the field, but it does not have a <code>write</code> method; writes must be done from the register object to ensure that remaining bits are explicitly specified. Field objects also provide the following properties:</p>
+<ul>
+<li><code>reg</code>: The parent register object</li>
+<li><code>lsb</code>, <code>bits</code>: the bit range within the parent register</li>
+<li><code>name</code>: the name of the field, relative to the parent register</li>
+</ul>
+</section>
+<h2 id="dev_util.Dev"><a href="#dev_util.Dev">class dev_util.Dev</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Dev(iface_list=[], create_sim_obj=True, name=None)
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated. A Simics class with a single instance.</p>
+<p>Implements zero or more interfaces based on instances of <code>Iface</code>. Presents zero or more ports, implementing one or more interfaces each.</p>
+<p>The <code>obj</code> attribute contains the instance of the Simics class, and the <code>cls_name</code> attribute contains the name of the Simics class.</p>
+<h2>Constructor Arguments</h2>
+<dl>
+<dt id="dt:iface_list"><a href="#dt:iface_list"><code>iface_list</code></a></dt>
+<dd>a list of interface classes or pairs of (port, interface-class) <code>create_sim_obj</code></dd>
+<dd>if False, no Simics object will be created, but the class will be registered along with all the interfaces, useful e.g. when loading a checkpoint containing fake objects <code>name</code></dd>
+<dd>if given, specifies the name to use for the fake class and the fake object; otherwise a name will be guessed based on the implemented interfaces</dd>
+</dl>
+<p>Each interface will be instantiated and can be accessed through <em>dev</em>.<em>iface-name</em>, or <em>dev</em>.<em>port</em>.<em>iface-name</em>.</p>
+<h2>Example</h2>
+<pre><code>dev = Dev([SimpleInterrupt,
+        ('sreset', Signal),
+        ('hreset', Signal)])
+
+dev.simple_interrupt
+dev.sreset.signal
+dev.hreset.signal
+</code></pre>
+</section>
+<h2 id="dev_util.Dev.configure_pre_object"><a href="#dev_util.Dev.configure_pre_object">dev_util.Dev.configure_pre_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Dev.configure_pre_object(pre_obj)
+</code></pre>
+<h2>Description</h2>
+<p>Called before <code>SIM_add_configuration</code>.</p>
+<p>Override to e.g. set attributes.</p>
+</section>
+<h2 id="dev_util.Dev.finalize"><a href="#dev_util.Dev.finalize">dev_util.Dev.finalize</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Dev.finalize()
+</code></pre>
+<h2>Description</h2>
+<p>Called after the Simics object has been instantiated.</p>
+</section>
+<h2 id="dev_util.Dev.register_simics_class"><a href="#dev_util.Dev.register_simics_class">dev_util.Dev.register_simics_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Dev.register_simics_class()
+</code></pre>
+<h2>Description</h2>
+<p>Register the Simics class created by this object.</p>
+</section>
+<h2 id="dev_util.Iface"><a href="#dev_util.Iface">class dev_util.Iface</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Iface()
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated. Base class for fake interfaces.</p>
+<p>To create an interface, inherit this class, define a class variable iface to the interface name, and define all methods that the interface defines.</p>
+</section>
+<h2 id="dev_util.Iface.fail"><a href="#dev_util.Iface.fail">dev_util.Iface.fail</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Iface.fail(msg)
+</code></pre>
+<h2>Description</h2>
+<p>Signal a failure when running an interface method.</p>
+<p>Called by the default method stubs.</p>
+</section>
+<h2 id="dev_util.iface"><a href="#dev_util.iface">dev_util.iface</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.iface(name)
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated. Returns an Iface subclass which implements the <code>name</code> interface.</p>
+<p>All the interface methods in the class will raise an exception when called. Convenient when creating a fake device that is required to implement an interface, but you know that the interface should be unused in the given test.</p>
+</section>
+<h2 id="dev_util.Memory"><a href="#dev_util.Memory">class dev_util.Memory</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Memory()
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated.</p>
+<p>Legacy wrapper around an instance of the <code>sparse-memory</code> class. Provides an interface compatible with the deprecated Memory class.</p>
+<p>The <code>obj</code> attribute contains an instance of <code>memory-space</code>, mapping to the memory. The <code>real_obj</code> attribute contains an instance of the ‘sparse-memory’ class. The <code>mem</code> attribute is an alias to the <code>mem</code> attribute of <code>real_obj</code>.</p>
+</section>
+<h2 id="dev_util.Memory.clear"><a href="#dev_util.Memory.clear">dev_util.Memory.clear</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Memory.clear(*args)
+</code></pre>
+<h2>Description</h2>
+<p>Clear the contents of the memory.</p>
+</section>
+<h2 id="dev_util.Memory.is_range_touched"><a href="#dev_util.Memory.is_range_touched">dev_util.Memory.is_range_touched</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Memory.is_range_touched(start, length)
+</code></pre>
+<h2>Description</h2>
+<p>Return True if any of this memory’s slots in the range contain data.</p>
+</section>
+<h2 id="dev_util.Memory.read"><a href="#dev_util.Memory.read">dev_util.Memory.read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Memory.read(addr, n)
+</code></pre>
+<h2>Description</h2>
+<p>Read bytes from this memory.</p>
+<h2>Arguments</h2>
+<dl>
+<dt id="dt:addr"><a href="#dt:addr"><code>addr</code></a></dt>
+<dd>the start address of the range to read</dd>
+<dt id="dt:n"><a href="#dt:n"><code>n</code></a></dt>
+<dd>length in bytes of the range to read</dd>
+</dl>
+<p>Throws an exception if any byte in the read range is empty.</p>
+</section>
+<h2 id="dev_util.Memory.write"><a href="#dev_util.Memory.write">dev_util.Memory.write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Memory.write(addr, data)
+</code></pre>
+<h2>Description</h2>
+<p>Write bytes to this memory.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:addr-2"><a href="#dt:addr-2"><code>addr</code></a></dt>
+<dd>the start address of the range to write</dd>
+<dt id="dt:data"><a href="#dt:data"><code>data</code></a></dt>
+<dd>the bytes to write</dd>
+</dl>
+<p>Fills in empty slots in the memory and overwrites already existing data.</p>
+</section>
+<h2 id="dev_util.Layout"><a href="#dev_util.Layout">class dev_util.Layout</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Layout(mem, ofs, regs, little_endian)
+</code></pre>
+<h2>Description</h2>
+<p>This class implements a memory layout.</p>
+<p>Testing devices that does DMA transfers usually requires setting up DMA descriptors. These can often be seen as register sets located in memory. This class allows you to define the layout of those registers, including bitfields within the registers.</p>
+<p>Registers without bitfields can be accessed through:</p>
+<pre><code>layout.reg-name
+</code></pre>
+<p>while registers with bitfields can be accessed through:</p>
+<pre><code>layout.reg-name.field-name
+</code></pre>
+<p>or</p>
+<pre><code>layout.reg-name.read(),
+layout.reg-name.write()
+</code></pre>
+<p>Layouts are mapped ontop of Memory, i.e. NOT ontop of normal Simics RAM.</p>
+<h2>Constructor Arguments</h2>
+<dl>
+<dt id="dt:mem"><a href="#dt:mem"><code>mem</code></a></dt>
+<dd>An object that is a valid “map target”</dd>
+<dt id="dt:ofs"><a href="#dt:ofs"><code>ofs</code></a></dt>
+<dd>the byte offset (i.e. the location of the layout)</dd>
+<dt id="dt:little_endian-3"><a href="#dt:little_endian-3"><code>little_endian</code></a></dt>
+<dd>determines the byte order of the registers in the layout</dd>
+<dt id="dt:regs"><a href="#dt:regs"><code>regs</code></a></dt>
+<dd>a dictionary on the following form:
+<pre><code>{'reg-name' : (offset, size),
+ 'reg-name' : (offset, size, bitfield)}
+</code></pre>
+</dd>
+<dt id="dt:offset-2"><a href="#dt:offset-2"><code>offset</code></a></dt>
+<dd>the register offset into the layout</dd>
+<dt id="dt:size-2"><a href="#dt:size-2"><code>size</code></a></dt>
+<dd>the size in bytes of the register</dd>
+<dt id="dt:bitfield-2"><a href="#dt:bitfield-2"><code>bitfield</code></a></dt>
+<dd>optional and should be an instance of Bitfield</dd>
+</dl>
+</section>
+<h2 id="dev_util.Layout.clear"><a href="#dev_util.Layout.clear">dev_util.Layout.clear</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Layout.clear()
+</code></pre>
+<h2>Description</h2>
+<p>Set all of the fields in this layout to 0.</p>
+</section>
+<h2 id="dev_util.Layout.read"><a href="#dev_util.Layout.read">dev_util.Layout.read</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Layout.read(ofs, size)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the value at <code>ofs</code>.</p>
+</section>
+<h2 id="dev_util.Layout.write"><a href="#dev_util.Layout.write">dev_util.Layout.write</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.Layout.write(ofs, value, size)
+</code></pre>
+<h2>Description</h2>
+<p>Writes <code>value</code> to <code>ofs</code>.</p>
+</section>
+<h2 id="dev_util.Layout_LE"><a href="#dev_util.Layout_LE">class dev_util.Layout_LE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Layout_LE(mem, ofs, regs)
+</code></pre>
+<h2>Description</h2>
+<p>Little-endian layout.</p>
+</section>
+<h2 id="dev_util.Layout_BE"><a href="#dev_util.Layout_BE">class dev_util.Layout_BE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class dev_util.Layout_BE(mem, ofs, regs)
+</code></pre>
+<h2>Description</h2>
+<p>Big-endian layout.</p>
+</section>
+<h2 id="dev_util.value_to_tuple_be"><a href="#dev_util.value_to_tuple_be">dev_util.value_to_tuple_be</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.value_to_tuple_be(val, bytes)
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated, use <code>tuple(val.to_bytes(bytes, 'big'))</code> instead.</p>
+</section>
+<h2 id="dev_util.value_to_tuple_le"><a href="#dev_util.value_to_tuple_le">dev_util.value_to_tuple_le</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.value_to_tuple_le(val, bytes)
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated, use <code>tuple(val.to_bytes(bytes, 'little'))</code> instead.</p>
+</section>
+<h2 id="dev_util.tuple_to_value_be"><a href="#dev_util.tuple_to_value_be">dev_util.tuple_to_value_be</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.tuple_to_value_be(t)
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated, use <code>int.from_bytes(t, 'big')</code> instead.</p>
+</section>
+<h2 id="dev_util.tuple_to_value_le"><a href="#dev_util.tuple_to_value_le">dev_util.tuple_to_value_le</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>dev_util.tuple_to_value_le(t)
+</code></pre>
+<h2>Description</h2>
+<p>Deprecated, use <code>int.from_bytes(t, 'little')</code> instead.</p>
+</section>
+<div class="chain">
+<a href="stest.html">stest</a>
+<a href="script_branch.html">script_branch</a>
+</div>

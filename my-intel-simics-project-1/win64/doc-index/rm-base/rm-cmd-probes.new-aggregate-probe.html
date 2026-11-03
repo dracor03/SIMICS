@@ -1,0 +1,59 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;probes&gt;.new-aggregate-probe</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-probes.list-kinds.html">&lt;probes&gt;.list-kinds</a>
+<a href="rm-cmd-probes.new-attribute-probe.html">&lt;probes&gt;.new-attribute-probe</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="probes.new-aggregate-probe"></a>
+<h1 id="probes.new-aggregate-probe"><a href="#probes.new-aggregate-probe">&lt;probes&gt;.new-aggregate-probe</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;probes&gt;.new-aggregate-probe</b> <i>"name"</i> [<i>"display-name"</i>] <i>"probe"</i> <i>function</i> ([ <i>objects</i> ... ] | list of <i>objects</i>) [<i>width</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Creates a new global probe with a <i>name</i> that will be the aggregate of all probes with the name <i>probe</i> using the <i>function</i>. The following aggregator functions are supported:
+<p>
+<b>sum:</b> All probe values are summed together. Valid probe types: float, fraction, histogram, int, int128.
+</p><p>
+<b>min:</b> The lowest value among the probe values is returned. For fraction-probes, if any denominator contains a zero value, the calculated sum returned is [0, 0]. Valid probe types: float, fraction, int, int128.
+</p><p>
+<b>max:</b> The highest value among probe values is returned. Valid probe types: float, fraction, int, int128.
+</p><p>
+<b>arith-mean:</b> The arithmetic mean is calculated for all the probe values. Valid probe types: float, fraction, int, int128.
+</p><p>
+<b>weighted-arith-mean:</b> The denominators are used as weights. Using these weights implies that the weighted arithmetic mean can be calculated by adding all numerators and denominators, producing a new fraction of these sums. For example, when calculating the mean instruction per cycles (IPC) on all processors (where the IPC per processor is represented as a fraction: instructions / cycles). With two processors having [20/30] and [40/50], the total IPC becomes [(20+40)/(30+50)] or [60/80] and the IPC value of 0.75. Valid probe types: fraction.
+</p><p>
+<b>median:</b> The median among the probe values is returned. Valid probe types: float, int, int128.
+</p><p>
+<b>object-histogram:</b> A histogram probe is created using the probe-owner-objects as key and their probe-values value. Valid probe types: float, int.
+</p><p>
+<b>class-histogram:</b> Similar to the object-histogram, but here the histogram uses the classname of the owner-object as key, and the value is the sum of the probe-values with the same class. Valid probe types: float, int.
+</p><p>
+The <i>display-name</i> can be used when presenting the probe in a monitor tool or similar.
+</p><p>
+The <i>objects</i> argument is optional, if used, only the specified objects will be part of the sum.
+</p><p>
+The display width (used by probe-monitors) can be set by the <i>width</i> argument. If not set it will default to 10 character for scalar probes and 40 for histograms.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probes-singleton.html">probes-singleton</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-probes.list-kinds.html">&lt;probes&gt;.list-kinds</a>
+<a href="rm-cmd-probes.new-attribute-probe.html">&lt;probes&gt;.new-attribute-probe</a>
+</div>

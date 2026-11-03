@@ -1,0 +1,1087 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Python Coroutines in Simics</title>
+
+<section class="page" id="index.html"><h1 id="index.html:python-coroutines-in-simics"><a href="#index.html:python-coroutines-in-simics">Python Coroutines in Simics</a></h1>
+</section><section class="page" id="introduction.html"><h1 id="introduction.html:introduction"><a href="#introduction.html:introduction">1 Introduction</a></h1>
+<p>Python coroutines is a general language mechanism that allows suspension
+and resumption of a subroutine.
+The primary use-case for Python coroutines within the Intel Simics simulator
+is currently to write tests for target software.
+Target software tests are typically constructed by waiting for the
+system to enter a particular state, inject a stimulus,
+awaiting a reaction and validate that reaction.
+Coroutines offer an easy way to express such logic using a linear
+control flow instead of a set of callback functions.</p>
+<p>The recommended way to implement coroutines in the Python language is through
+the <code>async</code>/<code>await</code> syntax, and the <code>asyncio</code> library.</p>
+<p>This document presents two libraries that together leverage <code>asyncio</code>-style
+Python coroutines in Simics: The <em><code>snoop</code></em> library, which provides a unified
+representation of simulation events, and the <em><code>sloop</code></em> library which allows
+snoopers to be used within <code>asyncio</code>-style coroutines.</p>
+<p>This document serves as a guide for getting started with <code>snoop</code> and <code>sloop</code>,
+and includes reference material for all Simics-specific details. The <code>sloop</code>
+library offers an API that is nearly identical to that of <code>asyncio</code>, ensuring a
+familiar experience for those accustomed to the standard Python library.</p>
+<p>Please note that this document does not delve into general programming
+methodologies for Python coroutines. Since <code>sloop</code> shares a similar API with
+<code>asyncio</code>, existing resources and guides for <code>asyncio</code> are largely applicable
+and can be referred to for guidance on coroutine usage within <code>sloop</code>.</p>
+<h2 id="introduction.html:the-snoop-library"><a href="#introduction.html:the-snoop-library">1.1 The Snoop Library</a></h2>
+<p>A <em>snooper</em> is a Python object responsible for monitoring a particular
+kind of simulation event. Snoopers offer a unified API for registering
+callbacks.</p>
+<p>The primary operation of a snooper is its <code>add_callback</code> method, which
+registers a callback on the snooped event. The callback will then be called
+repeatedly, every time the event happens,
+until the snooper is <em>canceled</em>, which is done by calling the <code>cancel</code> method
+on the <code>Handle</code> object returned by <code>add_callback</code>. The <code>add_callback</code> method is
+typically not called directly; for most use cases there are utilities,
+such as the <code>sloop.wait</code> coroutine,
+that manage things like cancellations automatically in a safe manner.</p>
+<p>The <code>snoop</code> library both provides the
+base definitions needed to define custom snooper classes, and a comprehensive
+library of snooper classes for monitoring
+different common types of simulation events.</p>
+<p>One example of a snooper object is <code>snoop.ConsoleString(conf.con, 'hello')</code>.
+That object represents the act of waiting for the next time the string
+<code>hello</code> appears on the console <code>con</code>. Note that creating the <code>ConsoleString</code>
+object does not by itself start monitoring the console; instead, the snooper
+would typically be used in a context like
+<code>await sloop.wait(snoop.ConsoleString(conf.con, 'hello'))</code>,
+where the <code>sloop.wait</code> call triggers calls to <code>add_callback</code> and <code>cancel</code>.</p>
+<h2 id="introduction.html:the-sloop-library"><a href="#introduction.html:the-sloop-library">1.2 The Sloop Library</a></h2>
+<p>The <code>sloop</code> library is an integration of Python’s <code>asyncio</code> library with the
+Intel Simics simulator scheduler.
+The library provides means to create and run tasks based on
+coroutine functions (declared in Python using the <code>async def</code> syntax), but
+where the progression of an <code>asyncio</code> coroutine typically depends on
+asynchronous operating system events on the host machine, the progression of a
+<code>sloop</code> coroutine instead depends on simulation events. The API of the <code>sloop</code>
+library generally imitates <code>asyncio</code>, but only supports a subset of all
+functions available in <code>asyncio</code>. Most notably, <code>sloop.create_task</code> spawns a
+task which can await simulation events, and <code>sloop.run_until_complete</code> runs
+simulation until a Sloop based awaitable yields, similar to the <code>run-until</code>
+commands in the Intel Simics Command-Line Interface (CLI).</p>
+<p>The <code>sloop</code> library is well suited for writing regression tests that monitor
+a system’s behaviour over time.</p>
+<p>The <code>sloop</code> library also contains some primitives specific to Simics, in
+particular:</p>
+<ul>
+<li><code>wait(snp)</code> is a coroutine that returns the next value yielded by a snooper
+<code>snp</code>.</li>
+<li>The <code>timeout</code> asynchronous context manager is similar to its <code>asyncio</code>
+counterpart, but the timeout is specified by a snooper rather than a number
+of host seconds. For instance, <code>async with timeout(snoop.Seconds(conf.cpu0, 1)):</code> gives a timeout if the block is not exited within one simulated second.</li>
+<li>The <code>Tracer</code> asynchronous context manager and the <code>trace</code> coroutine are used
+to collect a sequence of values from a snooper into an asynchronous iterator
+and list, respectively.</li>
+</ul>
+</section><section class="page" id="basic-usage.html"><h1 id="basic-usage.html:basic-usage-example"><a href="#basic-usage.html:basic-usage-example">2 Basic Usage Example</a></h1>
+<p>Imagine you want to test that a system boots to a login prompt on its
+serial console (<code>board.serconsole.con</code>), and that requesting the <code>root</code> user
+brings you to a <code>#</code> prompt without asking for a password.</p>
+<p>Traditionally, this test could be implemented in the Simics CLI
+using a script branch; after loading the target (e.g. <code>qsp-x86/firststeps</code>),
+the test might look like:</p>
+<pre><code>$booted = false
+script-branch {
+        bp.console_string.wait-for board.serconsole.con "login: "
+        board.serconsole.con.input "root\n"
+        bp.console_string.wait-for board.serconsole.con "# "
+        echo "login successful"
+        $booted = true
+        stop
+}
+run 30 s
+expect $booted true
+</code></pre>
+<p>With the <code>sloop</code> coroutine library, you can express the same test as follows:</p>
+<pre><code>import snoop
+import sloop
+async def boot_to_login(console):
+    await sloop.wait(snoop.ConsoleString(console, "login: "))
+    console.iface.con_input.input_str("root\n")
+    await sloop.wait(snoop.ConsoleString(console, "# "))
+    print("login successful")
+
+sloop.run_until_complete(boot_to_login(conf.board.serconsole.con))
+</code></pre>
+<p>This example highlights the separation of concerns in a <code>sloop</code> coroutine:</p>
+<ul>
+<li><strong>Snooping Primitives</strong>:
+The <code>ConsoleString</code> class from the <code>snoop</code> library specifies
+<em>what</em> to wait for, such as strings appearing on a console.</li>
+<li><strong>Asynchronous Control Flow</strong>: The <code>sloop.wait</code> coroutine defines
+<em>how</em> to wait for these strings,
+by pausing until the specified string appears.</li>
+<li><strong>Simulation Control</strong>:
+The console interaction is abstracted into the <code>login</code> coroutine.
+At the top level, <code>run_until_complete</code> is used to start this coroutine
+and run simulation until it finishes.</li>
+</ul>
+<h2 id="basic-usage.html:time-and-timeouts"><a href="#basic-usage.html:time-and-timeouts">2.1 Time and Timeouts</a></h2>
+<p>The example above does not have an explicit timeout; if boot fails,
+the coroutine will just hang, eventually triggering a timeout in the test
+framework.
+It is better to let the test fail if the boot hasn’t finished
+within a certain amount of simulated time.</p>
+<p>In <code>snoop</code>, simulated time is always tied to a specific CPU or clock object.
+Typically, there’s an obvious choice of clock for a test,
+and it’s convenient to store a time snooper in a variable:</p>
+<pre><code>s = snoop.Seconds(conf.board.mb.cpu0, 1)
+</code></pre>
+<p>Time snoopers can be scaled using multiplication, enabling constructs like:</p>
+<pre><code>async def wait_three_seconds():
+    await sloop.wait(3 * s)
+</code></pre>
+<p>To handle scenarios where a boot process might hang,
+you can employ the <code>sloop.timeout</code> asynchronous context manager
+to enforce a timeout.
+The above example can be adjusted as follows:</p>
+<pre><code>async def login_with_timeout(console):
+    async with sloop.timeout(30 * s):
+        await sloop.wait(snoop.ConsoleString(console, "login: "))
+        console.iface.con_input.input_str("root\n")
+        await sloop.wait(snoop.ConsoleString(console, "# "))
+        print("login successful")
+
+sloop.run_until_complete(login_with_timeout(conf.board.serconsole.con))
+</code></pre>
+<p>Timeouts can be nested, allowing you to set an overarching timeout
+for the entire boot process and additional,
+shorter timeouts for specific milestones,
+thus identifying failures more promptly.</p>
+<h2 id="basic-usage.html:simulation-control"><a href="#basic-usage.html:simulation-control">2.2 Simulation Control</a></h2>
+<p>In the context of simulation, a coroutine acts as a participant and is not
+responsible for starting or stopping the simulation itself. The progression of
+the simulation is ultimately controlled by the user, who may interactively start
+or stop the simulation, or execute a script — often a test case —
+that drives the simulation forward.
+In <code>sloop</code>, a user or script can initiate a coroutine by
+using <code>sloop.global_event_loop().create_task()</code> to create a background task,
+or <code>sloop.run_until_complete()</code> to run the simulation until the coroutine has
+completed its execution.</p>
+<p>For tests that incorporate asynchronous logic, a dual approach is advantageous:
+initially, <code>create_task</code> is used to encapsulate the entire test case within a
+top-level coroutine task.
+This task is then stored in a global variable,
+and <code>run_until_complete</code> is subsequently called to run the simulation until the
+coroutine reaches its end:</p>
+<pre><code>boot_task = sloop.global_event_loop().create_task(
+    login_with_timeout(conf.board.serconsole.con))
+sloop.run_until_complete(boot_task)
+</code></pre>
+<p>During interactive test sessions, you might need to pause the simulation to
+examine the system state or to set breakpoints for debugging purposes.
+If the simulation is halted,
+the <code>run_until_complete</code> invocation will be interrupted,
+but the test task will persist as long as it was created as a separate entity.
+This grants complete control over the simulation,
+allowing you to resume or stop it at your discretion.
+Alternatively, you can call
+<code>run_until_complete</code> on the test task again to resume and carry the
+test through to its conclusion.</p>
+<h2 id="basic-usage.html:handling-system-resets"><a href="#basic-usage.html:handling-system-resets">2.3 Handling System Resets</a></h2>
+<p>To ensure the auto-login process is resilient to system reboots,
+you should use a <em>task group</em>:</p>
+<pre><code>async def always_auto_login(console, reset):
+    while True:
+        async with sloop.TaskGroup() as tg:
+            task = tg.create_task(boot_to_login(console))
+            await sloop.wait(reset)
+            task.cancel()
+</code></pre>
+<p>In this example, <code>reset</code> is a snooper that detects system reboots.
+Utilizing a task group’s <code>create_task</code> method ensures that the task
+is cleanly restarted after each reboot. Without a task group,
+an unexpected error could cause the task to persist through a reset,
+potentially leading to multiple instances of the coroutine
+running simultaneously.</p>
+</section><section class="page" id="advanced-usage.html"><h1 id="advanced-usage.html:advanced-usage-example"><a href="#advanced-usage.html:advanced-usage-example">3 Advanced Usage Example</a></h1>
+<p>This section demonstrates how to utilize <code>snoop</code> and <code>sloop</code> for monitoring
+complex conditions.</p>
+<h2 id="advanced-usage.html:problem-statement"><a href="#advanced-usage.html:problem-statement">3.1 Problem Statement</a></h2>
+<p>Imagine a memory-space <code>ms</code> with a device mapped such that writing <em>sz</em> bytes
+(where <em>sz</em> ≤ 8) to an address <code>addr</code> appends these bytes to a FIFO queue.
+Our objective is to continue simulation until a total of <code>N</code> bytes have been
+accumulated in the FIFO.
+For example, if <code>N</code> is 10, the condition would be met after
+two writes of 4 bytes and two writes of 1 byte.
+We aim to design a coroutine <code>wait_accumulated_writes</code> that behaves
+as expected when invoked like this:</p>
+<pre><code>sloop.run_until_complete(
+    wait_accumulated_writes(ms, address=addr, length=8, threshold=N))
+</code></pre>
+<p>The following sections describe different strategies for implementing the
+<code>wait_accumulated_writes</code> function, along with their pros and cons.</p>
+<h2 id="advanced-usage.html:repeated-sloop-wait"><a href="#advanced-usage.html:repeated-sloop-wait">3.2 Repeated <code>sloop.wait</code></a></h2>
+<p>The initial method involves iteratively awaiting the snooper’s trigger:</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    tot_written = 0
+    one_access = snoop.MemoryWrite(memory_space, addr, length)
+    while tot_written &lt; threshold:
+        access = await sloop.wait(one_access)
+        tot_written += len(access.value)
+</code></pre>
+<p>While generally effective, this method has a notable drawback:
+it can sometimes miss write operations that occur in rapid succession.</p>
+<p>To recapitulate, a snooper is a low-level construct for registering callbacks.
+These callbacks are typically invoked during simulation,
+often in the midst of a CPU instruction.
+In contrast, <code>sloop</code> coroutines operate independently of the simulation;
+they execute logic in a more permissive context (Global Context),
+where simulation is temporarily halted.
+This ensures that the simulation state can be inspected
+and modified without concurrency issues.</p>
+<p>When the coroutine encounters <code>await sloop.wait(MemoryAccess(...))</code>,
+the <code>sloop.wait</code> function registers a callback with the snooper,
+and the <code>await</code> statement pauses the coroutine,
+allowing simulation to continue.
+Upon a write operation, the callback is triggered, it unregisters itself,
+and uses the <code>SIM_run_alone</code> function to request that the Simics scheduler
+temporarily halts the simulation, enabling the coroutine to proceed.
+However, this pause may not take effect immediately — for instance,
+the current CPU may need to finish its current instruction. Consequently,
+if two accesses occur during the same instruction,
+the second may be missed if the snooper is deactivated,
+leading to an inaccurate total size count.</p>
+<p>This method is still viable under certain conditions.
+For example, if you know that each write to an address
+is triggered by a distinct instruction and executed by the same CPU,
+the coroutine will have sufficient time to reactivate the snooper
+between writes.</p>
+<h2 id="advanced-usage.html:sloop-tracer"><a href="#advanced-usage.html:sloop-tracer">3.3 <code>sloop.Tracer</code></a></h2>
+<p>The second method uses the <code>Tracer</code> asynchronous context manager to
+maintain snooper activation between writes:</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    tot_written = 0
+    with sloop.Tracer(
+            snoop.MemoryWrite(memory_space, addr, length)) as tr:
+        async for access in tr:
+            tot_written += len(access.value)
+            if tot_written &gt;= threshold:
+                break
+</code></pre>
+<p>The <code>Tracer</code> object activates the snooper once and retains
+all write events in an internal queue.
+If multiple writes are triggered by the same instruction,
+they are queued, and the <code>async for</code> loop processes them without interruption.
+When the queue is empty, the loop pauses,
+allowing the simulation to resume until the next write occurs.</p>
+<p>Although this method is functionally robust,
+it still requires starting and stopping the simulation for each memory write,
+which can significantly slow down the simulation.</p>
+<h2 id="advanced-usage.html:compound-snoopers"><a href="#advanced-usage.html:compound-snoopers">3.4 Compound Snoopers</a></h2>
+<p>The first two methods express the logic for aggregating write sizes
+within the coroutine’s control flow, necessitating simulation
+pauses between writes.
+This can be costly, especially with multiple CPUs involved.</p>
+<p>The third method introduces <em>compound snoopers</em> that execute this
+logic directly within the simulation thread.
+These snoopers are composed of a snooper and a function that
+is called synchronously when the snooper yields a value.
+By chaining such snoopers, we create a single snooper that
+triggers exactly when the final condition is met,
+so that a single <code>sloop.wait</code> call suffices.</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    writes = snoop.MemoryWrite(memory_space, addr, length)
+    # This snooper yields lengths of individual writes
+    lengths = snoop.Map(lambda access: len(access.value), writes)
+    # This snooper yields accumulated total lengths
+    acc_lengths = snoop.Accumulate(lengths, lambda a, b: a + b)
+    # This snooper yields when accumulated length exceeds the threshold
+    exceed = snoop.Filter(lambda length: length &gt;= threshold, acc_lengths)
+    await sloop.wait(exceed)
+</code></pre>
+<h2 id="advanced-usage.html:sloop-callbackscope"><a href="#advanced-usage.html:sloop-callbackscope">3.5 <code>sloop.CallbackScope</code></a></h2>
+<p>While compound snoopers offer a coding style familiar
+from functional programming,
+there are scenarios where an imperative style with direct callbacks
+is more suitable.
+The <code>CallbackScope</code> asynchronous context manager facilitates
+this within a coroutine:</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    tot_written = 0
+    done = sloop.get_running_loop().create_future()
+    def cb(access):
+        nonlocal tot_written
+        tot_written += len(access.value)
+        if tot_written &gt;= threshold:
+            done.set_result(None)
+    async with sloop.CallbackScope(
+            snoop.MemoryWrite(memory_space, addr, length), cb):
+        await done
+</code></pre>
+<p>In this scenario, the callback <code>cb</code> is invoked directly from
+the simulation thread after each write.
+When the threshold is reached,
+the callback signals the coroutine using a <code>sloop.Future</code> object.</p>
+<p><code>CallbackScope</code> is preferred over the low-level <code>MemoryWrite.add_callback</code> in
+coroutine implementations,
+as it automatically manages cancellation and exceptions, ensuring robustness.</p>
+<p>There is no significant difference in performance between using a
+<code>CallbackScope</code> and compound snoopers.</p>
+<h2 id="advanced-usage.html:custom-snooper"><a href="#advanced-usage.html:custom-snooper">3.6 Custom Snooper</a></h2>
+<p>The final method involves creating a custom snooper:</p>
+<pre><code>class AccumulatedWrites(snoop.MemoryWrite):
+    def __init__(self, memory_space, addr, length, threshold):
+        super().__init__(memory_space, addr, length)
+        self.threshold = threshold
+    def add_callback(self, cb, exc_cb, state):
+        if state is not snoop.SESSION:
+            raise NotImplementedError(
+                'serialization not yet implemented')
+        tot_written = 0
+        def write_cb(access):
+            nonlocal tot_written
+            tot_written += len(access.value)
+            while tot_written &gt;= self.threshold:
+                tot_written -= self.threshold
+                cb(None)
+        return super().add_callback(write_cb, exc_cb, state)
+
+async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    await sloop.wait(AccumulatedWrites(
+        memory_space, addr, length, threshold))
+</code></pre>
+<p>This method offers the most flexibility,
+as the <code>AccumulatedWrites</code> snooper can be used independently
+or combined with other compound snoopers.
+For example, <code>sloop.CallbackScope(AccumulatedWrites(...), cb)</code>
+could provide a callback within the simulation thread for every
+N bytes written.</p>
+<p>However, writing your own custom snooper requires a deeper understanding
+of low-level concepts such as callback handles, exception handling,
+and execution contexts.
+It also carries the risk of subtle bugs if not implemented correctly,
+whereas higher-level methods typically offer better error detection.</p>
+<h2 id="advanced-usage.html:summary"><a href="#advanced-usage.html:summary">3.7 Summary</a></h2>
+<p>We have explored five distinct methods for monitoring a sequence
+of simulation events.
+The first choice should normally be either
+repeated <code>sloop.wait</code> or <code>sloop.Tracer</code>,
+as they are straightforward but may have performance implications.
+If performance is a concern, then compound snoopers or
+<code>sloop.CallbackScope</code> may be more appropriate,
+depending on the complexity of the control flow and the use case.
+Compound snoopers are well-suited for scenarios where a
+functional programming style can elegantly manage event sequences.
+In contrast, <code>sloop.CallbackScope</code> is advantageous for more complex
+control flows that require maintaining state or handling side effects,
+where an imperative approach is more natural.
+A fifth valid option is a custom snooper, but this is seldom the best choice.</p>
+</section><section class="page" id="script-branch.html"><h1 id="script-branch.html:integration-with-script-branches"><a href="#script-branch.html:integration-with-script-branches">4 Integration with Script Branches</a></h1>
+<p>Script branches serve a similar purpose as <code>sloop</code> coroutines; just like
+coroutines, script branches are Python subroutines that run piecewise in Global
+Context to provide an asynchronous behaviour. Thanks to this similarity, the
+<code>script_branch</code> module provides a two-way integration between script branches
+and <code>sloop</code> coroutines; this permits gradual migration of script branches to
+<code>sloop</code> coroutines:</p>
+<ul>
+<li>
+<p>A snooper <code>script_branch.ScriptBranch(f, *args, **kwargs)</code> starts a script
+branch that repeatedly calls <code>f(*args, **kwargs)</code>, where <code>f</code> is a script
+branch function, and for each call it yields the function’s return value.
+This is typically useful to
+call a <code>sb_wait_*</code> call from a <code>sloop</code> coroutine; e.g., the expression <code>await wait(ScriptBranch(script_branch.sb_wait_log(obj)))</code> is roughly equivalent to
+<code>await wait(snoop.Log(obj))</code>.</p>
+</li>
+<li>
+<p>The function <code>script_branch.sb_wait_for_sloop_awaitable(awaitable, loop=sloop.global_event_loop())</code> can be used within a script branch to await a
+task or coroutine.</p>
+</li>
+<li>
+<p>The <code>sb_wait_for_snooper</code> script branch function can be used to wait directly
+for a snooper inside a script branch. For instance, the call
+<code>conf.bp.notifier.cli_cmds.wait_for(object=dev, name="foo")</code> within
+a script branch can be replaced by
+<code>script_branch.sb_wait_for_snooper(snoop.Notifier(dev, "foo"))</code>;
+thus, the latter can serve as an intermediate step when converting to
+a coroutine that does <code>await sloop.wait(snoop.Notifier(dev, "foo"))</code>.</p>
+</li>
+</ul>
+<p>For example, imagine that we have three script branch functions
+<code>wait_for_cent</code>, <code>wait_for_dollar</code> and <code>wait_for_dollars</code> that we
+want to migrate to use coroutines:</p>
+<pre><code>def wait_for_dollar(dev):
+    for i in range(100):
+        # this function is defined elsewhere
+        wait_for_cent(dev, i)
+
+def wait_for_dollars(devs):
+    for dev in devs:
+        print(f'waiting for one dollar from {dev.name}')
+        wait_for_dollar(dev)
+</code></pre>
+<p>Let’s say we choose to convert <code>wait_for_dollar</code> first.
+This function calls one script-branch function and is called by another,
+so we need wrappers both ways:</p>
+<pre><code>async def wait_dollar(dev):
+    for i in range(100):
+        # convert the `wait_for_cent` script-branch function call to a snooper
+        await sloop.wait(script_branch.ScriptBranch(wait_for_cent, dev, i))
+
+# This remains a script branch function for now
+def wait_for_dollars(devs):
+    for dev in devs:
+        print(f'waiting for one dollar from {dev.name}')
+        # wrap coroutine back into a script branch
+        script_branch.sb_wait_for_sloop_awaitable(wait_dollar(dev))
+</code></pre>
+<p>Later, when <code>wait_for_cent</code> is also converted into a coroutine,
+the <code>ScriptBranch</code> wrapping in <code>wait_dollar</code> can be eliminated.
+Likewise, when <code>wait_for_dollars</code> is migrated to a coroutine,
+its <code>sb_wait_for_sloop_awaitable</code> wrapping can be eliminated.</p>
+</section><section class="page" id="bp-manager.html"><h1 id="bp-manager.html:integration-with-the-breakpoint-manager"><a href="#bp-manager.html:integration-with-the-breakpoint-manager">5 Integration with the Breakpoint Manager</a></h1>
+<p>The breakpoint manager, represented by the <code>bp</code> configuration object, provides
+a number of <em>breakpoint types</em>, which are similar in spirit to snoopers: Like a
+snooper, a breakpoint type represents an observable simulation event, and
+provides various options for awaiting or tracing this event.</p>
+<p>It is usually preferable to use snoopers rather than breakpoint types, but in
+some cases breakpoint types may offer features that snoopers don’t.</p>
+<p>For this reason, the <code>bp-manager</code> module provides a generic wrapper that turns a
+breakpoint type into a snooper: The Python class
+<code>simmod.bp_manager.snooper.BP(obj, *args, **kwargs)</code> is a snooper based on the
+breakpoint type represented by the configuration object <code>obj</code>, where <code>args</code> and
+<code>kwargs</code> are interpreted as CLI arguments to the breakpoint type. For instance,
+the command <code>bp.log.run-until object = sim substr = "a.*b" -regexp</code>, which has a
+direct Python wrapping <code>conf.bp.log.cli_cmds.run_until(object=conf.sim, substr='a.*b', regexp=True)</code>, can be wrapped in a snooper as
+<code>simmod.bp_manager.snooper.BP(conf.bp.log, object=conf.sim, substr='a.*b', regexp=True)</code>;</p>
+<p>A breakpoint manager based snooper can sometimes offer a pragmatic interim
+solution while migrating a script branch to a Sloop coroutine; however, please
+note that there is often more direct approach based on native snoopers. For
+instance, the example above can be expressed using the <code>Filter</code> snooper:
+<code>snoop.Filter(lambda msg: re.search('a.*b', msg.message), snoop.Log(conf.sim))</code></p>
+</section><section class="page" id="snoop-refman.html"><h1 id="snoop-refman.html:snoop-module-reference"><a href="#snoop-refman.html:snoop-module-reference">6 Snoop Module Reference</a></h1>
+<p>This section contains reference documentation for the
+<code>snoop</code> Python module.</p>
+<h2 id="snoop-refman.html:core-library"><a href="#snoop-refman.html:core-library">6.1 Core library</a></h2>
+<h3 id="snoop-refman.html:snooper"><a href="#snoop-refman.html:snooper">6.1.1 <strong>Snooper</strong></a></h3>
+<pre><code>class Snooper(abc.ABC, typing.Generic[T, StateT])
+</code></pre>
+<p>Abstract class for snoopers. A snooper observes a class of simulation
+events and yields values when they happen.</p>
+<h4 id="snoop-refman.html:snooper-add_callback"><a href="#snoop-refman.html:snooper-add_callback">6.1.1.1 Snooper.<strong>add_callback</strong></a></h4>
+<pre><code>@abc.abstractmethod
+def add_callback(self, yield_value: Callable[[T], None],
+                 yield_exception: Callable[[Exception], None],
+                 state: StateT) -&gt; Handle[StateT]
+</code></pre>
+<p>Make sure that functions <code>yield_value</code> and <code>yield_exception</code> are
+called when the snooper yields a value or an exception,
+respectively.  Return <code>Handle</code> object for disposal. Neither
+<code>yield_value</code> nor <code>yield_exception</code> may be called after this handle
+has been cancelled.</p>
+<p>The <code>add_callback</code> method typically uses some simulation
+primitive to register a low-level callback on relevant
+simulation events.  The registered callback is typically <em>not</em>
+the <code>yield_value</code> argument, but a wrapper function with
+whatever signature the simulation primitive requires. This
+wrapper studies its arguments and calls <code>fun</code> zero or one
+time, and then returns. If an exception can happen when
+studying arguments, the function body may that and call
+<code>yield_exception</code> with the exception object as argument.
+This way it will be passed to typically useful when the
+snooper’s constructor arguments cannot be validated until the
+callback happens.</p>
+<p>The <code>state</code> argument is a value previously returned by <code>state</code>
+method of a <code>Handle</code> object previously returned by an
+identical snooper. The special value <code>None</code> represents the
+default initial state, and the special sentinel value
+<code>SESSION</code> means that the returned handle does not need to be
+serialized.</p>
+<p>A snooper that does not support checkpointing should raise a
+<code>NotCheckpointableError</code> exception if any other value than
+<code>SESSION</code> is passed in the <code>state</code> argument.</p>
+<p>If <code>state</code> has an unknown form, e.g. if it is a value
+that a handle of this snooper cannot return, then <code>add_callback</code>
+may raise a <code>MalformedStateError</code> exception.</p>
+<p>If one callback from the simulation primitive may trigger
+multiple calls to <code>yield_value</code> or <code>yield_exception</code>, then the
+callback must make sure to check between calls that the handle
+has not been cancelled.</p>
+<p>Neither <code>yield_value</code> nor <code>yield_exception</code> are required to be
+thread safe, so <code>add_callback</code> must ensure that neither is
+invoked concurrently from different threads. However, both
+functions may be reentrantly called if they trigger
+simulation side-effects.
+Some snoopers (<code>Seconds</code>, <code>Cycles</code>, <code>Steps</code>) are stateful in
+such a way that some of their state needs to be stored in a
+clock object. When restoring a snapshot that involve the state
+of such snoopers, the handles of those snoopers need to be
+canceled before any attributes are restored, otherwise the
+restoration of the snoopers may interfere with the restoration
+of clock objects.</p>
+<h4 id="snoop-refman.html:snooper-exec_context"><a href="#snoop-refman.html:snooper-exec_context">6.1.1.2 Snooper.<strong>exec_context</strong></a></h4>
+<pre><code>@abc.abstractmethod
+def exec_context(self) -&gt; ExecContext
+</code></pre>
+<p>Specifies in what execution contexts the value and exception
+callbacks registered with <code>add_callback()</code> can be called.
+The return value is one of
+<code>CellContext(obj)</code>, <code>GlobalContext()</code> and <code>ThreadedContext()</code>.
+The execution context applies only to callbacks themselves;
+callback registration and cancellation may only be called in
+Global Context.</p>
+<h3 id="snoop-refman.html:handle"><a href="#snoop-refman.html:handle">6.1.2 <strong>Handle</strong></a></h3>
+<pre><code>class Handle(abc.ABC, typing.Generic[StateT])
+</code></pre>
+<p>Handle returned by Future.Callback.add_callback</p>
+<h4 id="snoop-refman.html:handle-cancel"><a href="#snoop-refman.html:handle-cancel">6.1.2.1 Handle.<strong>cancel</strong></a></h4>
+<pre><code>@abc.abstractmethod
+def cancel(self) -&gt; None
+</code></pre>
+<p>Stop receiving callbacks. Idempotent.</p>
+<h4 id="snoop-refman.html:handle-state"><a href="#snoop-refman.html:handle-state">6.1.2.2 Handle.<strong>state</strong></a></h4>
+<pre><code>def state(self) -&gt; StateT
+</code></pre>
+<p>Return state needed to restore the current state of a snooper
+with the same kind of handle, through the <code>state</code> argument of the
+<code>add_callback</code> method.
+The returned value should follow Python’s pickle protocol.</p>
+<p>The default is to return <code>None</code>, and only needs to be
+overridden for stateful snoopers. A snooper is stateful if the
+callback behaviour induced by a particular simulation event
+may differ depending on context. For instance, if a snooper’s
+callback should be called after a sequence of two simulation
+events, then the callback behaviour is affected by whether the
+first simulation event happened; this would make that snooper
+stateful.</p>
+<p>The state is typically used to produce an attribute value,
+and in order to make the attribute value inspectable it is desirable
+to express any collections as (nested) lists if possible; collections
+of other types will typically be serialized using the <code>pickle</code> library
+which may unnecessarily hurt inspectability.</p>
+<h3 id="snoop-refman.html:execcontext"><a href="#snoop-refman.html:execcontext">6.1.3 <strong>ExecContext</strong></a></h3>
+<pre><code>@dataclass
+class ExecContext(abc.ABC)
+</code></pre>
+<p>Base class for execution context specifiers.
+Should not be subclassed by users, mainly exposed for typing annotations</p>
+<h3 id="snoop-refman.html:globalcontext"><a href="#snoop-refman.html:globalcontext">6.1.4 <strong>GlobalContext</strong></a></h3>
+<pre><code>class GlobalContext(ExecContext)
+</code></pre>
+<p>Callback can only be called in Global Context.</p>
+<h3 id="snoop-refman.html:cellcontext"><a href="#snoop-refman.html:cellcontext">6.1.5 <strong>CellContext</strong></a></h3>
+<pre><code>@dataclass
+class CellContext(ExecContext)
+</code></pre>
+<p>Callback can be called in Cell Context within the cell given by
+the <code>cell</code> member, or in Global Context. If <code>cell</code> is <code>None</code>,
+can be called from Cell Context in any cell or from Global
+Context.</p>
+<h4 id="snoop-refman.html:cellcontext-__init__"><a href="#snoop-refman.html:cellcontext-__init__">6.1.5.1 CellContext.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, obj: Optional[simics.conf_object_t])
+</code></pre>
+<p>The <code>obj</code> argument can be any object or <code>None</code>; if it is an
+object then the <code>cell</code> attribute is set to the object’s
+associated cell, or <code>None</code> if the object is not associated to
+a cell.</p>
+<h3 id="snoop-refman.html:threadedcontext"><a href="#snoop-refman.html:threadedcontext">6.1.6 <strong>ThreadedContext</strong></a></h3>
+<pre><code>class ThreadedContext(ExecContext)
+</code></pre>
+<p>Callback can be called in any context, Threaded, Global or Cell.</p>
+<h3 id="snoop-refman.html:object_handle"><a href="#snoop-refman.html:object_handle">6.1.7 <strong>object_handle</strong></a></h3>
+<pre><code>def object_handle(obj, cancel)
+</code></pre>
+<p>Return a <code>Handle</code> object that calls <code>cancel()</code> when cancelled,
+and which self-cancels when <code>obj</code> is deleted.</p>
+<h3 id="snoop-refman.html:error"><a href="#snoop-refman.html:error">6.1.8 <strong>Error</strong></a></h3>
+<pre><code>class Error(Exception)
+</code></pre>
+<p>Base class for errors emitted by the snoop library</p>
+<h3 id="snoop-refman.html:invalidobjerror"><a href="#snoop-refman.html:invalidobjerror">6.1.9 <strong>InvalidObjError</strong></a></h3>
+<pre><code>class InvalidObjError(Error)
+</code></pre>
+<p>Raised by snooper constructors if an object passed as argument to the
+constructor does not fulfil the requirements of this snooper</p>
+<h3 id="snoop-refman.html:notcheckpointableerror"><a href="#snoop-refman.html:notcheckpointableerror">6.1.10 <strong>NotCheckpointableError</strong></a></h3>
+<pre><code>class NotCheckpointableError(Error)
+</code></pre>
+<p>Raised by <code>add_callback</code> of snoopers that do not support
+checkpointing, if invoked with a value of <code>state</code> other than <code>SESSION</code>.</p>
+<h3 id="snoop-refman.html:malformedstateerror"><a href="#snoop-refman.html:malformedstateerror">6.1.11 <strong>MalformedStateError</strong></a></h3>
+<pre><code>class MalformedStateError(Error)
+</code></pre>
+<p>Raised by <code>add_callback</code> of snoopers if the format of the supplied <code>state</code>
+argument is not supported</p>
+<h3 id="snoop-refman.html:add_callback_simple"><a href="#snoop-refman.html:add_callback_simple">6.1.12 <strong>add_callback_simple</strong></a></h3>
+<pre><code>def add_callback_simple(
+        snooper: Snooper[T, StateT], yield_value: Callable[[T], None],
+        yield_exc: Optional[Callable[[Exception], None]]=None, *,
+        once: bool=False)
+</code></pre>
+<p>Wrapper around <code>Snooper.add_callback</code>:</p>
+<ul>
+<li>
+<p>The <code>yield_exc</code> argument is optional; leaving it out makes
+sense in the common case where the snooper is known to never yield
+exceptions. If an exception happens without explicit
+<code>yield_exc</code>, then a critical error is signalled.</p>
+</li>
+<li>
+<p>If the <code>once</code> flag is <code>True</code>, then the callback will be
+automatically cancelled after the first <code>yield_value</code> call.</p>
+</li>
+</ul>
+<h3 id="snoop-refman.html:catch_exceptions"><a href="#snoop-refman.html:catch_exceptions">6.1.13 <strong>catch_exceptions</strong></a></h3>
+<pre><code>def catch_exceptions(exc_handler: Callable[[Exception], None]) -&gt; Callable[
+        [Callable[..., T]], Callable[..., T]]
+</code></pre>
+<p>Decorator to capture exceptions raised by a function by calling the
+function <code>exc_handler</code>. Typically useful for low-level callbacks created
+by implementations of Snooper.add_callback, if the callback can
+raise an exception. In this case, the following makes sure the exception
+is propagated:</p>
+<p>@catch_exceptions(yield_exception)
+def callback(…):
+…</p>
+<h3 id="snoop-refman.html:session"><a href="#snoop-refman.html:session">6.1.14 <strong>SESSION</strong></a></h3>
+<p>Sentinel value passed in the <code>state</code> argument of
+<code>Snooper.add_callback</code> to signal that the callback will not need
+checkpointing.</p>
+<h2 id="snoop-refman.html:standard-snooper-classes"><a href="#snoop-refman.html:standard-snooper-classes">6.2 Standard snooper classes</a></h2>
+<h3 id="snoop-refman.html:hap"><a href="#snoop-refman.html:hap">6.2.1 <strong>Hap</strong></a></h3>
+<pre><code>class Hap(Snooper[None, None])
+</code></pre>
+<p>Yield a value when a hap occurs on a given object. The value
+is a tuple of the hap arguments, excluding the object.</p>
+<h4 id="snoop-refman.html:hap-__init__"><a href="#snoop-refman.html:hap-__init__">6.2.1.1 Hap.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, obj: simics.conf_object_t, name: str,
+             exec_context: ExecContext=None)
+</code></pre>
+<p>The <code>obj</code> argument denotes the object on which we listen to a hap.
+<code>name</code> denotes the name of the hap.
+The <code>exec_context</code> argument declares the
+execution context of the notifier. The default <code>CellContext(obj)</code>
+is correct for most notifier types, but some haps only happen
+in Global Context; passing <code>GlobalContext()</code> for such notifiers may
+have advantages.</p>
+<h3 id="snoop-refman.html:log"><a href="#snoop-refman.html:log">6.2.2 <strong>Log</strong></a></h3>
+<pre><code>class Log(Hap)
+</code></pre>
+<p>Yield a value when a message is logged.
+The value has two members: the log type <code>kind</code>, and the message <code>message</code>,
+both strings.</p>
+<h4 id="snoop-refman.html:log-__init__"><a href="#snoop-refman.html:log-__init__">6.2.2.1 Log.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, obj)
+</code></pre>
+<p><code>obj</code> is the object from which we listen to all logged messages.</p>
+<blockquote class="markdown-alert-note">
+<p>This snooper does not capture messages logged on
+sub‑objects. In order to include messages from sub-objects,
+create an <a href="#snoop-refman.html:anyobject"><code>AnyObject</code></a> snooper that
+aggregates multiple <code>Log</code> snoopers. For example:</p>
+<pre><code class="language-python">AnyObject(lambda obj: Log(obj), root=dev)
+</code></pre>
+</blockquote>
+<h3 id="snoop-refman.html:notifier"><a href="#snoop-refman.html:notifier">6.2.3 <strong>Notifier</strong></a></h3>
+<pre><code>class Notifier(Snooper[None, None])
+</code></pre>
+<p>Yield the value <code>None</code> when a notifier is notified on an object.</p>
+<h4 id="snoop-refman.html:notifier-__init__"><a href="#snoop-refman.html:notifier-__init__">6.2.3.1 Notifier.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, obj: simics.conf_object_t,
+             notifier_type: typing.Union[int, str],
+             exec_context: ExecContext=None)
+</code></pre>
+<p><code>notifier_type</code> specifies the notifier type, as either a string
+or an integer. The <code>exec_context</code> argument declares the
+execution context of the notifier. The default <code>CellContext(obj)</code>
+is correct for most notifier types, but some notifiers only happen
+in Global Context; passing <code>GlobalContext()</code> for such notifiers may
+have advantages.</p>
+<h3 id="snoop-refman.html:deviceattribute"><a href="#snoop-refman.html:deviceattribute">6.2.4 <strong>DeviceAttribute</strong></a></h3>
+<pre><code>class DeviceAttribute(Poll[typing.Any, None])
+</code></pre>
+<p>Yield the value of an attribute in a DML device when it changes</p>
+<h4 id="snoop-refman.html:deviceattribute-__init__"><a href="#snoop-refman.html:deviceattribute-__init__">6.2.4.1 DeviceAttribute.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, obj: simics.conf_object_t, attr: str)
+</code></pre>
+<p>Listen to changes to the <code>attr</code> attribute in <code>obj</code>. The <code>obj</code>
+object must belong to a DML device; it may either be the device object
+itself, or one of its ports, banks or subdevices.</p>
+<h3 id="snoop-refman.html:registervalue"><a href="#snoop-refman.html:registervalue">6.2.5 <strong>RegisterValue</strong></a></h3>
+<pre><code>class RegisterValue(Poll[int, None])
+</code></pre>
+<p>Yield the value of a register or field of a C++ or DML bank when
+it changes. Depends on the <code>bank-register-value-change</code> or
+<code>state-change</code> notifier, together with register metadata from the
+<code>register_view</code> interface.</p>
+<h4 id="snoop-refman.html:registervalue-__init__"><a href="#snoop-refman.html:registervalue-__init__">6.2.5.1 RegisterValue.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, reg: dev_util.BankRegister, equal: Optional[int]=None)
+</code></pre>
+<p>Listen to changes to the register defined by <code>reg</code>, as
+returned by the <code>dev_util.bank_regs</code> function.</p>
+<p>If <code>equal</code> is set, then instead of yielding register values,
+yield <code>True</code> when the register changes to the given value, and
+<code>False</code> when it changes from the given value to something
+else.</p>
+<h3 id="snoop-refman.html:seconds"><a href="#snoop-refman.html:seconds">6.2.6 <strong>Seconds</strong></a></h3>
+<pre><code>@dataclass
+class Seconds(Time)
+</code></pre>
+<p>Yield <code>None</code> when the given number of simulated seconds have
+passed.  Seconds form a vector space over numbers: <code>Second</code>
+objects can be added or subtracted, and multiplied or divided by
+numbers.</p>
+<h4 id="snoop-refman.html:seconds-__init__"><a href="#snoop-refman.html:seconds-__init__">6.2.6.1 Seconds.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, clk: simics.conf_object_t, seconds: float=1)
+</code></pre>
+<p><code>None</code> is yielded once every <code>seconds</code> cycles on the clock <code>clk</code>.</p>
+<h3 id="snoop-refman.html:cycles"><a href="#snoop-refman.html:cycles">6.2.7 <strong>Cycles</strong></a></h3>
+<pre><code>@dataclass
+class Cycles(Time)
+</code></pre>
+<p>Yield <code>None</code> when the given number of simulated cycles have
+passed.  Cycles form an abelian group: <code>Cycles</code> objects on the
+same clock can be added or subtracted from each other, and
+multiplied by integers.</p>
+<h4 id="snoop-refman.html:cycles-__init__"><a href="#snoop-refman.html:cycles-__init__">6.2.7.1 Cycles.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, clk: simics.conf_object_t, cycles: int)
+</code></pre>
+<p><code>None</code> is yielded once every <code>cycles</code> cycles on the clock <code>clk</code>.</p>
+<h3 id="snoop-refman.html:steps"><a href="#snoop-refman.html:steps">6.2.8 <strong>Steps</strong></a></h3>
+<pre><code>@dataclass
+class Steps(Time)
+</code></pre>
+<p>Yield <code>None</code> when the given number of simulated steps have
+passed.  Steps form an abelian group: <code>Steps</code> objects on the
+same clock can be added or subtracted from each other, and
+multiplied by integers.</p>
+<h4 id="snoop-refman.html:steps-__init__"><a href="#snoop-refman.html:steps-__init__">6.2.8.1 Steps.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, cpu: simics.conf_object_t, steps: int)
+</code></pre>
+<p><code>None</code> is yielded once every <code>steps</code> steps on the CPU <code>cpu</code>,
+which must implement the <code>step</code> interface.</p>
+<h3 id="snoop-refman.html:consolestring"><a href="#snoop-refman.html:consolestring">6.2.9 <strong>ConsoleString</strong></a></h3>
+<pre><code>@dataclass
+class ConsoleString(Snooper[None, bytes])
+</code></pre>
+<p>Yield <code>None</code> when a matching string appears on a console.</p>
+<h4 id="snoop-refman.html:consolestring-__init__"><a href="#snoop-refman.html:consolestring-__init__">6.2.9.1 ConsoleString.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, con: simics.conf_object_t, string: str,
+             regexp: bool=False)
+</code></pre>
+<p>The text <code>string</code> should appear on the <code>con</code> object,
+which should implement the <code>break_strings_v2</code> interface.
+If <code>regexp</code> is <code>True</code>,
+then the string is interpreted as a regular expression, as defined
+by the <a href="https://hyperscan.io" rel="noopener noreferrer" target="_top">Hyperscan</a> library.</p>
+<h3 id="snoop-refman.html:memoryread"><a href="#snoop-refman.html:memoryread">6.2.10 <strong>MemoryRead</strong></a></h3>
+<pre><code>class MemoryRead(_MemoryAccess[MemoryReadData])
+</code></pre>
+<p>Yield a value when memory is read from a given address in a memory space.
+The value describes the matching transaction and has three members:
+<code>initiator: Optional(conf_object_t)</code>, <code>address: int</code> and <code>size: int</code>.</p>
+<h4 id="snoop-refman.html:memoryread-__init__"><a href="#snoop-refman.html:memoryread-__init__">6.2.10.1 MemoryRead.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, mem: simics.conf_object_t, address: int, length: int)
+</code></pre>
+<p>Capture all read transactions on memory-space <code>mem</code>, that overlap
+with the interval defined by <code>address</code> and <code>length</code>.</p>
+<h3 id="snoop-refman.html:memorywrite"><a href="#snoop-refman.html:memorywrite">6.2.11 <strong>MemoryWrite</strong></a></h3>
+<pre><code>class MemoryWrite(_MemoryAccess[MemoryWriteData])
+</code></pre>
+<p>Yield a value when memory is written to a given address in a memory space.
+The value describes the matching transaction and has three members:
+<code>initiator: Optional(conf_object_t)</code>, <code>address: int</code> and <code>value: bytes</code>.</p>
+<h4 id="snoop-refman.html:memorywrite-__init__"><a href="#snoop-refman.html:memorywrite-__init__">6.2.11.1 MemoryWrite.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, obj: simics.conf_object_t, address: int, length: int)
+</code></pre>
+<p>Capture all write transactions on memory-space <code>obj</code>, that overlap
+with the interval defined by <code>address</code> and <code>length</code>.</p>
+<h3 id="snoop-refman.html:memoryexecute"><a href="#snoop-refman.html:memoryexecute">6.2.12 <strong>MemoryExecute</strong></a></h3>
+<pre><code>class MemoryExecute(_MemoryAccess[MemoryExecuteData])
+</code></pre>
+<p>Yield a value when an instruction is fetched from a given
+location. The value describes the matching transaction and has
+three members: <code>initiator: Optional(conf_object_t)</code>, <code>address: int</code> and <code>size: int</code>.</p>
+<h4 id="snoop-refman.html:memoryexecute-__init__"><a href="#snoop-refman.html:memoryexecute-__init__">6.2.12.1 MemoryExecute.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, obj: simics.conf_object_t, address: int, length: int)
+</code></pre>
+<p>Capture all instruction fetch transactions on memory-space
+<code>obj</code>, that overlap with the interval defined by <code>address</code>
+and <code>length</code>.</p>
+<h3 id="snoop-refman.html:filter"><a href="#snoop-refman.html:filter">6.2.13 <strong>Filter</strong></a></h3>
+<pre><code>class Filter(Snooper[T, StateT])
+</code></pre>
+<p>Wraps a snooper and selectively yields the values yielded by the
+wrapped snooper.</p>
+<h4 id="snoop-refman.html:filter-__init__"><a href="#snoop-refman.html:filter-__init__">6.2.13.1 Filter.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, predicate: Callable[[T], bool], snooper: Snooper[T, StateT])
+</code></pre>
+<p>Whenever the wrapped snooper yields, the function
+<code>predicate</code> is called on the result, and the value is yielded only if
+the predicate returns <code>True</code>.</p>
+<h3 id="snoop-refman.html:poll"><a href="#snoop-refman.html:poll">6.2.14 <strong>Poll</strong></a></h3>
+<pre><code>@dataclass
+class Poll(typing.Generic[T, StateT], Snooper[T, tuple[StateT, T]])
+</code></pre>
+<p>Abstract snooper that yields the value returned by the method
+<code>poll</code>, called whenever a specified subordinate snooper yields a
+value, but only when the value returned from <code>poll</code> differs from
+the last returned value. The initial value is read on
+<code>add_callback</code>. Exceptions from <code>poll</code> and from the subordinate
+snooper are propagated.</p>
+<p>The <code>Poll</code> class has an abstract method <code>poll</code>, with no
+arguments, returning the current value of the polled state. The
+<code>__init__</code> method of the class accepts a single argument, the
+subordinate snooper that controls when to poll.</p>
+<p>This snooper has two use cases, one good and one bad: The good use
+case is when an object fires a custom notifier, say
+<code>'my-notifier'</code>, whenever a particular attribute, say <code>attr</code>, changes,
+and one wants to subscribe to that state. This can be expressed as:</p>
+<pre><code>class MySnooper(Poll):
+    def __init__(self, obj: simics.conf_object_t)
+        self._obj = obj
+        super().__init__(Notifier(obj, 'my-notifier'))
+    def poll(self):
+        return self._obj.attr
+</code></pre>
+<p>The bad use case is to use a <code>Seconds</code> snooper as the subordinate
+snooper, to periodically poll for state changes.  This can work as
+a fallback for snooping an attribute that does not provide an explicit
+callback mechanism, but this technique has two problems:</p>
+<ul>
+<li>
+<p>With a too long interval, it will take some time from the state
+change until a value is yielded. The state might also change
+twice between <code>poll</code> calls, causing a complete omission of
+a yield; this may cause intermittent hard-to-debug bugs
+if simulation is not deterministic.</p>
+</li>
+<li>
+<p>With a too short interval, the polling may harm simulation
+speed.</p>
+</li>
+</ul>
+<p>For these reasons, <code>Seconds</code>-based polling should only be used as
+a temporary measure until the object has been extended with a
+custom notifier type.</p>
+<h3 id="snoop-refman.html:compoundsnooper"><a href="#snoop-refman.html:compoundsnooper">6.2.15 <strong>CompoundSnooper</strong></a></h3>
+<pre><code>class CompoundSnooper(Snooper[T, StateT])
+</code></pre>
+<p>Abstract class for a snooper composed of multiple snoopers.
+Implements <code>exec_context()</code> and validates that
+constituent snoopers cannot issue callbacks concurrently.</p>
+<p>The <code>add_callback</code> method is kept abstract.</p>
+<h4 id="snoop-refman.html:compoundsnooper-__init__"><a href="#snoop-refman.html:compoundsnooper-__init__">6.2.15.1 CompoundSnooper.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, snoopers: list[Snooper])
+</code></pre>
+<p><code>snoopers</code> is the list of subordinate snoopers, stored in
+<code>self.snoopers</code>. Raises an exception if these belong to incompatible
+execution contexts; in particular, if one snooper belongs to a
+different cell, then it needs to be wrapped in a <code>Global</code> snooper.</p>
+<h4 id="snoop-refman.html:compoundsnooper-add_callbacks"><a href="#snoop-refman.html:compoundsnooper-add_callbacks">6.2.15.2 CompoundSnooper.<strong>add_callbacks</strong></a></h4>
+<pre><code>@staticmethod
+def add_callbacks(callbacks: collections.abc.Iterable[
+        tuple[Snooper[T1, T2],
+              Callable[[T1], None],
+              Callable[[Exception], None],
+              T2]])
+</code></pre>
+<p>Atomically call <code>add_callback</code> in a number of snoopers,
+and return their handles. If one of the calls raises an exception,
+then the already created handles are cancelled before re-raising.</p>
+<p>The argument is a list of 4-tuples on the form <code>(snooper, *args)</code>, which correspond to method calls on the form
+<code>snooper.add_callback(*args)</code>.</p>
+<p>This function is useful when implementing <code>add_callback</code> in a
+compound snooper, to handle the case when invalid state is
+rejected by a subordinate snooper.</p>
+<h3 id="snoop-refman.html:latest"><a href="#snoop-refman.html:latest">6.2.16 <strong>Latest</strong></a></h3>
+<pre><code>class Latest(CompoundSnooper[T, list[tuple[StateT, T]]])
+</code></pre>
+<p>Given a set of named snoopers, keeps track of the latest
+produced value from each one. Whenever one of the snoopers yields
+a value, this snooper yields an object composed of the latest
+values from all snoopers, accessed as object members. For
+instance, <code>Latest(x=X(), Y=Y())</code> would yield values <code>v</code> such that
+<code>v.x</code> and <code>v.y</code> contain the latest value of <code>X()</code> and <code>Y()</code>,
+respectively.</p>
+<h4 id="snoop-refman.html:latest-__init__"><a href="#snoop-refman.html:latest-__init__">6.2.16.1 Latest.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self, **snoopers)
+</code></pre>
+<p>The keyword arguments specify the snoopers to combine.</p>
+<p>The produced tuple will contain <code>None</code> for snoopers that have not
+yet produced a value.</p>
+<h3 id="snoop-refman.html:any"><a href="#snoop-refman.html:any">6.2.17 <strong>Any</strong></a></h3>
+<pre><code>class Any(CompoundSnooper[T, list[StateT]])
+</code></pre>
+<p>Deliver a callback when any of the given callbacks are
+delivered.  The delivered value is a pair, (triggered Snooper
+object, value from subordinate snooper). Exceptions are propagated
+unchanged. The constructor is inherited from <code>CompoundSnooper</code>.</p>
+<h3 id="snoop-refman.html:anyobject"><a href="#snoop-refman.html:anyobject">6.2.18 <strong>AnyObject</strong></a></h3>
+<pre><code>class AnyObject(Any, Snooper[tuple[simics.conf_object_t, T], StateT])
+</code></pre>
+<p>Creates snoopers over a set of objects and aggregates these.</p>
+<p>The value passed to the callback is a pair: the first element is the
+object passed to <code>make_snooper</code>, the second element is the value produced
+by the snooper returned by <code>make_snooper</code>.</p>
+<p>For instance, the snooper <code>AnyObject(lambda o: DeviceAttribute(o, 'foo'))</code>
+yields pairs <code>(obj, value)</code> whenever the value of any attribute named
+<code>foo</code> changes, in any device.</p>
+<h4 id="snoop-refman.html:anyobject-__init__"><a href="#snoop-refman.html:anyobject-__init__">6.2.18.1 AnyObject.<strong>__init__</strong></a></h4>
+<pre><code>def __init__(self,
+             make_snooper: Callable[[simics.conf_object_t],
+                                    Snooper[T, StateT]],
+             *, objs: list[simics.conf_object_t]=None,
+             root: simics.conf_object_t=None)
+</code></pre>
+<p>The set of
+objects is either specified as a list in the <code>objs</code> argument, or
+as a full subtree using the <code>root</code> argument. If both <code>objs</code> and <code>root</code>
+are <code>None</code>, then all objects in the configuration are considered.
+<code>make_snooper</code> is a
+function that produces a <code>Snooper</code> from an object, e.g. <code>lambda obj: Notifier(obj, 'my-notifier')</code>. If <code>objs</code> is provided,
+all objects must be valid and any <code>InvalidObjError</code> exception
+is propagated; if <code>root</code> is provided, or both <code>objs</code> and <code>root</code>
+are <code>None</code>, then the
+<code>make_snooper</code> function may raise <code>InvalidObjError</code> to signal that an
+object should be excluded. Standard snooper constructors raise this
+exception automatically when encountering an incompatible object.</p>
+</section><section class="page" id="sloop-refman.html"><h1 id="sloop-refman.html:sloop-module-reference"><a href="#sloop-refman.html:sloop-module-reference">7 Sloop Module Reference</a></h1>
+<p>This section contains reference documentation for the
+<code>sloop</code> Python module.</p>
+<h2 id="sloop-refman.html:break"><a href="#sloop-refman.html:break">7.1 <strong>Break</strong></a></h2>
+<pre><code>class Break(Exception)
+</code></pre>
+<p>Raised by <code>run_until_complete</code> when simulation was interrupted, e.g.
+when the end-user issued the <code>break</code> CLI command.</p>
+<h2 id="sloop-refman.html:error"><a href="#sloop-refman.html:error">7.2 <strong>Error</strong></a></h2>
+<pre><code>class Error(Exception)
+</code></pre>
+<p>Raised for incorrect usage of <code>sloop</code></p>
+<h2 id="sloop-refman.html:get_running_loop"><a href="#sloop-refman.html:get_running_loop">7.3 <strong>get_running_loop</strong></a></h2>
+<pre><code>def get_running_loop()
+</code></pre>
+<p>Like <code>asyncio.get_running_loop</code>, but must be run from a task
+created by Sloop’s <code>create_task</code>.</p>
+<h2 id="sloop-refman.html:global_event_loop"><a href="#sloop-refman.html:global_event_loop">7.4 <strong>global_event_loop</strong></a></h2>
+<pre><code>def global_event_loop()
+</code></pre>
+<p>The default <code>sloop</code> event loop</p>
+<h2 id="sloop-refman.html:run_until_complete"><a href="#sloop-refman.html:run_until_complete">7.5 <strong>run_until_complete</strong></a></h2>
+<pre><code>def run_until_complete(fut)
+</code></pre>
+<p>Similar to <code>asyncio.EventLoop.run_until_complete</code>, but runs
+simulation until a coroutine, future or task is done. If the
+argument is a coroutine, then the coroutine is scheduled as a task
+within the <code>global_event_loop</code> Sloop event loop. May only be called
+while simulation is stopped, from Global Context.</p>
+<h2 id="sloop-refman.html:create_task"><a href="#sloop-refman.html:create_task">7.6 <strong>create_task</strong></a></h2>
+<pre><code>def create_task(coro, *, name=None)
+</code></pre>
+<p>Like <code>asyncio.create_task</code>, create a task in the currently
+running <code>sloop</code> event loop. Raises <code>RuntimeError</code> if not called
+from a <code>sloop</code> corotuine.</p>
+<h2 id="sloop-refman.html:call_soon"><a href="#sloop-refman.html:call_soon">7.7 <strong>call_soon</strong></a></h2>
+<pre><code>def call_soon(fun, *args)
+</code></pre>
+<p>Like <code>asyncio.call_soon</code>, but must be run from a Sloop task</p>
+<h2 id="sloop-refman.html:wrap_future"><a href="#sloop-refman.html:wrap_future">7.8 <strong>wrap_future</strong></a></h2>
+<pre><code>def wrap_future(fut)
+</code></pre>
+<p>Similar to <code>asyncio.wrap_future</code>, wrap a future-like object
+so it can be awaited within a Sloop loop.</p>
+<p>Mainly useful to wrap the results of higher-order <code>asyncio</code> coroutines,
+e.g. <code>sloop.wrap_future(asyncio.gather(...))</code> or <code>map(sloop.wrap_future, asyncio.as_completed(...))</code>.</p>
+<p>Raises <code>RuntimeError</code> if not called
+from a <code>sloop</code> corotuine.</p>
+<h2 id="sloop-refman.html:wait_call"><a href="#sloop-refman.html:wait_call">7.9 <strong>wait_call</strong></a></h2>
+<pre><code>async def wait_call(fun, *args)
+</code></pre>
+<p>Similar to <code>asyncio.to_thread</code>, run a slow function
+outside the Sloop event loop and await the result.</p>
+<p>Like <code>asyncio</code>, <code>sloop</code> emits a warning if a coroutine takes too
+long between waits; wrapping a call in <code>wait_call</code> silences
+this. However, unlike <code>asyncio.to_thread</code>, <code>wait_call</code> schedules
+the function to run in Global Context rather than in a separate
+thread, so it will still block the progress of simulation. Thus, the
+motivation for the function is to allow preservation of asyncio’s
+convention that expensive code should not be run within coroutines.</p>
+<p>Raises <code>RuntimeError</code> if not called from a <code>sloop</code> corotuine.</p>
+<h2 id="sloop-refman.html:wait"><a href="#sloop-refman.html:wait">7.10 <strong>wait</strong></a></h2>
+<pre><code>async def wait(s: snoop.Snooper)
+</code></pre>
+<p>Wait for the next time a snooper yields.</p>
+<h2 id="sloop-refman.html:trace"><a href="#sloop-refman.html:trace">7.11 <strong>trace</strong></a></h2>
+<pre><code>async def trace(snooper, until)
+</code></pre>
+<p>Collect all values yielded by <code>snooper</code> until the first time
+<code>until</code> yields, and return a list of these values.</p>
+<h2 id="sloop-refman.html:tracer"><a href="#sloop-refman.html:tracer">7.12 <strong>Tracer</strong></a></h2>
+<pre><code>class Tracer
+</code></pre>
+<p>Asynchronous context manager that converts a snooper into an
+asynchronous iterator of yielded values. The asynchronous iterator is
+returned by <code>__aenter__</code>, so typical usage looks like this:</p>
+<pre><code>async with Tracer(SomeSnooper(...)) as t:
+    async for value in t:
+        ...
+</code></pre>
+<h3 id="sloop-refman.html:tracer-__init__"><a href="#sloop-refman.html:tracer-__init__">7.12.1 Tracer.<strong>__init__</strong></a></h3>
+<pre><code>def __init__(self, snooper: snoop.Snooper, until: snoop.Snooper=None)
+</code></pre>
+<p><code>snooper</code> is the snooper whose values to collect. <code>until</code>
+specifies when to stop iteration; the default is to continue
+indefinitely.</p>
+<h2 id="sloop-refman.html:callbackscope"><a href="#sloop-refman.html:callbackscope">7.13 <strong>CallbackScope</strong></a></h2>
+<pre><code>class CallbackScope(contextlib.AbstractAsyncContextManager)
+</code></pre>
+<p>Reusable asynchronous context manager that subscribes a
+callback to a snooper while entered.</p>
+<h3 id="sloop-refman.html:callbackscope-__init__"><a href="#sloop-refman.html:callbackscope-__init__">7.13.1 CallbackScope.<strong>__init__</strong></a></h3>
+<pre><code>def __init__(self, snp: snoop.Snooper[T, StateT], cb: Callable[[T], None])
+</code></pre>
+<p>The callback <code>cb</code> is subscribed to <code>snp</code> while entered.</p>
+<h2 id="sloop-refman.html:timeout"><a href="#sloop-refman.html:timeout">7.14 <strong>timeout</strong></a></h2>
+<pre><code>def timeout(snooper)
+</code></pre>
+<p>Similar to <code>asyncio.timeout</code> in Python 3.11, returns an
+asynchronous context manager that interrupts the block by raising a
+<code>TimeoutError</code> exception if it does not finish in time. Unlike
+<code>asyncio.timeout</code>, the timeout is specified by a snooper object,
+typically an instance of <code>sloop.Seconds</code>.</p>
+<h2 id="sloop-refman.html:taskgroup"><a href="#sloop-refman.html:taskgroup">7.15 <strong>TaskGroup</strong></a></h2>
+<pre><code>class TaskGroup(contextlib.AbstractAsyncContextManager)
+</code></pre>
+<p>Provides a <code>sloop</code> compatible implementation of the
+<code>asyncio.TaskGroup</code> class available in Python 3.11 and newer; see
+<code>asyncio</code> documentation for details. In cases where
+<code>asyncio.TaskGroup</code> would raise an <code>ExceptionGroup</code> or
+<code>BaseExceptionGroup</code> exception, and <code>sloop</code> is used from Python
+3.10, the <code>sloop.TaskGroup</code> class instead raises a
+<code>sloop.ExceptionGroup</code> or <code>sloop.BaseExceptionGroup</code> exception,
+respectively.</p>
+<p>When <code>sloop</code> is used with Python 3.11 or newer, <code>sloop.TaskGroup</code>
+evaluates to <code>asyncio.TaskGroup</code>.</p>
+<p>In rare cases, it can happen in a task with an active
+<code>sloop.TaskGroup</code> that cancellation of that task has no effect.
+This limitation comes from deficiencies in the Python 3.10 API;
+to overcome these, please switch to Python 3.11 and Simics 7.</p>
+<h2 id="sloop-refman.html:baseexceptiongroup"><a href="#sloop-refman.html:baseexceptiongroup">7.16 <strong>BaseExceptionGroup</strong></a></h2>
+<pre><code>class BaseExceptionGroup(BaseException)
+</code></pre>
+<p>Limited back-port of the built-in <code>BaseExceptionGroup</code>
+class from Python 3.11. Provides the <code>exceptions</code> attribute
+but no methods.</p>
+<p>Python’s traceback printer is not aware of the tracebacks of
+the sub-exceptions, so these are printed as part of <code>__str__</code>
+in order to yield comprehensive tracebacks.</p>
+<p>When <code>sloop</code> is used with Python 3.11 or newer,
+<code>sloop.BaseExceptionGroup</code> evaluates to the built-in
+<code>BaseExceptionGroup</code> class.</p>
+<h2 id="sloop-refman.html:exceptiongroup"><a href="#sloop-refman.html:exceptiongroup">7.17 <strong>ExceptionGroup</strong></a></h2>
+<pre><code>class ExceptionGroup(Exception)
+</code></pre>
+<p>Limited back-port of the built-in <code>ExceptionGroup</code> class from Python
+3.11. Provides the <code>exceptions</code> attribute but no methods.</p>
+<p>Python’s traceback printer is not aware of the tracebacks of
+the sub-exceptions, so these are printed as part of <code>__str__</code>
+in order to yield comprehensive tracebacks.</p>
+<p>When <code>sloop</code> is used with Python 3.11 or newer,
+<code>sloop.ExceptionGroup</code> evaluates to the built-in
+<code>ExceptionGroup</code> class.</p>
+</section>

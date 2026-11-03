@@ -1,0 +1,504 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Attribute Values</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="device-api-functions.html">Device API Functions</a>
+<a href="dev-api-configuration.html">Configuration</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Attribute Values</h1>
+<h2 id="SIM_alloc_attr_dict"><a href="#SIM_alloc_attr_dict">SIM_alloc_attr_dict</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_alloc_attr_dict — create empty attribute dictionary</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+attr_value_t
+SIM_alloc_attr_dict(unsigned length);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of type dict with size <code>len</code>. The dictionary elements are initialized to invalid values.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_attr_dict_set_item"><code>SIM_attr_dict_set_item</code></a>, <a href="dev-api-attr-value-t.html#SIM_alloc_attr_list"><code>SIM_alloc_attr_list</code></a></p>
+</section>
+<h2 id="SIM_alloc_attr_list"><a href="#SIM_alloc_attr_list">SIM_alloc_attr_list</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_alloc_attr_list — create uninitialized attribute list</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+attr_value_t
+SIM_alloc_attr_list(unsigned length);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of type list with size <code>length</code>. The list elements are initialized to invalid values.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_make_attr_list"><code>SIM_make_attr_list</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_list_set_item"><code>SIM_attr_list_set_item</code></a></p>
+</section>
+<h2 id="SIM_attr_copy"><a href="#SIM_attr_copy">SIM_attr_copy</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_copy — copy attribute value</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+attr_value_t
+SIM_attr_copy(attr_value_t val);
+</code></pre>
+<h2>Description</h2>
+<p>Return a deep copy of <code>val</code>. The caller obtains ownership of the copy and needs to free it after use; the argument is not modified.</p>
+<p>This function is not available from Python.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_attr_free"><code>SIM_attr_free</code></a></p>
+</section>
+<h2 id="SIM_attr_dict_resize"><a href="#SIM_attr_dict_resize">SIM_attr_dict_resize</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_dict_resize — resize dict attribute value</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_attr_dict_resize(attr_value_t *NOTNULL attr, unsigned newsize);
+</code></pre>
+<h2>Description</h2>
+<p>Resize <code>attr</code>, which must be of dict type, to <code>newsize</code> elements. New elements are marked invalid. Dropped elements are freed.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_attr_dict_set_item"><a href="#SIM_attr_dict_set_item">SIM_attr_dict_set_item</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_dict_set_item — set dict attribute element</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_attr_dict_set_item(attr_value_t *NOTNULL attr, unsigned index,
+                       attr_value_t key, attr_value_t value);
+</code></pre>
+<h2>Description</h2>
+<p>Set the element numbered <code>index</code> of the dict <code>attr</code> to <code>key</code> and <code>value</code>. The previous key and value at that position are freed. The ownership for <code>key</code> and <code>value</code> is transferred from the caller to <code>attr</code>. The <code>key</code> must be of integer, string or object type.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_attr_free"><a href="#SIM_attr_free">SIM_attr_free, SIM_free_attribute</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_free, SIM_free_attribute — free attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_attr_free(attr_value_t *NOTNULL value);
+
+void
+SIM_free_attribute(attr_value_t value);
+</code></pre>
+<h2>Description</h2>
+<p>Free the memory allocation used by the value pointed to by <code>value</code>. For values of list or dict type, this recursively frees all contents; for string or data values, the allocation containing the payload is freed. It is an error to use the value or any sub-part of it after it has been freed.</p>
+<p><code>SIM_attr_free</code> is the preferred call because it changes the type of the argument variable to Invalid, preventing accidental use after freeing. <code>SIM_free_attribute</code> only differs in how the argument is passed, but cannot change the argument variable as it is passed by value.</p>
+<blockquote class="markdown-alert-note">
+<p>These functions are not available in Python; memory allocation is managed automatically there.</p>
+</blockquote>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_attr_integer"><a href="#SIM_attr_integer">SIM_attr_integer, SIM_attr_boolean, SIM_attr_string, SIM_attr_string_detach, SIM_attr_floating, SIM_attr_object, SIM_attr_object_or_nil, SIM_attr_data_size, SIM_attr_data, SIM_attr_list_size, SIM_attr_list_item, SIM_attr_list, SIM_attr_dict_size, SIM_attr_dict_key, SIM_attr_dict_value</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_integer, SIM_attr_boolean, SIM_attr_string, SIM_attr_string_detach, SIM_attr_floating, SIM_attr_object, SIM_attr_object_or_nil, SIM_attr_data_size, SIM_attr_data, SIM_attr_list_size, SIM_attr_list_item, SIM_attr_list, SIM_attr_dict_size, SIM_attr_dict_key, SIM_attr_dict_value — extract values stored in <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> values</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE int64
+SIM_attr_integer(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_boolean(attr_value_t attr);
+
+FORCE_INLINE const char *
+SIM_attr_string(attr_value_t attr);
+
+FORCE_INLINE char *
+SIM_attr_string_detach(attr_value_t *attr);
+
+FORCE_INLINE double
+SIM_attr_floating(attr_value_t attr);
+
+FORCE_INLINE conf_object_t *
+SIM_attr_object(attr_value_t attr);
+
+FORCE_INLINE conf_object_t *
+SIM_attr_object_or_nil(attr_value_t attr);
+
+FORCE_INLINE unsigned
+SIM_attr_data_size(attr_value_t attr);
+
+FORCE_INLINE const uint8 *
+SIM_attr_data(attr_value_t attr);
+
+FORCE_INLINE unsigned
+SIM_attr_list_size(attr_value_t attr);
+
+FORCE_INLINE attr_value_t
+SIM_attr_list_item(attr_value_t attr, unsigned index);
+
+FORCE_INLINE attr_value_t *
+SIM_attr_list(attr_value_t attr);
+
+FORCE_INLINE unsigned
+SIM_attr_dict_size(attr_value_t attr);
+
+FORCE_INLINE attr_value_t
+SIM_attr_dict_key(attr_value_t attr, unsigned index);
+
+FORCE_INLINE attr_value_t
+SIM_attr_dict_value(attr_value_t attr, unsigned index);
+</code></pre>
+<h2>Description</h2>
+<p>Extract a value encapsulated in <code>attr</code>. It is an error to call an accessor function with an <code>attr</code> of the wrong type.</p>
+<p><code>SIM_attr_integer</code> returns the integer attribute value modulo-reduced to the interval <code>[-2**63,2**(63-1)]</code>. (Converting the return value to <a href="dev-api-types-generic.html#int8"><code>uint64</code></a> gives the integer attribute value modulo-reduced to <code>[0,2**(64-1)]</code>.)</p>
+<p><code>SIM_attr_string</code>, <code>SIM_attr_data</code> and <code>SIM_attr_list</code> return values owned by <code>attr</code>. Ownership is not transferred to the caller.</p>
+<p><code>SIM_attr_string_detach</code> returns the string in <code>attr</code> and changes the value pointed to by <code>attr</code> into a nil attribute. Ownership of the string is transferred to the caller.</p>
+<p><code>SIM_attr_object_or_nil</code> accepts an <code>attr</code> parameter of either object or nil type. In case of a nil attribute, the function returns NULL.</p>
+<p><code>SIM_attr_list_size</code> and <code>SIM_attr_dict_size</code> return the number of items in the list and key-value pairs in the dict respectively. <code>SIM_attr_data_size</code> returns the number of bytes in the data value.</p>
+<p><code>SIM_attr_list_item</code> returns the item at <code>index</code>. The index must be less than the number of items in the list. The item returned is still owned by <code>attr</code>. Ownership is not transferred to the caller.</p>
+<p><code>SIM_attr_list</code> returns a pointer directly into the internal array of the attribute value; it is mainly present as an optimisation. Use <code>SIM_attr_list_item</code> and <code>SIM_attr_list_set_item</code> for type-safety instead.</p>
+<p><code>SIM_attr_dict_key</code> and <code>SIM_attr_dict_value</code> return the key and value at <code>index</code>. The index must be less than the number of items in the dict. The value returned is still owned by <code>attr</code>. Ownership is not transferred to the caller.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_attr_is_integer"><a href="#SIM_attr_is_integer">SIM_attr_is_nil, SIM_attr_is_int64, SIM_attr_is_uint64, SIM_attr_is_integer, SIM_attr_is_boolean, SIM_attr_is_string, SIM_attr_is_floating, SIM_attr_is_object, SIM_attr_is_invalid, SIM_attr_is_data, SIM_attr_is_list, SIM_attr_is_dict</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_is_nil, SIM_attr_is_int64, SIM_attr_is_uint64, SIM_attr_is_integer, SIM_attr_is_boolean, SIM_attr_is_string, SIM_attr_is_floating, SIM_attr_is_object, SIM_attr_is_invalid, SIM_attr_is_data, SIM_attr_is_list, SIM_attr_is_dict — <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> type predicates</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE bool
+SIM_attr_is_nil(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_int64(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_uint64(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_integer(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_boolean(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_string(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_floating(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_object(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_invalid(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_data(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_list(attr_value_t attr);
+
+FORCE_INLINE bool
+SIM_attr_is_dict(attr_value_t attr);
+</code></pre>
+<h2>Description</h2>
+<p>Indicates whether the value stored in <code>attr</code> is of the specified type. <code>SIM_attr_is_int64</code> and <code>SIM_attr_is_uint64</code> additionally test whether the integer value would fit in the given C type.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_attr_list_resize"><a href="#SIM_attr_list_resize">SIM_attr_list_resize</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_list_resize — resize list attribute value</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_attr_list_resize(attr_value_t *NOTNULL attr, unsigned newsize);
+</code></pre>
+<h2>Description</h2>
+<p>Resize <code>attr</code>, which must be of list type, to <code>newsize</code> elements. New elements are set to invalid value. Dropped elements are freed.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_attr_list_set_item"><a href="#SIM_attr_list_set_item">SIM_attr_list_set_item</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_list_set_item — set list attribute element</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_attr_list_set_item(attr_value_t *NOTNULL attr, unsigned index,
+                       attr_value_t elem);
+</code></pre>
+<h2>Description</h2>
+<p>Set the element numbered <code>index</code> of the list <code>attr</code> to <code>elem</code>. The previous value at that position is freed. The ownership for <code>elem</code> is transferred from the caller to <code>attr</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_attr_scanf"><a href="#SIM_attr_scanf">SIM_attr_scanf, SIM_ascanf</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_attr_scanf, SIM_ascanf — parse list attribute values</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_attr_scanf(attr_value_t *NOTNULL list, const char *NOTNULL fmt, ...);
+
+bool
+SIM_ascanf(attr_value_t *NOTNULL list,
+           const char *NOTNULL fmt, ...) __attribute__((alias("SIM_attr_scanf")));
+</code></pre>
+<h2>Description</h2>
+<p>Reads and converts entries in <code>list</code> according to the format string <code>fmt</code>. Returns <code>true</code> if all elements were successfully converted, <code>false</code> otherwise.</p>
+<p>The characters in the format string mean:</p>
+<table><thead><tr><th>format char</th><th>argument type</th><th>element must be</th></tr></thead><tbody>
+<tr><td><code>i</code></td><td><code>int64 *</code></td><td>integer</td></tr>
+<tr><td><code>b</code></td><td><code>int *</code></td><td>boolean</td></tr>
+<tr><td><code>f</code></td><td><code>double *</code></td><td>floating</td></tr>
+<tr><td><code>s</code></td><td><code>const char **</code></td><td>string</td></tr>
+<tr><td><code>S</code></td><td><code>const char **</code></td><td>string or nil</td></tr>
+<tr><td><code>o</code></td><td><code>conf_object_t **</code></td><td>object</td></tr>
+<tr><td><code>O</code></td><td><code>conf_object_t **</code></td><td>object or nil</td></tr>
+<tr><td><code>l</code></td><td><code>attr_value_t **</code></td><td>list</td></tr>
+<tr><td><code>d</code></td><td><code>attr_value_t **</code></td><td>data</td></tr>
+<tr><td><code>a</code></td><td><code>attr_value_t **</code></td><td>any except invalid</td></tr>
+</tbody></table>
+<p>The <em>fmt</em> string may also include a period (<code>.</code>) at the end, taken to mean that more elements may follow. If the period is not present, the length of the list must equal the number of specified elements.</p>
+<p>Converted values of type <code>attr_value_t *</code> and <code>const char *</code> are still owned by <code>list</code>.</p>
+<p><code>SIM_ascanf</code> is an alias of <code>SIM_attr_scanf</code> and will be deprecated.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_make_attr_boolean"><a href="#SIM_make_attr_boolean">SIM_make_attr_boolean</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_boolean — make boolean attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_boolean(bool b);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of boolean type.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_make_attr_data"><a href="#SIM_make_attr_data">SIM_make_attr_data, SIM_make_attr_data_adopt</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_data, SIM_make_attr_data_adopt — create raw data attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+attr_value_t
+SIM_make_attr_data(size_t size, const void *data);
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_data_adopt(size_t size, void *data);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of type data using <code>size</code> and <code>data</code> for the binary data. The maximum size of the binary data is 2**32-1 bytes, i.e. <code>size</code> should fit into a 32-bit unsigned integer.</p>
+<p><code>SIM_make_attr_data</code> will make a copy of the argument data.</p>
+<p><code>SIM_make_attr_data_adopt</code> is mainly provided for compatibility; it will assume ownership of the argument data, which must have been allocated using one of the <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC</code></a> functions.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_make_attr_floating"><a href="#SIM_make_attr_floating">SIM_make_attr_floating</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_floating — make floating point attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_floating(double d);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of floating type with value <code>d</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_make_attr_int64"><a href="#SIM_make_attr_int64">SIM_make_attr_uint64, SIM_make_attr_int64</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_uint64, SIM_make_attr_int64 — make integer attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_uint64(uint64 i);
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_int64(int64 i);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of integer type with value <code>i</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_make_attr_invalid"><a href="#SIM_make_attr_invalid">SIM_make_attr_invalid</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_invalid — make invalid attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_invalid(void);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of invalid type.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_make_attr_list"><a href="#SIM_make_attr_list">SIM_make_attr_list, SIM_make_attr_list_vararg</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_list, SIM_make_attr_list_vararg — make list attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+attr_value_t
+SIM_make_attr_list(unsigned length, ...);
+
+// not available in DML
+
+attr_value_t
+SIM_make_attr_list_vararg(unsigned length, va_list va);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of type list with size <code>length</code>. The list is filled with data from the arguments following, which should be of type <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a>.</p>
+<p>This function must be called with exactly <code>length</code>+1 arguments. The attribute parameters should all be valid attributes; e.g., attributes of invalid type are not allowed. The <code>length</code> argument must be a constant expression.</p>
+<p>The newly created list assumes ownership of the passed parameters, which therefore should not be freed.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_alloc_attr_list"><code>SIM_alloc_attr_list</code></a></p>
+</section>
+<h2 id="SIM_make_attr_nil"><a href="#SIM_make_attr_nil">SIM_make_attr_nil</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_nil — make nil attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_nil(void);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of type nil.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_make_attr_object"><a href="#SIM_make_attr_object">SIM_make_attr_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_object — make object attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_object(conf_object_t *obj);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of object type with value <code>obj</code>. Returns a nil value if <code>obj</code> is <code>NULL</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_make_attr_string"><a href="#SIM_make_attr_string">SIM_make_attr_string, SIM_make_attr_string_adopt</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_make_attr_string, SIM_make_attr_string_adopt — make string attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+attr_value_t
+SIM_make_attr_string(const char *str);
+
+FORCE_INLINE attr_value_t
+SIM_make_attr_string_adopt(char *str);
+</code></pre>
+<h2>Description</h2>
+<p>Returns an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> of type string with value <code>str</code>. Returns Nil if <code>str</code> is <code>NULL</code>.</p>
+<p><code>SIM_make_attr_string</code> will make a copy of the argument string.</p>
+<p><code>SIM_make_attr_string_adopt</code> is mainly provided for compatibility; it will assume ownership of the argument string, which must have been allocated using one the <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC</code></a> functions.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<div class="chain">
+<a href="device-api-functions.html">Device API Functions</a>
+<a href="dev-api-configuration.html">Configuration</a>
+</div>

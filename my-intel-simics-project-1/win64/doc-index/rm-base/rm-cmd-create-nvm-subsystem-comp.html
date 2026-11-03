@@ -1,0 +1,59 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>create-nvm-subsystem-comp</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-create-nikita.html">create-nikita</a>
+<a href="rm-cmd-create-os-awareness.html">create-os-awareness</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="create-nvm-subsystem-comp"></a>
+<h1 id="create-nvm-subsystem-comp"><a href="#create-nvm-subsystem-comp">create-nvm-subsystem-comp</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>create-nvm-subsystem-comp</b> [<i>"name"</i>] [<i>"SN"</i>] [<i>auto_attach_namespaces</i>] [<i>bandwidth</i>] <i>disk_size</i> [<i>dynamic_size</i>] [<i>n_io_controllers</i>] [<i>pcie_gen_speed</i>] [<i>pcie_link_width</i>] [<i>rpmb_data_area_size</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command creates a non-instantiated component of the class <tt>nvm_subsystem_comp</tt>.
+<p>
+The class description for the <tt>nvm_subsystem_comp</tt> class: A generic NVM Subsystem with support for multiple NVMe controllers
+</p><p>
+</p><dl><dt id="dt:name-is-optional"><a href="#dt:name-is-optional"><i>name</i> is Optional</a></dt><dd>If not specified, the component will get a class-specific default name.</dd>
+<p>
+</p><dt id="dt:sn-is-optional"><a href="#dt:sn-is-optional"><i>SN</i> is Optional</a></dt><dd>The serial number of the NVMe device. Default value is "SIMICS_NVME". With multiple NVMe devices in one system, it is recommended to set a unique serial number for each device.</dd>
+<p>
+</p><dt id="dt:auto_attach_namespaces-is-optional"><a href="#dt:auto_attach_namespaces-is-optional"><i>auto_attach_namespaces</i> is Optional</a></dt><dd>If set to True, namespaces added with the add-namespace command will automatically attached to all I/O controllers, upon instantiation.</dd>
+<p>
+</p><dt id="dt:bandwidth-is-optional"><a href="#dt:bandwidth-is-optional"><i>bandwidth</i> is Optional</a></dt><dd>The read/write speed of the NVMe disk, provided in MB/s. 0 means instant read/write:s, which is the default value</dd>
+<p>
+</p><dt id="dt:disk_size-is-required"><a href="#dt:disk_size-is-required"><i>disk_size</i> is Required</a></dt><dd>The size of the underlying storage for the NVMe drive. The combined size of the namespaces added with the add_namespace command must not exceed this value.</dd>
+<p>
+</p><dt id="dt:dynamic_size-is-optional"><a href="#dt:dynamic_size-is-optional"><i>dynamic_size</i> is Optional</a></dt><dd>If set to True, adding a namespace will increase the disk size if needed. This only works before instantiation.</dd>
+<p>
+</p><dt id="dt:n_io_controllers-is-optional"><a href="#dt:n_io_controllers-is-optional"><i>n_io_controllers</i> is Optional</a></dt><dd>The number of NVMe IO controllers in the NVM Subsystem. Default value is 1. May not be higher than 64.</dd>
+<p>
+</p><dt id="dt:pcie_gen_speed-is-optional"><a href="#dt:pcie_gen_speed-is-optional"><i>pcie_gen_speed</i> is Optional</a></dt><dd>Based on the value of this parameter, the NVMe PCIe I/O controller will be configured to advertise its maximum supported link and speed. It will advertise the highest supported link speed for the given PCIe generation . Note that this does not set the PCIe version of the NVMe device, as the version of this device is fixed at 6. The value of this parameter must be between 1 and 6. Default value is 5.</dd>
+<p>
+</p><dt id="dt:pcie_link_width-is-optional"><a href="#dt:pcie_link_width-is-optional"><i>pcie_link_width</i> is Optional</a></dt><dd>The maximum link width that the NVMe PCIe I/O controller will advertise. Valid values are 1, 2, 4, 8, or 16. Default value is 8.</dd>
+<p>
+</p><dt id="dt:rpmb_data_area_size-is-optional"><a href="#dt:rpmb_data_area_size-is-optional"><i>rpmb_data_area_size</i> is Optional</a></dt><dd>The size of the RPMB data area in 128 KiB blocks. Default value is 1. Must be a value between 1 (128 KiB) and 255 (32 MiB).</dd></dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics-nvme-comp.html">simics-nvme-comp</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-create-nikita.html">create-nikita</a>
+<a href="rm-cmd-create-os-awareness.html">create-os-awareness</a>
+</div>

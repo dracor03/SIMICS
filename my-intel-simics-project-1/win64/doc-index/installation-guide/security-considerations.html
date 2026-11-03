@@ -1,0 +1,64 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 Security Considerations</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="open-source-software.html">6 Open Source Software</a>
+</div>
+<div class="path">
+<a href="index.html">Installation Guide</a>
+&nbsp;/&nbsp;</div><h1 id="security-considerations"><a href="#security-considerations">7 Security Considerations</a></h1>
+<p>The simulator runs as a user application with standard privileges and is secure
+at its core. However, it has some features that present potential
+vulnerabilities which are good to be aware of before enabling them. None of them
+are enabled by default.</p>
+<ul>
+<li>Access to the command line (CLI) provides access to arbitrary shell commands
+on the simulation host (as the user running the simulator). Hence usage of
+<strong>telnet-frontend</strong> potentially opens up shell access to the simulation host
+to anyone with network access to it.</li>
+<li>Similarly, access to the simulated target system may potentially be used to
+obtain access to the host (as the user running the simulator). The features
+which provide communication between target and the simulator, and which
+therefore could introduce this type of risk, are <strong>SimicsFS</strong>, <strong>Simics
+Agent</strong>, the host serial connections in the <strong>host-serial-console</strong> and
+<strong>textcon</strong> modules, and the debugging functionality in <strong>tcf-agent</strong>. In
+general, bugs in simulation modules can lead to crashes or similar that
+result in access to the simulation host.</li>
+<li>Some features may provide access to the simulated target system to users who
+have network access to the simulation host. By the previous point, this may
+be exploited to access the simulation host. These features are the VNC server
+in the <strong>graphcon</strong> module, the telnet servers in the <strong>telnet-console</strong> and
+<strong>textcon</strong> modules, the <strong>gdb-remote</strong> module, distributed simulation and
+all types of real network connections using the <strong>real-network</strong> module.</li>
+<li>The connection modules mentioned above can be configured to use restrictive
+connection types, domain sockets on Linux and named pipes on Windows, that do
+not make the simulation host accessible over the network.</li>
+<li>Real network connections in particular should be used with care, as they also
+allow the target system to initiate connections to the network that the
+simulation host is connected to. This can potentially expose information
+about the target. Moreover, the <strong>Ethernet bridging</strong> type of real network
+connection makes it possible for users of the simulator, as well as software
+at the simulated target machine, to access raw Ethernet frames on the local
+network of the host. In particular, do not use the network services of the
+simulator (the <strong>service-node</strong>) when bridging networks, as this exposes
+those services to the host network, which is both a security concern and can
+also lead to conflicts with other similar services on the network. Also,
+Ethernet bridging uses TAP which requires administrator privileges to setup,
+an additional risk.</li>
+<li>It is recommended to only use any of the features mentioned above when the
+simulation host is on a secure network.</li>
+<li><strong>VMP</strong> is a kernel module that must be installed with administrator
+privileges and that runs in supervisor mode. Hence, bugs in processor models
+can potentially crash the host when running in VMP mode.</li>
+</ul>
+<p>Add-on packages often include software intended to run in the simulated target
+systems. This software is supplied for demonstration and training purposes only,
+and is not intended to be used as part of production setups.</p>
+
+<div class="chain">
+<a href="open-source-software.html">6 Open Source Software</a>
+</div>

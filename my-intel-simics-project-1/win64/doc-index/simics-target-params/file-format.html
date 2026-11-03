@@ -1,0 +1,38 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1 File Format</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="index.html">Target Parameters Reference</a>
+<a href="semantics.html">2 Semantics</a>
+</div>
+<div class="path">
+<a href="index.html">Target Parameters Reference</a>
+&nbsp;/&nbsp;</div><h1 id="file-format"><a href="#file-format">1 File Format</a></h1>
+<p>A Simics script file can either be a YAML file containing parameter and/or argument declarations, with a pointer to a separate file containing code, or have a parameter declaration section in YAML format placed at the top of a file with Simics CLI or Python code.</p>
+<p>In the former case, the file format has the following specifications:</p>
+<ul>
+<li>It must start with the YAML 1.2 directive, <em>i.e.</em> <code>%YAML 1.2</code></li>
+<li>The whole file must be valid YAML.</li>
+<li>It must contain exactly one YAML document.</li>
+<li>The YAML document must have document start marker immediately after the YAML 1.2 directive.
+The document must contain the parameters, arguments and any other meta-data.
+This is specified in Section <a class="reference" href="parameter-section.html">3</a>.</li>
+<li>The document must have a document end marker.</li>
+</ul>
+<p>In the latter case, the file format has the following specifications:</p>
+<ul>
+<li>The file may start with any number of blank lines or comment lines (starting with <code>#</code>), and must be followed by the parameter start marker, which is a line <code>'''</code> followed by a line <code>%YAML 1.2</code> (in Python code) or <code>@'''</code> followed by <code>%YAML 1.2</code> (in Simics CLI code), followed by a line <code>---</code></li>
+<li>Some subsequent line must be <code>'''</code>, which marks the end of the parameter block.</li>
+<li>The text between these lines must be valid YAML, a YAML mapping, and must contain the parameters, arguments and any other meta-data.
+This is specified in Section <a class="reference" href="parameter-section.html">3</a>.</li>
+<li>Any text on lines following the <code>'''</code> line must be code.</li>
+</ul>
+
+<div class="chain">
+<a href="index.html">Target Parameters Reference</a>
+<a href="semantics.html">2 Semantics</a>
+</div>

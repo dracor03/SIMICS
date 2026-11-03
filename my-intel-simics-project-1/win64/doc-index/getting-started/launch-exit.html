@@ -1,0 +1,147 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 Launching and Exiting</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="installation.html">2 Installation</a>
+<a href="simics-command-line-interface.html">4 Command Line Interface (CLI)</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;</div><h1 id="launching-and-exiting"><a href="#launching-and-exiting">3 Launching and Exiting</a></h1>
+<p>This section describes how to <em>launch</em> and <em>exit</em> the simulator.</p>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the user has followed the installation steps in the
+<a href="installation.html">installation</a> section.</p>
+</blockquote>
+<p>The screenshots below were taken on Windows, but the Linux version of the Intel
+Simics simulator behaves similarly.</p>
+<h2 id="launch-the-simulator"><a href="#launch-the-simulator">3.1 Launch the simulator</a></h2>
+<ol>
+<li>
+<p>First, let’s get a command prompt on the host machine.</p>
+<ul>
+<li><em>On a Windows host</em>, use one of the following alternatives:
+<ul>
+<li>Use the start menu and launch <strong>Command Prompt</strong>.</li>
+<li>If <strong>Windows Terminal</strong> is installed, launch this and
+open an instance of the <strong>Command Prompt</strong> profile.</li>
+<li>Press the <code>Win + r</code> keys and enter <code>cmd</code> in the popped-up window.</li>
+</ul>
+</li>
+<li><em>On a Linux host</em>, refer to the documentation of your Linux distribution
+about the instructions on how to get access to a command prompt.</li>
+</ul>
+</li>
+<li>
+<p>Once a command prompt window is available, navigate to the project directory.</p>
+<p><img alt="" src="running-simics-cli-1.png"></p>
+</li>
+<li>
+<p>To launch the simulator, and to get its command prompt just run the
+<code>simics.bat</code> batch file (on Linux, the <code>simics</code> shell script is to be used
+instead by entering the <code>./simics</code> command).</p>
+<p><img alt="" src="running-simics-cli-2.png"></p>
+<p>Simics has now been launched.</p>
+</li>
+<li>
+<p>With the CLI available, we can try running the command <code>list-packages</code>, which
+lists the packages available to the current project:
+<img alt="" src="running-simics-cli-3.png"></p>
+</li>
+</ol>
+<p>There are also <a href="#launch-options">launch options</a> available to customize what
+happens when launching the simulator.</p>
+<h2 id="exit-the-simulator"><a href="#exit-the-simulator">3.2 Exit the Simulator</a></h2>
+<p>To quit the simulator just enter the <code>quit</code> command:<br>
+<img alt="" src="running-simics-cli-12.png"></p>
+<h2 id="launch-options"><a href="#launch-options">3.3 Launch options</a></h2>
+<p>Simics has a couple launch options that can be listed with the <code>--help</code> flag:</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --help
+
+Usage: simics [options] [&lt;file&gt;|&lt;target&gt; ...] [--preset &lt;name|file&gt; ...] [&lt;param&gt;=&lt;value&gt; ...]
+Common options:
+
+  --batch-mode                quit on error or when returning to prompt
+  -e, --execute &lt;command&gt;     execute a CLI command
+  -h, --help                  print this help or list all script parameters if
+                              used with a file. All other options are ignored
+  -l, --list-targets          list available targets
+...
+</code></pre>
+<p>These are some of more commonly used options:</p>
+<ul>
+<li>
+<p><em><code>--list-targets</code> - list available targets</em><br>
+List targets available in the project and then quit.
+This can also be done from CLI with the <code>list-targets</code> command.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --list-targets
++------------------------------------+--------------------+
+|               Target               |      Package       |
++------------------------------------+--------------------+
+|qsp-x86/clear-linux                 |Quick-Start Platform|
+|qsp-x86/clear-linux-2c              |Quick-Start Platform|
+|qsp-x86/clear-linux-multi           |Quick-Start Platform|
+|qsp-x86/clear-linux-multi-no-network|Quick-Start Platform|
+|qsp-x86/clear-linux-no-network      |Quick-Start Platform|
+|qsp-x86/firststeps                  |Quick-Start Platform|
+|qsp-x86/uefi-shell                  |Quick-Start Platform|
+|qsp-x86/user-provided-linux         |Quick-Start Platform|
++------------------------------------+--------------------+
+</code></pre>
+</li>
+<li>
+<p><em>load a target</em> Specify a target to load and then continue in CLI. This is
+equivalent of first starting the simulator and from CLI run <code>load-target "qsp-x86/firststeps"</code>.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat qsp-x86/firststeps
+</code></pre>
+</li>
+<li>
+<p><em><code>--quiet</code> - launch without startup text</em><br>
+Use <code>--quiet</code> (or <code>-q</code>) to launch the simulator without the startup text.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --quiet --batch-mode
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p><em><code>--batch-mode</code> - run tasks and exit</em> With the <code>--batch-mode</code>, the simulator
+will simply run tasks from other launch options and then exit, without
+starting CLI. This can be useful when starting the simulator
+non-interactively, typically when running tests. The simulator’s exit code
+will be zero on success, otherwise non-zero.</p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat --batch-mode
+Intel Simics Simulator 7 (build 7012 win64) © 2024 Intel Corporation
+c:\simics\project&gt;
+</code></pre>
+</li>
+</ul>
+<p>Here is a more advanced example, which starts the <code>qsp-x86/firststeps</code> target,
+runs for 0.1 seconds, prints the current time, and then quits. The two last
+steps use the <code>-e</code> option, where a command can be specified:</p>
+<pre><code>```shell
+c:\simics\project&gt;simics.bat --batch-mode qsp-x86/firststeps -e "run-seconds 0.1" -e "ptime"
+┌────────────────────────┬─────────┬─────────┬────────┐
+│       Processor        │  Steps  │ Cycles  │Time (s)│
+├────────────────────────┼─────────┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│199600000│200000000│   0.100│
+└────────────────────────┴─────────┴─────────┴────────┘
+c:\simics\project&gt;
+```
+</code></pre>
+<ul>
+<li><em><code>--stop-on-error</code></em> If there is an error when simulation is running, stop the
+simulation and interrupt the current script. If combining <code>--stop-on-error</code>
+with <code>--batch-mode</code>, an error (such as error log) will cause the simulation to
+exit with a non-zero exit code.</li>
+</ul>
+<h2 id="summary"><a href="#summary">3.4 Summary</a></h2>
+<p>To sum up, in this section we launched the simulator, tried out a command and
+exited the simulator.</p>
+
+<div class="chain">
+<a href="installation.html">2 Installation</a>
+<a href="simics-command-line-interface.html">4 Command Line Interface (CLI)</a>
+</div>

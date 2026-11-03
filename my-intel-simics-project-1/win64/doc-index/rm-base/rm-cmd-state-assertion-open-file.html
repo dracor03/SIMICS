@@ -1,0 +1,42 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>state-assertion-open-file</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-state-assertion-create-file.html">state-assertion-create-file</a>
+<a href="rm-cmd-state-assertion-receive.html">state-assertion-receive</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="state-assertion-open-file"></a>
+<h1 id="state-assertion-open-file"><a href="#state-assertion-open-file">state-assertion-open-file</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>state-assertion-open-file</b> <i>file</i> [<i>"compression"</i>] [<i>"name"</i>] [<i>post_events</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Open a state assertion file to compare with the current execution.
+<p>
+- <i>file</i> is the name of the file to be created, default is <tt>/tmp/state-assertion-$USER.gz</tt><br>
+ - <i>compression</i> is the compression used (none, gz), default is a guess based on file name<br>
+ - <i>name</i> is the name of the object to be created, default is saX where X is a number.<br>
+ - <i>post_events</i> tells state-assertion to post events by itself for recording and comparing, default is true. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.state-assertion.html">state-assertion</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-state-assertion-create-file.html">state-assertion-create-file</a>
+<a href="rm-cmd-state-assertion-receive.html">state-assertion-receive</a>
+</div>

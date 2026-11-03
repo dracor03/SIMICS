@@ -1,0 +1,307 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>9 Building Required Libraries</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="building-with-cmake.html">8 Building with CMake</a>
+<a href="migration-guide-systemc.html">10 Migration Guide SystemC Kernel</a>
+</div>
+<div class="path">
+<a href="index.html">SystemC* Library</a>
+&nbsp;/&nbsp;</div><h1 id="building-required-libraries"><a href="#building-required-libraries">9 Building Required Libraries</a></h1>
+<p>Building a Simics SystemC module using GNU Make is different than building a
+Simics module written in other languages. When you try to build a SystemC
+module, it might fail because the required libraries are missing.</p>
+<pre><code class="language-simics">project&gt; <strong>bin/project-setup --sc-device=my_sc_device</strong>
+project&gt; <strong>make my_sc_device</strong>
+=== Building module my_sc_device ===
+&lt;path to Simics SystemC Library Installation&gt;/src/extensions/systemc-cci/systemc-config.mk:55: *** Unable to locate: CCI libs.  Stop.
+</code></pre>
+<p>This document provides information on the required libraries, how to build them,
+and the different build options.</p>
+<p>Please see <a class="reference" href="building-with-cmake.html">8</a> for details on using CMake. With CMake
+the problems described in this chapter do not apply.</p>
+<h2 id="the-systemc-libraries"><a href="#the-systemc-libraries">9.1 The SystemC Libraries</a></h2>
+<p>The SystemC libraries refer to a set of required static libraries (.a) to build
+a Simics SystemC device module. The exact set of libraries depends on the
+different build options. However, the minimal set of required libraries is
+<code>libsystemc.a</code> and <code>libsystemc-library.a</code>.</p>
+<ul>
+<li>The <code>libsystemc.a</code> library contains the compiled object code for the SystemC
+kernel. It provides the implementation of the SystemC classes and functions.</li>
+<li>The <code>libsystemc-library.a</code> library contains the compiled object code for the
+SystemC Library. It provides the implementation of the SystemC Library classes
+and functions.</li>
+</ul>
+<p>These two libraries are required for all Simics SystemC modules. By default,
+<code>USE_SIMICS_CCI</code> is set to yes, thus the <code>libcciapi.a</code> library which provides
+the implementation of the SystemC CCI classes and functions is required as well.</p>
+<p>When SystemC checkpointing is enabled by setting <code>USE_SIMICS_CHECKPOINTING</code> to
+yes, two additional libraries <code>libcci_serialization.a</code> and
+<code>libsystemc-checkpoint.a</code> are required.</p>
+<p>The lack of a stable C++ ABI prevents these libraries from being shipped (as
+binaries) in the Simics package. Therefore, it is necessary to rebuild the
+libraries from source every time the <em>Simics SystemC Library</em> package is
+upgraded.</p>
+<p>The following chapter describes how to build these SystemC libraries.</p>
+<h2 id="build-requirement-and-boost-dependency"><a href="#build-requirement-and-boost-dependency">9.2 Build Requirement and Boost Dependency</a></h2>
+<p>The build requirement is covered in <a class="reference" href="systemc-library-requirements.html">2</a>. The
+compiler needs to support the C++14 language standard. For maximum
+interoperability it is recommended to use either GCC 6.4.0 or 12.1.0 on Linux;
+and MSVC 2022 on Windows. Other GCC and MSVC versions may work, but have not
+been fully tested.</p>
+<h3 id="boost-dependency"><a href="#boost-dependency">9.2.1 Boost Dependency</a></h3>
+<p>There is no external dependency when building libraries <code>libsystemc.a</code> and
+<code>libsystemc-library.a</code> using the <a class="reference" href="#build-script">9.4</a>.</p>
+<p>If Simics checkpointing is enabled by <code>USE_SIMICS_CHECKPOINTING=yes</code>, there is
+an external dependency on Boost C++ (www.boost.org). The Simics Serialization
+Library is a fork of Boost version 1.91.0, so only this version will work. The
+Boost C++ used in Simics SystemC Serialization is header-only, so there is no
+need to build and link with any Boost libraries.</p>
+<blockquote class="markdown-alert-note">
+<p>If you are an Intel internal user, you may have different Boost dependencies.
+Please check the <em>Intel SystemC Library Programming Guide</em> for more details.</p>
+</blockquote>
+<p>To let Simics know where Boost is installed, you need to define and export the
+<code>BOOST_INC_PATH</code> variable. This can be done by multiple ways as mentioned in
+<a class="reference" href="#build-options">9.5</a>. Here is an example showing how to set it in the
+config-user.mk file in your Simics project directory.</p>
+<blockquote class="markdown-alert-note">
+<p>Variables set in <code>config-user.mk</code> must also be explicitly exported:</p>
+<pre><code>BOOST_INC_PATH ?= /home/packages/boost/1.91.0/include/
+export BOOST_INC_PATH
+</code></pre>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>It is not an error to provide both <code>BOOST_INC_PATH</code> and <code>BOOST_PREFIX</code>
+variables. If both are provided, <code>BOOST_INC_PATH</code> takes precedence.</p>
+</blockquote>
+<h2 id="library-order"><a href="#library-order">9.3 Library Order</a></h2>
+<p>SystemC libraries have dependencies on each other and must be compiled in the
+right order before any SystemC devices can be built. Here is the recommended
+order for building the SystemC libraries:</p>
+<ol>
+<li><code>SystemC Kernel</code></li>
+<li><code>SystemC CCI</code> (If not disabled by USE_SIMICS_CCI=no)</li>
+<li><code>SystemC Serialization</code> (If enabled by USE_SIMICS_CHECKPOINTING=yes)</li>
+<li><code>SystemC Checkpoint</code> (If enabled by USE_SIMICS_CHECKPOINTING=yes)</li>
+<li><code>SystemC Library</code></li>
+</ol>
+<p>To build all the libraries in the correct order and with the same compiler
+flags, it is recommended to invoke the build script from a Simics project.
+Please refer to <a class="reference" href="#build-script">9.4</a> for more details.</p>
+<h2 id="build-script"><a href="#build-script">9.4 Build Script</a></h2>
+<p>Simics provides a build script that simplifies the compilation of all the
+SystemC libraries within a Simics project. The script is located in the <code>bin</code>
+subdirectory of the Simics installation, and is invoked like this:</p>
+<section class="not-numbered">
+<h3 id="usage"><a href="#usage">Usage</a></h3>
+<dl>
+<dt id="dt:windows"><a href="#dt:windows">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">project&gt; <strong>bin\build-systemc-libraries.bat [options]</strong>
+</code></pre>
+</dd>
+<dt id="dt:linux"><a href="#dt:linux">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">project$ <strong>bin/build-systemc-libraries [options]</strong>
+</code></pre>
+</dd>
+</dl>
+</section>
+<section class="not-numbered">
+<h3 id="options"><a href="#options">Options</a></h3>
+<dl>
+<dt id="dt:h-help"><a href="#dt:h-help"><code>-h, --help</code></a></dt>
+<dd>Show help message and exit.</dd>
+<dt id="dt:f-force"><a href="#dt:f-force"><code>-f, --force</code></a></dt>
+<dd>Force rebuild of all the libraries.</dd>
+<dt id="dt:j-jobs"><a href="#dt:j-jobs"><code>-j, --jobs</code></a></dt>
+<dd>Run up to N build jobs in parallel.</dd>
+<dt id="dt:v-version"><a href="#dt:v-version"><code>-v, --version</code></a></dt>
+<dd>Specify which version of SystemC kernel to use. Defaults to ‘2.3.4’</dd>
+<dt id="dt:verbose"><a href="#dt:verbose"><code>--verbose</code></a></dt>
+<dd>Run build with <code>--verbose</code> flag.</dd>
+<dt id="dt:"><a href="#dt:"><code>...</code></a></dt>
+<dd>The rest are parsed as make options for the modules. Please note that any
+option passed after the make options are interpreted as make options.</dd>
+</dl>
+</section>
+<p>The script configures a CMake build tree in the current Simics project and
+builds the required SystemC libraries in dependency order. The required SystemC
+modules depend on the chosen build options, which are explained in detail in
+<a class="reference" href="#build-options">9.5</a> section. These build options can be specified when invoking
+the script.</p>
+<p>The build script expects:</p>
+<ul>
+<li>CMake and Ninja to be available in <code>PATH</code>.</li>
+<li>On Linux, <code>CXX</code> to be defined and exported to the shell that runs the build
+script. The build script can be embedded in a GNU Make target in which case
+<code>CXX</code> is resolved through the GNU Make build system.</li>
+<li>If not embedded in GNU Make, the script must be invoked from the root of the
+Simics project</li>
+<li>On Windows, Visual Studio with MSVC to be installed. The script auto-detects
+MSVC unless the compiler is already configured, for example by running from a
+Visual Studio developer shell.</li>
+</ul>
+<p>For improved support:</p>
+<ul>
+<li>export <code>SYSTEMC_KERNEL_VERSION</code> to the kernel version needed</li>
+<li>export <code>VALGRIND_INCLUDE_DIR</code> for valgrind support, if Valgrind wasn’t found
+automatically</li>
+<li>set <code>USE_SIMICS_CHECKPOINTING=yes</code> to opt-in on the checkpointing support</li>
+<li>set <code>USE_SIMICS_CCI=no</code> to opt-out of the CCI support</li>
+<li>export <code>BOOST_INC_PATH</code> for Boost 1.91.0 headers, if checkpointing is enabled
+and Boost cannot be found automatically</li>
+</ul>
+<pre><code class="language-simics">project&gt; <strong>./bin/build-systemc-libraries CXX=/usr/itm/gcc/6.4.0/bin/g++</strong>
+...
+All SystemC libraries successfully built
+</code></pre>
+<p>Once the script has finished running, GNU Make based module builds can re-use
+the generated libraries.</p>
+<pre><code class="language-simics">project&gt; <strong>make my_sc_device</strong>
+=== Building module my_sc_device ===
+...
+CCLD    my_sc_device.so
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Users can choose which SystemC kernel version to use for building the
+libraries by specifying the <code>-v</code> or <code>--version</code> option when executing the
+build script, or via the <code>SYSTEMC_KERNEL_VERSION</code> variable. The supported
+values are ‘2.3.3’, ‘2.3.4’ and ‘3.0.0’, with ‘2.3.3’ set as the default
+version. When using ‘3.0.0’, the SystemC checkpoint feature is not supported.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>Users can optionally choose which C++ language standard to use for building
+the libraries by exporting the <code>SYSTEMC_CXX_STANDARD</code> variable. Supported
+values are ‘14’ and ‘17’. If not set, the standard setup by the Simics <em>CMake</em>
+top-level will be used. The SystemC kernel 3.0.0 must be built with C++17.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>Whenever the <em>Simics SystemC Library</em> package is upgraded, the script must be
+run again with the <code>--force</code> option.</p>
+</blockquote>
+<h2 id="build-options"><a href="#build-options">9.5 Build options</a></h2>
+<p>This section provides a list of GNU Make variables related to SystemC modules
+that are configured by the build script. These variables are generally identical
+for all SystemC modules. For information on common Simics Make variables,
+including CC and CXX, refer to <a href="../module-mk/index.html">Simics Makefile
+Variables</a>.</p>
+<p>Please note that this is <em>only</em> for GNU Make. See <a class="reference" href="building-with-cmake.html">8</a>
+for details on options when using CMake.</p>
+<p>The following table displays the variable names, their default values, and their
+usage:</p>
+<table><thead><tr><th>Variable name</th><th>Default value</th><th>Usage</th></tr></thead><tbody>
+<tr><td>BOOST_INC_PATH</td><td></td><td>Specifies the location of the Boost headers</td></tr>
+<tr><td>INTC_EXT</td><td>1</td><td>enables or disables the Intel SystemC kernel extension</td></tr>
+<tr><td>USE_SIMICS_CCI</td><td>‘yes’</td><td>enables or disables the Simics CCI feature</td></tr>
+<tr><td>USE_SIMICS_CHECKPOINTING</td><td>‘no’</td><td>enables or disables the Simics checkpointing feature</td></tr>
+<tr><td>SYSTEMC_KERNEL_VERSION</td><td></td><td>Selects the SystemC kernel version used in the project</td></tr>
+<tr><td>SYSTEMC_CXX_STANDARD</td><td></td><td>Selects the C++ language standard used in the project</td></tr>
+<tr><td>D</td><td></td><td>enables the debug build of SystemC libs</td></tr>
+</tbody></table>
+<p>There are 3 ways to set these Make variables:</p>
+<ol>
+<li>The user can set and export the variables in the config-user.mk file.</li>
+<li>The variables can be provided as script parameters.</li>
+<li>The variables can be set as shell environment variables.</li>
+</ol>
+<p>The <code>SYSTEMC_KERNEL_VERSION</code> variable must be explicitly set to either ‘2.3.3’,
+‘2.3.4’, or ‘3.0.0’ for the SystemC module, as it does not have a default value.
+If all modules within a project share the same version requirement, it can be
+specified in <code>config-user.mk</code>. However, it is preferable to define the version
+requirement for each module individually by setting
+<code>SYSTEMC_KERNEL_VERSION=&lt;version&gt;</code> in the respective Makefile.</p>
+<h2 id="building-on-windows"><a href="#building-on-windows">9.6 Building on Windows</a></h2>
+<p>On Windows, SystemC libraries and SystemC modules are built with Visual C++
+(provided with Visual Studio). The build script uses CMake and Ninja for the
+libraries, and auto-detects Visual Studio and the Windows SDK. It can be run
+from a regular PowerShell as long as <code>cmake.exe</code> and <code>ninja.exe</code> are in <code>PATH</code>.</p>
+<pre><code class="language-simics">project&gt; <strong>bin\build-systemc-libraries.bat</strong>
+</code></pre>
+<p>If Visual Studio is installed in a non-standard location, set the CMake cache
+variables <code>SIMICS_VS_INSTALL_DIR</code>, <code>SIMICS_MSVC_TOOLSET_DIR</code>,
+<code>SIMICS_WINSDK_DIR</code>, or <code>SIMICS_WINSDK_VERSION</code> before configuring with CMake,
+or pass them as <code>NAME=value</code> arguments to the build script. If checkpointing or
+ISCTLM is enabled and Boost is not found automatically, provide the Boost header
+path with <code>BOOST_INC_PATH</code>.</p>
+<p>Users building SystemC modules directly with CMake should configure a project
+with the Visual Studio auto-detect toolchain file and build the desired module
+target:</p>
+<pre><code class="language-simics">project&gt; <strong>cmake -S . -B bt-systemc -G Ninja -D CMAKE_TOOLCHAIN_FILE=&lt;simics-base&gt;/cmake/simics/msvc-autodetect-toolchain.cmake</strong>
+project&gt; <strong>cmake --build bt-systemc --target my_sc_device</strong>
+</code></pre>
+<p>Running from a Visual Studio developer shell is also supported; in that case the
+toolchain file leaves the existing compiler environment alone.</p>
+<blockquote class="markdown-alert-note">
+<p>DML and non-SystemC C modules must use GCC/MinGW on Windows, so if there is a
+mix of those modules and C++/SystemC models in the project, then it is
+necessary to build the targets separately.</p>
+</blockquote>
+<h3 id="building-the-modules-with-gnu-make-on-windows"><a href="#building-the-modules-with-gnu-make-on-windows">9.6.1 Building the modules with GNU Make on Windows</a></h3>
+<p>Unlike the build script, GNU Make does not auto-detect Visual Studio. Select the
+Visual C++ compiler with <code>CC=cl CXX=cl</code>, and make sure the MSVC environment is
+set up, either by running Make from a Visual Studio developer shell:</p>
+<pre><code class="language-simics">project&gt; <strong>bin\make.bat my_sc_device CC=cl CXX=cl</strong>
+</code></pre>
+<p>or, from any other shell, by pointing <code>__VCVARS</code> at the <code>vcvars64.bat</code> of the
+Visual Studio installation. Make then prefixes every compile command with it:</p>
+<pre><code class="language-simics">project&gt; <strong>bin\make.bat my_sc_device CC=cl CXX=cl __VCVARS="C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat"</strong>
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>The modules must be built with the same Visual Studio version as the SystemC
+libraries were, or the compile-time compiler version check fails. Since the
+build script picks the <em>latest</em> installed Visual Studio, <code>__VCVARS</code> must point
+at that same installation.</p>
+</blockquote>
+<h3 id="length-of-the-project-path"><a href="#length-of-the-project-path">9.6.2 Length of the project path</a></h3>
+<p>Visual C++ cannot create an object file whose full path exceeds the Windows
+<code>MAX_PATH</code> limit of 260 characters, and reports it as:</p>
+<pre><code>fatal error C1083: Cannot open compiler generated file: '': Invalid argument
+</code></pre>
+<p>The deepest object path of the SystemC libraries needs about 150 characters
+below the project directory, so keep the path to the Simics project short;
+below 100 characters is recommended. Enabling long paths in Windows does not
+help, as the Visual C++ compiler is not long-path aware.</p>
+<h2 id="errors-when-building-the-systemc-libraries"><a href="#errors-when-building-the-systemc-libraries">9.7 Errors When Building the SystemC Libraries</a></h2>
+<p>Many errors when building the SystemC libraries are caused by unresolved
+dependencies like Boost (see <a class="reference" href="#boost-dependency">9.2.1</a>), or not following the
+particular order (see <a class="reference" href="#library-order">9.3</a>) to build the SystemC libraries. The
+best way to build all binaries in the correct order, is to invoke the build
+script from a Simics project. See <a class="reference" href="#build-script">9.4</a> for more details.</p>
+<p>The script must be run once again with –force option every time the <em>Simics
+SystemC Library</em> package is upgraded. If you failed to do this, you will
+probably see an undefined symbol error like this when loading your SystemC
+device module:</p>
+<pre><code>Undefined symbol: _ZN6simics7systemc16SCL_VERSION_5108C1Ev
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>The number 5108 shown in the error message depends on the SystemC Library
+version which may differ in real cases.</p>
+</blockquote>
+<p>There are also compile-time checks that will take effect when compiling the
+Simics modules using the SystemC libraries. These checks verify that the
+libraries have been build with the same compiler as is used to build the Simics
+module.</p>
+<h2 id="cached-libraries"><a href="#cached-libraries">9.8 Cached libraries</a></h2>
+<p>In order to save time when working in multiple Simics projects, building the
+libraries in each project can be avoided by using a cache. The build system
+supports this through the following scheme:</p>
+<ol>
+<li>Build the libraries by running the build script in a project, or by building
+the CMake <code>systemc-deps-cache</code> target directly</li>
+<li>Copy the libraries and the generated headers for the compile-time checks,
+i.e. everything under <code>&lt;host&gt;/lib/systemc</code>, to a shared location</li>
+<li>Add the following to config-user.mk: <code>export SYSTEMC_DEPS_CACHE=&lt;path to cache&gt;</code> Please note that the <code>SYSTEMC_KERNEL_VERSION</code> should not be part of
+the <code>SYSTEMC_DEPS_CACHE</code></li>
+<li>Build SystemC Simics modules using GNU Make as normal</li>
+</ol>
+
+<div class="chain">
+<a href="building-with-cmake.html">8 Building with CMake</a>
+<a href="migration-guide-systemc.html">10 Migration Guide SystemC Kernel</a>
+</div>

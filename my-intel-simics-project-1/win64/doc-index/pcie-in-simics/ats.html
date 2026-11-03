@@ -1,0 +1,1193 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Address Translation Service (ATS)</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="pcie-in-dml.html">PCIe in DML</a>
+<a href="sriov.html">Single Root I/O Virtualization and Sharing (SR-IOV)</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="address-translation-services-ats"><a href="#address-translation-services-ats">Address Translation Services (ATS)</a></h1>
+<h2 id="ats-capability"><a href="#ats-capability">ATS capability</a></h2>
+<p>The ATS capability is modeled with template <code>ats_capability</code>.
+See chapter <a href="extended-capabilities.html">Extended Capabilities templates</a>
+for the template and its methods definitions.</p>
+<p>Template <code>ats_upstream_translator</code> shall be used for Root Complexes to handle
+upstream ATS transactions. See chapter <a href="bridge_combined.html">Bridge and Type 1 templates</a>
+for the template and its method definitions.</p>
+<h3 id="ats-translation"><a href="#ats-translation">ATS Translation</a></h3>
+<p>Translation requests and completions are modeled as a Simics read transaction
+with a payload. The transaction contains the following atoms to represent
+request and completion:</p>
+<ul>
+<li><code>ATOM_pcie_at</code></li>
+<li><code>ATOM_pcie_byte_count_ret</code></li>
+<li><code>ATOM_pcie_ats_translation_request_cxl_src</code></li>
+<li><code>ATOM_pcie_ats_translation_request_no_write</code></li>
+<li><code>ATOM_pcie_pasid</code></li>
+</ul>
+<p><code>ATOM_pcie_at</code> shall be set to <em>PCIE_AT_Translation_Request</em>.</p>
+<p><code>ATOM_pcie_byte_count_ret</code> shall be set by TA to represent how many valid
+completion entries it has filled into the read payload.
+<code>ATOM_pcie_byte_count_ret</code> is set to 4 * the number of valid completion entries.</p>
+<p>The transaction payload consists of one or more entries of type
+<code>pcie_ats_translation_completion_entry_t</code> to be filled in by the Translation
+Agent.</p>
+<p>ATC Endpoints can use the <code>translation_request</code> method in template
+<code>ats_capability</code> to issue an Address Translation Request.</p>
+<p>Root complexes shall override the default <code>issue</code> method on port <code>ats_request</code>
+to implement the Translation Request logic.</p>
+<h3 id="ats-invalidation"><a href="#ats-invalidation">ATS Invalidation</a></h3>
+<p>Invalidations are modeled with two PCIe messages represented by two Simics write
+transactions:</p>
+<ul>
+<li><code>PCIE_ATS_Invalidate</code> (Invalidation Request Message)</li>
+<li><code>PCIE_ATS_Invalidate_Completion</code> (Invalidation Completion Message)</li>
+</ul>
+<p>The invalidation request message consists of the following atoms together with a
+payload:</p>
+<ul>
+<li><code>ATOM_pcie_ats_invalidate_request_itag</code></li>
+<li><code>ATOM_pcie_pasid</code></li>
+</ul>
+<p>The payload is of type <code>pcie_ats_invalidate_request_payload_t</code> and has the same
+content as the message body in the PCIe specification.</p>
+<p>The Root Complex can use method <code>ats_invalidate</code>, defined in template
+<code>ats_upstream_translator</code>, to send an ATS invalidation request message.</p>
+<p>When the ATC endpoint receives the invalidation request, the method
+<code>invalidate_received</code> in template <code>ats_capability</code> will be called. The device
+model has to override the default method and add the required logic to handle
+the invalidation.</p>
+<p>The ATC endpoint can use method <code>invalidate_complete</code> in template
+<code>ats_capability</code> to send the invalidation completion message back to the TA.</p>
+<p>The Root Complex can instantiate template <code>handling_ats_messages</code> to start
+accepting ATS invalidate completion messages. It has to override method
+<code>ats_invalidate_completion</code> to include its invalidation completion logic. The
+instantiation of template <code>handling_ats_messages</code> has to be done under the
+<code>port</code> that inherits the <code>message_port</code> template. For Root Complexes inheriting
+template <code>pcie_bridge</code> the <code>port</code> is defined as <code>port message</code>. See chapter
+<a href="bridge_combined.html">Bridge and Type 1 templates</a> for definitions of these templates.</p>
+<h2 id="ats-translated-untranslated-requests"><a href="#ats-translated-untranslated-requests">ATS translated/untranslated requests</a></h2>
+<p>ATS translated/untranslated requests use <code>ATOM_pcie_at</code> and shall
+be set to either <em>PCIE_AT_Translated</em> or <em>PCIE_AT_Untranslated</em>.</p>
+<p>For endpoints doing DMA, methods: <code>memory_write_bytes</code> and <code>memory_read_buf</code>
+in template <code>ats_capability</code> can be used to easily construct AT memory requests.</p>
+<p>For Root Complexes, ports <code>ats_translated</code> and <code>ats_untranslated</code>
+defined in template <code>ats_upstream_translator</code> receive all incoming
+AT memory requests. The device model has to override the default implementations
+of these ports to achieve the desired behavior.</p>
+<h2 id="page-request-services-prs"><a href="#page-request-services-prs">Page Request Services (PRS)</a></h2>
+<p>The Page Request Services are modeled with the following <code>atoms</code>:</p>
+<ul>
+<li><code>ATOM_pcie_prs_page_request</code></li>
+<li><code>ATOM_pcie_prs_page_group_response</code></li>
+<li><code>ATOM_pcie_prs_stop_marker</code></li>
+<li><code>ATOM_pcie_pasid</code></li>
+</ul>
+<p><code>ATOM_pcie_prs_page_request</code> is of data type <code>pcie_prs_page_request_t</code>.
+<code>ATOM_pcie_prs_page_group_response</code> is of data type
+<code>pcie_prs_page_group_response_t</code> and its response codes are listed in enum
+<code>pcie_prs_response_code_t</code>. <code>ATOM_pcie_prs_stop_marker</code> is just a <code>bool</code>.</p>
+<p>The Root Complex can instantiate template <code>handling_prs_messages</code> to start
+accepting PRS Request Page and PRS Stop Marker messages. It has to override
+method <code>page_request_receive</code> to include the logic to manage Page Request and
+Stop Marker messages. The instantiation of template <code>handling_prs_messages</code> has
+to be done under the <code>port</code> that inherits the <code>message_port</code> template. For Root
+Complexes inheriting template <code>pcie_bridge</code> the <code>port</code> is defined as <code>port message</code>. See chapter <a href="bridge_combined.html">Bridge and Type 1 templates</a> for definitions
+of these templates. The Root Complex can respond to the Page requests by using
+method <code>page_group_response</code> which is part of template <code>handling_prs_messages</code>.</p>
+<p>For Endpoints template <code>prs_capability</code> instantiates all PRS logic and registers
+provided by the PCIe library. See chapter <a href="extended-capabilities.html">Extended Capabilities
+templates</a> for the template and its methods
+definitions.</p>
+<h2 id="sample-multi-channel-dma-endpoint-utilizing-prs-pasid-and-ats"><a href="#sample-multi-channel-dma-endpoint-utilizing-prs-pasid-and-ats">Sample Multi Channel DMA Endpoint utilizing PRS, PASID and ATS</a></h2>
+<figure id="example-endpoint-dma">
+<figcaption>Figure 16. Example of DMA Endpoint.</figcaption>
+<pre><code>dml 1.4;
+
+device sample_pcie_ats_prs_dma;
+param classname = "sample-pcie-ats-prs-dma";
+param desc = "sample PCIe Endpoint utilizing ATS and PRS for DMA";
+
+param documentation = "DMA endpoint with eight concurrent channels."
+                    + " Each DMA channel starts with allocating the necessary pages"
+                    + " using PRS. The DMA then performs an ATS translation followed"
+                    + " by the actual DMA operating on the translated addresses."
+                    + " After the DMA is finished it issues a stop marker message to the TA"
+                    + " to free up the pages.";
+
+param pcie_version = 6.0;
+
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+param NBR_CHANNELS = 8;
+
+method umin(uint64 a, uint64 b) -&gt; (uint64) {
+    return a &lt; b ? a : b;
+}
+
+connect device_memory is (map_target) {
+    param documentation = "Memory in device endpoint";
+    param configuration = "required";
+}
+connect irq_dma_done[i &lt; NBR_CHANNELS] is signal_connect {
+    param documentation = "Interrupt signal raised by DMA channel"
+                        + " when it is finished";
+}
+
+
+bank pcie_config {
+    register capabilities_ptr {
+        param init_val = 0x40;
+    }
+    is defining_pm_capability;
+    param pm_offset = capabilities_ptr.init_val;
+    param pm_next_ptr = pm_offset + 0x10;
+
+    is defining_exp_capability;
+    param exp_offset = pm_next_ptr;
+    param exp_next_ptr = 0x0;
+    param exp_dp_type = PCIE_DP_Type_EP;
+
+    is defining_ats_capability;
+    param ats_offset = 0x100;
+    param ats_next_ptr = ats_offset + 0x100;
+
+    is defining_pasid_capability;
+    param pasid_offset = ats_next_ptr;
+    param pasid_next_ptr = pasid_offset + 0x20;
+    group pasid {
+        register capability {
+            field trwps { param init_val = 1; }
+            // pasid in range 0 - 0xfffff
+            field mpw { param init_val = 0x14; }
+        }
+    }
+
+    is defining_prs_capability;
+    param prs_offset = pasid_next_ptr;
+    param prs_next_ptr = 0;
+
+    group prs {
+        register status {
+            field pasid { param init_val = 1; }
+        }
+        method page_response_received(transaction_t *t,
+                                      uint64 addr) -&gt; (bool) {
+
+            if (ATOM_transaction_pcie_prs_page_group_response(t) != NULL
+                &amp;&amp; ATOM_transaction_pcie_pasid(t) != NULL) {
+                local pcie_prs_page_group_response_t msg = {
+                    .u16 = ATOM_get_transaction_pcie_prs_page_group_response(t),
+                    ...
+                };
+                local pcie_pasid_info_t pasid = {
+                    .u32 = ATOM_get_transaction_pcie_pasid(t),
+                    ...
+                };
+
+                for (local int i = 0; i &lt; dma.len; i++)
+                    if (dma[i].prs_page_response(msg, pasid))
+                        return true;
+                return false;
+            } else {
+                log error:
+                    "%s, Expected atoms pcie_prs_page_group_response"
+                  + " and pcie_pasid", this.qname;
+                return false;
+            }
+        }
+    }
+}
+
+bank regs {
+    param register_size = 8;
+
+    group channel[i &lt; NBR_CHANNELS ] {
+        register dma_dev @ 0x0 + i * 0x30 {
+            field addr @ [63:12] "64-bit device address for DMA";
+        }
+        register dma_host @ 0x8 + i * 0x30 {
+            field addr @ [63:12] "64-bit host address for DMA";
+        }
+        register dma_len @ 0x10 + i * 0x30 {
+            param documentation = "Max 64k for single DMA transfer";
+            field len @ [15:0];
+        }
+        register dma_start @ 0x18 + i * 0x30 {
+            field start @ [31] "Start DMA" {
+                is write;
+
+                method write(uint64 value) {
+                    if (value == 1) {
+                        if (dma_status.busy.get() != 0) {
+                            log spec_viol: "Cannot start DMA while busy!";
+                            return;
+                        }
+                        local uint64 haddr = dma_host.addr.val &lt;&lt; 12;
+                        local int lsbit = pcie_config.ats.control.stu.lsbit();
+                        if (haddr[lsbit - 1:0] != 0) {
+                            log spec_viol:
+                                "DMA host address must be ATS STU aligned";
+                            return;
+                        }
+                        dma[i].start(haddr,
+                                     dma_dev.addr.val &lt;&lt; 12,
+                                     dma_len.len.val,
+                                     pasid.pasid.val,
+                                     rnw.val ? true : false);
+                    }
+                }
+            }
+            field rnw @ [0] "DMA Read from host = 1, Write to host = 0";
+        }
+        register dma_status @ 0x20 + i * 0x30 {
+            field busy @ [0] "DMA is busy with ongoing transfer" {
+                is (read, get);
+                method read() -&gt; (uint64) {
+                    return get();
+                }
+                method get() -&gt; (uint64) {
+                    return dma[i].pending ? 1 : 0;
+                }
+            }
+        }
+        register pasid @ 0x28 + i * 0x30 {
+            field pasid @ [19:0] "PASID to be used for DMA transfer";
+        }
+    }
+}
+
+group dma[n &lt; NBR_CHANNELS] {
+    saved bool pending;
+    saved uint64 host_addr;
+    saved uint64 dev_addr;
+    saved uint32 size;
+    saved bool is_read;
+    saved uint20 pasid;
+
+    method start(uint64 host_addr,
+                     uint64 dev_addr,
+                     uint32 size,
+                     uint20 pasid_value,
+                     bool is_read) {
+        assert(!pending);
+        this.pending = true;
+        this.host_addr = host_addr;
+        this.dev_addr = dev_addr;
+        this.size = size;
+        this.is_read = is_read;
+        this.pasid = pasid_value;
+        this.request_pages();
+    }
+    method request_pages() {
+        local int nbr_stus =
+            pcie_config.ats.translation_size_to_entries(size);
+        local uint64 stu_size = pcie_config.ats.control.stu.size();
+        local int nbr_pages = nbr_stus * stu_size / 4096;
+
+        for (local int i = 0; i &lt; nbr_pages; i++) {
+            local pcie_prs_page_request_t request = {
+                .field = {
+                    .r = is_read ? 1 : 0,
+                    .w = is_read ? 0 : 1,
+                    .l = i == (nbr_pages - 1) ? 1 : 0,
+                    .prgi = n,
+                    .page_addr = (this.host_addr + (i * 4096)) &gt;&gt; 12,
+                },
+                ...
+            };
+            local pcie_pasid_info_t p = { .field = { .pasid = this.pasid, ...}, ...};
+            local pcie_error_t ret = pcie_config.prs.page_request(request, &amp;p);
+            if (ret != PCIE_Error_No_Error) {
+                log error:
+                    "%s PRS request denied %s", this.qname, pcie_error_name(ret);
+                return;
+            }
+        }
+    }
+    method prs_page_response(pcie_prs_page_group_response_t msg,
+                             pcie_pasid_info_t p) -&gt; (bool) {
+        if (!this.pending)
+            return false;
+
+        if (p.field.pasid == this.pasid &amp;&amp; msg.field.prgi == n) {
+            if (msg.field.response_code == PCIE_PRS_Response_Success) {
+                after: try_ats_and_dma();
+            } else {
+                log info, 1: "Page response indicated error: %s",
+                    pcie_config.prs.response_code_name(msg.field.response_code);
+                this.pending = false;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    method try_ats_and_dma() {
+        local int nbr_entries =
+            pcie_config.ats.translation_size_to_entries(size);
+        local pcie_ats_translation_completion_entry_t entries[nbr_entries];
+        local bool no_write = is_read;
+
+        // For the DMA the PRS operate on page size, having an STU
+        // greater than 4096 can lead to the follow up ATS request
+        // to be shifted to align with STU, thus pages not allocated by PRS
+        // can here be requested which is not desired. To prevent this
+        // the DMA must align its host address to STU to ensure 1:1 mapping
+        // between PRS requests and ATS translation requests
+        local int stu_lsb = pcie_config.ats.control.stu.lsbit();
+        assert(host_addr[stu_lsb - 1:0] == 0);
+
+        local pcie_pasid_info_t p = { .field = { .pasid = this.pasid, ...}, ...};
+        local pcie_error_t ret;
+        local int valid_entries;
+        (ret, valid_entries) =
+            pcie_config.ats.translation_request(host_addr,
+                                                entries,
+                                                nbr_entries,
+                                                &amp;p,
+                                                no_write,
+                                                false);
+
+        if (ret != PCIE_Error_No_Error) {
+            log error:
+                "%s ATS request denied %s", this.qname, pcie_error_name(ret);
+            return;
+        }
+
+        for (local int i = 0; i &lt; valid_entries; i++) {
+            local (uint64 translated_addr, uint64 txl_size) =
+                pcie_config.ats.get_translation_range(entries[i]);
+
+            local uint64 dma_size = umin(txl_size, this.size);
+            try {
+                do_dma(translated_addr, dev_addr, dma_size, is_read);
+            } catch {
+                log error:
+                    "DMA %s failed for ATS address 0x%08X, device address: 0x%08X",
+                    is_read ? "Read" : "Write", translated_addr, dev_addr;
+                return;
+            }
+            this.size -= dma_size;
+            this.dev_addr += dma_size;
+        }
+        assert(this.size == 0);
+        free_pages();
+        this.pending = false;
+        irq_dma_done[n].set_level(1);
+        irq_dma_done[n].set_level(0);
+    }
+
+    method do_dma(uint64 translated_addr,
+                  uint64 dev_addr,
+                  uint32 size,
+                  bool is_read) throws {
+        if (is_read)
+            dma_read(translated_addr, dev_addr, size);
+        else
+            dma_write(translated_addr, dev_addr, size);
+    }
+
+    method dma_write(uint64 translated_addr,
+                     uint64 dev_addr,
+                     uint32 size) throws {
+        local uint8 data[size];
+
+        local bytes_t buf = { .data = data, . len = size };
+
+        device_memory.read_bytes(dev_addr, size, data);
+
+        local pcie_pasid_info_t p = { .field = { .pasid = this.pasid, ...}, ...};
+        local pcie_error_t ret;
+        ret = pcie_config.ats.memory_write_bytes(buf,
+                                                 translated_addr,
+                                                 PCIE_AT_Translated,
+                                                 &amp;p);
+        if (ret != PCIE_Error_No_Error)
+            throw;
+    }
+
+    method dma_read(uint64 translated_addr,
+                    uint64 dev_addr,
+                    uint32 size) throws {
+        local uint8 data[size];
+        local buffer_t buf = { .data = data, . len = size };
+        local pcie_pasid_info_t p = { .field = { .pasid = this.pasid, ...}, ...};
+
+        local pcie_error_t ret;
+        ret = pcie_config.ats.memory_read_buf(buf,
+                                              translated_addr,
+                                              PCIE_AT_Translated,
+                                              &amp;p);
+        if (ret != PCIE_Error_No_Error)
+            throw;
+
+        device_memory.write_bytes(dev_addr, size, data);
+    }
+    method free_pages() {
+        local pcie_pasid_info_t p = { .field = { .pasid = this.pasid, ...}, ...};
+        local pcie_error_t ret = pcie_config.prs.send_stop_marker(&amp;p);
+
+        if (ret != PCIE_Error_No_Error) {
+            log error: "Failed to free pages for PASID %d: %s",
+                p.u32, pcie_error_name(ret);
+        }
+    }
+}
+</code></pre>
+</figure>
+<h2 id="sample-pcie-ats-endpoint-implementing-an-address-translation-cache"><a href="#sample-pcie-ats-endpoint-implementing-an-address-translation-cache">Sample PCIe ATS Endpoint implementing an Address Translation Cache</a></h2>
+<p>The sample device below implements an ATC using the ATS framework in
+the library. Port <code>device_memory_request</code> handles incoming untranslated
+transactions from the device and forwards them ATS translated upstream.</p>
+<p>Implemented features:</p>
+<ul>
+<li>Internal <code>cache</code> to store previous ATS translation completions.</li>
+<li>Different access rights for read/write/execute transactions.</li>
+<li>Any STU size set by the ATS capability control register
+(<code>pcie_config.ats.control</code>).</li>
+<li>Translations consisting of multiple STUs and completion entries.</li>
+<li>Contiguous virtual address space mapped to separate physical STUs.</li>
+<li>ATS Translation Invalidation</li>
+<li>Checkpointing</li>
+<li>PASID</li>
+</ul>
+<p>Note: Current implementation does not support checkpointing of deferred
+transactions.</p>
+<p>Example use cases:</p>
+<ul>
+<li>Endpoint Device with DMA</li>
+<li>Accelerator accessing host memory</li>
+</ul>
+<figure id="example-endpoint-atc">
+<figcaption>Figure 17. Example of Endpoint Implementing an Address Translation Cache.</figcaption>
+<pre><code>dml 1.4;
+
+device sample_pcie_ats_endpoint;
+param classname = "sample-pcie-ats-endpoint";
+param desc = "sample PCIe Endpoint with an ATS Cache";
+
+param pcie_version = 6.0;
+
+import "simics/util/interval-set.dml";
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+attribute PASID is (uint64_attr);
+
+method umax(uint64 a, uint64 b) -&gt; (uint64) {
+    return a &gt; b ? a : b;
+}
+
+bank pcie_config {
+    register capabilities_ptr {
+        param init_val = 0x40;
+    }
+    is defining_pm_capability;
+    param pm_offset = capabilities_ptr.init_val;
+    param pm_next_ptr = pm_offset + 0x10;
+
+    is defining_exp_capability;
+    param exp_offset = pm_next_ptr;
+    param exp_next_ptr = 0x0;
+    param exp_dp_type = PCIE_DP_Type_EP;
+
+    is defining_ats_capability;
+    param ats_offset = 0x100;
+    param ats_next_ptr = ats_offset + 0x100;
+    group ats {
+        // Method called by PCIe library when an invalidation request message
+        // is received for Translation Agent.
+        method invalidate_received(transaction_t *t,
+                                   uint64 dev_addr) -&gt; (bool) {
+            local pcie_ats_invalidate_request_payload_t payload;
+            payload.u64 = SIM_get_transaction_value_le(t);
+
+            local uint8 itag = ATOM_get_transaction_pcie_ats_invalidate_request_itag(t);
+            local uint16 requester_id =
+                ATOM_get_transaction_pcie_requester_id(t);
+
+            local (uint64 addr, uint64 size) = this.get_invalidation_range(payload);
+            cache.evict(addr, size);
+
+            // Must inform Simics core the translation has been revoked.
+            // Look at documentation for SIM_translation_changed
+            // for more details.
+            SIM_translation_changed(device_memory_request.obj);
+            after: this.respond(requester_id, 1 &lt;&lt; itag);
+            return true;
+        }
+        method respond(uint16 requester_id, uint32 itag_vector) {
+            // Calls helper method in PCIe lib to send Invalidation Completion
+            // message to Translation Agent.
+            local pcie_error_t ret = this.invalidate_complete(requester_id, itag_vector);
+            if (ret != PCIE_Error_No_Error) {
+                log error: "%s failed: %s",
+                    pcie_message_type_name(PCIE_ATS_Invalidate_Completion),
+                    pcie_error_name(ret);
+            }
+        }
+    }
+    is defining_pasid_capability;
+    param pasid_offset = ats_next_ptr;
+    param pasid_next_ptr = 0;
+    group pasid {
+        register capability {
+            field eps { param init_val = 1; }
+            field pms { param init_val = 1; }
+            field trwps { param init_val = 1; }
+            // pasid in range 0 - 0xffff
+            field mpw { param init_val = 0x10; }
+        }
+    }
+}
+
+// The endpoint device uses this port to handle untranslated memory requests
+// which the ATC tries to convert to a translated memory request
+// before forwarding the transaction upstream.
+port device_memory_request {
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *prev,
+                         exception_type_t (*callback)(translation_t txl,
+                                                      transaction_t *tx,
+                                                      cbdata_call_t cbd),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) {
+            local translation_t txl;
+
+            local bool hit;
+            local (uint64 base, uint64 start, uint64 size);
+            local pcie_ats_translation_completion_entry_t te;
+
+            (hit, base, start, size, te) = lookup_address(addr, prev, access);
+            txl.base = base;
+            txl.start = start;
+            txl.size = size;
+            if (!hit) {
+                assert(txl.base == txl.start);
+                log info, 4:
+                    "Missed translation in range 0x%08X-0x%08X access=0x%x",
+                    txl.base, txl.base + txl.size - 1, access;
+                return callback(txl, prev, cbdata);
+            }
+
+            local transaction_t t;
+
+            local bool add_pasid;
+            local pcie_pasid_info_t pasid;
+            // AT translated requests are only allowed if field trwpe is set
+            // Untranslated does not require that bit
+            if (pcie_config.pasid.control.pe.val == 1 &amp;&amp;
+                (te.field.u == 1 || pcie_config.pasid.control.trwpe.val == 1)) {
+                add_pasid = true;
+                pasid.field.pasid = PASID.val;
+                pasid.field.exe = (access &amp; Sim_Access_Execute) != 0 ? 1 : 0;
+            }
+
+            local atom_t atoms[5] = {
+                ATOM_pcie_type(PCIE_Type_Mem),
+                ATOM_pcie_requester_id(pcie_config.get_device_id()),
+                ATOM_pcie_at(te.field.u == 1 ? PCIE_AT_Untranslated : PCIE_AT_Translated),
+                add_pasid ? ATOM_pcie_pasid(pasid.u32) : ATOM_list_end(0),
+                ATOM_list_end(0),
+            };
+
+            t.prev = prev;
+            t.atoms = atoms;
+            txl.target = upstream_target.map_target;
+
+            log info, 3: "Translating range 0x%08X-0x%08X to 0x%08X-0x%08X",
+                txl.base, txl.base + txl.size - 1,
+                txl.start, txl.start + txl.size - 1;
+            return callback(txl, &amp;t, cbdata);
+        }
+    }
+}
+
+
+attribute extra_atom_in_translation is (bool_attr);
+// Sends ATS request to Translation Agent.
+// Utilizes several helper methods defined in the ATS capability template.
+method do_ats_request(uint64 addr,
+                      uint64 size,
+                      access_t access) -&gt; (exception_type_t) {
+    local uint64 atc_size = size + addr[11:0];
+    local int nbr_entries =
+        pcie_config.ats.translation_size_to_entries(atc_size);
+    local pcie_ats_translation_completion_entry_t entries[nbr_entries];
+
+    local bool no_write = (access &amp; Sim_Access_Write) == 0;
+
+    local pcie_error_t ret;
+    local int valid_entries;
+    local int stu_lsb = pcie_config.ats.control.stu.lsbit();
+    local uint64 base_addr = addr[63:stu_lsb] &lt;&lt; stu_lsb;
+
+    local bool add_pasid;
+    local pcie_pasid_info_t pasid;
+
+    if (pcie_config.pasid.control.pe.val) {
+        add_pasid = true;
+        pasid.field.pasid = PASID.val;
+        if (pcie_config.pasid.control.epe.val)
+            pasid.field.exe = (access &amp; Sim_Access_Execute) != 0 ? 1 : 0;
+    }
+    if (extra_atom_in_translation.val) {
+        local atom_t extra_atoms[2] = {
+            ATOM_pcie_ecs(PCIE_ECS_SIG_OS),
+            ATOM_list_end(0)
+        };
+        (ret, valid_entries) = pcie_config.ats.translation_request_custom(
+            base_addr, entries, nbr_entries, add_pasid ? &amp;pasid : NULL,
+            no_write, false, extra_atoms);
+    } else {
+        (ret, valid_entries) = pcie_config.ats.translation_request(base_addr,
+                                                                entries,
+                                                                nbr_entries,
+                                                                add_pasid ? &amp;pasid : NULL,
+                                                                no_write,
+                                                                false);
+    }
+    switch(ret) {
+    case PCIE_Error_No_Error:
+        for (local int i = 0; i &lt; valid_entries; i++) {
+            local (uint64 start, uint64 txl_size) =
+                pcie_config.ats.get_translation_range(entries[i]);
+
+            cache.insert(base_addr, txl_size, entries[i]);
+            base_addr += txl_size;
+        }
+        return Sim_PE_No_Exception;
+    case PCIE_Error_Unsupported_Request:
+        log info, 1:
+            "%s ATS request denied %s",
+            this.qname, pcie_error_name(ret);
+        return Sim_PE_IO_Not_Taken;
+    default:
+        log error:
+            "%s error in ATS translation request %s",
+            this.qname, pcie_error_name(ret);
+        return Sim_PE_IO_Not_Taken;
+    }
+}
+
+// Check internal AT Cache for translation, otherwise
+// it tries to do an ATS request followed by a second cache lookup.
+method lookup_address(uint64 addr, transaction_t *t, access_t access) -&gt;
+                       (
+                       bool,    // Hit
+                       uint64,  // Base
+                       uint64,  // Translated address
+                       uint64,  // size
+                       pcie_ats_translation_completion_entry_t // TA completion entry
+                       ) {
+    local uint64 lookup_size = umax(SIM_transaction_size(t),
+                                    pcie_config.ats.control.stu.size());
+    local (bool hit,
+           uint64 base,
+           uint64 start,
+           uint64 size,
+           pcie_ats_translation_completion_entry_t te) = cache.lookup(addr, access);
+
+    if (!hit) { // Try do an AT request
+        if (SIM_transaction_is_inquiry(t))
+            return (false, base, start, size, te);
+
+        local exception_type_t v = do_ats_request(addr, lookup_size, access);
+        if (v != Sim_PE_No_Exception)
+            return (false, base, start, size, te);
+
+        (hit, base, start, size, te) = cache.lookup(addr, access);
+        assert(hit);
+    }
+    return (true, base, start, size, te);
+}
+
+// Sample cache to showcase basics for implementing ATS with the PCIe library.
+// Utilizes the interval library in Simics core.
+group cache is (init) {
+    session interval_set_t map;
+
+    method init() {
+        init_interval(&amp;map, 1);
+    }
+    attribute storage {
+        param documentation = "Attribute to support checkpointing of the AT Cache";
+        param type = "[[iii]*]";
+        param internal = true;
+        method set(attr_value_t value) throws {
+            for (local int i = 0; i &lt; SIM_attr_list_size(value); ++i) {
+                local attr_value_t it = SIM_attr_list_item(value, i);
+
+                local uint64 start = SIM_attr_integer(SIM_attr_list_item(it, 0));
+                local uint64 end = SIM_attr_integer(SIM_attr_list_item(it, 1));
+                local pcie_ats_translation_completion_entry_t e = {
+                    .u64 = SIM_attr_integer(SIM_attr_list_item(it, 2)),
+                    ...
+                };
+                insert_interval(&amp;map, start, end, cast(e.u64, void *));
+            }
+        }
+        method get() -&gt; (attr_value_t) {
+            local attr_value_t map_list = SIM_alloc_attr_list(0);
+
+            for_all_intervals(&amp;map, &amp;collect_map_item, &amp;map_list);
+            return map_list;
+        }
+        independent method collect_map_item(uint64 start,
+                                            uint64 end,
+                                            void *ptr,
+                                            void *data) {
+            local attr_value_t *map_list = data;
+
+            local pcie_ats_translation_completion_entry_t e = {
+                .u64 = cast(ptr, uintptr_t),
+                ...
+            };
+
+            local attr_value_t m = SIM_make_attr_list(
+                3,
+                SIM_make_attr_uint64(start),
+                SIM_make_attr_uint64(end),
+                SIM_make_attr_uint64(e.u64)
+            );
+
+
+            local int old_size = SIM_attr_list_size(*map_list);
+            SIM_attr_list_resize(map_list, old_size + 1);
+            SIM_attr_list_set_item(map_list, old_size, m);
+        }
+    }
+
+    method lookup(uint64 addr,
+                  access_t access)
+                               -&gt; (bool,    // Hit
+                                   uint64,  // Base address
+                                   uint64,  // Translated Address
+                                   uint64,  // size
+                                   pcie_ats_translation_completion_entry_t
+                                   ) {
+        local uint64 base;
+        local uint64 base_end;
+        local range_node_t *match_list;
+        local int match_count = get_interval_vector_and_range(&amp;map,
+                                                              addr,
+                                                              &amp;match_list,
+                                                              &amp;base,
+                                                              &amp;base_end);
+        log info, 4: "lookup addr: 0x%x, base=0x%x, end=0x%x, mc=%d",
+            addr, base, base_end, match_count;
+
+        local pcie_ats_translation_completion_entry_t dummy;
+
+        local uint64 base_size = base_end - base + 1;
+        if (match_count == 1) {
+            local pcie_ats_translation_completion_entry_t e = {
+                .u64 = cast(match_list[0].ptr, uintptr_t),
+                ...
+            };
+            if (((access &amp; Sim_Access_Read) != 0) &amp;&amp; e.field.r == 0) {
+                return (false, base, base, base_size, dummy);
+            }
+            if (((access &amp; Sim_Access_Write) != 0) &amp;&amp; e.field.w == 0) {
+                return (false, base, base, base_size, dummy);
+            }
+            if (((access &amp; Sim_Access_Execute) != 0) &amp;&amp; e.field.exe == 0) {
+                return (false, base, base, base_size, dummy);
+            }
+
+            local (uint64 start, uint64 txl_size) =
+                pcie_config.ats.get_translation_range(e);
+
+            assert(base_size == txl_size);
+            return (true, base, start, base_size, e);
+        } else {
+            return (false, base, base, base_size, dummy);
+        }
+    }
+    method insert(uint64 addr,
+                  uint64 size,
+                  pcie_ats_translation_completion_entry_t t_entry) {
+        insert_interval(&amp;map, addr,
+                        addr + size - 1, cast(t_entry.u64, void *));
+    }
+    method evict(uint64 evict_addr, uint64 size) {
+        local uint64 base;
+        local uint64 base_end;
+        local range_node_t *match_list;
+        local int match_count = get_interval_vector_and_range(&amp;map,
+                                                              evict_addr,
+                                                              &amp;match_list,
+                                                              &amp;base,
+                                                              &amp;base_end);
+        for (local int i = 0; i &lt; match_count; i++)
+            remove_interval(&amp;map, evict_addr,
+                            evict_addr + size - 1, match_list[i].ptr);
+    }
+}
+method destroy() {
+    free_interval(&amp;cache.map);
+}
+</code></pre>
+</figure>
+<h2 id="sample-pcie-root-complex-acting-as-an-ats-and-prs-translation-agent-ta"><a href="#sample-pcie-root-complex-acting-as-an-ats-and-prs-translation-agent-ta">Sample PCIe Root Complex acting as an ATS and PRS Translation Agent (TA)</a></h2>
+<p>The sample root complex showcases a TA that does a linear mapping between host
+memory space and device memory space. Attributes <code>UNTRANSLATED_AREA</code> and
+<code>TRANSLATED_AREA</code> define the linear mapping. Attribute <code>STU</code> sets the STU size
+of the TA. The root complex supports PRS. Attribute <code>ENABLE_PASID_CHECK</code> can be
+turned on to block AT translated request with a <code>PASID</code> and an address range
+that has not been allocated by PRS. Bank <code>regs</code> contains registers to showcase
+the ATS invalidation procedure.</p>
+<figure id="example-root-complex-ta">
+<figcaption>Figure 18. Example of Root Complex Implementing a Translation Agent.</figcaption>
+<pre><code>dml 1.4;
+
+device sample_pcie_root_complex_ats;
+param classname = "sample-pcie-root-complex-ats";
+
+import "utility.dml";
+import "pcie/common.dml";
+import "simics/util/bitcount.dml";
+import "simics/util/interval-set.dml";
+
+param desc = "sample PCIe ATS Root Complex implementation";
+param documentation = "Sample Root Complex that implements an ATS/PRS Translation Agent";
+
+is pcie_bridge;
+is ats_upstream_translator;
+
+attribute STU is uint64_attr "Smallest Translation Unit";
+attribute UNTRANSLATED_AREA is uint64_attr;
+attribute TRANSLATED_AREA is uint64_attr;
+
+attribute ENABLE_PASID_CHECK is bool_attr {
+    param documentation = "When set to true all ATS translated requests are verified that"
+                        + " their PASID value has gone through the Page Request Service"
+                        + " for that address range.";
+}
+
+// Cache to keep track of PRS pages approved for a given PASID
+group pasid_cache is (init) {
+    session interval_set_t map;
+
+    method init() {
+        init_interval(&amp;map, 1);
+    }
+
+    method _pasid_holder(pcie_pasid_info_t pasid) -&gt; (uintptr_t) {
+        // Pasid 0 is a valid value, to not be treated as a NULL pointer
+        // bit 32 is set to 0
+        return cast((1 &lt;&lt; 32) | pasid.u32, uintptr_t);
+    }
+    /* Insert page with PASID into cache */
+    method insert(pcie_pasid_info_t pasid, uint64 addr) {
+        log info, 4: "Inserting PASID=0x%x @ 0x%08x", pasid.u32, addr;
+
+        local uintptr_t ptr = _pasid_holder(pasid);
+        insert_interval(&amp;map, addr, addr + 4096 - 1, cast(ptr, void *));
+    }
+    /* Evict all cached pages with matching PASID */
+    method evict(pcie_pasid_info_t pasid) {
+        log info, 4: "Evicting PASID=0x%x", pasid.u32;
+
+        local uintptr_t ptr = _pasid_holder(pasid);
+        remove_interval(&amp;map, 0, cast(-1, uint64), cast(ptr, void *));
+    }
+    /* Check if there is an allocated page */
+    method verify(pcie_pasid_info_t pasid, uint64 addr) -&gt; (bool, uint64, uint64) {
+        local uint64 base;
+        local uint64 base_end;
+        local range_node_t *match_list;
+        local int match_count = get_interval_vector_and_range(&amp;map,
+                                                              addr,
+                                                              &amp;match_list,
+                                                              &amp;base,
+                                                              &amp;base_end);
+        log info, 4: "Lookup PASID=0x%x @ 0x%08x, mc=%d",
+            pasid.u32, addr, match_count;
+        local uint64 size = base_end - base + 1;
+        for (local int i = 0; i &lt; match_count; i++) {
+            if (cast(match_list[i].ptr, uintptr_t) == _pasid_holder(pasid))
+                return (true, base, size);
+        }
+
+        log info, 1: "No cached page @ 0x%08x with PASID 0x%x", addr, pasid.u32;
+        return (false, base, size);
+    }
+}
+
+port message {
+    group ats_messages is handling_ats_messages {
+        method ats_invalidate_completion(transaction_t *t, uint64 addr) -&gt; (bool) {
+            local uint32 itag_vec =
+                ATOM_get_transaction_pcie_ats_invalidate_completion_itag_vector(t);
+            if ((1 &lt;&lt; regs.itag.itag.val) == itag_vec) {
+                regs.itag_vec.val = itag_vec;
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    group prs_messages is (handling_prs_messages) {
+        method page_request_received(transaction_t *t, uint64 addr) -&gt; (bool) {
+            local pcie_pasid_info_t pasid = {
+                .u32 = ATOM_get_transaction_pcie_pasid(t),
+                ...
+            };
+
+            if (ATOM_get_transaction_pcie_prs_stop_marker(t)) {
+                pasid_cache.evict(pasid);
+                return true;
+            } else if (ATOM_transaction_pcie_prs_page_request(t) != NULL) {
+                local pcie_prs_page_request_t msg = {
+                    .u64 = ATOM_get_transaction_pcie_prs_page_request(t),
+                    ...
+                };
+                try {
+                    local (uint64 base, uint64 start, uint64 size) =
+                        translate_address(msg.field.page_addr &lt;&lt; 12);
+                    local uint64 translated_page = start + (msg.field.page_addr &lt;&lt; 12) - base;
+
+                    log info, 4: "pa: 0x%08x, translated pa:0x%08x",
+                        msg.field.page_addr &lt;&lt; 12, translated_page;
+                    pasid_cache.insert(pasid, translated_page);
+
+
+                    if (msg.field.l == 1) {  // Last page request in group
+                        after: prepare_response(ATOM_get_transaction_pcie_device_id(t),
+                                                msg.field.prgi,
+                                                PCIE_PRS_Response_Success,
+                                                pasid);
+                    }
+                    return true;
+                } catch {
+                    after: prepare_response(ATOM_get_transaction_pcie_device_id(t),
+                                            msg.field.prgi,
+                                            PCIE_PRS_Response_Failure,
+                                            pasid);
+                    return true;
+                }
+            } else {
+                log error: "%s, Expected either ATOM prs_stop_marker or pcie_prs_page_request",
+                    this.qname;
+                return false;
+            }
+        }
+        method prepare_response(uint16 target_id, uint16 prs_group_idx,
+                                pcie_prs_response_code_t response_code, pcie_pasid_info_t pasid) {
+            this.page_group_response(downstream_port.map_target, target_id, prs_group_idx,
+                                     response_code, &amp;pasid);
+        }
+    }
+}
+
+method translate_address(uint64 addr) -&gt; (
+                                          uint64,  // base
+                                          uint64,  // start
+                                          uint64   // size
+                                         ) throws {
+    local uint64 size = 0x1000 &lt;&lt; STU.val;
+    local uint64 base = addr[63:log2_64(size)] &lt;&lt; log2_64(size);
+
+    if (base &lt; UNTRANSLATED_AREA.val) {
+        log error: "Invalid translation 0x%08X", addr;
+        throw;
+    }
+
+    local uint64 offset = base - UNTRANSLATED_AREA.val;
+
+    return (base, TRANSLATED_AREA.val + offset, size);
+}
+
+bank regs {
+    register invalidate_addr size 8 @ 0x0;
+    register invalidate_size size 8 @ 0x8;
+    register device_id       size 2 @ 0x10;
+    register pasid           size 2 @ 0x12;
+    register itag            size 1 @ 0x14 {
+        field itag @ [4:0];
+    }
+    register invalidate      size 8 @ 0x20 {
+        field invalidate @ [0] is (write) {
+            method write(uint64 value) {
+                local uint32 p = pasid.val;
+
+                local pcie_error_t ret = ats_invalidate(downstream_port.map_target,
+                                                        device_id.val,
+                                                        cast(&amp;p, pcie_pasid_info_t*),
+                                                        invalidate_addr.val,
+                                                        invalidate_size.val,
+                                                        false,
+                                                        itag.val);
+                if (ret == PCIE_Error_No_Error)
+                    result.val = 1;
+                else
+                    result.val = 0x2;
+            }
+        }
+        field result @ [2:1] is (ignore_write);
+    }
+    register itag_vec       size 4 @ 0x30 is (clear_on_read);
+}
+
+/*
+ * Memory requests not translated by the ATC arrive here
+ * Sample implementation sets address bit 63 and forwards transaction to host memory.
+ */
+port ats_untranslated {
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *t,
+                         exception_type_t (*callback)(translation_t txl,
+                                                      transaction_t *tx,
+                                                      cbdata_call_t cbd),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) {
+            local translation_t txl;
+            txl.base[63] = addr[63];
+            txl.start[63] = 1;
+            txl.size[63] = 1;
+            txl.target = host_memory.map_target;
+            log info: "AT Untranslated -&gt; base 0x%x start 0x%x size 0x%x",
+                txl.base, txl.start, txl.size;
+            return callback(txl, t, cbdata);
+        }
+    }
+}
+
+/*
+ * Memory requests that are already translated by the ATC arrive here
+ */
+port ats_translated {
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *t,
+                         exception_type_t (*callback)(translation_t txl,
+                                                      transaction_t *tx,
+                                                      cbdata_call_t cbd),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) {
+
+            if (ENABLE_PASID_CHECK.val) {
+                local translation_t txl;
+                local pcie_error_ret_t *pex = ATOM_get_transaction_pcie_error_ret(t);
+                if (ATOM_transaction_pcie_pasid(t) == NULL) {
+                    log info, 1:
+                        "AT translated request @ 0x%08x is missing PASID", addr;
+                    if (pex)
+                        pex-&gt;val = PCIE_Error_Completer_Abort;
+                    return callback(txl, t, cbdata);
+                }
+
+                local pcie_pasid_info_t pasid = {
+                    .u32 = ATOM_get_transaction_pcie_pasid(t),
+                    ...
+                };
+                local (bool valid, uint64 base, uint64 size) = pasid_cache.verify(pasid, addr);
+                txl.base = base;
+                txl.start = base;
+                txl.size = size;
+                if (!valid) {
+                    log info, 1:
+                        "AT translated request @ 0x%08x invalid PASID:0x%x", addr, pasid.u32;
+                    if (pex)
+                        pex-&gt;val = PCIE_Error_Completer_Abort;
+                } else {
+                    txl.target = host_memory.map_target;
+                }
+                return callback(txl, t, cbdata);
+            }
+            log info, 3: "Forwarding ATS translation 0x%08X to host memory", addr;
+            return default(addr, access, t, callback, cbdata);
+        }
+    }
+}
+
+/*
+ * ATS Translation requests arrive here.
+ */
+port ats_request {
+    attribute ecs_atom is (int64_attr); // This is just to test extra_atoms for translation_request_custom
+
+    implement transaction {
+        method issue(transaction_t *t,
+                     uint64 addr) -&gt; (exception_type_t) {
+            ecs_atom.val = ATOM_get_transaction_pcie_ecs(t);
+            local pcie_error_ret_t *ret =
+                ATOM_get_transaction_pcie_error_ret(t);
+
+            local uint64 size = SIM_transaction_size(t);
+
+            local bool no_write = ATOM_get_transaction_pcie_ats_translation_request_no_write(t);
+            local int nbr_entries = size / sizeoftype(pcie_ats_translation_completion_entry_t);
+
+            local bool pasid_present = ATOM_transaction_pcie_pasid(t) != NULL;
+            local pcie_pasid_info_t pasid = { .u32 = ATOM_get_transaction_pcie_pasid(t), ... };
+
+            local (uint64 base, uint64 start, uint64 txl_size);
+
+            try {
+                (base, start, txl_size) = translate_address(addr);
+            } catch {
+                log info, 1: "Cannot fulfill ATS request";
+                if (ret)
+                    ret-&gt;val = PCIE_Error_Completer_Abort;
+                return Sim_PE_IO_Error;
+            }
+
+            local pcie_ats_translation_completion_entry_t e[nbr_entries];
+            for (local int i = 0; i &lt; nbr_entries; i++) {
+                e[i].field.s = txl_size &gt; 4096 ? 1 : 0;
+                e[i].field.r = 1;
+                e[i].field.w = no_write ? 0 : 1;
+                e[i].field.r = 1;
+                e[i].field.exe = pasid.field.exe;
+                e[i].field.priv = pasid.field.priv;
+                e[i].field.translated_addr = (start + (txl_size * i)) &gt;&gt; 12;
+
+                log info, 3: "Translating region 0x%08x-0x%08x to 0x%08x-0x%08x",
+                    base + (txl_size * i),
+                    base + (txl_size * i) + txl_size - 1,
+                    e[i].field.translated_addr &lt;&lt; 12,
+                    (e[i].field.translated_addr &lt;&lt; 12) + txl_size - 1;
+
+                if (e[i].field.s == 1) {
+                    // Mark size of translation
+                    local int zero_bit = log2_64(txl_size) - 1;
+                    e[i].field.translated_addr[zero_bit - 12] = 0;
+                    if ((zero_bit - 12) &gt; 0)
+                        e[i].field.translated_addr[zero_bit - 12 - 1:0] = cast(-1, uint64);
+                }
+            }
+
+            local pcie_byte_count_ret_t *bc =
+                ATOM_get_transaction_pcie_byte_count_ret(t);
+            if (bc)
+                bc-&gt;val = size;
+
+            local bytes_t bytes = { .data = cast(e, uint8*), .len = size };
+            SIM_set_transaction_bytes(t, bytes);
+            if (ret)
+                ret-&gt;val = PCIE_Error_No_Error;
+
+            return Sim_PE_No_Exception;
+        }
+    }
+}
+</code></pre>
+</figure>
+
+<div class="chain">
+<a href="pcie-in-dml.html">PCIe in DML</a>
+<a href="sriov.html">Single Root I/O Virtualization and Sharing (SR-IOV)</a>
+</div>

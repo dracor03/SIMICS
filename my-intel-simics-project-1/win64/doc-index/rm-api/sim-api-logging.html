@@ -1,0 +1,111 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Logging</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-haps.html">Haps</a>
+<a href="sim-api-memory.html">Memory</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Logging</h1>
+<h2 id="SIM_get_quiet"><a href="#SIM_get_quiet">SIM_get_quiet</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_quiet — return setting of the quiet flag</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+bool
+SIM_get_quiet();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_quiet(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function returns the current value of Simics’s quiet flag.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_verbose"><a href="#SIM_get_verbose">SIM_get_verbose</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_verbose — get the verbose flag</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+bool
+SIM_get_verbose();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_verbose(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function returns the value of Simics’s verbosity flag (corresponding to the <code>--verbose</code> command line argument).</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_quiet"><a href="#SIM_set_quiet">SIM_set_quiet</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_quiet — enable/disable quiet mode</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_set_quiet(bool quiet);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_quiet(...)
+</code></pre>
+<h2>Description</h2>
+<p>Calling this function with an argument of <code>true</code> will enable the quiet mode, whereas an argument of <code>false</code> will disable it. Any other arguments will cause a frontend exception. Please note that enabling the quiet mode will disable verbose mode.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_set_verbose"><a href="#SIM_set_verbose">SIM_set_verbose</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_verbose — enable/disable verbose mode</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_set_verbose(bool verbose);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_verbose(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function sets Simics’s internal verbosity flag (corresponding to the <code>--verbose</code> command line argument). The <code>verbose</code> argument can be either <code>true</code> or <code>false</code>. Note that setting this flag will disable quiet mode.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-haps.html">Haps</a>
+<a href="sim-api-memory.html">Memory</a>
+</div>

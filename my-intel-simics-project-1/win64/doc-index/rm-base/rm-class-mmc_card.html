@@ -1,0 +1,336 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>mmc_card</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-mii-transceiver.html">mii-transceiver</a>
+<a href="rm-class-mnemonic_histogram_connection.html">mnemonic_histogram_connection</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="mmc_card"><a href="#mmc_card">mmc_card</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>mmc_card</tt> implements JESD84-B50.1-compliant eMMC card.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, mmc
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:flash_image-optional"><a href="#dt:flash_image-optional">flash_image (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: image
+</dd>
+<dt id="dt:hmac-optional"><a href="#dt:hmac-optional">hmac (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: hmac
+</dd>
+<dt id="dt:partition_map-optional"><a href="#dt:partition_map-optional">partition_map (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: image
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-regs"><a href="#dt:bank-regs">bank.regs</a></dt>
+<dd>
+<a href="rm-class-mmc_card.html#mmc_card.regs">mmc_card.regs</a>
+ – Set of common information registers</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-mmc_card.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-mmc_card.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:bkops_status"><a href="#dt:bkops_status">
+<i>bkops_status</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>This field indicates the level of background operations urgency: 0x0: No operations required, 0x1: Operations outstanding – non critical, 0x2: Operations outstanding – performance being impacted, 0x3: Operations outstanding – critical </dd>
+<dt id="dt:boot_part_preconf"><a href="#dt:boot_part_preconf">
+<i>boot_part_preconf</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Pre-configured bootable partition ('disable', 'user', 'boot0', 'boot1'). Indicate which partition is enabled for booting by host.</dd>
+<dt id="dt:cmdq_delayed_ready"><a href="#dt:cmdq_delayed_ready">
+<i>cmdq_delayed_ready</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Marking task "Ready for execution" after some random delay</dd>
+<dt id="dt:cmdq_enable"><a href="#dt:cmdq_enable">
+<i>cmdq_enable</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>The card maintains a queue of up to 32 data transfers. Commands CMD44/CMD45 are sent to queue up transfers in advance, and then one of the transfers is selected to execute by CMD46/CMD47 at which point data transfer begins.This attribute sets EXT_CSD_CMDQ_SUPPORT bit and defines eMMC v5.1 revision in EXT_CSD_REV fields</dd>
+<dt id="dt:flash_image"><a href="#dt:flash_image">
+<i>flash_image</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Image that will hold the memory contents
+<p>
+Required interfaces: <tt>image</tt>.</p></dd>
+<dt id="dt:gp_part_preconf"><a href="#dt:gp_part_preconf">
+<i>gp_part_preconf</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>True means that the gp partitions and/or enhanced user data area have been pre-configured by the host</dd>
+<dt id="dt:mem_enhanced_area_offset"><a href="#dt:mem_enhanced_area_offset">
+<i>mem_enhanced_area_offset</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Starting address of the enhanced user data area</dd>
+<dt id="dt:mem_enhanced_area_size"><a href="#dt:mem_enhanced_area_size">
+<i>mem_enhanced_area_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Enhanced user data area size</dd>
+<dt id="dt:mem_part_access"><a href="#dt:mem_part_access">
+<i>mem_part_access</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Mask of available partitions according to EXT_CSD_PART_CONFIG_ACC order</dd>
+<dt id="dt:partition_map"><a href="#dt:partition_map">
+<i>partition_map</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o|[os]|n{0:7}]</code>
+<br>An array of 7 objects or ports implementing the image interface used to store the data of the physical partitions, or NIL for unimplemented partitions.
+<p>
+Required interfaces: <tt>image</tt>.</p></dd>
+<dt id="dt:rpmb_auth_enable"><a href="#dt:rpmb_auth_enable">
+<i>rpmb_auth_enable</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>This function provides means for the system to store data to the specific memory area in an authenticated and replay protected manner</dd>
+<dt id="dt:rpmb_auth_key"><a href="#dt:rpmb_auth_key">
+<i>rpmb_auth_key</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>One time programmable authentication key register. This register cannot be overwritten, erased or read. The key is used by the eMMC RPMB engine to authenticate the accesses when MAC is calculated.</dd>
+<dt id="dt:rpmb_mac_data"><a href="#dt:rpmb_mac_data">
+<i>rpmb_mac_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>Accumulation buffer to calculate MAC data</dd>
+<dt id="dt:rpmb_response"><a href="#dt:rpmb_response">
+<i>rpmb_response</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>RPMB response data frame</dd>
+<dt id="dt:rpmb_state"><a href="#dt:rpmb_state">
+<i>rpmb_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>RPMB internal state</dd>
+<dt id="dt:rpmb_write_counter"><a href="#dt:rpmb_write_counter">
+<i>rpmb_write_counter</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Counter value for the total amount of successful authenticated data write requests made by the host. Initial value after eMMC production is 0x0000 0000. Value will be incremented by one automatically by the eMMC RPMB engine along with successful programming accesses. The value cannot be reset. After the counter has reached its maximum value 0xFFFF FFFF it will not be incremented anymore (overflow prevention) and the bit [7] in Operation Result value will be permanently set.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.generic-sdmmc-card.html">generic-sdmmc-card</a>
+</section>
+<h2 id="mmc_card.regs"><a href="#mmc_card.regs">mmc_card.regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+Set of common information registers
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, int_register, register_view, register_view_catalog
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="attributes-2">
+<a href="#attributes-2">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cid"><a href="#dt:cid">
+<i>CID</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{16}]</code>
+<br>CID: Card identification register. Isn't mapped onto io_memory space area.</dd>
+<dt id="dt:csd"><a href="#dt:csd">
+<i>CSD</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{16}]</code>
+<br>CSD: Device-Specific Data register. Isn't mapped onto io_memory space area.</dd>
+<dt id="dt:csr"><a href="#dt:csr">
+<i>CSR</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>CSR: Card status (R1 response fields). Isn't mapped onto io_memory space area.</dd>
+<dt id="dt:dsr"><a href="#dt:dsr">
+<i>DSR</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>DSR: Driver stage register. Isn't mapped onto io_memory space area.</dd>
+<dt id="dt:extcsd"><a href="#dt:extcsd">
+<i>ExtCSD</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{512}]</code>
+<br>ExtCSD: Extended CSD register. Isn't mapped onto io_memory space area.</dd>
+<dt id="dt:ocr"><a href="#dt:ocr">
+<i>OCR</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>OCR: Operation condition register. Isn't mapped onto io_memory space area.</dd>
+<dt id="dt:qsr"><a href="#dt:qsr">
+<i>QSR</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>QSR: Queue Status Register. Isn't mapped onto io_memory space area.</dd>
+<dt id="dt:rca"><a href="#dt:rca">
+<i>RCA</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>RCA: Relative device address. Isn't mapped onto io_memory space area.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-mii-transceiver.html">mii-transceiver</a>
+<a href="rm-class-mnemonic_histogram_connection.html">mnemonic_histogram_connection</a>
+</div>

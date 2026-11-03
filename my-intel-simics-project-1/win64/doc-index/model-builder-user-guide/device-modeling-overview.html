@@ -1,0 +1,1059 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Overview</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="part-device-modeling.html">II Device Modeling</a>
+<a href="programming-with-dml.html">5 Programming with DML</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;</div><h1 id="overview"><a href="#overview">4 Overview</a></h1>
+<p>This chapter provides an overview of the workflow used when modeling devices
+using DML. It starts from an overview of the set up of the build environment,
+and moves on to actual modeling and testing. After reading this chapter you
+should have an understanding of the workflow used when developing device models
+in Simics and be ready for the details provided in the following chapters.</p>
+<blockquote class="markdown-alert-note">
+<p>This chapter requires the <em>Model Builder</em> product and installation of the
+<em>QSP-x86 Package</em> package which provide all source code and scripts.</p>
+</blockquote>
+<h2 id="build-environment"><a href="#build-environment">4.1 Build Environment</a></h2>
+<p>This section describes how to set up a functional build environment that will be
+used to write new devices in DML and create new configurations throughout the
+remaining sections of the overview. The Simics build environment depends on a
+working GCC compiler toolchain on Linux and Windows. On Windows, the Microsoft
+Visual C++ compiler can be used as well, but only for C++ modules. See chapter
+<a class="reference" href="build-environment.html">3</a> for details.</p>
+<h3 id="dml-compiler"><a href="#dml-compiler">4.1.1 DML Compiler</a></h3>
+<p>DML provides distinct advantages for ease of model creation and performance when
+compared to alternative modeling languages. The DML compiler (DMLC) translates a
+device model description written in DML into C source code that will be compiled
+and loaded as a Simics module. The output of <code>dmlc</code> is a set of C source and
+header files that can be compiled in the same way as a hand-written C module
+would be. Refer to the <em>DML 1.4 Reference Manual</em> for details related to the DML
+language and compiler usage not covered in this introduction.</p>
+<blockquote class="markdown-alert-note">
+<p>For those who prefer to create device models in C and Python, details can be
+found in chapter <a class="reference" href="writing-module-with-c.html">15</a> of this document.</p>
+</blockquote>
+<h3 id="installation"><a href="#installation">4.1.2 Installation</a></h3>
+<p>The Model Builder product is installed together with Simics Base if a decryption
+key for it is provided. In the rest of this document the file system path of the
+Simics Base package directory of your Simics installation will be referred to as
+<code>[simics]</code>, where also Model Builder features may exist, your “home” directory
+as <code>[home]</code>, and your Simics project directory as <code>[project]</code>. The project is
+where you have all your modules and scripts to set up your system in Simics.</p>
+<p>Shell commands are indicated by lines starting with a <code>$</code> sign; you can use your
+favorite shell (in Windows, the builtin command prompt should suffice). Most
+shell commands should be issued from the project directory; this is indicated by
+lines starting with <code>project$</code>.</p>
+<p>On the Windows platform, you need the MinGW tools installed. See the <em>Simics
+Installation Guide</em> for more information. How to set up a working Simics build
+environment is described in detail in chapter <a class="reference" href="build-environment.html">3</a>.</p>
+<h3 id="editing-dml-code"><a href="#editing-dml-code">4.1.3 Editing DML Code</a></h3>
+<p>Any text editor can be used to write DML code, but we recommend Emacs. The Emacs
+DML mode is described in section
+<a class="reference" href="build-environment.html#emacs-dml-editing-mode">3.6</a>.</p>
+<h3 id="example-device-models"><a href="#example-device-models">4.1.4 Example Device Models</a></h3>
+<p>If you install Simics Model Builder with Simics Base package, there will be
+example source code in [simics]/src/devices/ for many different classes of
+devices which can be used as the bases for writing new models in Simics. Some of
+the available examples are listed below:</p>
+<dl>
+<dt id="dt:ds12887"><a href="#dt:ds12887">DS12887</a></dt>
+<dd>A Dallas Semiconductor DS12887 Real Time Clock. It is used in several X86 systems.</dd>
+<dt id="dt:am79c960"><a href="#dt:am79c960">AM79C960</a></dt>
+<dd>An AM79C960 Ethernet adapter. It is used in several X86 systems.</dd>
+<dt id="dt:dec21140a-dml"><a href="#dt:dec21140a-dml">DEC21140A-dml</a></dt>
+<dd>A PCI Fast Ethernet LAN controller.</dd>
+<dt id="dt:sample-device-dml"><a href="#dt:sample-device-dml">sample-device-dml</a></dt>
+<dd>A very simple DML device including the most common DML object types.</dd>
+<dt id="dt:sample-pcie-device"><a href="#dt:sample-pcie-device">sample-pcie-device</a></dt>
+<dd>A simple PCIe device using the DML PCIe support in Simics.</dd>
+<dt id="dt:sample-i2c-device"><a href="#dt:sample-i2c-device">sample-i2c-device</a></dt>
+<dd>A very simple device using the <code>i2c_device</code> interface.</dd>
+</dl>
+<h2 id="device-modeling"><a href="#device-modeling">4.2 Device Modeling</a></h2>
+<p>This section describes how to write a simple memory mapped device and how to
+load it into Simics and test it. The example device code in this section is
+based on the <code>sample-device-dml</code> device which can be found in
+<code>[simics]/src/devices/sample-device-dml/</code>.</p>
+<h3 id="simple-memory-mapped-device"><a href="#simple-memory-mapped-device">4.2.1 Simple Memory Mapped Device</a></h3>
+<p>The following DML code models a memory-mapped device with a single 32-bit
+(4-byte) register at offset 0. Upon a read access this device will return the
+value 42 as the result of the operation, simultaneously printing a Simics
+console log message with the text “read from counter”.</p>
+<h3 id="setup"><a href="#setup">4.2.2 Setup</a></h3>
+<p>To compile this example device, you first need to set up a Simics project, using
+the <code>project-setup</code> script (see chapter <a class="reference" href="build-environment.html">3</a> for details).
+Type this to setup a project in an empty directory <code>[project]</code>:</p>
+<dl>
+<dt id="dt:windows"><a href="#dt:windows">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">&gt; <strong>cd [project]</strong>
+project&gt; <strong>[simics]\bin\project-setup.bat</strong>
+</code></pre>
+</dd>
+<dt id="dt:linux"><a href="#dt:linux">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">$ <strong>cd [project]</strong>
+project$ <strong>[simics]/bin/project-setup</strong>
+</code></pre>
+</dd>
+</dl>
+<p>The project will contain project-local versions of most simics scripts. It is
+important to always change directory to your project directory and run the local
+versions of the scripts, to avoid tampering with your base installation of
+Simics.</p>
+<p>Make sure you have a working MinGW installation, <em>before</em> you try to set up the
+project. See chapter <a class="reference" href="build-environment.html">3</a> or the <em>Installation Guide</em> for
+details.</p>
+<p>Pass the <code>--device=device_name</code> flag to the <code>project-setup</code> script to create
+Makefiles and DML skeleton files for your new device. For example:</p>
+<dl>
+<dt id="dt:windows-2"><a href="#dt:windows-2">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">project&gt; <strong>bin\project-setup.bat --device=simple_device</strong>
+</code></pre>
+</dd>
+<dt id="dt:linux-2"><a href="#dt:linux-2">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">project$ <strong>./bin/project-setup --device=simple_device</strong>
+</code></pre>
+</dd>
+</dl>
+<p>You will now have a directory <code>[project]</code> containing (among other things) a GNU
+Makefile and a subdirectory named <code>modules</code>, which is where your modules are
+located.</p>
+<p>A Simics <em>module</em> is a self contained library of code which can be loaded into
+Simics. Each <em>module</em> consists of one or more Simics <em>classes</em> each of which
+implements some functionality useful in a simulation. This document will use the
+term <em>device</em>, when referring to a class which is a model of a piece of
+hardware. Your new device is called <em>simple_device</em> and is located in
+<code>[project]/modules/simple_device/simple_device.dml</code>. This file is only a
+skeleton. It implements a single register at offset 0.</p>
+<blockquote class="markdown-alert-note">
+<p>The name of the main DML source file should be the module name plus the
+extension <code>.dml</code>. The build system does not require that the DML file or the
+module have the same name as the device, but it is recommended to limit
+confusion. Additionally, a module can contain more than one device, though
+this is considered advanced usage.</p>
+</blockquote>
+<p>Now, go to the <code>[project]</code> directory and run GNU <code>make</code>. By default, this builds
+all your modules.</p>
+<blockquote class="markdown-alert-note">
+<p>The program GNU <code>make</code> is named <code>gmake</code> on some systems. On Windows you can
+run the script <code>[project]\bin\make.bat</code> as a shortcut.</p>
+</blockquote>
+<h3 id="testing-the-model"><a href="#testing-the-model">4.2.3 Testing the Model</a></h3>
+<p>The newly created device model also includes a simple test using the Simics test
+framework. The test framework provides tools and libraries to make it easy to
+check that your modules behave as expected. The test framework looks for tests
+in several directories in your project: <code>test</code>, <code>modules</code>, and <code>targets</code>. We
+recommend that you place tests for a particular module in a subdirectory of that
+module’s source. For example in <code>[project]/modules/foo/test</code> if your module is
+named <code>foo</code>. This way the test is kept close to the code it is testing.</p>
+<p>You run tests in the project with the <code>[project]/bin/test-runner</code> tool or by
+using make. The tool can also be used to list all test suites it finds in the
+project. For complete documentation see the <em>Simics Reference Manual</em>.</p>
+<p>When <code>project-setup</code> creates a new DML device, it automatically creates a test
+suite in the source directory for your module, with an empty test file for your
+device. You can run the test suite now:</p>
+<pre><code class="language-simics">project$ <strong>make test</strong>
+.
+Ran 2 tests in 1 suites in 0.680668 seconds.
+All tests completed successfully.
+</code></pre>
+<p>We want our device to have a single register, which always reads as 42. To write
+a test for this behavior open
+<code>[project]/modules/simple_device/test/s-simple_device.py</code> and change it to look
+like this:</p>
+<pre><code>import simics
+import dev_util
+import conf
+import stest
+
+# Create an instance of the device to test
+dev = simics.pre_conf_object('dev', 'simple_device')
+simics.SIM_add_configuration([dev], None)
+dev = conf.dev
+
+# Create a register wrapper for the register
+r = dev_util.Register_LE(dev.bank.regs, 0)
+
+# Test that reading from the register returns 42...
+stest.expect_equal(r.read(), 42)
+# ...even if we write something else to it.
+r.write(0x4711)
+stest.expect_equal(r.read(), 42)
+</code></pre>
+<p>We can now run our test to check if the device behaves as expected:</p>
+<pre><code class="language-simics">project$ <strong>make test</strong>
+f
+[project]/logs/tests/linux64/modules/simple_device/test/test.log:1: *** failed () ***
+Ran 2 tests in 1 suites in 0.872507 seconds.
+Failures: 1  Timeouts: 0
+</code></pre>
+<p>You can look at the log file to get more information about the failure, but the
+reason is simple: the needed functionality is not implemented yet. The next
+section will describe how to change the device to pass the test.</p>
+<h3 id="editing-the-module"><a href="#editing-the-module">4.2.4 Editing the Module</a></h3>
+<p>Now implement the functionality needed to pass the test. Open the generated
+skeleton file in your favorite text editor, and modify its contents to look like
+as follows:</p>
+<pre><code>dml 1.4;
+
+device simple_device;
+param desc = "sample DML device";
+param documentation = "This is a very simple device.";
+
+bank regs {
+    register counter size 4 @ 0x0000 is (read) {
+        method read() -&gt; (uint64) {
+            log info: "read from counter";
+            return 42;
+        }
+    }
+}
+</code></pre>
+<p>The <code>read</code> template provides a method, <code>read</code>, which is called when a memory
+transaction performs a read at the address of the register. Registers can also
+instantiate a corresponding template <code>write</code>, which provides the <code>write</code>
+method, which is called for write transactions. Instantiating either of these
+templates will override the default behaviour of a register which is to acquire
+its read value by reading its fields, or writing its value by writing to its
+fields. It’s worth looking at the <em>DML 1.4 Reference Manual</em> to find the details
+on how defining semantics for fields and registers works.</p>
+<p>Rebuild the module and rerun the test. You can do this in a single step since
+<code>make test</code> automatically builds all modules in the project:</p>
+<pre><code class="language-simics">project$ <strong>make test</strong>
+=== Building module "simple_device" ===
+DML-DEP simple_device.dmldep
+DMLC    simple_device-dml.c
+DEP     simple_device-dml.d
+CC      simple_device-dml.o
+CCLD    simple_device.so
+.
+Ran 2 tests in 1 suites in 0.638387 seconds.
+All tests completed successfully.
+</code></pre>
+<p>You can read more about writing functional tests for your models in chapter
+<a class="reference" href="writing-model-tests.html">17</a>.</p>
+<p>Congratulations you have now created your first Simics module. You can find the
+module binary in the <code>[project]/host/lib</code> directory.</p>
+<h3 id="simple-configuration"><a href="#simple-configuration">4.2.5 Simple Configuration</a></h3>
+<p>In order to interact with our device from the Simics prompt, we need to create a
+simple machine with our device (refer to section <a class="reference" href="machine-creation.html">29</a> for
+more detailed information about Simics configuration scripts). For now, just
+create the file <code>[project]/targets/vacuum/my-vacuum.simics</code> with the following
+contents:</p>
+<pre><code class="language-simics">run-script "%script%/vacuum.simics"
+@SIM_create_object("simple_device", "dev1")
+phys_mem.add-map dev1.bank.regs 0x1000 0x100
+</code></pre>
+<p>The script above creates an almost empty machine with our sample device mapped
+at <code>0x1000</code> in the <code>phys_mem</code> memory space. Please note the dev:port syntax,
+which is the preferred way of mapping a bank in memory.</p>
+<p>We can now start the newly created machine configuration and interact with our
+device:</p>
+<pre><code class="language-simics">project$ <strong>./simics targets/vacuum/my-vacuum.simics</strong>
+simics&gt; <strong>phys_mem.read 0x1000 -l</strong>
+</code></pre>
+<p>This returns value of 42 and causes the log message “read from counter” to be
+printed.</p>
+<h3 id="logging"><a href="#logging">4.2.6 Logging</a></h3>
+<p>DML has direct support for writing log messages to the Simics logging facility,
+through the <code>log</code> statement. The most important logging concepts are the
+<em><code>type</code></em> and the <em><code>verbosity level</code></em> of the message. The most common message
+types are <code>info</code> and <code>error</code>. The verbosity level is a number between 1 and 4,
+where 1 is used for important messages that should always be displayed, and 4 is
+used for detailed debugging messages that should only be printed when verbose
+logging has been requested. Error messages are always printed regardless of
+verbosity level setting. By default, Simics only displays messages of level 1 on
+the console.</p>
+<p>In the previous example, no level was provided, which will make it default to 1.
+To set the level of a message, add it after the type string, but before the
+colon, as in:</p>
+<pre><code>log info, 2: "This is a level 2 message.";
+</code></pre>
+<p>To change what messages are displayed, use the <code>log-level</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>log-level 4</strong>
+</code></pre>
+<p>This will cause all log messages with log-level 1-4 to be displayed. Now make a
+memory access to the device, as before:</p>
+<pre><code class="language-simics">simics&gt; <strong>phys_mem.read 0x1000 -l</strong>
+</code></pre>
+<p>This time (apart from the “read from counter” message), you should see an info
+message saying something like <code>"Read from register regs.counter -&gt; 0x2a"</code>. This
+is logged by the built-in code that handles register read accesses, and such
+messages can be very useful when debugging a device model.</p>
+<h3 id="configuration-attributes"><a href="#configuration-attributes">4.2.7 Configuration Attributes</a></h3>
+<p>A Simics configuration consists of a machine description and a few other parts,
+and it is divided into a number of <em>configuration objects</em>. Each device instance
+in the configuration is represented by such an object. Any Simics configuration
+object has a number of <em>attributes</em>. An attribute is a named property that can
+be read or written using the Simics API. The value of an attribute can be an
+integer, a floating-point number, a string, an object reference, a boolean
+value, a list of values, or a mapping from values to other values.</p>
+<p>Attributes are used for several related purposes, but the most important uses
+are for <em>configuration</em> and <em>checkpointing</em>. The internal state of a device
+object must be available through the attributes, so that a checkpoint of the
+current state can be saved by reading all the attributes and storing the values
+to disk. By reloading a configuration and setting all attributes from the
+previously saved checkpoint, the states of all devices can be restored to the
+checkpointed state and simulation can continue as if it had never been
+interrupted. When creating a new configuration, some of the state must be given
+an explicit initial assignment, which makes those attributes also part of the
+configuration. There may also be attributes that are not part of the state, in
+the sense that they do not change during simulation. Instead, they control the
+behavior of the model, such as buffer sizes, timing parameters etc. Those
+configuration attributes can generally not be modified once the object has been
+created.</p>
+<p>Attributes can also be used as a simple interface to an object, e.g., for
+inspecting or manipulating the state for debugging purposes.</p>
+<p>A DML device model usually defines a number of attributes. By default, each
+<code>register</code> defines a corresponding attribute that can be used to get or set the
+register value, but more attributes can be defined by explicitly declaring them
+in the DML source.</p>
+<h4 id="using-register-attributes"><a href="#using-register-attributes">4.2.7.1 Using Register Attributes</a></h4>
+<p>Registers in DML automatically create a corresponding integer attribute, which
+stores the value of the register. In our example above, for the register
+<code>counter</code> of bank <code>regs</code> there will be a device attribute named <code>counter</code> under
+the <code>regs</code> bank sub-object.</p>
+<p>The attribute can be accessed from the Simics command line. Continuing the
+example from the previous sections, enter:</p>
+<pre><code class="language-simics">simics&gt; <strong>dev1.bank.regs-&gt;counter = 17</strong>
+</code></pre>
+<p>and then enter</p>
+<pre><code class="language-simics">simics&gt; <strong>dev1.bank.regs-&gt;counter</strong>
+</code></pre>
+<p>which should print the value 17.</p>
+<p>However, if a new memory access is performed:</p>
+<pre><code class="language-simics">simics&gt; <strong>phys_mem.read 0x1000 -l</strong>
+</code></pre>
+<p>The message “read from counter” and the value 42 is still generated. However,
+entering <code>dev1.bank.regs-&gt;counter</code> once again still returns 17. What is going
+on?</p>
+<p>The answer is that the <code>read</code> method is hard-coded to always return 42, no
+matter what. But this does not affect the behavior of the attribute, or the
+<code>write</code> method. Let us try to make a write access:</p>
+<pre><code class="language-simics">simics&gt; <strong>phys_mem.write 0x1000 0xff -l</strong>
+</code></pre>
+<p>Entering <code>@conf.dev1.regs_counter</code> now prints the value 255 as expected. You can
+change the line</p>
+<pre><code>return 42;
+</code></pre>
+<p>in the program to:</p>
+<pre><code>return this.val;
+</code></pre>
+<p>recompile, and try the same accesses again to check how a normal register would
+behave. Then change the code back to return 42 for the rest of this section.</p>
+<p>It is in fact often useful to create registers which either return a constant
+(usually zero), or return a value that is computed on the fly.</p>
+<p>A full implementation of such a “synthetic” constant register could contain
+method definitions like the following:</p>
+<pre><code>        method write(uint64 value) {
+            /* do nothing */
+        }
+</code></pre>
+<p>Try adding them to the body of the register, recompile, and run the example
+again.</p>
+<p>The standard library file <code>utility.dml</code> contains several pre-defined templates
+for common implementations such as this one. To use it, add the declaration
+<code>import "utility.dml";</code> to your source file. The constant register can now
+simply be implemented as follows:</p>
+<pre><code>    register counter size 4 @ 0x0000  is constant {
+        param init_val = 42;
+    }
+</code></pre>
+<p>
+or, if you still want to get a log message for each read access:</p>
+<pre><code>    register counter size 4 @ 0x0000  is (constant, read) {
+        param init_val = 42;
+        method read() -&gt; (uint64) {
+            local uint64 to_return = default();
+            log info, 1: "read from counter";
+            return to_return;
+        }
+    }
+</code></pre>
+<p>As you can see, the example overrides the <code>read</code> method
+provided by the <code>read</code> template to hook in “after-read” behavior by executing
+code after the default call.</p>
+<h4 id="user-defined-attributes"><a href="#user-defined-attributes">4.2.7.2 User-defined Attributes</a></h4>
+<p>It is sometimes useful to have device attributes that are not associated with
+any register. To define the attribute to behave as a data field, which stores a
+value of a simple data type such as <code>int64</code> or <code>bool</code>, use one of the builtin
+templates as follows:</p>
+<pre><code>attribute int_attr is int64_attr "An integer attribute";
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>The available attribute type-templates are <code>uint64_attr</code>,
+<code>int64_attr</code>, <code>bool_attr</code>, and <code>double_attr</code>. See
+the <em>DML 1.4 reference manual</em> for details about how these work.</p>
+</blockquote>
+<p>Try adding this code to your device, either before or after the <code>bank</code>,
+recompile and rerun the example. Enter the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help attribute:dev1.int_attr</strong>
+</code></pre>
+<p>This prints some information about the attribute. Note that the descriptive
+string you specified in the program is included in the online documentation.</p>
+<p>You can now experiment with setting and getting the value of the attribute;
+e.g., entering</p>
+<pre><code class="language-simics">simics&gt; <strong>dev1-&gt;int_attr = 4711</strong>
+simics&gt; <strong>dev1-&gt;int_attr</strong>
+</code></pre>
+<p>should print 4711.</p>
+<p>If it is important that other parts of the device are updated whenever the value
+of the attribute is modified, the method <code>set</code> can be overridden to perform such
+updates. Override the default implementation, call into the default, and perform
+any side-effects you need either before or after the default call. For example:</p>
+<pre><code>    method set(attr_value_t value) throws {
+        local uint64 before = this.val;
+        default(value);
+        log info: "Updated from %d to %d", before, this.val;
+    }
+</code></pre>
+<p>Add this method to the body of the attribute, recompile and restart Simics, then
+try setting and getting the value of the attribute.</p>
+<p>If you want the attribute to do things differently, such as not store
+the value between calls, or use a more complex data type, you need to
+do more work on your own, instead of using the provided simple
+attribute-type templates; see the <em>DML 1.4 Reference Manual</em> for details.</p>
+<h4 id="attribute-initialization"><a href="#attribute-initialization">4.2.7.3 Attribute Initialization</a></h4>
+<p>It is a relatively common scenario that setting an attribute should cause some
+side effect. For example, setting the “i2c_bus” attribute of an I2C device
+should trigger an interface call to the bus object to register the device on the
+bus. This side effect could also depend on the value of a second attribute. In
+our I2C device example, an address needs to be supplied when registering the
+device. This address could be that second attribute. Since the initialization
+order of attributes in a DML device model is undefined, this could pose a
+problem. In a C model the initialization order is defined, but it is usually a
+good idea to not depend on it.</p>
+<p>In order to avoid these potential problems it is recommended to delay any side
+effects, until the <em>finalize</em> phase. This makes the attribute setting phase a
+“dumb” phase where no side effects should occur. In particular, it is strictly
+forbidden to call the interface of another object before this phase. The
+finalize phase corresponds to the <code>post_init</code> method of a DML model, and the
+<code>finalize</code> function of a C model. At that point, all attributes of all objects
+in the simulation has been set. After the finalize phase, the object is said to
+be <em>configured</em>.</p>
+<p>There is a number of situations that causes an attribute to be set. The most
+obvious ones are when starting a Simics script, loading a checkpoint or
+restoring a snapshot. However, connecting and disconnecting components using the
+Simics CLI will in most cases also cause some attributes to be set. Therefore,
+for most complex attributes, it is necessary to perform a conditional test on
+whether the object is configured or not. This can be done with
+<code>SIM_object_is_configured</code>. If the object <em>is</em> configured the side effect should
+be executed immediately. If the object is <em>not</em> configured the side effect
+should be delayed until the finalize phase. If the side effect in
+<code>post_init</code>/<code>finalize</code> calls the interface of another object (or invokes
+functionality in that other object in some other way), it is necessary to call
+<code>SIM_require_object</code> on that object before making the call. Below is an example
+of how to do this in DML.</p>
+<blockquote class="markdown-alert-note">
+<p>Normally setting attributes should not produce any side effects in order to
+ensure proper operation after restoring a snapshot. This is described in more
+detail at the end of this section.</p>
+</blockquote>
+<pre><code>dml 1.4;
+
+device doc_attrib_init;
+
+param desc = "sample device to show attribute init";
+param documentation = "A sample device to show attribute initialization";
+
+import "simics/devs/i2c.dml";
+
+attribute address is uint64_attr {
+    param documentation = "I2C address";
+
+    method set(attr_value_t value) throws {
+        default(value);
+        log info, 1: "%s was set to 0x%x", qname, this.val;
+    }
+}
+
+connect i2c_bus {
+    param documentation = "The I2C bus that this device is connected to";
+    param configuration = "optional";
+    interface i2c_bus;
+
+    method set(conf_object_t *new_obj) {
+        log info, 1: "Entering setter of %s", qname;
+        if (obj) {
+            log info, 1: "Unregistering from I2C bus %s",
+                         SIM_object_name(obj);
+            i2c_bus.unregister_device(dev.obj, address.val, 0xff);
+        }
+
+        default(new_obj);
+
+        log info, 1: "%s set to %s", qname, SIM_object_name(obj);
+        if (!obj || !SIM_object_is_configured(dev.obj))
+            return;
+        log info, 1: "Registering with I2C bus %s",
+                     SIM_object_name(obj);
+        i2c_bus.register_device(dev.obj, address.val, 0xff, I2C_flag_exclusive);
+    }
+}
+
+// Stub i2c_device interface implementation to keep the bus happy
+implement i2c_device {
+    method set_state(i2c_device_state_t state, uint8 address) -&gt; (int) {
+        return 0;
+    }
+    method read_data() -&gt; (uint8) {
+        return 0;
+    }
+    method write_data(uint8 value) {
+    }
+}
+
+method post_init() {
+    log info, 1: "post_init called";
+    if (i2c_bus.obj) {
+        SIM_require_object(i2c_bus.obj);
+        log info, 1: "post_init: Registering with I2C bus %s",
+                     SIM_object_name(i2c_bus.obj);
+        i2c_bus.i2c_bus.register_device(dev.obj, address.val, 0xff,
+                                        I2C_flag_exclusive);
+    }
+}
+</code></pre>
+<p>The example above shows a very simple I2C device. It is actually so simple that
+it does not do anything, all methods where the actual functionality of a real
+device would be implemented are just stubs. However, this simple device
+demonstrates how to connect a device to a bus in a correct way. When the
+<code>i2c_bus</code> attribute is set, the device should register to the I2C bus object by
+calling the <code>register_device</code> of its <code>i2c_bus</code> interface. If it is already
+connected to another bus, it should unregister from that bus first. Note that to
+register to the bus, the <code>address</code> attribute is needed, so there is a possible
+attribute initialization order problem.</p>
+<p>This is solved in the <code>set</code> method of the <code>i2c_bus</code> connect. Before going ahead
+and calling the interface function, the device checks if it is configured. If it
+is not, nothing is done, since it is not allowed to call interface functions of
+other objects at this point. As if that were not enough, we cannot even be sure
+that the <code>address</code> attribute has been set yet, and that attribute is needed to
+register.</p>
+<p>Since the device is not configured, we know that sooner or later, its
+<code>post_init</code> method will be called, and here we can call the <code>register_device</code>
+interface function, but only after making sure the bus object is ready to handle
+the call, using <code>SIM_require_object</code>.</p>
+<p>Back to the <code>set</code> method of the <code>i2c_bus</code> connect. If the device <em>is</em>
+configured, the i2c_bus object has been configured as well, and the <code>address</code>
+attribute has already been set, so all that remains is to call the interface
+function to register to the bus. If the device was already registered to another
+bus it must first unregister from it. This was done in the same method, before
+the default call.</p>
+<p>A number of things have been left out of this device to keep the example short
+and comprehensible, things that should be included in a production device model.
+For example, there are no checks that bus registration succeeds, and there are
+no checks for exceptions after calling <code>SIM_*</code> functions. Furthermore, this
+model does not support changing its address when connecting to another I2C bus,
+since it has to be unregistered from the old bus with the same address as it was
+registered with.</p>
+<p>In general, it is not a good idea to have logging in attribute setters like we
+have in the device above. When restoring snapshots, attributes will be set and
+the logging would cause a lot of text with no informative value to be printed on
+the Simics console. In this example, the log messages are there for
+demonstrative purposes.</p>
+<p>Running the simple test case below illustrates how this works.</p>
+<pre><code>
+import simics
+import conf
+# SIMICS-21634
+conf.sim.deprecation_level = 0
+
+print('Create object')
+bus1 = simics.pre_conf_object('bus1', 'i2c-bus')
+bus2 = simics.pre_conf_object('bus2', 'i2c-bus')
+dev = simics.pre_conf_object('dev', 'doc_attrib_init')
+dev.i2c_bus = bus1
+dev.address = 0x47
+simics.SIM_add_configuration([dev, bus1, bus2], None)
+
+if conf.bus1.i2c_devices != [['dev', 0x47]] or conf.bus2.i2c_devices != []:
+    simics.SIM_quit(-1)
+
+print("Switching to bus2")
+conf.dev.i2c_bus = conf.bus2
+
+if conf.bus2.i2c_devices != [['dev', 0x47]] or conf.bus1.i2c_devices != []:
+    simics.SIM_quit(-1)
+
+print("Test passed")
+</code></pre>
+<p>The output should look something like the following. Note that in this example,
+the <code>i2c_bus</code> attribute was indeed set before the <code>address</code> attribute:</p>
+<pre><code class="language-simics">Create object
+[dev info] i2c_bus setter about to be called
+[dev info] i2c_bus set to bus1
+[dev info] address was set to 0x47
+[dev info] post_init called
+[dev info] post_init: Registering with I2C bus bus1
+Switching to bus2
+[dev info] i2c_bus setter about to be called
+[dev info] Unregistering from I2C bus bus1
+[dev info] i2c_bus set to bus2
+[dev info] after_set: Registering with I2C bus bus2
+Test passed
+</code></pre>
+<p>Normally the act of setting an attribute should not produce any side effects.
+When introducing attributes with side effects it is important to consider
+snapshots restoring; where attributes are set from previously stored values. For
+example, it is not allowed to change any state that can be observed by the
+target software. For example, side effects that should <em>not</em> be performed are,
+raising interrupts or modifying registers that have their state stored in other
+attributes. A typical side effects that <em>is</em> performed is to handle connection
+of objects such as links. This will not cause any software visible state changes
+and are thus allowed.</p>
+<h2 id="simics-interfaces"><a href="#simics-interfaces">4.3 Simics Interfaces</a></h2>
+<p>This section includes an overview how to use interfaces in Simics. As this part
+of the overview deals with more advanced topics, you might prefer to skip this
+section and come back to it when you want know more about interfaces and
+connections between objects in Simics.</p>
+<p>Section <a class="reference" href="programming-with-dml.html#interfaces">5.5</a> includes a more light-weight
+description of how to use interfaces and can be used as a reference.</p>
+<h3 id="introduction"><a href="#introduction">4.3.1 Introduction</a></h3>
+<p>In addition to attributes, Simics configuration objects can have <em>interfaces</em>,
+which are sets of methods with specific names and types. An object can also
+implement port interfaces. Each port has a name and implements one or more
+interfaces. This makes it possible for a device to implement the same interface
+more than once, but with a separate name for each implementation.</p>
+<p>A Simics configuration consists of a number of interacting configuration
+objects; for example, the machine <code>vacuum</code> consists of a clock, a memory space,
+and a RAM. The clock acts as a pseudo-CPU and is needed to drive time. Each of
+these is represented as a separate configuration object, and the interaction
+between the objects is done through interfaces.</p>
+<p>To take a concrete example: when a CPU wants to make a memory access, the CPU
+will look up which object represents its physical memory (via an attribute) and
+call the access function of the memory_space interface implemented by that
+object.</p>
+<p>A very fundamental question in this context is; how does one object find another
+object? Usually, objects are connected through attributes; e.g., a CPU object
+could have an attribute that holds a reference to a memory space object, and the
+memory space object has an attribute that contains mapping information, which
+includes references to the mapped objects, and so on. Such bindings are
+typically set up in the components or the configuration scripts for a simulated
+machine, and are not changed after the initialization is done.</p>
+<p>DML has built-in support both for letting your device implement any number of
+interfaces, and for connecting your device to objects implementing particular
+interfaces.</p>
+<h3 id="implementing-an-interface"><a href="#implementing-an-interface">4.3.2 Implementing an Interface</a></h3>
+<p>In general, the DML built-in constructs and standard libraries are successful at
+hiding details of the Simics API from the user.</p>
+<p>The following is a simple implementation of the <code>signal</code> interface, designed to
+be used with the example device in section <a class="reference" href="#simple-memory-mapped-device">4.2.1</a>.
+Note the use of an attribute for storing <code>raised</code> so that the value can be
+checkpointed.</p>
+<pre><code>attribute raised is uint64_attr "current signal value";
+
+implement signal {
+    method signal_raise() {
+        raised.val += 1;
+        log info: "Signal raised to %u", raised.val;
+        if (raised.val == 0)
+            log error: "Too many raises (counter wraparound)";
+    }
+    method signal_lower() {
+        if (raised.val == 0)
+            log error: "Too many lowers (counter wraparound)";
+        raised.val -= 1;
+        if (raised.val == 0)
+            log info: "Signal cleared";
+        else
+            log info: "Signal lowered to %u", raised.val;
+    }
+}
+</code></pre>
+<p>The <code>signal</code> interface is for instance used for interrupt signals. A device
+connected to another device implementing the <code>signal</code>, calls <code>signal_raise()</code> to
+raise the signal from low to high, and <code>signal_lower()</code> to lower the signal from
+high to low.</p>
+<p>The method declarations within an <code>implement</code> section are translated directly
+into C functions as expected by the Simics API; a pointer to the device object
+itself is automatically added as the first argument to each function. The
+methods can only have one or zero output parameters, which correspond directly
+to return values in C. In this example, the C function signatures for
+<code>signal_raise</code> and <code>signal_lower</code> are:</p>
+<pre><code>void signal_raise(conf_object_t *obj);
+void signal_lower(conf_object_t *obj);
+</code></pre>
+<p>A DML device can implement port interfaces by placing one or more <code>implement</code>
+sections inside a <code>port</code> section.</p>
+<p>For more details about Simics interfaces and data types see the <em>API Reference
+Manual</em>.</p>
+<h3 id="connecting-objects"><a href="#connecting-objects">4.3.3 Connecting Objects</a></h3>
+<p>The standard way to connect caller and callee via an interface is done by having
+an object attribute in the caller pointing at the callee. The attribute is
+typically set up in an initialization script or component. Although it is
+possible to write an <code>attribute</code> definition, suitable for connecting an object
+with a particular interface by hand, it is much better to use a <code>connect</code>
+definition in DML, which creates such an attribute with minimal effort. It also
+allows you to connect to an object or a port of an object without any additional
+work.</p>
+<p>An interface, in Simics, is a <code>struct</code> containing function pointers, and the
+definition of the <code>struct</code> must be visible both to the caller and the callee.
+The convention in the Simics API is to use a C <code>typedef</code> to name the <code>struct</code>
+type, using the suffix <code>_interface_t</code>, and the DML compiler by default follows
+this convention when it generates interface-related code. For example the
+<code>io_memory</code> interface is described by a data type <code>io_memory_interface_t</code>, which
+is a <code>struct</code> containing two function pointers <code>map</code> and <code>operation</code>. If the
+user wants to create new interfaces, he must write his own <code>struct</code> definitions;
+this is demonstrated below.</p>
+<h4 id="connection-example"><a href="#connection-example">4.3.3.1 Connection Example</a></h4>
+<p>In the following example a second device is created and connected to the first
+device via a user-defined interface. Start with the example device in section
+<a class="reference" href="#editing-the-module">4.2.4</a>. In our test of the connection in section
+<a class="reference" href="#testing-the-connection">4.3.3.4</a> we have also assumed the device was renamed
+“connect_device” by changing the device declaration on the second line of code.
+Add the following declaration:</p>
+<pre><code>connect plugin {
+    interface talk {
+        param required = true;
+    }
+}
+</code></pre>
+<p>
+Replace the line “<code>log info: …;</code>” with the following C function call:</p>
+<pre><code>            plugin.talk.hello();
+</code></pre>
+<p>Note that the first argument to the C function is omitted, since it is assumed
+to be the object that is providing the interface. This is standard in most
+interfaces used in Simics.</p>
+<p>The device will now have an attribute named <code>plugin</code>, which can hold object or
+port references; the attached objects are required to implement the <code>talk</code>
+interface. However, the module cannot yet be compiled to a module, since it is
+missing the definition of the interface.</p>
+<h4 id="sharing-definitions"><a href="#sharing-definitions">4.3.3.2 Sharing Definitions</a></h4>
+<p>When writing several related models, it is often useful to share code between
+them to reduce code duplication. The two kind of files that are most often
+shared are</p>
+<ul>
+<li>DML files that are imported by other DML files</li>
+<li>C header files that are included by the generated C code</li>
+</ul>
+<p>As an example of sharing DML code, we will show how to define an interface and
+use the same definition in several models.</p>
+<p>First, create the file <code>[project]/include/talk.dml</code> with the following contents:</p>
+<pre><code>dml 1.4;
+
+typedef struct {
+    void (*hello)(conf_object_t *obj);
+} talk_interface_t;
+</code></pre>
+<p>This <em>typedef</em> will create a new struct type that is also exported to a C header
+so it can be used by any C code including that header file.</p>
+<p>Then, add this line to the example device code, to import the new file:</p>
+<pre><code>import "talk.dml";
+</code></pre>
+<p>Finally, edit the <code>Makefile</code> for the example device:
+<code>[project]/modules/simple_device/Makefile</code>, and add the following option to the
+definition of <code>DMLC_FLAGS</code>:</p>
+<pre><code>-I$(SIMICS_PROJECT)/include
+</code></pre>
+<p>in order to tell <code>dmlc</code> where to look for additional include files.</p>
+<p>You should now be able to compile the example device with the <code>connect</code> added as
+described above.</p>
+<p>Sharing C header files is similar to the above: just add a C compiler “<code>-I…</code>”
+flag to the <code>CFLAGS</code> variable in the makefile, and instead of the DML <code>import</code>
+directive, use a C <code>#include</code> within a <code>header</code> section, as in:</p>
+<pre><code>header %{
+  #include "stuff.h"
+%}
+</code></pre>
+<h4 id="a-plug-in-module"><a href="#a-plug-in-module">4.3.3.3 A Plug-in Module</a></h4>
+<p>Create a new object that speaks the <code>talk</code> interface, which can be used to
+connect to the device. For this purpose, add a new module to the project, as
+follows (cf. section <a class="reference" href="#simple-memory-mapped-device">4.2.1</a>):</p>
+<dl>
+<dt id="dt:windows-3"><a href="#dt:windows-3">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">project&gt; <strong>bin\project-setup.bat --device=plugin_module</strong>
+</code></pre>
+</dd>
+<dt id="dt:linux-3"><a href="#dt:linux-3">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">project$ <strong>./bin/project-setup --device=plugin_module</strong>
+</code></pre>
+</dd>
+</dl>
+<p>Edit the generated skeleton file
+<code>[project]/modules/plugin_module/plugin_module.dml</code> to look like this:</p>
+<pre><code>dml 1.4;
+device plugin_module;
+param documentation =
+    "Plugin module example for Model Builder User's Guide";
+param desc = "example plugin module";
+import "talk.dml";
+
+implement talk {
+    method hello() {
+        log info: "Hi there!";
+    }
+}
+</code></pre>
+<p> The
+only way to use the objects of this class is through the <code>talk</code> interface -
+there are no memory-mapped registers or similar connections.</p>
+<blockquote class="markdown-alert-note">
+<p>Do not take the term “device” too literally; a DML source file does not have
+to model a piece of hardware - it just defines a class that can be loaded in
+Simics.</p>
+</blockquote>
+<p>Also edit the device makefile: <code>[project]/modules/plugin_module/Makefile</code>, and
+add the option <code>-I$(SIMICS_PROJECT)/include</code> to the definition of <code>DMLC_FLAGS</code>,
+just as for the first example device.</p>
+<h4 id="testing-the-connection"><a href="#testing-the-connection">4.3.3.4 Testing the Connection</a></h4>
+<p>Simply running <code>make test</code> (or <code>gmake test</code>) from the <code>[project]</code> directory
+should now compile both modules and run the tests. As you can see the test
+fails:</p>
+<pre><code class="language-simics">project$ <strong>make test</strong>
+[...]
+.f
+[project]/logs/tests/linux64/modules/simple_device/test.test.log:1: *** failed () ***
+Ran 2 tests in 2 suites in 1.274424 seconds.
+Failures: 1  Timeouts: 0
+</code></pre>
+<p>The reason for the failure is that <code>simple_device</code> has a new required attribute,
+which needs to be set to an object or port implementing the <code>talk</code>. We need to
+update the test to make this connection. Change
+<code>[project]/modules/simple_device/test/s-simple_device.py</code> to look like this
+instead:</p>
+<pre><code>import simics
+import dev_util
+import conf
+import stest
+
+# Create an instance of the devices to test
+dev = simics.pre_conf_object('dev', 'connect_device')
+plugin = simics.pre_conf_object('plugin', 'plugin_module')
+dev.plugin = plugin
+simics.SIM_add_configuration([dev, plugin], None)
+dev = conf.dev
+
+# Create a register wrapper for the register
+r = dev_util.Register_LE(dev.bank.regs, 0)
+
+# Test that reading from the register returns 42...
+stest.expect_equal(r.read(), 42)
+# ...even if we write something else to it.
+r.write(0x4711)
+stest.expect_equal(r.read(), 42)
+</code></pre>
+<p>Now the tests pass:</p>
+<pre><code class="language-simics">project$ <strong>make test</strong>
+[...]
+..
+Ran 2 tests in 2 suites in 1.542259 seconds.
+All tests completed successfully.
+</code></pre>
+<h2 id="components"><a href="#components">4.4 Components</a></h2>
+<p>To make it easy to integrate a device model in a complete simulated system it
+should be wrapped in a component. A component is a Simics concept. Each
+component represents a hardware unit in the system: PCI devices, motherboards,
+disks, etc.</p>
+<p>The main advantage of components is that they provide a high level view of the
+system. Instead of performing a lot of low level connections between device
+models — some which reflect the hardware, and some which are artifacts of the
+way the models work — you connect logical high level components: PCI cards,
+Ethernet devices, motherboards, and so on.</p>
+<p>If a device model is part of an SoC or board in the hardware it is part of the
+SoC or board component, but if it is not part of any other such part it is
+wrapped in its own component. This is often the case with for example PCI
+devices.</p>
+<p>Components are connected to each other via connectors. Each connector has a type
+and a direction. Common types are Ethernet ports, PCI slots, and serial
+connections. The direction of the connectors are similar to how physical plugs
+work: you can only insert a male plug in a female plug, not another male plug.</p>
+<p>Connecting at this high level removes a lot of potential for error, and the
+components only allow connections which make sense: for example you cannot
+insert a PCI connection in an Ethernet port.</p>
+<p>This section describes how to write a simple component for a PCI device. A more
+detailed description about components can be found in chapter
+<a class="reference" href="creating-configurations.html">26</a>.</p>
+<h3 id="building-a-simple-component"><a href="#building-a-simple-component">4.4.1 Building a Simple Component</a></h3>
+<p>Here is a very simple PCI component:</p>
+<pre><code>import simics
+from comp import StandardComponent, SimpleConfigAttribute, Interface
+
+class sample_pci_card(StandardComponent):
+    """A sample component containing a sample PCI device."""
+    _class_desc = "sample PCI card"
+    _help_categories = ('PCI',)
+
+    def setup(self):
+        super().setup()
+        if not self.instantiated.val:
+            self.add_objects()
+        self.add_connectors()
+
+    def add_objects(self):
+        sd = self.add_pre_obj('sample_dev', 'sample_pci_device')
+        sd.int_attr = self.integer_attribute.val
+
+    def add_connectors(self):
+        self.add_connector(slot = 'pci_bus', type = 'pci-bus',
+                           hotpluggable = True, required = False, multi = False,
+                           direction = simics.Sim_Connector_Direction_Up)
+
+    class basename(StandardComponent.basename):
+        """The default name for the created component"""
+        val = "sample_cmp"
+
+    class integer_attribute(SimpleConfigAttribute(None, 'i',
+                                                  simics.Sim_Attr_Required)):
+        """Example integer attribute."""
+
+    class internal_attribute(SimpleConfigAttribute(
+            0,  # initial value
+            'i',
+            simics.Sim_Attr_Internal | simics.Sim_Attr_Optional)):
+        """Example internal attribute (will not be documented)."""
+
+    class component_connector(Interface):
+        """Uses connector for handling connections between components."""
+        def get_check_data(self, cnt):
+            return []
+        def get_connect_data(self, cnt):
+            return [[[0, self._up.get_slot('sample_dev')]]]
+        def check(self, cnt, attr):
+            return True
+        def connect(self, cnt, attr):
+            self._up.get_slot('sample_dev').pci_bus = attr[1]
+        def disconnect(self, cnt):
+            self._up.get_slot('sample_dev').pci_bus = None
+
+</code></pre>
+<p>The example component code can be found in
+<code>[simics]/src/components/sample-components/</code>.</p>
+<p>Components in Simics are written in Python. How to create components will not be
+explained in depth here. Only the most important parts will be discussed, see
+chapter <a class="reference" href="creating-configurations.html">26</a> for a complete reference.</p>
+<p>In the example, the module is named <em>sample-components</em> and the component is
+named <code>sample_pci_card</code>. The <em>StandardComponent</em> is the base Python class which
+includes the basic functionality required for a component. Our class definition
+starts with a Python docstring which will be used as a class description. The
+<code>_class_desc</code> is a shorter description of the class. This component only has one
+connector and it is a PCI connector. The component can be connected to other
+components with connectors of the type <code>pci-bus</code>. The connector is set to be non
+hot-pluggable, meaning that you cannot connect and disconnect the PCI card at
+any time and expect it to work. USB components are for instance hot-pluggable.</p>
+<p>In the <code>add_objects()</code> function all objects which are part of the component are
+defined. The default object attributes are also set here. The example component
+contains a <code>sample_pci_device</code> device called <code>sample_dev</code>.</p>
+<p>The connector of the type <code>pci-bus</code> is added in <code>add_connectors()</code>. It creates a
+connector object in its component’s namespace through a slot called ‘pci_bus’.
+Note that connectors must be instantiated even if the component has been
+instantiated. See section <a class="reference" href="creating-configurations.html#connector-classes">26.6.10.2</a> for
+the reason.</p>
+<p>The class will automatically be registered in Simics and instances can be
+created based on it. The component will also get <code>new-</code> and <code>create-</code> commands
+with the class name as suffix with underscores replaced by hyphens.</p>
+<p>To compile this component you need to set up a project. You can use the same
+project you created in <a class="reference" href="#simple-memory-mapped-device">4.2.1</a>. To create a new
+skeleton component named <em>foo_component</em> use the following command:</p>
+<dl>
+<dt id="dt:windows-4"><a href="#dt:windows-4">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">project&gt; <strong>bin\project-setup.bat --component=foo_component</strong>
+</code></pre>
+</dd>
+<dt id="dt:linux-4"><a href="#dt:linux-4">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">project$ <strong>./bin/project-setup --component=foo_component</strong>
+</code></pre>
+</dd>
+</dl>
+<p>Or to copy the already existing <code>sample_component</code> component, use the following
+command:</p>
+<dl>
+<dt id="dt:windows-5"><a href="#dt:windows-5">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">project&gt; <strong>bin\project-setup.bat --copy-module=sample-components</strong>
+</code></pre>
+</dd>
+<dt id="dt:linux-5"><a href="#dt:linux-5">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">project$ <strong>./bin/project-setup --copy-module=sample-components</strong>
+</code></pre>
+</dd>
+</dl>
+<p>Now, go to the <code>[project]</code> directory and run GNU <code>make</code>. By default, this builds
+all your modules.</p>
+<p>Note that this component is dependent on the <code>sample-pci-device</code> class, and you
+cannot create a <code>sample-pci-card</code> without it.</p>
+<h3 id="loading-and-connecting-components"><a href="#loading-and-connecting-components">4.4.2 Loading and Connecting Components</a></h3>
+<p>Now it is time to test the PCI card. The PCI card will be connected to the
+<code>Firststeps</code> machine. This requires that you have installed the <em>QSP-x86
+Package</em>.</p>
+<p>Load the configuration:</p>
+<pre><code class="language-simics">project$ <strong>./simics targets/qsp-x86/firststeps.simics</strong>
+</code></pre>
+<p>Write this on the Simics console after loading the configuration:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module sample-components</strong>
+simics&gt; <strong>$card = (create-sample-pci-card integer_attribute = 13)</strong>
+simics&gt; <strong>connect "board.mb.sb.pci_slot[0]" $card.pci_bus</strong>
+simics&gt; <strong>instantiate-components</strong>
+</code></pre>
+<p>The <code>create-sample-pci-card</code> command creates a non-instantiated
+<code>sample-pci-card</code> and connects it to the south bridge on <code>Firststeps</code> machine
+using the <em>board.mb.sb</em> namespace. The <code>instantiate-components</code> command
+instantiates the <code>sample-pci-card</code>.</p>
+<blockquote class="markdown-alert-note">
+<p>It can be better to create a new start script by copying the commands above to
+a script named <code>sample-pci-card.simics</code> and start Simics:</p>
+<pre><code class="language-simics">project$ <strong>./simics targets/qsp-x86/firststeps.simics sample-pci-card.simics</strong>
+</code></pre>
+</blockquote>
+<p>To list all components in this configuration type <code>list-components</code>. You will
+see that the configuration contains many components:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-components -v</strong>
+ethernet_switch0             - ethernet_switch        (top: board)
+------------------------------------------------------------------
+   device0         ethernet-link        any      board.mb.sb:eth_slot
+   device1         ethernet-link        any      service_node_cmp0:connector_link0
+   device2         ethernet-link        any      &lt;empty&gt;
+
+sample_cmp0                  - sample_pci_card        (top: board)
+------------------------------------------------------------------
+   pci_bus         pci-bus              up       board.mb.sb:pci_slot[0]
+
+board                        - chassis_qsp_x86        (top: board)
+------------------------------------------------------------------
+
+service_node_cmp0            - service_node_comp      (top: none)
+-----------------------------------------------------------------
+   connector_link0 ethernet-link        down     ethernet_switch0:device1
+</code></pre>
+<p>Each component has an <em>instance name</em>, a <em>component name</em>, and a <em>top-level
+component pointer</em>. The <code>board</code> object points to itself as it is the top-level
+component in this configuration. All machines are based on a top-level
+component. The top-level component is the root of the component hierarchy and is
+often a motherboard, backplane, or system chassis.</p>
+<p>From left to right, the columns show, for each component, the <em>connection name</em>,
+the <em>connection type</em>, the <em>direction</em>, and the <em>connected component:connection
+name</em>. The output for the example shows that the <code>sample_cmp0</code> component is
+connected to <code>board.mb.sb</code> on <code>board</code> component via the <code>pci_slot[0]</code> connector.</p>
+<p>Now it is time to boot the system. Start the simulation and wait until you see
+the login prompt. Now it is possible to verify that Linux has found the PCI
+card. Use the <code>lspci</code> command to list PCI devices:</p>
+<pre><code class="language-simics">(none):~# <strong>lspci</strong>
+00:00.0 PIC: Intel Corporation 5520/5500/X58 I/O Hub to ESI Port (rev 13)
+00:01.0 PCI bridge: Intel Corporation 5520/5500/X58 I/O Hub PCI Express Root Port 1 (rev 13)
+...
+07:00.0 Non-VGA unclassified device: Texas Instruments PCI1050
+</code></pre>
+<p>It worked! Linux found our fake Texas Instruments PCI card without any problem.</p>
+
+<div class="chain">
+<a href="part-device-modeling.html">II Device Modeling</a>
+<a href="programming-with-dml.html">5 Programming with DML</a>
+</div>

@@ -1,0 +1,168 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>cell</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-cdrom_image.html">cdrom_image</a>
+<a href="rm-class-cli.html">cli</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="cell"><a href="#cell">cell</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A simulation cell, representing an autonomous partition of the configuration and able to be simulated in parallel with other cells. See the "Multithreading" section in the Introduction chapter of the <cite>API Reference Manual</cite>.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, temporal_state, link_route, dist_control_node, concurrency_group, breakpoint_trigger, cell_inspection, sync_node
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:ps"><a href="#dt:ps">ps</a></dt>
+<dd>
+<a href="rm-class-ps-clock.html#ps-clock">ps-clock</a>
+ – ps clock</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-cell.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-cell.set-time-quantum.html">set-time-quantum</a>
+ – get/set the time quantum for a given cell</li>
+<li>
+<a href="rm-cmd-cell.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:schedule_list"><a href="#dt:schedule_list">
+<i>schedule_list</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>Execute objects that belong to the cell, in scheduling order</dd>
+<dt id="dt:clocks"><a href="#dt:clocks">
+<i>clocks</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[o*]</code>
+<br>Clock objects that belong to the cell. </dd>
+<dt id="dt:scheduled_object"><a href="#dt:scheduled_object">
+<i>scheduled_object</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o</code>
+<br>Currently scheduled object for this cell</dd>
+<dt id="dt:current_processor"><a href="#dt:current_processor">
+<i>current_processor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o</code>
+<br>Current processor in this cell</dd>
+<dt id="dt:current_step_obj"><a href="#dt:current_step_obj">
+<i>current_step_obj</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o</code>
+<br>Current step queue in this cell</dd>
+<dt id="dt:current_cycle_obj"><a href="#dt:current_cycle_obj">
+<i>current_cycle_obj</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o</code>
+<br>Current cycle queue in this cell</dd>
+<dt id="dt:time_quantum"><a href="#dt:time_quantum">
+<i>time_quantum</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Length of the time quantum in seconds, or 0 if not specified.</dd>
+<dt id="dt:time_quantum_ps"><a href="#dt:time_quantum_ps">
+<i>time_quantum_ps</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Length of the time quantum in picoseconds, or 0 if not specified.</dd>
+<dt id="dt:machine_sync_events"><a href="#dt:machine_sync_events">
+<i>machine_sync_events</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[osaai]*]</code>
+<br>((<i>object</i>, <i>evclass</i>, <i>value</i>, <i>obsolete</i> <i>when</i>)*). Pending machine sync events.</dd>
+<dt id="dt:sync_domain"><a href="#dt:sync_domain">
+<i>sync_domain</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Synchronization domain for this cell</dd>
+<dt id="dt:leader"><a href="#dt:leader">
+<i>leader</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Leader object</dd>
+<dt id="dt:max_time_span_ps"><a href="#dt:max_time_span_ps">
+<i>max_time_span_ps</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Upper limit of the allowed global time difference for CPUs simulated simultaneously using multiple host threads, or 0 if no limit is desired.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-class-cdrom_image.html">cdrom_image</a>
+<a href="rm-class-cli.html">cli</a>
+</div>

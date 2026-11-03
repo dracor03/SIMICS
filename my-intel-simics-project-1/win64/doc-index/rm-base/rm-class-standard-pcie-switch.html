@@ -1,0 +1,1296 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>standard-pcie-switch</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sr_ticks_connection.html">sr_ticks_connection</a>
+<a href="rm-class-state-assertion.html">state-assertion</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="standard-pcie-switch"><a href="#standard-pcie-switch">standard-pcie-switch</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A standard PCIe switch with 4 downstream slots that contains the mandatory capabilities for a PCIe function in all ports.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:dsp-0-3"><a href="#dt:dsp-0-3">dsp[0..3]</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp">standard-pcie-switch.dsp</a>
+</dd>
+<dt id="dt:usp"><a href="#dt:usp">usp</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp">standard-pcie-switch.usp</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-standard-pcie-switch.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-standard-pcie-switch.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.standard-pcie-switch.html">standard-pcie-switch</a>
+</section>
+<h2 id="standard-pcie-switch.dsp"><a href="#standard-pcie-switch.dsp">standard-pcie-switch.dsp</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_device, pcie_hotplug_events, pcie_link_readiness, pcie_link_training, transaction_translator, translation_flush
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:clkreq-optional"><a href="#dt:clkreq-optional">clkreq (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+<dt id="dt:upstream_target-optional"><a href="#dt:upstream_target-optional">upstream_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pcie_map
+</dd>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, pcie_link_control, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+</dl>
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects-2">
+<a href="#port-objects-2">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-msix_data"><a href="#dt:bank-msix_data">bank.msix_data</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.msix_data">standard-pcie-switch.dsp.msix_data</a>
+</dd>
+<dt id="dt:bank-pcie_config"><a href="#dt:bank-pcie_config">bank.pcie_config</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.pcie_config">standard-pcie-switch.dsp.pcie_config</a>
+</dd>
+<dt id="dt:downstream_port"><a href="#dt:downstream_port">downstream_port</a></dt>
+<dd>
+<a href="rm-class-pcie-downstream-port.html#pcie-downstream-port">pcie-downstream-port</a>
+ – This class manages the downstream address spaces and connected devices for PCIe switches and Root Complexes</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.HRESET">standard-pcie-switch.dsp.HRESET</a>
+</dd>
+<dt id="dt:port-_upstream_egress"><a href="#dt:port-_upstream_egress">port._upstream_egress</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp._upstream_egress">standard-pcie-switch.dsp._upstream_egress</a>
+</dd>
+<dt id="dt:port-_upstream_egress_dead_end"><a href="#dt:port-_upstream_egress_dead_end">port._upstream_egress_dead_end</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp._upstream_egress_dead_end">standard-pcie-switch.dsp._upstream_egress_dead_end</a>
+</dd>
+<dt id="dt:port-upstream_ingress"><a href="#dt:port-upstream_ingress">port.upstream_ingress</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.upstream_ingress">standard-pcie-switch.dsp.upstream_ingress</a>
+</dd>
+<dt id="dt:port-upstream_message"><a href="#dt:port-upstream_message">port.upstream_message</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.upstream_message">standard-pcie-switch.dsp.upstream_message</a>
+ – consumes Upstream PCIe Messages</dd>
+<dt id="dt:port-upstream_message_router"><a href="#dt:port-upstream_message_router">port.upstream_message_router</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.upstream_message_router">standard-pcie-switch.dsp.upstream_message_router</a>
+</dd>
+<dt id="dt:upstream_ingress_targets"><a href="#dt:upstream_ingress_targets">upstream_ingress_targets</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.upstream_ingress_targets">standard-pcie-switch.dsp.upstream_ingress_targets</a>
+</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator">
+<a href="#commands-for-interface-transaction_translator">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:clkreq"><a href="#dt:clkreq">
+<i>clkreq</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>CLKREQ output signal (active high)
+<p>
+Required interface: <tt>signal</tt></p></dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.dsp.HRESET"><a href="#standard-pcie-switch.dsp.HRESET">standard-pcie-switch.dsp.HRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.dsp._upstream_egress"><a href="#standard-pcie-switch.dsp._upstream_egress">standard-pcie-switch.dsp._upstream_egress</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-4">
+<a href="#interfaces-implemented-4">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction_translator, translation_flush
+<h2 id="notifiers-4">
+<a href="#notifiers-4">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-4"><a href="#dt:cell-change-4">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-4"><a href="#dt:object-delete-4">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-4"><a href="#dt:queue-change-4">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-2">
+<a href="#commands-for-interface-transaction_translator-2">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.dsp._upstream_egress_dead_end"><a href="#standard-pcie-switch.dsp._upstream_egress_dead_end">standard-pcie-switch.dsp._upstream_egress_dead_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-5">
+<a href="#interfaces-implemented-5">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-5">
+<a href="#notifiers-5">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-5"><a href="#dt:cell-change-5">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-5"><a href="#dt:object-delete-5">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-5"><a href="#dt:queue-change-5">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction">
+<a href="#commands-for-interface-transaction">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.dsp.msix_data"><a href="#standard-pcie-switch.dsp.msix_data">standard-pcie-switch.dsp.msix_data</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-6">
+<a href="#interfaces-implemented-6">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-6">
+<a href="#notifiers-6">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-6"><a href="#dt:cell-change-6">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-6"><a href="#dt:object-delete-6">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-6"><a href="#dt:queue-change-6">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-transaction-2">
+<a href="#commands-for-interface-transaction-2">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.dsp.pcie_config"><a href="#standard-pcie-switch.dsp.pcie_config">standard-pcie-switch.dsp.pcie_config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-7">
+<a href="#interfaces-implemented-7">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, pcie_function_info, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-7">
+<a href="#notifiers-7">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-7"><a href="#dt:cell-change-7">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-7"><a href="#dt:object-delete-7">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-7"><a href="#dt:queue-change-7">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-2">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-2">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-2">
+<a href="#commands-for-interface-instrumentation_order-2">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-pcie_function_info">
+<a href="#commands-for-interface-pcie_function_info">Commands for interface pcie_function_info</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-dma-read.html">pcie-dma-read</a>
+ – memory PCIe DMA Read</li>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-dma-write.html">pcie-dma-write</a>
+ – memory PCIe (DMA) Write</li>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-memory-probe.html">pcie-memory-probe</a>
+ – probe an upstream PCIe DMA</li>
+</ul>
+<h2 id="commands-for-interface-transaction-3">
+<a href="#commands-for-interface-transaction-3">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+<h2 id="attributes-2">
+<a href="#attributes-2">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:function_number"><a href="#dt:function_number">
+<i>function_number</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>PCIe function number of this bank</dd>
+<dt id="dt:pcie_gen_speed"><a href="#dt:pcie_gen_speed">
+<i>pcie_gen_speed</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Based on the value of this attribute, the PCIe function will be configured to advertise its maximum supported link speed. It will advertise the highest supported link speed for the given PCIe generation. Note that this does not set the PCIe version of the device. The value of this attribute must be between 1 and 6.</dd>
+<dt id="dt:pcie_link_width"><a href="#dt:pcie_link_width">
+<i>pcie_link_width</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Based on the value of this attribute, the PCIe function will be configured to advertise its maximum supported link width. The value of this attribute must be one of the following: 1, 2, 4, 8, or 16.</dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.dsp.upstream_ingress"><a href="#standard-pcie-switch.dsp.upstream_ingress">standard-pcie-switch.dsp.upstream_ingress</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-8">
+<a href="#interfaces-implemented-8">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_ingress_handling, transaction_translator, translation_flush
+<h2 id="notifiers-8">
+<a href="#notifiers-8">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-8"><a href="#dt:cell-change-8">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-8"><a href="#dt:object-delete-8">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-8"><a href="#dt:queue-change-8">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-3">
+<a href="#commands-for-interface-transaction_translator-3">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.dsp.upstream_ingress_targets"><a href="#standard-pcie-switch.dsp.upstream_ingress_targets">standard-pcie-switch.dsp.upstream_ingress_targets</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-9">
+<a href="#interfaces-implemented-9">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers-9">
+<a href="#notifiers-9">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-9"><a href="#dt:cell-change-9">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-9"><a href="#dt:object-delete-9">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-9"><a href="#dt:queue-change-9">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects-3">
+<a href="#port-objects-3">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:config"><a href="#dt:config">config</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:io"><a href="#dt:io">io</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:memory"><a href="#dt:memory">memory</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:message"><a href="#dt:message">message</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:port-_dead_end"><a href="#dt:port-_dead_end">port._dead_end</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.upstream_ingress_targets._dead_end">standard-pcie-switch.dsp.upstream_ingress_targets._dead_end</a>
+</dd>
+<dt id="dt:port-broadcast"><a href="#dt:port-broadcast">port.broadcast</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.dsp.upstream_ingress_targets.broadcast">standard-pcie-switch.dsp.upstream_ingress_targets.broadcast</a>
+</dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.dsp.upstream_ingress_targets._dead_end"><a href="#standard-pcie-switch.dsp.upstream_ingress_targets._dead_end">standard-pcie-switch.dsp.upstream_ingress_targets._dead_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-10">
+<a href="#interfaces-implemented-10">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-10">
+<a href="#notifiers-10">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-10"><a href="#dt:cell-change-10">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-10"><a href="#dt:object-delete-10">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-10"><a href="#dt:queue-change-10">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-4">
+<a href="#commands-for-interface-transaction-4">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.dsp.upstream_ingress_targets.broadcast"><a href="#standard-pcie-switch.dsp.upstream_ingress_targets.broadcast">standard-pcie-switch.dsp.upstream_ingress_targets.broadcast</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-11">
+<a href="#interfaces-implemented-11">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-11">
+<a href="#notifiers-11">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-11"><a href="#dt:cell-change-11">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-11"><a href="#dt:object-delete-11">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-11"><a href="#dt:queue-change-11">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-5">
+<a href="#commands-for-interface-transaction-5">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.dsp.upstream_message"><a href="#standard-pcie-switch.dsp.upstream_message">standard-pcie-switch.dsp.upstream_message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+consumes Upstream PCIe Messages
+<h2 id="interfaces-implemented-12">
+<a href="#interfaces-implemented-12">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-12">
+<a href="#notifiers-12">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-12"><a href="#dt:cell-change-12">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-12"><a href="#dt:object-delete-12">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-12"><a href="#dt:queue-change-12">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-6">
+<a href="#commands-for-interface-transaction-6">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.dsp.upstream_message_router"><a href="#standard-pcie-switch.dsp.upstream_message_router">standard-pcie-switch.dsp.upstream_message_router</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-13">
+<a href="#interfaces-implemented-13">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction_translator, translation_flush
+<h2 id="notifiers-13">
+<a href="#notifiers-13">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-13"><a href="#dt:cell-change-13">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-13"><a href="#dt:object-delete-13">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-13"><a href="#dt:queue-change-13">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-4">
+<a href="#commands-for-interface-transaction_translator-4">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp"><a href="#standard-pcie-switch.usp">standard-pcie-switch.usp</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-14">
+<a href="#interfaces-implemented-14">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_device, transaction_translator, translation_flush
+<h2 id="connects-2">
+<a href="#connects-2">Connects</a>
+</h2>
+<dl>
+<dt id="dt:clkreq-optional-2"><a href="#dt:clkreq-optional-2">clkreq (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+<dt id="dt:upstream_target-optional-2"><a href="#dt:upstream_target-optional-2">upstream_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pcie_map
+</dd>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, pcie_link_control, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+</dl>
+<h2 id="notifiers-14">
+<a href="#notifiers-14">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-14"><a href="#dt:cell-change-14">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-14"><a href="#dt:object-delete-14">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-14"><a href="#dt:queue-change-14">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects-4">
+<a href="#port-objects-4">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-msix_data-2"><a href="#dt:bank-msix_data-2">bank.msix_data</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.msix_data">standard-pcie-switch.usp.msix_data</a>
+</dd>
+<dt id="dt:bank-pcie_config-2"><a href="#dt:bank-pcie_config-2">bank.pcie_config</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.pcie_config">standard-pcie-switch.usp.pcie_config</a>
+</dd>
+<dt id="dt:downstream_port-2"><a href="#dt:downstream_port-2">downstream_port</a></dt>
+<dd>
+<a href="rm-class-pcie-downstream-port.html#pcie-downstream-port">pcie-downstream-port</a>
+ – This class manages the downstream address spaces and connected devices for PCIe switches and Root Complexes</dd>
+<dt id="dt:port-hreset-2"><a href="#dt:port-hreset-2">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.HRESET">standard-pcie-switch.usp.HRESET</a>
+</dd>
+<dt id="dt:port-_upstream_egress-2"><a href="#dt:port-_upstream_egress-2">port._upstream_egress</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp._upstream_egress">standard-pcie-switch.usp._upstream_egress</a>
+</dd>
+<dt id="dt:port-_upstream_egress_dead_end-2"><a href="#dt:port-_upstream_egress_dead_end-2">port._upstream_egress_dead_end</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp._upstream_egress_dead_end">standard-pcie-switch.usp._upstream_egress_dead_end</a>
+</dd>
+<dt id="dt:port-phy"><a href="#dt:port-phy">port.phy</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.phy">standard-pcie-switch.usp.phy</a>
+</dd>
+<dt id="dt:port-upstream_ingress-2"><a href="#dt:port-upstream_ingress-2">port.upstream_ingress</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.upstream_ingress">standard-pcie-switch.usp.upstream_ingress</a>
+</dd>
+<dt id="dt:port-upstream_message-2"><a href="#dt:port-upstream_message-2">port.upstream_message</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.upstream_message">standard-pcie-switch.usp.upstream_message</a>
+ – consumes Upstream PCIe Messages</dd>
+<dt id="dt:port-upstream_message_router-2"><a href="#dt:port-upstream_message_router-2">port.upstream_message_router</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.upstream_message_router">standard-pcie-switch.usp.upstream_message_router</a>
+</dd>
+<dt id="dt:upstream_ingress_targets-2"><a href="#dt:upstream_ingress_targets-2">upstream_ingress_targets</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.upstream_ingress_targets">standard-pcie-switch.usp.upstream_ingress_targets</a>
+</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-5">
+<a href="#commands-for-interface-transaction_translator-5">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+<h2 id="attributes-3">
+<a href="#attributes-3">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:clkreq-2"><a href="#dt:clkreq-2">
+<i>clkreq</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>CLKREQ output signal (active high)
+<p>
+Required interface: <tt>signal</tt></p></dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.usp.HRESET"><a href="#standard-pcie-switch.usp.HRESET">standard-pcie-switch.usp.HRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-15">
+<a href="#interfaces-implemented-15">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-15">
+<a href="#notifiers-15">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-15"><a href="#dt:cell-change-15">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-15"><a href="#dt:object-delete-15">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-15"><a href="#dt:queue-change-15">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.usp._upstream_egress"><a href="#standard-pcie-switch.usp._upstream_egress">standard-pcie-switch.usp._upstream_egress</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-16">
+<a href="#interfaces-implemented-16">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction_translator, translation_flush
+<h2 id="notifiers-16">
+<a href="#notifiers-16">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-16"><a href="#dt:cell-change-16">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-16"><a href="#dt:object-delete-16">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-16"><a href="#dt:queue-change-16">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-6">
+<a href="#commands-for-interface-transaction_translator-6">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp._upstream_egress_dead_end"><a href="#standard-pcie-switch.usp._upstream_egress_dead_end">standard-pcie-switch.usp._upstream_egress_dead_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-17">
+<a href="#interfaces-implemented-17">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-17">
+<a href="#notifiers-17">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-17"><a href="#dt:cell-change-17">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-17"><a href="#dt:object-delete-17">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-17"><a href="#dt:queue-change-17">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-7">
+<a href="#commands-for-interface-transaction-7">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp.msix_data"><a href="#standard-pcie-switch.usp.msix_data">standard-pcie-switch.usp.msix_data</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-18">
+<a href="#interfaces-implemented-18">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-18">
+<a href="#notifiers-18">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-18"><a href="#dt:cell-change-18">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-18"><a href="#dt:object-delete-18">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-18"><a href="#dt:queue-change-18">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-3">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-3">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-3">
+<a href="#commands-for-interface-instrumentation_order-3">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-transaction-8">
+<a href="#commands-for-interface-transaction-8">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp.pcie_config"><a href="#standard-pcie-switch.usp.pcie_config">standard-pcie-switch.usp.pcie_config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-19">
+<a href="#interfaces-implemented-19">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, pcie_function_info, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-19">
+<a href="#notifiers-19">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-19"><a href="#dt:cell-change-19">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-19"><a href="#dt:object-delete-19">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-19"><a href="#dt:queue-change-19">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-4">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-4">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-4">
+<a href="#commands-for-interface-instrumentation_order-4">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-pcie_function_info-2">
+<a href="#commands-for-interface-pcie_function_info-2">Commands for interface pcie_function_info</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-dma-read.html">pcie-dma-read</a>
+ – memory PCIe DMA Read</li>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-dma-write.html">pcie-dma-write</a>
+ – memory PCIe (DMA) Write</li>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-memory-probe.html">pcie-memory-probe</a>
+ – probe an upstream PCIe DMA</li>
+</ul>
+<h2 id="commands-for-interface-transaction-9">
+<a href="#commands-for-interface-transaction-9">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+<h2 id="attributes-4">
+<a href="#attributes-4">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:function_number-2"><a href="#dt:function_number-2">
+<i>function_number</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>PCIe function number of this bank</dd>
+<dt id="dt:pcie_gen_speed-2"><a href="#dt:pcie_gen_speed-2">
+<i>pcie_gen_speed</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Based on the value of this attribute, the PCIe function will be configured to advertise its maximum supported link speed. It will advertise the highest supported link speed for the given PCIe generation. Note that this does not set the PCIe version of the device. The value of this attribute must be between 1 and 6.</dd>
+<dt id="dt:pcie_link_width-2"><a href="#dt:pcie_link_width-2">
+<i>pcie_link_width</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Based on the value of this attribute, the PCIe function will be configured to advertise its maximum supported link width. The value of this attribute must be one of the following: 1, 2, 4, 8, or 16.</dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.usp.phy"><a href="#standard-pcie-switch.usp.phy">standard-pcie-switch.usp.phy</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-20">
+<a href="#interfaces-implemented-20">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_link_readiness, transaction
+<h2 id="notifiers-20">
+<a href="#notifiers-20">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-20"><a href="#dt:cell-change-20">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-20"><a href="#dt:object-delete-20">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-20"><a href="#dt:queue-change-20">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-10">
+<a href="#commands-for-interface-transaction-10">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp.upstream_ingress"><a href="#standard-pcie-switch.usp.upstream_ingress">standard-pcie-switch.usp.upstream_ingress</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-21">
+<a href="#interfaces-implemented-21">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_ingress_handling, transaction_translator, translation_flush
+<h2 id="notifiers-21">
+<a href="#notifiers-21">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-21"><a href="#dt:cell-change-21">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-21"><a href="#dt:object-delete-21">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-21"><a href="#dt:queue-change-21">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-7">
+<a href="#commands-for-interface-transaction_translator-7">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp.upstream_ingress_targets"><a href="#standard-pcie-switch.usp.upstream_ingress_targets">standard-pcie-switch.usp.upstream_ingress_targets</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-22">
+<a href="#interfaces-implemented-22">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers-22">
+<a href="#notifiers-22">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-22"><a href="#dt:cell-change-22">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-22"><a href="#dt:object-delete-22">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-22"><a href="#dt:queue-change-22">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects-5">
+<a href="#port-objects-5">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:config-2"><a href="#dt:config-2">config</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:io-2"><a href="#dt:io-2">io</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:memory-2"><a href="#dt:memory-2">memory</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:message-2"><a href="#dt:message-2">message</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:port-_dead_end-2"><a href="#dt:port-_dead_end-2">port._dead_end</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.upstream_ingress_targets._dead_end">standard-pcie-switch.usp.upstream_ingress_targets._dead_end</a>
+</dd>
+<dt id="dt:port-broadcast-2"><a href="#dt:port-broadcast-2">port.broadcast</a></dt>
+<dd>
+<a href="rm-class-standard-pcie-switch.html#standard-pcie-switch.usp.upstream_ingress_targets.broadcast">standard-pcie-switch.usp.upstream_ingress_targets.broadcast</a>
+</dd>
+</dl>
+</section>
+<h2 id="standard-pcie-switch.usp.upstream_ingress_targets._dead_end"><a href="#standard-pcie-switch.usp.upstream_ingress_targets._dead_end">standard-pcie-switch.usp.upstream_ingress_targets._dead_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-23">
+<a href="#interfaces-implemented-23">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-23">
+<a href="#notifiers-23">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-23"><a href="#dt:cell-change-23">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-23"><a href="#dt:object-delete-23">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-23"><a href="#dt:queue-change-23">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-11">
+<a href="#commands-for-interface-transaction-11">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp.upstream_ingress_targets.broadcast"><a href="#standard-pcie-switch.usp.upstream_ingress_targets.broadcast">standard-pcie-switch.usp.upstream_ingress_targets.broadcast</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-24">
+<a href="#interfaces-implemented-24">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-24">
+<a href="#notifiers-24">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-24"><a href="#dt:cell-change-24">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-24"><a href="#dt:object-delete-24">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-24"><a href="#dt:queue-change-24">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-12">
+<a href="#commands-for-interface-transaction-12">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp.upstream_message"><a href="#standard-pcie-switch.usp.upstream_message">standard-pcie-switch.usp.upstream_message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+consumes Upstream PCIe Messages
+<h2 id="interfaces-implemented-25">
+<a href="#interfaces-implemented-25">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-25">
+<a href="#notifiers-25">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-25"><a href="#dt:cell-change-25">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-25"><a href="#dt:object-delete-25">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-25"><a href="#dt:queue-change-25">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-13">
+<a href="#commands-for-interface-transaction-13">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="standard-pcie-switch.usp.upstream_message_router"><a href="#standard-pcie-switch.usp.upstream_message_router">standard-pcie-switch.usp.upstream_message_router</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-26">
+<a href="#interfaces-implemented-26">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction_translator, translation_flush
+<h2 id="notifiers-26">
+<a href="#notifiers-26">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-26"><a href="#dt:cell-change-26">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-26"><a href="#dt:object-delete-26">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-26"><a href="#dt:queue-change-26">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-8">
+<a href="#commands-for-interface-transaction_translator-8">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<div class="chain">
+<a href="rm-class-sr_ticks_connection.html">sr_ticks_connection</a>
+<a href="rm-class-state-assertion.html">state-assertion</a>
+</div>

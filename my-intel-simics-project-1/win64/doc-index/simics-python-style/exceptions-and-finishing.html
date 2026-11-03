@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 Exceptions and finishing</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="loops.html">6 Loops</a>
+<a href="comments.html">8 Comments</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="exceptions-and-finishing"><a href="#exceptions-and-finishing">7 Exceptions and finishing</a></h1>
+<p>Be precise in what exceptions are caught to avoid hiding bugs.
+It is very rarely a good idea to catch <em>all</em> exceptions:</p>
+<pre><code>try:
+    x = something()
+except:                  # BAD
+    x = theother
+</code></pre>
+<p>Put as little code as possible inside <code>try</code> clauses, to avoid catching
+exceptions you did not anticipate.</p>
+<p>Do not use the old string-based exceptions; always raise class-based exceptions.</p>
+<p>Avoid using exceptions to handle missing elements in dictionaries; there are
+usually a method that gives a cleaner solution:</p>
+<pre><code>try:                               # BAD
+    x = pet[name]
+except KeyError:
+    x = little_piggy
+
+x = pet.get(name, little_piggy)    # GOOD
+</code></pre>
+<p>In general, exceptions are preferred for errors and non-local conditions and
+control transfer rather than for local control flow, since they are harder to
+follow than plain conditionals.</p>
+<p>To run clean-up code (such as closing files, deleting temporary things, etc),
+either use the <code>try</code>..<code>finally</code> construct or the <code>with</code> construct, instead of
+trying to cover all possible exit paths from a chunk of code.</p>
+
+<div class="chain">
+<a href="loops.html">6 Loops</a>
+<a href="comments.html">8 Comments</a>
+</div>

@@ -1,0 +1,101 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>vtune_measurement</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-vtime-extension.html">vtime-extension</a>
+<a href="rm-class-x2apic_v2.html">x2apic_v2</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="vtune_measurement"><a href="#vtune_measurement">vtune_measurement</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Extension which runs VTune™ from Simics which connects to the current Simics session.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-vtune_measurement.flamegraph.html">flamegraph</a>
+ – produce a flamegraph of the profile</li>
+<li>
+<a href="rm-cmd-vtune_measurement.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-vtune_measurement.launch-gui.html">launch-gui</a>
+ – start vtune-gui on collected data</li>
+<li>
+<a href="rm-cmd-vtune_measurement.load.html">load</a>
+ – load an existing VTune result directory</li>
+<li>
+<a href="rm-cmd-vtune_measurement.module-profile.html">module-profile</a>
+ – show module profile of run</li>
+<li>
+<a href="rm-cmd-vtune_measurement.profile.html">profile</a>
+ – show profile of run</li>
+<li>
+<a href="rm-cmd-vtune_measurement.save-folded-stacks.html">save-folded-stacks</a>
+ – fold stacks of the profile and write it to a file</li>
+<li>
+<a href="rm-cmd-vtune_measurement.start.html">start</a>
+ – start measurement</li>
+<li>
+<a href="rm-cmd-vtune_measurement.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-vtune_measurement.stop.html">stop</a>
+ – stop measurement</li>
+<li>
+<a href="rm-cmd-vtune_measurement.summary.html">summary</a>
+ – show VTune summary of the run</li>
+<li>
+<a href="rm-cmd-vtune_measurement.thread-groups.html">thread-groups</a>
+ – show available thread groups</li>
+<li>
+<a href="rm-cmd-vtune_measurement.thread-profile.html">thread-profile</a>
+ – show thread profile of run</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:vtune_path"><a href="#dt:vtune_path">
+<i>vtune_path</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>path to vtune binaries, saved in prefs</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.vtune-measurement.html">vtune-measurement</a>
+</section>
+<div class="chain">
+<a href="rm-class-vtime-extension.html">vtime-extension</a>
+<a href="rm-class-x2apic_v2.html">x2apic_v2</a>
+</div>

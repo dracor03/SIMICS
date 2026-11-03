@@ -1,0 +1,54 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;transaction_translator&gt;.wait-for-write</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-transaction_translator.wait-for-set.html">&lt;transaction_translator&gt;.wait-for-set</a>
+<a href="rm-cmd-translator.memory-map.html">&lt;translator&gt;.memory-map</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="transaction_translator.wait-for-write"></a>
+<h1 id="transaction_translator.wait-for-write"><a href="#transaction_translator.wait-for-write">&lt;transaction_translator&gt;.wait-for-write</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;transaction_translator&gt;.wait-for-write</b> <i>address</i> <i>value</i> [<i>size</i>] [-l|-b] [<i>initiator</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ The command issues a write transaction (via 'SIM_issue_transaction') to <i>address</i> with the <i>value</i> value and the length of <i>size</i> bytes. For objects implementing multiple memory transaction interfaces, the interface chosen is determined by the <tt>SIM_new_map_target</tt> call. The <tt>SIM_new_map_target</tt> call documents the priority of each memory transaction interface. The default <i>size</i> is 4 bytes, but it can have any positive value. If the transaction is not completed immediately the command postpones the execution of a script branch until the transaction is completed.
+<p>
+If a positive <i>value</i> doesn't fit in the specified size, an error is reported.
+</p><p>
+Providing <i>initiator</i> is rarely needed, but some devices may only accept accesses from certain initiating objects. If provided, <i>initiator</i> is the object that will be used as the source of the access.
+</p><p>
+The <tt>-l</tt> and <tt>-b</tt> flags are used to select little-endian and big-endian byte order, respectively. If neither is given, the byte order of the <i>initiator</i> is used if specified and a processor, or else the order of the currently selected processor.
+</p><p>
+If the <i>value</i> argument is a list, then each item is written to memory as a value of <i>size</i> bytes, starting at <i>address</i>. The byte order flags operate on each item in the list.
+</p><p>
+If a request fails an error is reported.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-wait-for-read.html">wait-for-read</a>, 
+<a href="rm-cmd-wait-for-write.html">wait-for-write</a>, 
+<a href="rm-cmd-wait-for-get.html">wait-for-get</a>, 
+<a href="rm-cmd-wait-for-set.html">wait-for-set</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-transaction_translator.wait-for-set.html">&lt;transaction_translator&gt;.wait-for-set</a>
+<a href="rm-cmd-translator.memory-map.html">&lt;translator&gt;.memory-map</a>
+</div>

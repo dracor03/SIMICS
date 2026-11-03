@@ -1,0 +1,57 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-script-branches</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-processors-summary.html">list-processors-summary</a>
+<a href="rm-cmd-list-sections.html">list-sections</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-script-branches"></a>
+<h1 id="list-script-branches"><a href="#list-script-branches">list-script-branches</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-script-branches</b> ([ <i>id</i> ... ] | list of <i>id</i>) [-verbose] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Lists all currently active script branches. With the <tt>-verbose</tt> flag the full paths to the scripts are shown, otherwise just scripts' filenames.
+<p>
+The <i>id</i> parameter can be used to list only script branches with the given IDs.
+</p><p>
+Here are a few examples of the command usage:
+</p><p>
+Listing all script branches:<br>
+ <tt>list-script-branches</tt><br>
+ Listing script branches with full paths to the scripts:<br>
+ <tt>list-script-branches -verbose</tt><br>
+ Listing only the script branch with ID 1:<br>
+ <tt>list-script-branches id = 1</tt><br>
+ Listing script branches with IDs 1 and 2:<br>
+ <tt>list-script-branches id = 1 2</tt><br>
+ or<br>
+ <tt>list-script-branches id = [1, 2]</tt> 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-script-branch.html">script-branch</a>, 
+<a href="rm-cmd-interrupt-script-branch.html">interrupt-script-branch</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-processors-summary.html">list-processors-summary</a>
+<a href="rm-cmd-list-sections.html">list-sections</a>
+</div>

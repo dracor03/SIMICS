@@ -1,0 +1,173 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Crypto Engine (Package Number 1030) Release Notes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="crypto-engine-package-number-1030-release-notes"><a href="#crypto-engine-package-number-1030-release-notes">Crypto Engine (Package Number 1030) Release Notes</a></h1>
+<p>This document contains release notes for the package <em>Crypto Engine</em>
+(package number 1030) for Simics 7.
+The release notes describe new features, bug fixes, and other changes.</p>
+<h2 id="changes-since-version-7-0-0"><a href="#changes-since-version-7-0-0">Changes Since Version 7.0.0</a></h2>
+<p>The following is a list of changes since the initial 7.0.0 release.</p>
+<h2 id="7-25-0-build-7214"><a href="#7-25-0-build-7214">7.25.0 (build 7214)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library"><a href="#cryptographic-and-secure-hash-library">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 4.0.3.</li>
+</ul>
+<h2 id="7-24-0-build-7209"><a href="#7-24-0-build-7209">7.24.0 (build 7209)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-2"><a href="#cryptographic-and-secure-hash-library-2">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Fixed a problem on Windows where OpenSSL libraries were
+incorrectly stripped.</li>
+</ul>
+<h2 id="7-23-0-build-7203"><a href="#7-23-0-build-7203">7.23.0 (build 7203)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-3"><a href="#cryptographic-and-secure-hash-library-3">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 4.0.2.</li>
+</ul>
+<h2 id="7-22-0-build-7188"><a href="#7-22-0-build-7188">7.22.0 (build 7188)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-4"><a href="#cryptographic-and-secure-hash-library-4">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>On Linux, the <code>rsa_v2</code> implementations now allows public exponents up
+to 16382 bits (fixes HSD-22023058962).</li>
+<li>Error logs from the <code>crypto_engine_openssl</code> device are now
+more informative.</li>
+</ul>
+<h2 id="7-21-0-build-7181"><a href="#7-21-0-build-7181">7.21.0 (build 7181)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-5"><a href="#cryptographic-and-secure-hash-library-5">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>New interface <code>tpm_rsa_v2</code> was added, which supersedes the
+interface <code>tpm_rsa</code>. The new interface is implemented in the
+<code>tpm_rsa</code> port of the <code>crypto_engine_openssl</code> device.</li>
+<li>The <code>crypto_engine_openssl</code> device now has an <code>rsa</code> port
+that implements the <code>rsa_v2</code> interface.</li>
+<li>The deprecated <code>rsa</code> interface has been removed.</li>
+</ul>
+<h2 id="7-20-0-build-7170"><a href="#7-20-0-build-7170">7.20.0 (build 7170)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-6"><a href="#cryptographic-and-secure-hash-library-6">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 4.0.1.</li>
+</ul>
+<h2 id="7-19-0-build-7163"><a href="#7-19-0-build-7163">7.19.0 (build 7163)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-7"><a href="#cryptographic-and-secure-hash-library-7">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Added support for ChaCha20 stream cipher (fixes SIMICS-23574).</li>
+</ul>
+<h2 id="7-18-0-build-7150"><a href="#7-18-0-build-7150">7.18.0 (build 7150)</a></h2>
+<h3 id="common"><a href="#common">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h2 id="7-17-0-build-7141"><a href="#7-17-0-build-7141">7.17.0 (build 7141)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-8"><a href="#cryptographic-and-secure-hash-library-8">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 3.6.1.</li>
+</ul>
+<h2 id="7-16-0-build-7138"><a href="#7-16-0-build-7138">7.16.0 (build 7138)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-9"><a href="#cryptographic-and-secure-hash-library-9">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Improved error messages when OpenSSL fails to load.</li>
+</ul>
+<h2 id="7-15-0-build-7125"><a href="#7-15-0-build-7125">7.15.0 (build 7125)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-10"><a href="#cryptographic-and-secure-hash-library-10">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 3.6.0.</li>
+</ul>
+<h2 id="7-14-0-build-7084"><a href="#7-14-0-build-7084">7.14.0 (build 7084)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-11"><a href="#cryptographic-and-secure-hash-library-11">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 3.5.0.</li>
+</ul>
+<h2 id="7-13-0-build-7076"><a href="#7-13-0-build-7076">7.13.0 (build 7076)</a></h2>
+<h2 id="7-12-0-build-7064"><a href="#7-12-0-build-7064">7.12.0 (build 7064)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-12"><a href="#cryptographic-and-secure-hash-library-12">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Crypto-Engine converted to DML 1.4.</li>
+</ul>
+<h2 id="7-11-0-build-7057"><a href="#7-11-0-build-7057">7.11.0 (build 7057)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-13"><a href="#cryptographic-and-secure-hash-library-13">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 3.4.0.</li>
+</ul>
+<h2 id="7-10-0-build-7050"><a href="#7-10-0-build-7050">7.10.0 (build 7050)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-14"><a href="#cryptographic-and-secure-hash-library-14">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 3.3.2.</li>
+<li>Fixed a problem where the SHA-160 HMAC could give incorrect
+results (fixes HSD-14023621597).</li>
+</ul>
+<h2 id="7-9-0-build-7040"><a href="#7-9-0-build-7040">7.9.0 (build 7040)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-15"><a href="#cryptographic-and-secure-hash-library-15">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Added ECDSA Verify GF2 method (ecdsa_verify_gf2) on the <code>ecdsa_v2</code> interface (fixes HSD-18039479212).</li>
+</ul>
+<h2 id="7-8-0-build-7035"><a href="#7-8-0-build-7035">7.8.0 (build 7035)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-16"><a href="#cryptographic-and-secure-hash-library-16">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Added ECDSA Sign RS method for P256/P384 ECC (fixes HSD-18039635070).</li>
+<li>Added ECDSA Sign GF2 methods (sign_r_gf2, sign_s_gf2, sign_rs_gf2) on the <code>ecdsa_v2</code> interface (HSD-18039479103).</li>
+<li>The <code>ecdsa</code> interface is deprecated, use the <code>ecdsa_v2</code> interface instead.</li>
+<li>Added method for generate RSA private key with reduced lambda on the <code>rsa_v2</code> interface (fixes HSD-16025000866).</li>
+</ul>
+<h2 id="7-7-0-build-7031"><a href="#7-7-0-build-7031">7.7.0 (build 7031)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-17"><a href="#cryptographic-and-secure-hash-library-17">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Fixed bug in pka-lib.c VT_Pka_Bn_Mod_Reduction.</li>
+</ul>
+<h2 id="7-6-0-build-7029"><a href="#7-6-0-build-7029">7.6.0 (build 7029)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-18"><a href="#cryptographic-and-secure-hash-library-18">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Added RSA method <code>encrypt_ex</code> to support exponents bigger than 64 bits.</li>
+<li>Added method for RSA key pair generation first form with reduced lambda.</li>
+</ul>
+<h2 id="7-5-0-build-7027"><a href="#7-5-0-build-7027">7.5.0 (build 7027)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-19"><a href="#cryptographic-and-secure-hash-library-19">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Added LMS cryptographic algorithm based on Cisco open source implementation.</li>
+<li>Interfaces compiled against DML 1.4</li>
+<li>Added methods to generate r, s signs and prime number p for <code>dsa_v2</code> interface.</li>
+<li>The <code>dsa</code> interface is deprecated, use the <code>dsa_v2</code> interface instead.</li>
+</ul>
+<h2 id="7-4-0-build-7023"><a href="#7-4-0-build-7023">7.4.0 (build 7023)</a></h2>
+<h3 id="common-2"><a href="#common-2">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h3 id="cryptographic-and-secure-hash-library-20"><a href="#cryptographic-and-secure-hash-library-20">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Accurate license files are now included.</li>
+</ul>
+<h2 id="7-3-0-build-7019"><a href="#7-3-0-build-7019">7.3.0 (build 7019)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-21"><a href="#cryptographic-and-secure-hash-library-21">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>Add missing <code> INTERFACES</code> CMake mark-up for the <code>crypto-engine</code> module</li>
+</ul>
+<h2 id="7-2-0-build-7009"><a href="#7-2-0-build-7009">7.2.0 (build 7009)</a></h2>
+<h3 id="cryptographic-and-secure-hash-library-22"><a href="#cryptographic-and-secure-hash-library-22">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 3.2.1.</li>
+</ul>
+<h2 id="7-1-0-build-7007"><a href="#7-1-0-build-7007">7.1.0 (build 7007)</a></h2>
+<h3 id="common-3"><a href="#common-3">Common</a></h3>
+<ul>
+<li>Updated the batch (<code>.bat</code>) files in the <code>bin</code> folder so that they do not leak environment variables to the current <code>cmd.exe</code> command shell on Windows (fixes SIMICS-21906).</li>
+</ul>
+<h3 id="cryptographic-and-secure-hash-library-23"><a href="#cryptographic-and-secure-hash-library-23">Cryptographic and secure hash library</a></h3>
+<ul>
+<li>OpenSSL has been updated to version 3.2.0.</li>
+<li>Added method for CRT key generation on the <code>rsa_v2</code> interface (fixes HSD-22019127853).</li>
+</ul>
+<h2 id="7-0-0-build-7006"><a href="#7-0-0-build-7006">7.0.0 (build 7006)</a></h2>
+<h3 id="common-4"><a href="#common-4">Common</a></h3>
+<ul>
+<li>Simics, when launched on Linux, no longer sources the file <code>$HOME/.simics-5.sh</code> (fixes SIMICS-21148)</li>
+</ul>
+<h2 id="changes-since-previous-major-in-initial-release"><a href="#changes-since-previous-major-in-initial-release">Changes Since Previous Major in Initial Release</a></h2>
+<p>The following is a list of changes in 7.0.0 since the previous major.</p>
+
+<div class="chain">
+<span></span>
+</div>

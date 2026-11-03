@@ -1,0 +1,141 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>36 Notifiers</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="port-objects.html">35 Port Objects</a>
+<a href="extension-classes.html">37 Extension Classes</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-simics-programming.html">VI Simics API</a>
+&nbsp;/&nbsp;</div><h1 id="notifiers"><a href="#notifiers">36 Notifiers</a></h1>
+<p>Notifiers is a light-weight publish-subscribe mechanism introduced in Simics 6.
+Unlike the hap system, which also follows a publish-subscribe pattern, notifiers
+are always tied to a specific object and they do not have any parameters.</p>
+<h2 id="notifier-subscription"><a href="#notifier-subscription">36.1 Notifier Subscription</a></h2>
+<p>An object can subscribe to a notifier published by another object by using the
+<code>SIM_add_notifier</code> function. This is illustrated by the example below, where a
+<code>subscriber</code> class is defined which subscribes to frequency changed
+notifications produced by an object implementing the <code>frequency</code> interface.</p>
+<pre><code>class subscriber(pyobj.ConfObject):
+    # Notifier invoked when the frequency has changed
+    def notifier(self, obj, src, data):
+        self.frequency = src.iface.frequency.get()
+        print("New Frequency", self.frequency)
+
+    class frequency_provider(pyobj.Attribute):
+        "Object implementing the 'frequency' interface"
+        attrtype = "o|n"
+
+        def getter(self):
+            return self.obj
+
+        def setter(self, obj):
+            # Delete any old notifier
+            if self.handle:
+                simics.SIM_delete_notifier(self.obj, self.handle)
+                self.handle = None
+
+            # Subscribe to the new notifier
+            self.obj = obj
+            if not obj:
+                return
+
+            self.handle = simics.SIM_add_notifier(
+                obj, Sim_Notify_Frequency_Change, self._up.obj,
+                self._up.notifier, None)
+
+            # Get current frequency
+            self._up.frequency = obj.iface.frequency.get()
+
+        def _initialize(self):
+            self.obj = None
+            self.handle = None
+</code></pre>
+<p>The notifier callback function takes three parameters: the subscriber, the
+notifier and the data passed by the last argument of the <code>SIM_add_notifier</code>
+function. The function looks a bit different in different modeling languages.
+The Python notifier callback is shown in the above example. In DML, it is
+defined as:</p>
+<pre><code>method on_notify(conf_object_t *notifier, void *data) {
+    ...
+}
+</code></pre>
+<p>In C or C++, it is defined as:</p>
+<pre><code>void on_notify(conf_object_t *obj, conf_object_t *notifier, void *data) {
+    ...
+}
+</code></pre>
+<p>Some things should be noted in the example above:</p>
+<ul>
+<li>Adding a notifier does <strong>not</strong> trigger it. In the example above, it is
+necessary to read out the current frequency when the notifier is registered.</li>
+<li>Notifiers are not parameterized. Instead, the subscriber typically obtains
+the details using some associated interface.</li>
+<li>Notifiers are added to a specific object.</li>
+<li>Notifiers typically trigger after the event has occurred, so that the
+subscriber can retrieve the updated state.</li>
+</ul>
+<h2 id="notifier-publication"><a href="#notifier-publication">36.2 Notifier Publication</a></h2>
+<p>Simics objects are only allowed to trigger notifiers of types which have been
+registered with the corresponding Simics class. The exception to this rule is
+certain notifiers triggered by Simics Core, like the <code>Sim_Notify_Queue_Change</code>
+notifier or the <code>Sim_Notify_Cell_Change</code> notifier, which can be triggered by any
+object.</p>
+<p>The following example illustrates how a class implementing the <code>frequency</code>
+interface registers a <code>Sim_Notify_Frequency_Change</code> notifier with the class and
+triggers it when the frequency has changed:</p>
+<pre><code>class provider(pyobj.ConfObject):
+    "Object implementing the 'frequency' interface"
+
+    class frequency(pyobj.Interface):
+        def get(self):
+            return self._up.frequency
+
+    class freq(pyobj.Attribute):
+        "Frequency in Hz"
+        attrtype = "f"
+
+        def getter(self):
+            return self._up.frequency
+
+        def setter(self, val):
+            self._up.frequency = val
+            simics.SIM_notify(self._up.obj, Sim_Notify_Frequency_Change)
+
+    def _initialize(self):
+        super()._initialize()
+        self.frequency = 0
+
+simics.SIM_register_notifier(
+    "provider", Sim_Notify_Frequency_Change,
+    "Notifier that is triggered when frequency changes. New frequency can"
+    " be read via the frequency interface of the object.")
+</code></pre>
+<h2 id="custom-notifier-types"><a href="#custom-notifier-types">36.3 Custom Notifier Types</a></h2>
+<p>It is possible to create custom notifier types. Both the producer and the
+consumer calls <code>SIM_notifier_type</code> to convert a string specifying the notifier
+to a notifier type:</p>
+<pre><code>notifier_type_t sample = SIM_notifier_type("sample-change");
+</code></pre>
+<p>By convention the string should be expressed as a noun, in all lowercase, with
+words separated by dash.</p>
+<h2 id="global-notifiers"><a href="#global-notifiers">36.4 Global Notifiers</a></h2>
+<p>There are also global notifiers, which do not have a specific publisher object.
+The semantics is similar to notifiers with a publisher, but is not meant for
+low-latency communication between objects, so the API functions require Global
+Context. Global notifiers are manipulated using <code>SIM_add_global_notifier</code>,
+<code>SIM_add_global_notifier_once</code> and <code>SIM_remove_global_notifier</code>.</p>
+<h2 id="sample-code"><a href="#sample-code">36.5 Sample Code</a></h2>
+<p>Additional code samples demonstrating notifiers usage can be found in the
+<code>sample-notifier-dml</code> and <code>sample-device-c++</code> modules.</p>
+
+<div class="chain">
+<a href="port-objects.html">35 Port Objects</a>
+<a href="extension-classes.html">37 Extension Classes</a>
+</div>

@@ -1,0 +1,226 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.2 Logging and Tracing</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="using-targets.html">8.1 Customizing Targets</a>
+<a href="checkpoints-snapshots-.html">8.3 Checkpoints (on-disk)</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="logging-and-tracing"><a href="#logging-and-tracing">8.2 Logging and Tracing</a></h1>
+<h2 id="logging"><a href="#logging">8.2.1 Logging</a></h2>
+<p>Intel Simics hardware models generally output log messages for various kinds of
+events. The simulator’s log system offers a very powerful system for configuring
+which log messages to see - from which objects, at which level. The result is
+often large volumes of output. That output can be configured and sent to files
+for later inspection, as well as used in scripts to stop the simulation, or take
+other actions when a log message appears.</p>
+<p>Here we will show some logging examples when running the <code>qsp-x86/firststeps</code>
+target machine.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>The starting point is the large set of options available to the <code>log-setup</code>
+command. To check the current settings, just issue <code>log-setup</code> alone:</p>
+<pre><code class="language-simics">simics&gt; <strong>log-setup</strong>
+Time stamp      : disabled
+Picoseconds     : disabled
+Real time       : disabled
+Disassembly     : disabled
+Log to console  : enabled
+Include group   : disabled
+Include level   : disabled
+Log file        : disabled
+</code></pre>
+</li>
+<li>
+<p>All <em>objects</em> in the Intel Simics simulator, and all <em>log messages</em>, have a
+<strong>log level</strong>. The default log level is 1, which is supposed to show important
+information. Log level 2 to 4 add progressively more information. To configure
+and inspect the log level of an object, use the <code>log-level</code> object command.
+This will show or configure the log level for the object.</p>
+<pre><code class="language-simics">simics&gt; <strong>log-level board.mb.nb.bridge 2</strong>
+[board.mb.nb.bridge] Changing log level: 1 -&gt; 2
+simics&gt; <strong>log-level board.mb.nb.bridge</strong>
+Current log levels:
+
+Lvl  Object
+------------------------------------------------------
+  2  board.mb.nb.bridge
+  2  board.mb.nb.bridge.bank
+  2  board.mb.nb.bridge.bank.io_regs
+  2  board.mb.nb.bridge.bank.pcie_config
+  2  board.mb.nb.bridge.port
+  2  board.mb.nb.bridge.port.HRESET
+  2  board.mb.nb.bridge.port._upstream_egress
+  2  board.mb.nb.bridge.port._upstream_egress_dead_end
+  2  board.mb.nb.bridge.port.msg
+  2  board.mb.nb.bridge.port.phy
+  2  board.mb.nb.bridge.port.upstream_ingress
+</code></pre>
+</li>
+<li>
+<p>The log messages that are displayed are those which have a level less than or
+equal to the ones configured on the object.</p>
+<p>Each log message also has a log type, and similarly like log levels, we can
+configure which log types to display on each object:</p>
+<pre><code class="language-simics">simics&gt; <strong>log-type board.mb.nb.bridge info</strong>
+board.mb.nb.bridge:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.bank:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.bank.io_regs:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.bank.pcie_config:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.HRESET:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port._upstream_egress:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port._upstream_egress_dead_end:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.msg:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.phy:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+board.mb.nb.bridge.port.upstream_ingress:
+ enabled log types: "info"
+ disabled log types: "error" "spec-viol" "unimpl" "critical" "warning"
+</code></pre>
+</li>
+<li>
+<p>When we run the simulation, log messages will appear based on our filtering.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 1000</strong>
+[board.mb.nb.bridge.bank.io_regs info] PCIe write 0xe0000001 to ff:0.1 offset 0x50, 4 bytes
+</code></pre>
+</li>
+<li>
+<p>It is also possible to set breakpoints on log messages. These can similarly be
+filtered on object, log type etc.</p>
+<p>To see when in virtual time a log message is printed, use <code>log-setup   -time-stamp</code>. This will print the processor that provided the virtual time for
+the message, its current instruction pointer or program counter (address of the
+instruction active when the log was printed), and its current cycle count. To
+turn it off, use <code>-no-time-stamp</code>. The <code>-pico-seconds</code> and <code>-real-time</code> are
+similar, but print picosecond resolution timestamps and real time, respectively.</p>
+<pre><code class="language-simics">simics&gt; <strong>log-setup -time-stamp</strong>
+simics&gt; <strong>bp.log.break object = board.mb.nb.bridge.bank.io_regs type = info</strong>
+Breakpoint 3: Break on 'info' log messages from board.mb.nb.bridge.bank.io_regs hierarchy
+simics&gt; <strong>run</strong>
+[board.mb.nb.bridge.bank.io_regs info] {board.mb.cpu0.core[0][0] 0xfffecbf7 136713}
+PCI read 0x0 from bus 0, device 31, function 0, register 68 (0x44, 1 bytes), PCIE address = 0xf8044
+[board.mb.nb.bridge.bank.io_regs] Breakpoint 1: board.mb.nb.bridge.bank.io_regs log message of type info
+</code></pre>
+</li>
+</ul>
+<p>To send all log outputs to a file, use <code>log-setup logfile=&lt;filename&gt;</code>. To
+overwrite an existing file, the <code>-overwrite</code> flag must be given. To stop output,
+use the command <code>log-setup -no-log-file</code>.</p>
+<h2 id="tracing"><a href="#tracing">8.2.2 Tracing</a></h2>
+<p>Tracing is a way to observe what is going on during the simulation. The Intel
+Simics simulator has a <em>Breakpoint Manager</em> that includes functionality for
+tracing various types of events. This means that messages (in fact, log
+messages) are printed when an event of the specified type occurs. Such a
+sequence of messages is what is known here as a <strong>trace</strong>.</p>
+<p>Here we will show some tracing examples.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>First, we can try tracing control register updates. By default, it traces
+updates on the primary processor (in this case there is only one).</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.control_register.trace -all</strong>
+3
+</code></pre>
+</li>
+<li>
+<p>Since traces are handled as breakpoints, the trace properties can be observed
+with the <code>bp.list</code> command. From <code>bp.list</code> we can see on the last line that we
+got id <code>3</code>, which will be used later when deleting the trace.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list</strong>
+┌──┬───────────────────────────────────┬───────┬───────┬────────────┬─────────┐
+│ID│           Description             │Enabled│Oneshot│Ignore count│Hit count│
+├──┼───────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 1│Clock board.mb.cpu0.core[0][0]     │ true  │ false │           0│        0│
+│  │break at time 5.0                  │       │       │            │         │
+├──┼───────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 2│Console 'board.serconsole.con'     │ true  │ false │           0│        0│
+│  │break on "root.*@grml.*#.* "       │       │       │            │         │
+│  │(regexp)                           │       │       │            │         │
+├──┼───────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 3│board.mb.cpu0.core[0][0] break on  │ true  │ false │           0│        0│
+│  │R/W of any register                │       │       │            │         │
+└──┴───────────────────────────────────┴───────┴───────┴────────────┴─────────┘
+</code></pre>
+</li>
+<li>
+<p>We run the simulation and observe the trace output where we can see that
+registers are read and written.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 1000</strong>
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] cr0 &lt;- 0x23
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] cr4 &lt;- 0x640
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] read of cr4
+[bp.control_register trace] [trace:3] board.mb.cpu0.core[0][0] cr4 &lt;- 0x640
+</code></pre>
+</li>
+<li>
+<p>The trace output are log messages and can be controlled with the <code>log-setup</code>
+command. For example, each message can be prepended with a time-stamp,
+indicating the processor, program counter and the cycle count at the point
+where the event occurred.</p>
+<pre><code class="language-simics">simics&gt; <strong>log-setup -time-stamp</strong>
+simics&gt; <strong>c 17450</strong>
+[bp.control_register trace] {board.mb.cpu0.core[0][0] 0xffff95f3 398353} [trace:3] board.mb.cpu0.core[0][0] read of IA32_APIC_BASE
+</code></pre>
+</li>
+<li>
+<p>Here is another example where we trace memory accesses. First, we remove the
+previous trace.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.delete id = 3</strong>
+</code></pre>
+</li>
+<li>
+<p>Now we turn on tracing of all memory read accesses to a specific region.
+Again, by default this will trace accesses on the primary processor and hence
+these are virtual addresses.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.memory.trace address = 0 length = 100000 -r</strong>
+</code></pre>
+</li>
+<li>
+<p>We run the simulation again and notice a memory access.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 386_985_232 cycles</strong>
+[bp.memory trace] {board.mb.cpu0.core[0][0] 0x60837d57 387383681} [trace:5] board.cell_context 'r' access to v:0x10 len=4
+</code></pre>
+</li>
+</ul>
+<p>Several other types of events can also be traced, such as target console string
+output and hits at specific source code lines.</p>
+
+<div class="chain">
+<a href="using-targets.html">8.1 Customizing Targets</a>
+<a href="checkpoints-snapshots-.html">8.3 Checkpoints (on-disk)</a>
+</div>

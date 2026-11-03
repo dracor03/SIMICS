@@ -1,0 +1,322 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Style Guide for Python</title>
+
+<section class="page" id="index.html"><h1 id="index.html:style-guide-for-python"><a href="#index.html:style-guide-for-python">Style Guide for Python</a></h1>
+<p>This document contains style guidelines for writing Python code.</p>
+</section><section class="page" id="introduction.html"><h1 id="introduction.html:introduction"><a href="#introduction.html:introduction">1 Introduction</a></h1>
+<p>These style rules are based on PEP 8
+(<a href="http://www.python.org/peps/pep-0008.html" rel="noopener noreferrer" target="_top">http://www.python.org/peps/pep-0008.html</a>),
+with some changes and additions.
+That document is well worth reading in its own right.</p>
+</section><section class="page" id="code-organisation.html"><h1 id="code-organisation.html:code-organisation"><a href="#code-organisation.html:code-organisation">2 Code organisation</a></h1>
+<p>Avoid statements with side-effects (that is, ones that do not just declare
+functions or classes) at the top-level of a file.
+Instead, put all actual actions inside functions, and call them from a single
+place, usually near the bottom of the file.</p>
+<p>For free-standing programs, write something like:</p>
+<pre><code>def main():
+    ... code for the actual action here ...
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+<p>This way, the file can be imported as a module from other files without running
+anything.
+It can also be checked by <strong>pychecker</strong>, which is highly recommended.</p>
+<p>Use a separate line for each imported module:</p>
+<pre><code>import sys, os           # WRONG
+
+import sys               # RIGHT
+import os
+</code></pre>
+<p>This makes code diffs cleaner and reduces the risk for conflicts when merging
+changes.</p>
+<p>Use <code>import</code> instead of <code>execfile</code> to get code and definitions from other files.</p>
+</section><section class="page" id="layout-and-lexical-details.html"><h1 id="layout-and-lexical-details.html:layout-and-lexical-details"><a href="#layout-and-lexical-details.html:layout-and-lexical-details">3 Layout and lexical details</a></h1>
+<p>The indentation step is 4 spaces.
+Do not use tabs.
+Keep lines shorter than 80 characters.</p>
+<p>Put a space:</p>
+<ul>
+<li>around binary operators such as <code>+</code></li>
+<li>after but not before comma, colon or semicolon</li>
+<li>after the <code>assert</code> statement</li>
+<li>between a keyword (such as <code>while</code>) and its argument</li>
+</ul>
+<p>Put no space:</p>
+<ul>
+<li>before comma, colon or semicolon</li>
+<li>immediately inside parentheses, braces or brackets</li>
+<li>between the function name and the opening parenthesis in a function call</li>
+</ul>
+<p>It is customary to not put spaces around <code>=</code> inside parameter lists of function
+calls and definitions, but it is permitted to use a single space on each side if
+that makes the code look nicer:</p>
+<pre><code>draw(figure, options =None, paper= "A4")          # BAD
+draw(figure, options=None, paper="A4")            # GOOD
+play(frequency = f0 + delta, duration = d + 0.5)  # GOOD
+</code></pre>
+<p>Put spaces around colons when used in sliced indexing, but not where an index is
+omitted:</p>
+<pre><code>a[i + 1:j + 5]        # BAD
+a[i + 1 : j + 5]      # GOOD
+
+a[ : j + 5]   	      # BAD
+a[:j + 5]     	      # BAD
+a[: j + 5]    	      # GOOD
+
+a[i + 1:]             # BAD
+a[i + 1 : ]           # BAD
+a[i + 1 :]            # GOOD
+
+a[i + 1:j + 5:s]      # BAD
+a[i + 1 : j + 5 : s]  # GOOD
+
+a[i + 1::s]           # BAD
+a[i + 1 : : s]        # BAD
+a[i + 1 :: s]         # GOOD
+</code></pre>
+<p>If neither index contains spaces, the spaces around colon may be omitted, per
+PEP8:</p>
+<pre><code>a[i : j]         # OK
+a[i:j]           # OK
+a[i + c:j + d]   # BAD
+</code></pre>
+<p>To fold long lines, it is usually better to use parentheses rather than
+backslashes.
+I.e., instead of:</p>
+<pre><code>result = extremely_long_expression \
+         + another_very_long_expression \
+         + yet_another_long_expression
+</code></pre>
+<p>please use:</p>
+<pre><code>result = (extremely_long_expression
+          + another_very_long_expression
+          + yet_another_long_expression)
+</code></pre>
+<p>Long lines are broken before binary operators, not after.</p>
+<p>Avoid C-isms such as parentheses around the condition of <code>if</code> statements or
+terminating semicolons.</p>
+<p>In multi-line lists, put a trailing comma after each element, even the last one:</p>
+<pre><code>muppets = [
+    "Kermit",
+    "Miss Piggy",
+    "Gonzo",
+]
+</code></pre>
+<p>This way, there is less of a risk of forgetting a comma when adding an element
+at the end, and diffs and merges become neater.</p>
+</section><section class="page" id="structures-of-data.html"><h1 id="structures-of-data.html:structures-of-data"><a href="#structures-of-data.html:structures-of-data">4 Structures of data</a></h1>
+<p>To group a few values together, use a tuple:</p>
+<pre><code>t = (a, b, c)
+</code></pre>
+<p>But do not access a value from such a tuple by index, as in:</p>
+<pre><code>b = t[1]   # BAD
+</code></pre>
+<p>Rather, use destructuring assignment to unpack tuples:</p>
+<pre><code>(a, b, c) = t
+</code></pre>
+<p>This works in <code>for</code> loops, comprehensions and function parameters as well.
+Note that tuples are immutable; for mutable groups of values, define a class.</p>
+<p>Note that while the Python language accepts omission of the parentheses around
+tuples, they should always be present as a matter of style:</p>
+<pre><code>a, b = c, d            # BAD
+(a, b) = (c, d)        # GOOD
+</code></pre>
+<p>As an alternative, use a class:</p>
+<pre><code>class Node: pass
+...
+t = Node()
+t.a = 17
+t.b = 69
+</code></pre>
+<p>This works better when the number of values is large since the members are
+named.
+It also allows mutation.</p>
+<p>If the class is constructed frequently, add an init method:</p>
+<pre><code>class Node:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+...
+t = Node(17, 69)
+</code></pre>
+</section><section class="page" id="variables.html"><h1 id="variables.html:variables"><a href="#variables.html:variables">5 Variables</a></h1>
+<p>Avoid global variables.
+In particular, do not use them as a way to pass parameters.
+Using variables that are initialised once and never changed can be acceptable:</p>
+<pre><code>address_cache = {}         # Only initialised, then never assigned to
+def lookup_address(desc):
+    if desc not in address_cache:
+        address_cache[desc] = calculate_address(desc)
+    return address_cache[desc]
+</code></pre>
+<p>but most uses of the <code>global</code> keyword are a sign that something is wrong.
+Consider using a class or object instead; this way, all state is contained in
+one place and it is clear which functions have access to it.
+This also makes the code easier to test.</p>
+<p>As Python supports multiple return values (using tuples), most code can be
+written in a fairly functional style, passing all needed information explicitly
+between functions.</p>
+</section><section class="page" id="loops.html"><h1 id="loops.html:loops"><a href="#loops.html:loops">6 Loops</a></h1>
+<p>Prefer list/generator comprehensions to explicit loops.
+So, instead of:</p>
+<pre><code>s = ""
+for x in mylist:
+    s = s + x.description    # CLUMSY
+</code></pre>
+<p>better write:</p>
+<pre><code>s = "".join(x.description for x in mylist)   # NEATER
+</code></pre>
+<p>This may also be more efficient, since strings are immutable in Python and each
+concatenation must allocate a new one.</p>
+<p>Also prefer comprehensions to <code>map</code> and <code>filter</code> with <code>lambda</code> expressions:</p>
+<pre><code>pyfiles = filter(lambda f: f.endswith(".py"),
+                 map(lambda f: os.path.join(mydir, f),
+                     files))                            # CLUMSY
+pyfiles = [os.path.join(mydir, f) 
+           for f in files if f.endswith(".py")]         # BETTER
+</code></pre>
+<p>Use the fact that many objects, such as files, are directly iterable:</p>
+<pre><code>for line in file(filename):
+    dostuff(line)
+</code></pre>
+<p>The file will be closed automatically when the <code>for</code> statement terminates.</p>
+</section><section class="page" id="exceptions-and-finishing.html"><h1 id="exceptions-and-finishing.html:exceptions-and-finishing"><a href="#exceptions-and-finishing.html:exceptions-and-finishing">7 Exceptions and finishing</a></h1>
+<p>Be precise in what exceptions are caught to avoid hiding bugs.
+It is very rarely a good idea to catch <em>all</em> exceptions:</p>
+<pre><code>try:
+    x = something()
+except:                  # BAD
+    x = theother
+</code></pre>
+<p>Put as little code as possible inside <code>try</code> clauses, to avoid catching
+exceptions you did not anticipate.</p>
+<p>Do not use the old string-based exceptions; always raise class-based exceptions.</p>
+<p>Avoid using exceptions to handle missing elements in dictionaries; there are
+usually a method that gives a cleaner solution:</p>
+<pre><code>try:                               # BAD
+    x = pet[name]
+except KeyError:
+    x = little_piggy
+
+x = pet.get(name, little_piggy)    # GOOD
+</code></pre>
+<p>In general, exceptions are preferred for errors and non-local conditions and
+control transfer rather than for local control flow, since they are harder to
+follow than plain conditionals.</p>
+<p>To run clean-up code (such as closing files, deleting temporary things, etc),
+either use the <code>try</code>..<code>finally</code> construct or the <code>with</code> construct, instead of
+trying to cover all possible exit paths from a chunk of code.</p>
+</section><section class="page" id="comments.html"><h1 id="comments.html:comments"><a href="#comments.html:comments">8 Comments</a></h1>
+<p>The general rules are the same for Python as in general programming:</p>
+<ul>
+<li>Comments should only contain information that cannot be easily inferred from the code. Clear code needs no comments.</li>
+<li>Explain <em>why</em>, not <em>what</em>. In other words, describe why the code was done the way it was rather than what it does.</li>
+<li>Comment data, not code. If variables and data structures are known, then the code manipulating them is easy to understand. The converse is not true.</li>
+<li>Describe invariants, both in code and in data structures. If invariants can be tested in code (using <code>assert</code> statements, for instance), then that is even better than describing it in comments. Because <code>assert</code> is a statement it should be followed by a space.</li>
+<li>Comment interfaces (in a general sense, not the Simics sense). For instance, a function should have a comment describing what it does and what it returns, unless obvious from the context.</li>
+<li>Do not keep history in comments. The code should be described as it is, not as it has been. Erase anything that is not directly related to the current state of the code.</li>
+<li>Do not keep dates or names of people in the code. It should not matter when or by whom code was written.</li>
+<li>Refer to documents (such as reference manuals) as precisely as possible. It must be possible to locate the referred text from the comment alone.</li>
+</ul>
+<p>Code should not be disabled by commenting it out - code that for some reason is
+disabled should either be removed entirely, or be left in with a suitable
+condition that explains why:</p>
+<pre><code>if debugging:
+    print("raising IRQ 15")
+</code></pre>
+<h2 id="comments.html:api-documentation"><a href="#comments.html:api-documentation">8.1 API documentation</a></h2>
+<p>Exported functions and types should be documented in a way that the Simics documentation <a href="../doc-guide/index.html"><code>tool</code></a> can parse:</p>
+<pre><code>def str_number(text):
+    """convert a string to a number.
+
+    Converts a string returned from [`cli.number_str`] back to an integer.
+
+    ## Return Value
+    A number representing the string.
+
+    ## EXCEPTIONS
+    **ValueError** is raised for invalid arguments.
+    """
+</code></pre>
+</section><section class="page" id="naming.html"><h1 id="naming.html:naming"><a href="#naming.html:naming">9 Naming</a></h1>
+<p>In general, identifiers are written in lower-case letters, words separated by
+underscores.
+Class names should start with an upper-case letter.</p>
+<p>Constants or variables that represent quantities that are conventionally written
+in upper case may be written that way in Python as well.</p>
+<ul>
+<li>Variables are named after what they contain, not by their type. Local variables can be arbitrarily short, as long as it is clear what their purpose is.</li>
+<li>Functions that are mainly executed for their side-effects should be named after what they do.</li>
+<li>Functions executed for their return value should be named after what they return. Predicates (functions returning a boolean value) should be named after the condition when true.</li>
+</ul>
+<p>Examples:</p>
+<pre><code>physical_address_bits = 48         # a variable
+raise_interrupt(level)             # a function with side-effects
+csum = checksum(packet)            # a function without side-effects
+if not valid_request(req):         # a predicate
+    set_error_flag()
+</code></pre>
+</section><section class="page" id="other-considerations.html"><h1 id="other-considerations.html:other-considerations"><a href="#other-considerations.html:other-considerations">10 Other considerations</a></h1>
+<p>Use string methods wisely.
+There is often a function that does what you need, so look in the manual before
+writing a loop.</p>
+<p>In particular, do not use indexing and slicing when testing for
+prefixes/suffixes.
+Use <code>startswith()</code>/<code>endswith()</code> instead:</p>
+<pre><code>if s[:3] == 'bar':       # BAD
+if s.startswith('bar'):  # GOOD
+</code></pre>
+<p>Regular expressions are powerful but tricky to get right and can be slow; only
+use them when no better alternative exists.
+In particular, the string <code>.split()</code> method is a fast and easy way to break up
+a string into parts.</p>
+<p>Always use raw string literals when specifying regular expressions:</p>
+<pre><code>m = re.match("[a-z]+\b", s)        # BAD (and incorrect!)
+m = re.match(r"[a-z]+\b", s)       # GOOD (and correct)
+</code></pre>
+<p>If you must compare object types, use <code>isinstance()</code> rather than using <code>type()</code>
+since it allows for subtyping:</p>
+<pre><code>if type(x) == type(1):   # BAD
+if isinstance(x, int):   # OK
+</code></pre>
+<p>Remember that the empty list, tuple and dict are false in boolean contexts.
+Use this for clearer code:</p>
+<pre><code>if len(mylist) &gt; 0:      # CLUMSY
+if mylist:               # BETTER
+</code></pre>
+<p>Of course, you must be sure that you test the right thing; a polymorphic
+variable could hold a string or <code>None</code>, for instance.</p>
+<p>Keep in mind that tuples with a single element require a trailing comma:</p>
+<pre><code>print("Value=%r" % (value))      # WRONG
+print("Value=%r" % (value,))     # RIGHT
+</code></pre>
+<p>(Consider what happens in the code above if <code>value</code> is a tuple.)</p>
+<p>Use the <code>//</code> operator, not <code>/</code>, for integer (truncating) division.
+This makes the code more robust and also makes a migration to Python 3.x easier.</p>
+</section><section class="page" id="using-python-with-simics.html"><h1 id="using-python-with-simics.html:using-python-with-simics"><a href="#using-python-with-simics.html:using-python-with-simics">11 Using Python with Simics</a></h1>
+<p>Use magic attributes to access objects, attributes and interfaces by name,
+rather than <code>SIM_</code> functions:</p>
+<pre><code>x = conf.cpu0.attr.pc                                # GOOD
+x = SIM_get_attribute(SIM_get_object("cpu0"), "pc")  # BAD
+
+obj.iface.foo_interface.frobble()                    # GOOD
+SIM_get_interface(obj, "foo_interface").frobble()    # BAD
+
+name = obj.name                                      # GOOD
+name = SIM_object_name(obj)                          # BAD
+
+classname = obj.classname                              # GOOD
+classname = SIM_get_class_name(SIM_object_class(obj))  # BAD
+</code></pre>
+<p>But using the <code>SIM_</code> functions is better than constructing a string and
+<code>eval()</code>:</p>
+<pre><code>x = eval("conf.%s.%s[0x%xL]" % (name, attr, addr))       # BAD
+x = SIM_get_attribute(SIM_get_object(name), attr)[addr]  # GOOD
+</code></pre>
+<p>In general, avoid <code>eval()</code> where possible as a matter of style.
+It includes too many opportunities of breaking abstraction barriers.</p>
+</section>

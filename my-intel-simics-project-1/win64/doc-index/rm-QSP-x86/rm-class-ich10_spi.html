@@ -1,0 +1,146 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ich10_spi</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_smbus_i2c_v2.html">ich10_smbus_i2c_v2</a>
+<a href="rm-class-ich10_thermal.html">ich10_thermal</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ich10_spi"><a href="#ich10_spi">ich10_spi</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Serial Peripheral Interface in Intel® ICH10.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, serial_peripheral_interface_master
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:spi_slave-required"><a href="#dt:spi_slave-required">spi_slave (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: serial_peripheral_interface_slave
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-gbe_regs"><a href="#dt:bank-gbe_regs">bank.gbe_regs</a></dt>
+<dd>
+<a href="rm-class-ich10_spi.html#ich10_spi.gbe_regs">ich10_spi.gbe_regs</a>
+</dd>
+<dt id="dt:bank-spi_regs"><a href="#dt:bank-spi_regs">bank.spi_regs</a></dt>
+<dd>
+<a href="rm-class-ich10_spi.html#ich10_spi.spi_regs">ich10_spi.spi_regs</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_spi.html#ich10_spi.HRESET">ich10_spi.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_spi.html#ich10_spi.SRESET">ich10_spi.SRESET</a>
+</dd>
+<dt id="dt:port-mem_bios"><a href="#dt:port-mem_bios">port.mem_bios</a></dt>
+<dd>
+<a href="rm-class-ich10_spi.html#ich10_spi.mem_bios">ich10_spi.mem_bios</a>
+</dd>
+<dt id="dt:port-mem_gbe"><a href="#dt:port-mem_gbe">port.mem_gbe</a></dt>
+<dd>
+<a href="rm-class-ich10_spi.html#ich10_spi.mem_gbe">ich10_spi.mem_gbe</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ich10_spi.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ich10_spi.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cur_master_idx"><a href="#dt:cur_master_idx">
+<i>cur_master_idx</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current master that using SPI bus lines</dd>
+<dt id="dt:desc_buffer"><a href="#dt:desc_buffer">
+<i>desc_buffer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Buffer for holding page program data</dd>
+<dt id="dt:mapped_access_buf"><a href="#dt:mapped_access_buf">
+<i>mapped_access_buf</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Buffer for direct memory access</dd>
+<dt id="dt:spi_slave"><a href="#dt:spi_slave">
+<i>spi_slave</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Connect to a SPI slave device
+<p>
+Required interfaces: <tt>serial_peripheral_interface_slave</tt>.</p></dd>
+<dt id="dt:x_state"><a href="#dt:x_state">
+<i>x_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Status of inner state-machine</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ICH10.html">ICH10</a>
+</section>
+<h2 id="ich10_spi.HRESET"><a href="#ich10_spi.HRESET">ich10_spi.HRESET</a></h2>
+<h2 id="ich10_spi.SRESET"><a href="#ich10_spi.SRESET">ich10_spi.SRESET</a></h2>
+<h2 id="ich10_spi.gbe_regs"><a href="#ich10_spi.gbe_regs">ich10_spi.gbe_regs</a></h2>
+<h2 id="ich10_spi.mem_bios"><a href="#ich10_spi.mem_bios">ich10_spi.mem_bios</a></h2>
+<h2 id="ich10_spi.mem_gbe"><a href="#ich10_spi.mem_gbe">ich10_spi.mem_gbe</a></h2>
+<h2 id="ich10_spi.spi_regs"><a href="#ich10_spi.spi_regs">ich10_spi.spi_regs</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_smbus_i2c_v2.html">ich10_smbus_i2c_v2</a>
+<a href="rm-class-ich10_thermal.html">ich10_thermal</a>
+</div>

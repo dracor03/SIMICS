@@ -1,0 +1,50 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Profiling</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-processor.html">Processor</a>
+<a href="sim-api-control.html">Simulation Control</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Profiling</h1>
+<h2 id="SIM_iter_next"><a href="#SIM_iter_next">SIM_iter_next, SIM_iter_addr, SIM_iter_free</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_iter_next, SIM_iter_addr, SIM_iter_free — Iterate over address profile counters</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+FORCE_INLINE uint64
+SIM_iter_next(addr_prof_iter_t *iter);
+
+FORCE_INLINE generic_address_t
+SIM_iter_addr(addr_prof_iter_t *iter);
+
+FORCE_INLINE void
+SIM_iter_free(addr_prof_iter_t *iter);
+</code></pre>
+<h2>EXPERIMENTAL.</h2>
+<p>While this functionality is expected to be retained in future releases, the interface is likely to change.</p>
+<p>An address profile iterator visits some of the counters of an address profiler in some order. It is obtained from the <code>iter</code> function of the <a href="simulator-to-simulator-interfaces.html#address_profiler_interface_t"><code>address_profiler</code></a> interface.</p>
+<p><code>SIM_iter_next</code> advances the address profile iterator <code>iter</code> to the next nonzero counter and returns the count. It will return 0 when there are no more counters to visit. Note that the order in which the counters are visited is unspecified.</p>
+<p><code>SIM_iter_addr</code> returns the address of the counter returned by the most recent call to <code>iter_next</code>.</p>
+<p>When you are done with the iterator, deallocate it with <code>SIM_iter_free</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-processor.html">Processor</a>
+<a href="sim-api-control.html">Simulation Control</a>
+</div>

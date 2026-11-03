@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-x86-mode-filter</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-x86-chassis.html">new-x86-chassis</a>
+<a href="rm-cmd-new-x86-mode-histogram.html">new-x86-mode-histogram</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-x86-mode-filter"></a>
+<h1 id="new-x86-mode-filter"><a href="#new-x86-mode-filter">new-x86-mode-filter</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-x86-mode-filter</b> [<i>"name"</i>] [<i>mode</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Creates an x86 mode filter object with the name <i>name</i>. The filter restricts instrumentation to only a specific execution mode on processors tracked by a tool. The <i>mode</i> argument can be used to configure the filter for a specific mode. Once create, the filter can be added to tool(s) with the tool specific <code>&lt;tool&gt;.add-filter</code> command.
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.x86-mode-filter.html">x86-mode-filter</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-x86_mode_filter.add-mode.html">&lt;x86_mode_filter&gt;.add-mode</a>, 
+<a href="rm-cmd-x86_mode_filter.remove-mode.html">&lt;x86_mode_filter&gt;.remove-mode</a>, 
+<a href="rm-cmd-x86_mode_filter.delete.html">&lt;x86_mode_filter&gt;.delete</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-x86-chassis.html">new-x86-chassis</a>
+<a href="rm-cmd-new-x86-mode-histogram.html">new-x86-mode-histogram</a>
+</div>

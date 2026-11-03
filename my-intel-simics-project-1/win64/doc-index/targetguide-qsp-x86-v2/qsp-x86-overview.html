@@ -1,0 +1,33 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 QSP-x86-v2 Overview</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="targets.html">3 Targets</a>
+</div>
+<div class="path">
+<a href="index.html">QSP-x86-v2 Target Guide</a>
+&nbsp;/&nbsp;</div><h1 id="qsp-x86-v2-overview"><a href="#qsp-x86-v2-overview">2 QSP-x86-v2 Overview</a></h1>
+<p>The QSP-x86-v2 is a made up system that does not exist in real hardware. QSP
+stands for Quick-Start Platform. The purpose of QSP-x86-v2 is to have an easy
+system for application development, architectural studies, demos, etc.</p>
+<p>The QSP-x86-v2 system comes with device models and a UEFI BIOS. The system
+allows a generic PC operating system to be installed provided it is compatible
+with a UEFI BIOS and respects the ACPI tables provided by the BIOS. Note that
+version 2 of the QSP-x86 has been radically minimized with only modern operating
+systems in mind. Legacy devices like port I/O based DMA, PS/2 keyboards and
+mouse, legacy PIC, floppy disks and more have been removed. The QSP-x86-v2 does
+not support virtual wire IRQ mode. PCI(e) devices are expected to use MSI.</p>
+<p>The QSP-x86-v2 package does <em>not</em> contain the processor core which is used by
+default in the included simulated machines. You need the package <strong>QSP-CPU</strong>,
+which contains the default processor core as well as various recent processor
+cores.</p>
+
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="targets.html">3 Targets</a>
+</div>

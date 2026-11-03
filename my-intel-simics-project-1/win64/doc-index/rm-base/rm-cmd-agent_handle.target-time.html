@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;agent_handle&gt;.target-time</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-agent_handle.status.html">&lt;agent_handle&gt;.status</a>
+<a href="rm-cmd-agent_handle.upload.html">&lt;agent_handle&gt;.upload</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="agent_handle.target-time"></a>
+<h1 id="agent_handle.target-time"><a href="#agent_handle.target-time">&lt;agent_handle&gt;.target-time</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;agent_handle&gt;.target-time</b> [-capture|-now|<i>"datetime"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Set or get the date and time of the target system that is associated with this <tt>agent_handle</tt> object.
+<p>
+Without argument, or with the <tt>-capture</tt> flag, this command will output the target date and time string according to the target's locale. With the optional flag the captured output string can be accessed from the <code>&lt;agent_handle&gt;.get-captured-output</code> command. Alternatively either <code>&lt;agent_handle&gt;.run-until-job</code> or <code>&lt;agent_handle&gt;.wait-for-job</code>, with the <tt>-capture</tt> flag, can be used.
+</p><p>
+With the <tt>-now</tt> flag, set the time using the host system's current date and time. With the <i>datetime</i> argument, set the date and time using a string that must be of the RFC2822-date format. For example "2014-01-31 14:15:16" or "Fri, 31 Jan 2014 14:15:16". The date string may contain a UTC timezone suffix.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.matic.html">matic</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-agent_handle.status.html">&lt;agent_handle&gt;.status</a>
+<a href="rm-cmd-agent_handle.upload.html">&lt;agent_handle&gt;.upload</a>
+</div>

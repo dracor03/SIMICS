@@ -1,0 +1,70 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1 Introduction</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="index.html">Understanding Simulator Timing</a>
+<a href="events.html">2 Events</a>
+</div>
+<div class="path">
+<a href="index.html">Understanding Simulator Timing</a>
+&nbsp;/&nbsp;</div><h1 id="introduction"><a href="#introduction">1 Introduction</a></h1>
+<p>Running a program in Simics is not the same thing as running it on real
+hardware. Simics should be viewed as one possible implementation of the
+architecture, where physical hardware is another. Both comply with the hardware
+architecture as defined by its documentation, but the implementations differ —
+and one of the most important differences is timing.</p>
+<p>One can differentiate between the <em>function</em> and the <em>timing</em> of a system. The
+function of a system is the state changes it goes through, given the current
+state and inputs. These state changes are usually described in a programmer’s
+reference manual, and they need to be modeled correctly by a simulator. The
+timing, on the other hand, is <em>when</em> these state changes occur. It is common
+that timing is not fully defined by the architecture, and thus there is some
+headroom for the simulator to make its own choices.</p>
+<p>The timing may differ between hardware and simulation model for a number of
+reasons:</p>
+<ul>
+<li>The timing of the system modeled may be undocumented.</li>
+<li>To increase simulator performance.</li>
+<li>To simplify the simulation timing model, so that a user fully understands it
+should they want to alter it.</li>
+</ul>
+<p>In Simics, the most evident timing difference compared to real hardware is
+instruction timing. In real hardware, instruction timing depends on memory
+access latencies, the complexity of the operation, execution resource
+contention, and so on. These things are not simulated by Simics by default.
+Instead, one instruction is normally simulated each cycle. The simulation of the
+execution of one instruction is called a <em>step</em>.</p>
+<p>It is possible to configure a Simics processor to execute more or less than one
+step per cycle. It is also possible to have two or more processors in one
+simulation, where each processor has a unique clock frequency. In multiprocessor
+simulation, time advances on one processor at a time in a round-robin fashion.
+Each processor advances a fixed amount of simulated time, called a <em>quantum</em>,
+before switching to the next processor. Even though each quantum has the same
+duration in simulated time, processors may simulate a different number of steps,
+depending on their frequency.</p>
+<p>Simics offers the possibility to stall memory transactions. This is a common way
+to affect instruction execution timing and make the simulation more realistic.
+Memory transactions are usually initiated by a processor and sent to a <em>memory
+space</em>. The memory space decides where the transaction should go based on its
+mappings.</p>
+<p>Each memory space provides the <em>memory hierarchy interface</em>. This interface
+provides a way to inspect and even alter a memory transaction passing through
+the memory space, both before and after the actual transaction has executed. In
+addition, the memory hierarchy interface lets a user stall the transaction. This
+is how caches are modeled in Simics.</p>
+<p>It is important to know that not all memory transactions are visible through the
+memory hierarchy interface by default. During normal operation, instruction
+fetches are not visible at all, and some data accesses are not sent to the
+memory space. Simics caches the result of a memory space lookup so that further
+accesses to the same area do not have to repeat the lookup. This is done to
+increase performance. However, Simics can be configured so that all memory
+transactions are visible through the memory hierarchy interface.</p>
+
+<div class="chain">
+<a href="index.html">Understanding Simulator Timing</a>
+<a href="events.html">2 Events</a>
+</div>

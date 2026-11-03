@@ -1,0 +1,106 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.7.6 Using Port Forwarding and SSH</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="transfer-data-napt-http.html">8.7.5 Use NAPT network and HTTP</a>
+<a href="target-software-debugging.html">8.8 Debugging Target Software</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;
+<a href="transfer-data.html">8.7 Networking and getting data into the simulated system</a>
+&nbsp;/&nbsp;</div><h1 id="using-port-forwarding-and-ssh"><a href="#using-port-forwarding-and-ssh">8.7.6 Using Port Forwarding and SSH</a></h1>
+<p>Using port forwarding, the target can also be accessed from the host, and
+potentially from any system that can access the host, so this should be used
+with care. Here is an example of setting up portforwarding that could allow
+transferring files between the target and the the host.</p>
+<ul>
+<li>
+<p>Follow the <a href="transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+</li>
+<li>
+<p>Enable real time mode, to avoid network timeouts.</p>
+<pre><code class="language-simics">simics&gt; <strong>enable-real-time-mode</strong>
+Real-time mode enabled.
+</code></pre>
+</li>
+<li>
+<p>Inspect the service node DNS to find the IP address of the target machine.</p>
+<pre><code class="language-simics">simics&gt; <strong>service_node.sn.list-host-info</strong>
+┌───────────┬───────────────────┬─────────────────┐
+│    IP     │    name.domain    │       MAC       │
+├───────────┼───────────────────┼─────────────────┤
+│10.10.0.1  │simics0.network.sim│20:20:20:20:20:00│
+│10.10.0.100│board.network.sim  │00:17:a0:00:00:00│
+└───────────┴───────────────────┴─────────────────┘
+</code></pre>
+</li>
+<li>
+<p>Set up port forwarding to the target. By default, this opens a few ports on
+the host corresponding to FTP, SSH, Telnet and HTTP, and connects them to the
+target. Other ports can also be opened by specifying parameters to the
+command.</p>
+<pre><code class="language-simics">simics&gt; <strong>connect-real-network target-ip = 10.10.0.100</strong>
+NAPT enabled with gateway 10.10.0.1/24 on link ethernet_switch.link.
+NAPT enabled with gateway fe80::2220:20ff:fe20:2000/64 on link ethernet_switch.link.
+Host TCP port 4021 -&gt; 10.10.0.100:21
+Host TCP port 4022 -&gt; 10.10.0.100:22
+Host TCP port 4023 -&gt; 10.10.0.100:23
+Host TCP port 4080 -&gt; 10.10.0.100:80
+Warning: This can expose the target system on the host local network.
+Real DNS enabled at 10.10.0.1/24 on link ethernet_switch.link.
+Real DNS enabled at fe80::2220:20ff:fe20:2000/64 on link ethernet_switch.link.
+</code></pre>
+</li>
+<li>
+<p>With port forwarding enabled, the simulated target can be accessed from the
+host using standard network tools. The <code>connect-real-network</code> command above
+set up the following port forwards:</p>
+<table><thead><tr><th>Service</th><th>Functionality</th><th>Access (localhost)</th><th>Destination (target)</th></tr></thead><tbody>
+<tr><td>SSH</td><td>Remote login</td><td>localhost:4022</td><td>10.10.0.100:22</td></tr>
+<tr><td>Telnet</td><td>Remote login</td><td>localhost:4023</td><td>10.10.0.100:23</td></tr>
+<tr><td>SCP</td><td>File transfer</td><td>localhost:4022</td><td>10.10.0.100:22</td></tr>
+<tr><td>FTP</td><td>File transfer</td><td>localhost:4021</td><td>10.10.0.100:21</td></tr>
+</tbody></table>
+<p>So <code>ssh</code> to localhost on port 4022 will be redirected to port 22 on the simulated target (10.10.0.100).</p>
+<p>These tools require:</p>
+<ul>
+<li>The respective client tools (<code>ssh</code>, <code>telnet</code>, <code>scp</code>, <code>ftp</code>) to be installed on the host</li>
+<li>Support for the protocol/service in the target operating system (<code>sshd</code>, <code>ftpd</code>, etc.)</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p><strong>SSH Authentication</strong> must be configured for the following examples to work,
+and the <code>qsp-x86/firststeps</code> target’s Linux image has no default password.
+A simple way to allow SSH login would be to add a user, and set a password
+(<code>adduser someuser</code>).</p>
+</blockquote>
+<p>Once authentication is configured, you can transfer a file using <code>scp</code>:</p>
+<pre><code class="language-shell">$ scp -P 4022 myfile.txt someuser@localhost:/home/
+</code></pre>
+<p>Or log in to the target via SSH:</p>
+<pre><code class="language-shell">$ ssh -p 4022 someuser@localhost
+</code></pre>
+<p>A recommended first file to transfer is the Simics Agent.
+The Simics Agent binaries can be located with the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>lookup-file "%simics%/targets/common/images/simics_agent_binaries.zip"</strong>
+"C:\\Simics\\packages\\simics-7.75.0\\targets\\common\\images\\simics_agent_binaries.zip"
+</code></pre>
+<p>After the Simics Agent is available on the target, it provides additional functionality
+beyond file transfer;
+see <a href="transfer-data-simics-agent.html">Using the Simics Agent</a>.</p>
+<p>Using port forwarding, you can also connect to other network services available
+on the target, such as web servers (port 4080 forwards to HTTP port 80).</p>
+</li>
+</ul>
+
+<div class="chain">
+<a href="transfer-data-napt-http.html">8.7.5 Use NAPT network and HTTP</a>
+<a href="target-software-debugging.html">8.8 Debugging Target Software</a>
+</div>

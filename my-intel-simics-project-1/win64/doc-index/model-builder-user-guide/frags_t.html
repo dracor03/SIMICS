@@ -1,0 +1,302 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>22 Representing Network Packets with frags_t</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="modeling-interconnects.html">21 Modeling Interconnects</a>
+<a href="modeling-network-communication.html">23 Modeling Network Communication</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-common-hardware-components.html">III Modeling Common Hardware Components</a>
+&nbsp;/&nbsp;</div><h1 id="representing-network-packets-with-frags_t"><a href="#representing-network-packets-with-frags_t">22 Representing Network Packets with frags_t</a></h1>
+<h2 id="background"><a href="#background">22.1 Background</a></h2>
+<p>When modeling computer systems it is often necessary to send chunks of data
+around. This is especially common when modeling network devices where one device
+model may pick up a network packet from target memory, attach a header or a CRC
+and pass it on to another device that sends it out on the simulated network.
+When receiving a network packet, the device will get a network packet, examine
+it, optionally strip parts from it and pass it on to other devices or the target
+memory.</p>
+<p>Models of more advanced devices will need to do additional processing of the
+packets, adding, removing or updating headers on the way. And a more abstract
+model of a network node may want to model the whole network stack.</p>
+<h2 id="fragment-lists"><a href="#fragment-lists">22.2 Fragment lists</a></h2>
+<p>The <code>frags_t</code> data type is designed to facilitate the efficient implementation
+of functions passing these chunks around. It represents the data as a list of
+fragments, where the individual fragments references pieces of the actual data.
+The data is not stored in the <code>frags_t</code> structure, nor is it owned by it.
+Instead, it can be seen as a pointer that points to multiple memory locations in
+sequence.</p>
+<p>The typical use is a function that is passed some block of data. Without
+<code>frags_t</code>, it might have taken a plain pointer and a size:</p>
+<pre><code>void old_receive_data(const uint8 *data, size_t data_len);
+</code></pre>
+<p>But with <code>frags_t</code> it would instead take a pointer to a constant <code>frags_t</code>:</p>
+<pre><code>void receive_data(const frags_t *data);
+</code></pre>
+<p>The usage is very similar. Instead of passing the data as a single, contiguous
+block of memory, it is passed as a list of references to fragments of the data.
+The only important difference is that the <code>receive_data()</code> function will need
+another way to access the data itself.</p>
+<p>To complete the introduction, this is how a <code>frags_t</code> is created before calling
+this function:</p>
+<pre><code>frags_t data;
+frags_init_add(&amp;data, header, header_len);
+frags_add(&amp;data, payload, payload_len);
+receive_data(&amp;data);
+</code></pre>
+<h2 id="getting-to-the-data"><a href="#getting-to-the-data">22.3 Getting to the data</a></h2>
+<p>A function that receives a <code>const frags_t *</code> argument can use it to read the
+data it references in two ways.</p>
+<p>The first, and most common, way is to extract it to another buffer, using the
+<code>frags_extract()</code> function, or using the <code>frags_extract_slice()</code> function to
+only extract parts of it.</p>
+<pre><code>void receive_data_extract(const frags_t *data)
+{
+        uint8 buf[frags_len(data)];
+        frags_extract(data, buf);
+        // buf now contains all the data
+        // ...
+}
+</code></pre>
+<p>Or</p>
+<pre><code>void receive_data_slice(const frags_t *data)
+{
+        uint8 buf[HEADER_LEN];
+        frags_extract_slice(data, buf, 0, HEADER_LEN);
+        // buf now contains the header
+        // ...
+}
+</code></pre>
+<p>To avoid copies, it is sometimes useful to use the iterator functions. This is
+an example of a simple checksum function:</p>
+<pre><code>int checksum(const frags_t *data)
+{
+        int chksum = 0;
+        for (frags_it_t it = frags_it(data, 0, frags_len(data));
+             !frags_it_end(it);
+             it = frags_it_next(it))
+                chksum = partial_checksum(chksum,
+                                          frags_it_data(it),
+                                          frags_it_len(it));
+        return chksum;
+}
+</code></pre>
+<p>The iterator will provide the pointer to the data in one fragment at a time.
+These iterator functions are usually not very useful to do common things like
+read the header of a network packet, since there is no guarantee that any
+fragment contains the entire header.</p>
+<h2 id="avoiding-allocation"><a href="#avoiding-allocation">22.4 Avoiding allocation</a></h2>
+<p>To avoid the cost of heap allocation, the preferred way to allocate data to be
+referenced by a fragment list, and the fragment list itself, is on the stack.
+Allocating on the stack is extremely cheap, and with variable-sized arrays in
+C99 (and DML), it is also very simple to use. A typical network device that
+reads a packet using DMA and attaches a CRC before sending it to the link could
+look like this:</p>
+<pre><code>void send_packet(nic_t *dev)
+{
+        dma_desc_t desc = get_next_dma_desc(dev);
+        uint8 data[desc.len];
+        dma_read(dev, desc.addr, desc.len, data);
+        uint8 crc[4];
+        calculate_crc(data, crc);
+
+        frags_t packet;
+        frags_init_add(&amp;packet, data, desc.len);
+        frags_add(&amp;packet, crc, 4);
+        send_to_link(dev, &amp;packet);
+}
+</code></pre>
+<p>One advantage of stack allocation is that there is no need for any destructors;
+the memory is automatically released when the stack frame is removed.</p>
+<p>This works since the <code>frags_t</code> type has no external allocation. Adding fragments
+will not cause any dynamic allocations to be made. This also means that the size
+of the fragment list fixed, so there is a limit to the number of fragments that
+can be added. The size of the list is eight, which should be enough for most
+cases, while still being manageable.</p>
+<p>Stack allocation also means that there is never any doubt about the ownership of
+the data. The pointers to the data cannot be taken over by anyone else, so the
+ownership remains with the function that allocates it.</p>
+<p>The references to the data in the fragment list is read-only. It is not possible
+to use a <code>frags_t</code> reference to modify any data that it points to. There could
+be other, writeable, references to the same data, such as the local variables
+<code>data</code> and <code>crc</code> in the example above, but when those are not available to a
+function it has no way of modifying the data.</p>
+<h2 id="keeping-the-data"><a href="#keeping-the-data">22.5 Keeping the data</a></h2>
+<p>Since ownership of a fragment list, or of any of its fragments, cannot be passed
+in a function call, there is no way to simply store a fragment list for later
+use. Instead, the data must be copied if it is going to be needed later.</p>
+<p>A network link model that receives a network packet in a <code>frags_t</code> will
+typically need to hold on to the data for a while before delivering it to all
+the recipients. This means that it should extract the data into a buffer that it
+allocates on the heap. And when it sends the packet to one of the recipients, it
+can simply create a <code>frags_t</code> that references the heap-allocated data and pass
+that pointer to the receiving device.</p>
+<p>Here is some pseudo-code for a link model:</p>
+<pre><code>void send_a_packet(link_t *link, const frags_t *packet)
+{
+        link-&gt;packet_buffer = MM_MALLOC(frags_len(packet), uint8);
+        link-&gt;packet_buffer_len = frags_len(packet);
+        frags_extract(packet, link-&gt;packet_buffer);
+        // ... defer delivery to a later time ...
+}
+
+void deliver_a_packet(link_t *link)
+{
+        frags_t packet;
+        frags_init_add(&amp;packet, link-&gt;packet_buffer,
+                       link-&gt;packet_buffer_len);
+        for (link_dev_t *dev = link-&gt;recipients; dev;
+             dev = dev-&gt;next)
+                deliver_to_dev(link, dev, &amp;packet);
+        MM_FREE(link-&gt;packet_buffer);
+        link-&gt;packet_buffer = nullptr;
+}
+</code></pre>
+<p>As a convenience, there is a function <code>frags_extract_alloc()</code> that does the
+allocation and extracts to the allocated buffer, so the send function can be
+written like this instead:</p>
+<pre><code>void send_alloc(link_t *link, const frags_t *packet) {
+        link-&gt;packet_buffer = frags_extract_alloc(packet);
+        // ... defer delivery to a later time ...
+}
+</code></pre>
+<p>The memory management of the packet buffer in the above code is rather
+straightforward, but in other cases may be more complex and require reference
+counting, etc. The frags library does not attempt to solve any such problem; it
+is only intended to be used for passing data in function calls.</p>
+<h2 id="multithreading"><a href="#multithreading">22.6 Multithreading</a></h2>
+<p>Since the fragment list and the data it points to are only valid as long as the
+stack frame they live in is live, it is almost never possible to pass references
+to them between threads. It is possible to do it and block until the other
+thread is finished using it before returning, but there are very few occasions
+where this makes sense. Simply copying the data, as described in the previous
+section, is usually the best solution.</p>
+<h2 id="conventions"><a href="#conventions">22.7 Conventions</a></h2>
+<p>This is a summary of the rules and conventions that should be adhered to when
+using this library. Any exception to these rules should be clearly marked in the
+code.</p>
+<ol>
+<li>A <code>frags_t</code> pointer passed to a function is read-only. This means that you
+should always declare them as <code>const frags_t *</code> in function prototypes.</li>
+<li>The data references in a <code>frags_t</code> are read-only. They are declared as <code>const uint8 *</code>, and cannot be used to modify the data.</li>
+<li>A <code>frags_t</code> pointer passed to a function cannot be stored and reused after
+the function returns. Neither can a copy of the <code>frags_t</code> structure be stored
+and reused.</li>
+</ol>
+<h2 id="how-to-use-frags_t-to"><a href="#how-to-use-frags_t-to">22.8 How to use frags_t to…</a></h2>
+<p>There are a few common use cases that often occur, and this section outlines
+some of the more important ones, showing how to best use <code>frags_t</code> to handle
+them.</p>
+<dl>
+<dt id="dt:call-a-function-that-expects-a-frags_t-pointer-when-there-is-only-a-data-pointer-available"><a href="#dt:call-a-function-that-expects-a-frags_t-pointer-when-there-is-only-a-data-pointer-available">Call a function that expects a <code>frags_t</code> pointer, when there is only a data pointer available.</a></dt>
+<dd>
+<p>This is the simplest case. Just
+create a <code>frags_t</code> containing a single fragment referencing the data.
+</p><pre><code>frags_t frags;
+frags_init_add(&amp;frags, data, data_len);
+// fn(..., &amp;frags, ...);
+</code></pre>
+</dd>
+<dt id="dt:call-a-function-that-expects-a-frags_t-pointer-when-there-is-only-a-dbuffer_t-available"><a href="#dt:call-a-function-that-expects-a-frags_t-pointer-when-there-is-only-a-dbuffer_t-available">Call a function that expects a <code>frags_t</code> pointer, when there is only a <code>dbuffer_t</code> available.</a></dt>
+<dd>
+<p>The <code>dbuffer_t</code> type is used by
+previous network interfaces in Simics. To create a <code>frags_t</code> from a dbuffer,
+the data needs to be extracted from the dbuffer first.
+</p><pre><code>uint8 buf[dbuffer_len(dbuf)];
+memcpy(buf, dbuffer_read_all(dbuf), dbuffer_len(dbuf));
+frags_t frags;
+frags_init_add(&amp;frags, buf, dbuffer_len(dbuf));
+// fn(..., &amp;frags, ...);
+</code></pre>
+</dd>
+<dt id="dt:add-a-header"><a href="#dt:add-a-header">Add a header.</a></dt>
+<dd>
+<p>To add a header to a message, create a
+new <code>frags_t</code> that contains the header and the contents of the old message.
+</p><pre><code>frags_t msg;
+frags_init_add(&amp;msg, header, header_len);
+frags_add_from_frags(&amp;msg, payload, 0, frags_len(payload));
+</code></pre>
+<p>
+There is a utility function called <code>frags_prefix()</code> that does exactly this:
+</p><pre><code>frags_t new_msg = frags_prefix(header, header_len, payload);
+</code></pre>
+<p>
+Similarly, there is a <code>frags_suffix()</code> for adding at the end.</p>
+<p>Remember that any <code>frags_t</code> received in a function call is read-only, so the
+only way to add a header is to create a new <code>frags_t</code>.</p>
+</dd>
+<dt id="dt:strip-a-header"><a href="#dt:strip-a-header">Strip a header.</a></dt>
+<dd>
+<p>To remove a header, use
+<code>frags_add_from_frags()</code> to pick the non-header part of the old message.
+</p><pre><code>frags_t payload;
+frags_init_add_from_frags(&amp;payload, msg,
+                          HEADER_LEN, frags_len(msg) - HEADER_LEN);
+</code></pre>
+</dd>
+<dt id="dt:change-a-field-in-a-packet"><a href="#dt:change-a-field-in-a-packet">Change a field in a packet.</a></dt>
+<dd>
+<p>To change the value of a
+specific field, use <code>frags_add_from_frags()</code> to pick the part of the message
+you want to keep, and <code>frags_add()</code> to add the new value where it should be:
+</p><pre><code>frags_t new_packet;
+uint8 new_field[6] = { 0, 1, 2, 3, 4, 5 };
+// copy everything before the field
+frags_init_add_from_frags(&amp;new_packet, msg,
+                          0, OUR_FIELD_OFFSET);
+// add the new field
+frags_add(&amp;new_packet, new_field, 6);
+// copy the rest of the packet
+frags_add_from_frags(&amp;new_packet, msg,
+                     OUR_FIELD_OFFSET + 6,
+                     frags_len(msg) - (OUR_FIELD_OFFSET + 6));
+</code></pre>
+</dd>
+<dt id="dt:extract-integer-values"><a href="#dt:extract-integer-values">Extract integer values</a></dt>
+<dd>
+<p>To read a multi-byte integer
+value from a message, care needs to be taken to handle byte order portably.
+There are macros in <code>simics/util/swabber.h</code> that helps with this:
+</p><pre><code>uint32 buf[1];
+frags_extract_slice(msg, buf, val_offs, 4);
+uint32 val = LOAD_BE32(buf);
+</code></pre>
+<p>
+There are a number of utility functions that facilitates this, so the code above
+can be written using <code>frags_extract_be32()</code>.
+</p><pre><code>uint32 new_val = frags_extract_be32(msg, val_offs);
+</code></pre>
+</dd>
+<dt id="dt:print-the-contents-of-a-packet"><a href="#dt:print-the-contents-of-a-packet">Print the contents of a packet</a></dt>
+<dd>
+<p>A simple loop over the fragments via an iterator will do the job:
+</p><pre><code>void print_packet(const frags_t *packet)
+{
+        printf("packet: ");
+        for (frags_it_t it = frags_it(packet, 0, frags_len(packet));
+             !frags_it_end(it);
+             it = frags_it_next(it)) {
+                const uint8 *it_data = frags_it_data(it);
+                for (int i=0; i&lt;frags_it_len(it); i++)
+                        printf("%x ", (unsigned)it_data[i]);
+        }
+        printf("\n");
+}
+</code></pre>
+</dd>
+</dl>
+<h2 id="api"><a href="#api">22.9 API</a></h2>
+<p>The complete API documentation for all <code>frags_t</code>-related functions is available
+in the <em>API Reference Manual</em>, in the <em>Device API Functions</em> section.</p>
+
+<div class="chain">
+<a href="modeling-interconnects.html">21 Modeling Interconnects</a>
+<a href="modeling-network-communication.html">23 Modeling Network Communication</a>
+</div>

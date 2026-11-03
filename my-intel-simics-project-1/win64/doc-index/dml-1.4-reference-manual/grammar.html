@@ -1,0 +1,478 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>E Formal Grammar</title>
+<link rel="stylesheet" href="simics.css">
+<script>function postUrl() {
+    window.parent.postMessage({ content_url: window.location.href }, "*");
+}
+if (window.parent != null && window.parent != window) {
+    postUrl();
+    window.addEventListener("hashchange", function () {
+        postUrl();
+    });
+} else {
+    // Check if we are part of a Simics doc site and redirect if we are
+    fetch("../simics-doc-site-marker", { method: "HEAD" }).then(response => {
+        if (response.ok) {
+            window.location = "..#" + window.location.href;
+        } else {
+            console.info("Not part of a Simics documentation site");
+        }
+    }).catch(error => {
+        console.warn("Failed to check if this is a Simics documentation site:",
+            error);
+    });
+}</script>
+</head>
+<div class="chain">
+<a href="changes-manual.html">D.6 Backward incompatible changes, not automatically converted</a>
+</div>
+<div class="path">
+<a href="index.html">Device Modeling Language 1.4 Reference Manual</a>
+&nbsp;/&nbsp;</div>
+<h1 id="formal-grammar"><a href="#formal-grammar">E Formal Grammar</a></h1>
+<dl>
+<dt id="dt:dml"><a href="#dt:dml"><i>dml</i> →</a></dt>
+<dd>
+ <i> maybe_provisional </i> <i> maybe_device </i> <i> maybe_bitorder </i> <i> device_statements </i> </dd>
+<dt id="dt:maybe_provisional"><a href="#dt:maybe_provisional"><i>maybe_provisional</i> →</a></dt>
+<dd>
+ <code>provisional</code> <i> ident_list </i> <code>;</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:maybe_device"><a href="#dt:maybe_device"><i>maybe_device</i> →</a></dt>
+<dd>
+ <code>device</code> <i> objident </i> <code>;</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:maybe_bitorder"><a href="#dt:maybe_bitorder"><i>maybe_bitorder</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <code>bitorder</code> <i> ident </i> <code>;</code> </dd>
+<dt id="dt:device_statements"><a href="#dt:device_statements"><i>device_statements</i> →</a></dt>
+<dd>
+ <i> device_statements </i> <i> device_statement </i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:device_statement"><a href="#dt:device_statement"><i>device_statement</i> →</a></dt>
+<dd>
+ <i> toplevel </i> <br><b>|</b> <i> object </i> <br><b>|</b> <i> toplevel_param </i> <br><b>|</b> <i> method </i> <br><b>|</b> <i> bad_shared_method </i> <br><b>|</b> <i> istemplate </i> <code>;</code> <br><b>|</b> <i> toplevel_if </i> <br><b>|</b> <i> error_stmt </i> <br><b>|</b> <i> in_each </i> </dd>
+<dt id="dt:toplevel_param"><a href="#dt:toplevel_param"><i>toplevel_param</i> →</a></dt>
+<dd>
+ <i> param </i> </dd>
+<dt id="dt:toplevel_if"><a href="#dt:toplevel_if"><i>toplevel_if</i> →</a></dt>
+<dd>
+ <i> hashif </i> <code>(</code> <i> expression </i> <code>)</code> <code>{</code> <i> device_statements </i> <code>}</code> <i> toplevel_else </i> </dd>
+<dt id="dt:toplevel_else"><a href="#dt:toplevel_else"><i>toplevel_else</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> hashelse </i> <code>{</code> <i> device_statements </i> <code>}</code> <br><b>|</b> <i> hashelse </i> <i> toplevel_if </i> </dd>
+<dt id="dt:array_list"><a href="#dt:array_list"><i>array_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> array_list </i> <code>[</code> <i> arraydef </i> <code>]</code> </dd>
+<dt id="dt:object"><a href="#dt:object"><i>object</i> →</a></dt>
+<dd>
+ <i> maybe_extension </i> <code>register</code> <i> objident </i> <i> array_list </i> <i> sizespec </i> <i> offsetspec </i> <i> maybe_istemplate </i> <i> object_spec </i> </dd>
+<dt id="dt:bitrangespec"><a href="#dt:bitrangespec"><i>bitrangespec</i> →</a></dt>
+<dd>
+ <code>@</code> <i> bitrange </i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:object-2"><a href="#dt:object-2"><i>object</i> →</a></dt>
+<dd>
+ <i> maybe_extension </i> <code>field</code> <i> objident </i> <i> array_list </i> <i> bitrangespec </i> <i> maybe_istemplate </i> <i> object_spec </i> </dd>
+<dt id="dt:bitrange"><a href="#dt:bitrange"><i>bitrange</i> →</a></dt>
+<dd>
+ <code>[</code> <i> expression </i> <code>]</code> <br><b>|</b> <code>[</code> <i> expression </i> <code>:</code> <i> expression </i> <code>]</code> </dd>
+<dt id="dt:session"><a href="#dt:session"><i>session</i> →</a></dt>
+<dd>
+ <code>session</code> </dd>
+<dt id="dt:object-3"><a href="#dt:object-3"><i>object</i> →</a></dt>
+<dd>
+ <i> session_decl </i> </dd>
+<dt id="dt:session_decl"><a href="#dt:session_decl"><i>session_decl</i> →</a></dt>
+<dd>
+ <i> session </i> <i> named_cdecl </i> <code>;</code> <br><b>|</b> <i> session </i> <i> named_cdecl </i> <code>=</code> <i> initializer </i> <code>;</code> <br><b>|</b> <i> session </i> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <code>;</code> <br><b>|</b> <i> session </i> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <code>=</code> <i> initializer </i> <code>;</code> </dd>
+<dt id="dt:object-4"><a href="#dt:object-4"><i>object</i> →</a></dt>
+<dd>
+ <i> saved_decl </i> </dd>
+<dt id="dt:saved_decl"><a href="#dt:saved_decl"><i>saved_decl</i> →</a></dt>
+<dd>
+ <code>saved</code> <i> named_cdecl </i> <code>;</code> <br><b>|</b> <code>saved</code> <i> named_cdecl </i> <code>=</code> <i> initializer </i> <code>;</code> <br><b>|</b> <code>saved</code> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <code>;</code> <br><b>|</b> <code>saved</code> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <code>=</code> <i> initializer </i> <code>;</code> </dd>
+<dt id="dt:object-5"><a href="#dt:object-5"><i>object</i> →</a></dt>
+<dd>
+ <i> maybe_extension </i> <code>connect</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>interface</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>attribute</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>bank</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>event</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>group</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>port</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>implement</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> <br><b>|</b> <i> maybe_extension </i> <code>subdevice</code> <i> objident </i> <i> array_list </i> <i> maybe_istemplate </i> <i> object_spec </i> </dd>
+<dt id="dt:maybe_default"><a href="#dt:maybe_default"><i>maybe_default</i> →</a></dt>
+<dd>
+ <code>default</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:maybe_colon"><a href="#dt:maybe_colon"><i>maybe_colon</i> →</a></dt>
+<dd>
+ <code>:</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:method"><a href="#dt:method"><i>method</i> →</a></dt>
+<dd>
+ <i> method_qualifiers </i> <code>method</code> <i> objident </i> <i> method_params_typed </i> <i> maybe_colon </i> <i> maybe_default </i> <i> compound_statement </i> <br><b>|</b> <i> method_qualifiers </i> <code>method</code> <i> objident </i> <i> method_params_typed </i> <code>;</code> <br><b>|</b> <code>inline</code> <code>method</code> <i> objident </i> <i> method_params_maybe_untyped </i> <i> maybe_colon </i> <i> maybe_default </i> <i> compound_statement </i> </dd>
+<dt id="dt:arraydef"><a href="#dt:arraydef"><i>arraydef</i> →</a></dt>
+<dd>
+ <i> ident_or_discard </i> <code>&lt;</code> <i> expression </i> <br><b>|</b> <i> ident_or_discard </i> <code>&lt;</code> <code>...</code> </dd>
+<dt id="dt:template_stmts"><a href="#dt:template_stmts"><i>template_stmts</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> template_stmts </i> <i> template_stmt </i> </dd>
+<dt id="dt:template_stmt"><a href="#dt:template_stmt"><i>template_stmt</i> →</a></dt>
+<dd>
+ <i> object_statement_or_typedparam </i> <br><b>|</b> <code>shared</code> <i> method_qualifiers </i> <code>method</code> <i> shared_method </i> <br><b>|</b> <code>shared</code> <i> hook_decl </i> </dd>
+<dt id="dt:method_qualifiers"><a href="#dt:method_qualifiers"><i>method_qualifiers</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <code>independent</code> <br><b>|</b> <code>independent</code> <code>startup</code> <br><b>|</b> <code>independent</code> <code>startup</code> <code>memoized</code> </dd>
+<dt id="dt:shared_method"><a href="#dt:shared_method"><i>shared_method</i> →</a></dt>
+<dd>
+ <i> ident </i> <i> method_params_typed </i> <code>;</code> <br><b>|</b> <i> ident </i> <i> method_params_typed </i> <i> maybe_colon </i> <code>default</code> <i> compound_statement </i> <br><b>|</b> <i> ident </i> <i> method_params_typed </i> <i> maybe_colon </i> <i> compound_statement </i> </dd>
+<dt id="dt:toplevel"><a href="#dt:toplevel"><i>toplevel</i> →</a></dt>
+<dd>
+ <code>template</code> <i> objident </i> <i> maybe_istemplate </i> <code>{</code> <i> template_stmts </i> <code>}</code> <br><b>|</b> <code>header</code> <code>%{ ... %}</code> <br><b>|</b> <code>footer</code> <code>%{ ... %}</code> <br><b>|</b> <code>_header</code> <code>%{ ... %}</code> <br><b>|</b> <code>loggroup</code> <i> ident </i> <code>;</code> <br><b>|</b> <code>constant</code> <i> ident </i> <code>=</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>extern</code> <i> named_cdecl </i> <code>;</code> <br><b>|</b> <code>typedef</code> <i> named_cdecl </i> <code>;</code> <br><b>|</b> <code>extern</code> <code>typedef</code> <i> named_cdecl </i> <code>;</code> <br><b>|</b> <code>import</code> <i> utf8_sconst </i> <code>;</code> </dd>
+<dt id="dt:object_desc"><a href="#dt:object_desc"><i>object_desc</i> →</a></dt>
+<dd>
+ <i> composed_string_literal </i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:maybe_extension"><a href="#dt:maybe_extension"><i>maybe_extension</i> →</a></dt>
+<dd>
+ <code>in</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:object_spec"><a href="#dt:object_spec"><i>object_spec</i> →</a></dt>
+<dd>
+ <i> object_desc </i> <code>;</code> <br><b>|</b> <i> object_desc </i> <code>{</code> <i> object_statements </i> <code>}</code> </dd>
+<dt id="dt:object_statements"><a href="#dt:object_statements"><i>object_statements</i> →</a></dt>
+<dd>
+ <i> object_statements </i> <i> object_statement </i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:object_statement"><a href="#dt:object_statement"><i>object_statement</i> →</a></dt>
+<dd>
+ <i> object_statement_or_typedparam </i> <br><b>|</b> <i> bad_shared_method </i> </dd>
+<dt id="dt:bad_shared_method"><a href="#dt:bad_shared_method"><i>bad_shared_method</i> →</a></dt>
+<dd>
+ <code>shared</code> <i> method_qualifiers </i> <code>method</code> <i> shared_method </i> </dd>
+<dt id="dt:toplevel-2"><a href="#dt:toplevel-2"><i>toplevel</i> →</a></dt>
+<dd>
+ <code>export</code> <i> expression </i> <code>as</code> <i> expression </i> <code>;</code> </dd>
+<dt id="dt:object_statement_or_typedparam"><a href="#dt:object_statement_or_typedparam"><i>object_statement_or_typedparam</i> →</a></dt>
+<dd>
+ <i> object </i> <br><b>|</b> <i> param </i> <br><b>|</b> <i> method </i> <br><b>|</b> <i> istemplate </i> <code>;</code> <br><b>|</b> <i> object_if </i> <br><b>|</b> <i> error_stmt </i> <br><b>|</b> <i> in_each </i> </dd>
+<dt id="dt:in_each"><a href="#dt:in_each"><i>in_each</i> →</a></dt>
+<dd>
+ <code>in</code> <code>each</code> <i> istemplate_list </i> <code>{</code> <i> object_statements </i> <code>}</code> </dd>
+<dt id="dt:hashif"><a href="#dt:hashif"><i>hashif</i> →</a></dt>
+<dd>
+ <code>#if</code> <br><b>|</b> <code>if</code> </dd>
+<dt id="dt:hashelse"><a href="#dt:hashelse"><i>hashelse</i> →</a></dt>
+<dd>
+ <code>#else</code> <br><b>|</b> <code>else</code> </dd>
+<dt id="dt:object_if"><a href="#dt:object_if"><i>object_if</i> →</a></dt>
+<dd>
+ <i> hashif </i> <code>(</code> <i> expression </i> <code>)</code> <code>{</code> <i> object_statements </i> <code>}</code> <i> object_else </i> </dd>
+<dt id="dt:object_else"><a href="#dt:object_else"><i>object_else</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> hashelse </i> <code>{</code> <i> object_statements </i> <code>}</code> <br><b>|</b> <i> hashelse </i> <i> object_if </i> </dd>
+<dt id="dt:param"><a href="#dt:param"><i>param</i> →</a></dt>
+<dd>
+ <code>param</code> <i> objident </i> <i> paramspec_maybe_empty </i> <br><b>|</b> <code>param</code> <i> objident </i> <code>auto</code> <code>;</code> <br><b>|</b> <code>param</code> <i> objident </i> <code>:</code> <i> paramspec </i> <br><b>|</b> <code>param</code> <i> objident </i> <code>:</code> <i> ctypedecl </i> <i> paramspec_maybe_empty </i> </dd>
+<dt id="dt:paramspec_maybe_empty"><a href="#dt:paramspec_maybe_empty"><i>paramspec_maybe_empty</i> →</a></dt>
+<dd>
+ <i> paramspec </i> <br><b>|</b> <code>;</code> </dd>
+<dt id="dt:paramspec"><a href="#dt:paramspec"><i>paramspec</i> →</a></dt>
+<dd>
+ <code>=</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>default</code> <i> expression </i> <code>;</code> </dd>
+<dt id="dt:method_outparams"><a href="#dt:method_outparams"><i>method_outparams</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <code>-&gt;</code> <code>(</code> <i> cdecl_maybe_discarded_list </i> <code>)</code> </dd>
+<dt id="dt:method_params_maybe_untyped"><a href="#dt:method_params_maybe_untyped"><i>method_params_maybe_untyped</i> →</a></dt>
+<dd>
+ <code>(</code> <i> cdecl_maybe_discarded_or_ident_list </i> <code>)</code> <i> method_outparams </i> <i> throws </i> </dd>
+<dt id="dt:method_params_typed"><a href="#dt:method_params_typed"><i>method_params_typed</i> →</a></dt>
+<dd>
+ <code>(</code> <i> cdecl_maybe_discarded_list </i> <code>)</code> <i> method_outparams </i> <i> throws </i> </dd>
+<dt id="dt:throws"><a href="#dt:throws"><i>throws</i> →</a></dt>
+<dd>
+ <code>throws</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:maybe_istemplate"><a href="#dt:maybe_istemplate"><i>maybe_istemplate</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> istemplate </i> </dd>
+<dt id="dt:istemplate"><a href="#dt:istemplate"><i>istemplate</i> →</a></dt>
+<dd>
+ <code>is</code> <i> istemplate_list </i> </dd>
+<dt id="dt:istemplate_list"><a href="#dt:istemplate_list"><i>istemplate_list</i> →</a></dt>
+<dd>
+ <i> objident </i> <br><b>|</b> <code>(</code> <i> objident_list </i> <code>)</code> </dd>
+<dt id="dt:sizespec"><a href="#dt:sizespec"><i>sizespec</i> →</a></dt>
+<dd>
+ <code>size</code> <i> expression </i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:offsetspec"><a href="#dt:offsetspec"><i>offsetspec</i> →</a></dt>
+<dd>
+ <code>@</code> <i> expression </i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:cdecl_maybe_discarded_or_ident"><a href="#dt:cdecl_maybe_discarded_or_ident"><i>cdecl_maybe_discarded_or_ident</i> →</a></dt>
+<dd>
+ <i> named_cdecl_maybe_discarded </i> <br><b>|</b> <code>inline</code> <i> ident </i> </dd>
+<dt id="dt:named_cdecl_maybe_discarded"><a href="#dt:named_cdecl_maybe_discarded"><i>named_cdecl_maybe_discarded</i> →</a></dt>
+<dd>
+ <i> cdecl_maybe_discarded </i> </dd>
+<dt id="dt:named_cdecl"><a href="#dt:named_cdecl"><i>named_cdecl</i> →</a></dt>
+<dd>
+ <i> named_cdecl_maybe_discarded </i> </dd>
+<dt id="dt:cdecl_maybe_discarded"><a href="#dt:cdecl_maybe_discarded"><i>cdecl_maybe_discarded</i> →</a></dt>
+<dd>
+ <i> basetype </i> <i> cdecl2 </i> <br><b>|</b> <code>const</code> <i> basetype </i> <i> cdecl2 </i> </dd>
+<dt id="dt:basetype"><a href="#dt:basetype"><i>basetype</i> →</a></dt>
+<dd>
+ <i> typeident </i> <br><b>|</b> <i> struct </i> <br><b>|</b> <i> layout </i> <br><b>|</b> <i> bitfields </i> <br><b>|</b> <i> typeof </i> <br><b>|</b> <code>sequence</code> <code>(</code> <i> typeident </i> <code>)</code> <br><b>|</b> <code>hook</code> <code>(</code> <i> cdecl_maybe_discarded_list </i> <code>)</code> </dd>
+<dt id="dt:cdecl2"><a href="#dt:cdecl2"><i>cdecl2</i> →</a></dt>
+<dd>
+ <i> cdecl3 </i> <br><b>|</b> <code>const</code> <i> cdecl2 </i> <br><b>|</b> <code>*</code> <i> cdecl2 </i> <br><b>|</b> <code>vect</code> <i> cdecl2 </i> </dd>
+<dt id="dt:cdecl3"><a href="#dt:cdecl3"><i>cdecl3</i> →</a></dt>
+<dd>
+ <i> ident_or_discard </i> <br><b>|</b> &lt;empty&gt; <br><b>|</b> <i> cdecl3 </i> <code>[</code> <i> expression </i> <code>]</code> <br><b>|</b> <i> cdecl3 </i> <code>(</code> <i> cdecl_maybe_discarded_list_opt_ellipsis </i> <code>)</code> <br><b>|</b> <code>(</code> <i> cdecl2 </i> <code>)</code> </dd>
+<dt id="dt:cdecl_maybe_discarded_list"><a href="#dt:cdecl_maybe_discarded_list"><i>cdecl_maybe_discarded_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> cdecl_maybe_discarded_list_nonempty </i> </dd>
+<dt id="dt:cdecl_maybe_discarded_list_nonempty"><a href="#dt:cdecl_maybe_discarded_list_nonempty"><i>cdecl_maybe_discarded_list_nonempty</i> →</a></dt>
+<dd>
+ <i> cdecl_maybe_discarded </i> <br><b>|</b> <i> cdecl_maybe_discarded_list_nonempty </i> <code>,</code> <i> cdecl_maybe_discarded </i> </dd>
+<dt id="dt:cdecl_maybe_discarded_list_opt_ellipsis"><a href="#dt:cdecl_maybe_discarded_list_opt_ellipsis"><i>cdecl_maybe_discarded_list_opt_ellipsis</i> →</a></dt>
+<dd>
+ <i> cdecl_maybe_discarded_list </i> <br><b>|</b> <code>...</code> <br><b>|</b> <i> cdecl_maybe_discarded_list_nonempty </i> <code>,</code> <code>...</code> </dd>
+<dt id="dt:cdecl_maybe_discarded_or_ident_list"><a href="#dt:cdecl_maybe_discarded_or_ident_list"><i>cdecl_maybe_discarded_or_ident_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> cdecl_maybe_discarded_or_ident_list2 </i> </dd>
+<dt id="dt:cdecl_maybe_discarded_or_ident_list2"><a href="#dt:cdecl_maybe_discarded_or_ident_list2"><i>cdecl_maybe_discarded_or_ident_list2</i> →</a></dt>
+<dd>
+ <i> cdecl_maybe_discarded_or_ident </i> <br><b>|</b> <i> cdecl_maybe_discarded_or_ident_list2 </i> <code>,</code> <i> cdecl_maybe_discarded_or_ident </i> </dd>
+<dt id="dt:typeof"><a href="#dt:typeof"><i>typeof</i> →</a></dt>
+<dd>
+ <code>typeof</code> <i> expression </i> </dd>
+<dt id="dt:struct"><a href="#dt:struct"><i>struct</i> →</a></dt>
+<dd>
+ <code>struct</code> <code>{</code> <i> struct_decls </i> <code>}</code> </dd>
+<dt id="dt:struct_decls"><a href="#dt:struct_decls"><i>struct_decls</i> →</a></dt>
+<dd>
+ <i> struct_decls </i> <i> named_cdecl </i> <code>;</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:layout_decl"><a href="#dt:layout_decl"><i>layout_decl</i> →</a></dt>
+<dd>
+ <code>layout</code> <i> utf8_sconst </i> <code>{</code> <i> layout_decls </i> <code>}</code> </dd>
+<dt id="dt:layout"><a href="#dt:layout"><i>layout</i> →</a></dt>
+<dd>
+ <i> layout_decl </i> </dd>
+<dt id="dt:layout_decls"><a href="#dt:layout_decls"><i>layout_decls</i> →</a></dt>
+<dd>
+ <i> layout_decls </i> <i> named_cdecl_maybe_discarded </i> <code>;</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:bitfields"><a href="#dt:bitfields"><i>bitfields</i> →</a></dt>
+<dd>
+ <code>bitfields</code> <i>integer-literal</i> <code>{</code> <i> bitfields_decls </i> <code>}</code> </dd>
+<dt id="dt:bitfields_decls"><a href="#dt:bitfields_decls"><i>bitfields_decls</i> →</a></dt>
+<dd>
+ <i> bitfields_decls </i> <i> named_cdecl </i> <code>@</code> <code>[</code> <i> bitfield_range </i> <code>]</code> <code>;</code> </dd>
+<dt id="dt:bitfield_range"><a href="#dt:bitfield_range"><i>bitfield_range</i> →</a></dt>
+<dd>
+ <i> expression </i> <br><b>|</b> <i> expression </i> <code>:</code> <i> expression </i> </dd>
+<dt id="dt:bitfields_decls-2"><a href="#dt:bitfields_decls-2"><i>bitfields_decls</i> →</a></dt>
+<dd>
+ &lt;empty&gt; </dd>
+<dt id="dt:ctypedecl"><a href="#dt:ctypedecl"><i>ctypedecl</i> →</a></dt>
+<dd>
+ <i> const_opt </i> <i> basetype </i> <i> stars </i> </dd>
+<dt id="dt:stars"><a href="#dt:stars"><i>stars</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <code>*</code> <code>const</code> <i> stars </i> <br><b>|</b> <code>*</code> <i> stars </i> </dd>
+<dt id="dt:const_opt"><a href="#dt:const_opt"><i>const_opt</i> →</a></dt>
+<dd>
+ <code>const</code> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:typeident"><a href="#dt:typeident"><i>typeident</i> →</a></dt>
+<dd>
+ <i> ident </i> <br><b>|</b> <code>char</code> <br><b>|</b> <code>double</code> <br><b>|</b> <code>float</code> <br><b>|</b> <code>int</code> <br><b>|</b> <code>long</code> <br><b>|</b> <code>short</code> <br><b>|</b> <code>signed</code> <br><b>|</b> <code>unsigned</code> <br><b>|</b> <code>void</code> <br><b>|</b> <code>register</code> </dd>
+<dt id="dt:assignop"><a href="#dt:assignop"><i>assignop</i> →</a></dt>
+<dd>
+ <i> expression </i> <code>+=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>-=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>*=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>/=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>%=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>|=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&amp;=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>^=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&lt;&lt;=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&gt;&gt;=</code> <i> expression </i> </dd>
+<dt id="dt:expression"><a href="#dt:expression"><i>expression</i> →</a></dt>
+<dd>
+ <i> expression </i> <code>?</code> <i> expression </i> <code>:</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>#?</code> <i> expression </i> <code>#:</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>+</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>-</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>*</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>/</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>%</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&lt;&lt;</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&gt;&gt;</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>==</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>!=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&lt;</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&gt;</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&lt;=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&gt;=</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>||</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&amp;&amp;</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>|</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>^</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>&amp;</code> <i> expression </i> <br><b>|</b> <code>cast</code> <code>(</code> <i> expression </i> <code>,</code> <i> ctypedecl </i> <code>)</code> <br><b>|</b> <code>sizeof</code> <i> expression </i> <br><b>|</b> <code>-</code> <i> expression </i> <br><b>|</b> <code>+</code> <i> expression </i> <br><b>|</b> <code>!</code> <i> expression </i> <br><b>|</b> <code>~</code> <i> expression </i> <br><b>|</b> <code>&amp;</code> <i> expression </i> <br><b>|</b> <code>*</code> <i> expression </i> <br><b>|</b> <code>defined</code> <i> expression </i> <br><b>|</b> <code>stringify</code> <code>(</code> <i> expression </i> <code>)</code> <br><b>|</b> <code>++</code> <i> expression </i> <br><b>|</b> <code>--</code> <i> expression </i> <br><b>|</b> <i> expression </i> <code>++</code> <br><b>|</b> <i> expression </i> <code>--</code> <br><b>|</b> <i> expression </i> <code>(</code> <code>)</code> <br><b>|</b> <i> expression </i> <code>(</code> <i> single_initializer_list </i> <code>)</code> <br><b>|</b> <i> expression </i> <code>(</code> <i> single_initializer_list </i> <code>,</code> <code>)</code> <br><b>|</b> <i>integer-literal</i> <br><b>|</b> <i>hex-literal</i> <br><b>|</b> <i>binary-literal</i> <br><b>|</b> <i>char-literal</i> <br><b>|</b> <i>float-literal</i> <br><b>|</b> <i>string-literal</i> </dd>
+<dt id="dt:utf8_sconst"><a href="#dt:utf8_sconst"><i>utf8_sconst</i> →</a></dt>
+<dd>
+ <i>string-literal</i> </dd>
+<dt id="dt:expression-2"><a href="#dt:expression-2"><i>expression</i> →</a></dt>
+<dd>
+ <code>undefined</code> <br><b>|</b> <i> objident_base </i> <br><b>|</b> <code>default</code> <br><b>|</b> <i> discard </i> <br><b>|</b> <code>this</code> <br><b>|</b> <i> expression </i> <code>.</code> <i> objident_base </i> <br><b>|</b> <i> expression </i> <code>-&gt;</code> <i> objident_base </i> <br><b>|</b> <code>sizeoftype</code> <i> typeoparg </i> </dd>
+<dt id="dt:typeoparg"><a href="#dt:typeoparg"><i>typeoparg</i> →</a></dt>
+<dd>
+ <i> ctypedecl </i> <br><b>|</b> <code>(</code> <i> ctypedecl </i> <code>)</code> </dd>
+<dt id="dt:expression-3"><a href="#dt:expression-3"><i>expression</i> →</a></dt>
+<dd>
+ <code>new</code> <i> ctypedecl </i> <br><b>|</b> <code>new</code> <i> ctypedecl </i> <code>[</code> <i> expression </i> <code>]</code> <br><b>|</b> <code>(</code> <i> expression </i> <code>)</code> <br><b>|</b> <code>[</code> <i> expression_list </i> <code>]</code> <br><b>|</b> <i> expression </i> <code>[</code> <i> expression </i> <code>]</code> <br><b>|</b> <i> expression </i> <code>[</code> <i> expression </i> <code>,</code> <i>identifier</i> <code>]</code> <br><b>|</b> <i> expression </i> <code>[</code> <i> expression </i> <code>:</code> <i> expression </i> <i> endianflag </i> <code>]</code> <br><b>|</b> <code>each</code> <i> objident </i> <code>in</code> <code>(</code> <i> expression </i> <code>)</code> </dd>
+<dt id="dt:endianflag"><a href="#dt:endianflag"><i>endianflag</i> →</a></dt>
+<dd>
+ <code>,</code> <i>identifier</i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:expression_opt"><a href="#dt:expression_opt"><i>expression_opt</i> →</a></dt>
+<dd>
+ <i> expression </i> <br><b>|</b> &lt;empty&gt; </dd>
+<dt id="dt:expression_list"><a href="#dt:expression_list"><i>expression_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> expression </i> <br><b>|</b> <i> expression </i> <code>,</code> <i> expression_list </i> </dd>
+<dt id="dt:expression_list_ntc_nonempty"><a href="#dt:expression_list_ntc_nonempty"><i>expression_list_ntc_nonempty</i> →</a></dt>
+<dd>
+ <i> expression </i> <br><b>|</b> <i> expression </i> <code>,</code> <i> expression_list_ntc_nonempty </i> </dd>
+<dt id="dt:composed_string_literal"><a href="#dt:composed_string_literal"><i>composed_string_literal</i> →</a></dt>
+<dd>
+ <i> utf8_sconst </i> <br><b>|</b> <i> composed_string_literal </i> <code>+</code> <i> utf8_sconst </i> </dd>
+<dt id="dt:bracketed_string_literal"><a href="#dt:bracketed_string_literal"><i>bracketed_string_literal</i> →</a></dt>
+<dd>
+ <i> composed_string_literal </i> <br><b>|</b> <code>(</code> <i> composed_string_literal </i> <code>)</code> </dd>
+<dt id="dt:single_initializer"><a href="#dt:single_initializer"><i>single_initializer</i> →</a></dt>
+<dd>
+ <i> expression </i> <br><b>|</b> <code>{</code> <i> single_initializer_list </i> <code>}</code> <br><b>|</b> <code>{</code> <i> single_initializer_list </i> <code>,</code> <code>}</code> </dd>
+<dt id="dt:initializer"><a href="#dt:initializer"><i>initializer</i> →</a></dt>
+<dd>
+ <i> single_initializer </i> <br><b>|</b> <code>(</code> <i> single_initializer </i> <code>,</code> <i> single_initializer_list </i> <code>)</code> </dd>
+<dt id="dt:single_initializer_list"><a href="#dt:single_initializer_list"><i>single_initializer_list</i> →</a></dt>
+<dd>
+ <i> single_initializer </i> <br><b>|</b> <i> single_initializer_list </i> <code>,</code> <i> single_initializer </i> </dd>
+<dt id="dt:single_initializer-2"><a href="#dt:single_initializer-2"><i>single_initializer</i> →</a></dt>
+<dd>
+ <code>{</code> <i> designated_struct_initializer_list </i> <code>}</code> <br><b>|</b> <code>{</code> <i> designated_struct_initializer_list </i> <code>,</code> <code>}</code> <br><b>|</b> <code>{</code> <i> designated_struct_initializer_list </i> <code>,</code> <code>...</code> <code>}</code> </dd>
+<dt id="dt:designated_struct_initializer"><a href="#dt:designated_struct_initializer"><i>designated_struct_initializer</i> →</a></dt>
+<dd>
+ <code>.</code> <i> ident </i> <code>=</code> <i> single_initializer </i> </dd>
+<dt id="dt:designated_struct_initializer_list"><a href="#dt:designated_struct_initializer_list"><i>designated_struct_initializer_list</i> →</a></dt>
+<dd>
+ <i> designated_struct_initializer </i> <br><b>|</b> <i> designated_struct_initializer_list </i> <code>,</code> <i> designated_struct_initializer </i> </dd>
+<dt id="dt:statement"><a href="#dt:statement"><i>statement</i> →</a></dt>
+<dd>
+ <i> statement_except_hashif </i> </dd>
+<dt id="dt:statement_except_hashif"><a href="#dt:statement_except_hashif"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <i> compound_statement </i> <br><b>|</b> <i> local </i> <code>;</code> <br><b>|</b> <i> assign_stmt </i> <code>;</code> <br><b>|</b> <i> assignop </i> <code>;</code> </dd>
+<dt id="dt:assign_stmt"><a href="#dt:assign_stmt"><i>assign_stmt</i> →</a></dt>
+<dd>
+ <i> assign_chain </i> <br><b>|</b> <i> tuple_literal </i> <code>=</code> <i> initializer </i> </dd>
+<dt id="dt:assign_chain"><a href="#dt:assign_chain"><i>assign_chain</i> →</a></dt>
+<dd>
+ <i> expression </i> <code>=</code> <i> assign_chain </i> <br><b>|</b> <i> expression </i> <code>=</code> <i> initializer </i> </dd>
+<dt id="dt:tuple_literal"><a href="#dt:tuple_literal"><i>tuple_literal</i> →</a></dt>
+<dd>
+ <code>(</code> <i> expression </i> <code>,</code> <i> expression_list_ntc_nonempty </i> <code>)</code> </dd>
+<dt id="dt:statement_except_hashif-2"><a href="#dt:statement_except_hashif-2"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <code>;</code> <br><b>|</b> <i> expression </i> <code>;</code> <br><b>|</b> <code>if</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> <br><b>|</b> <code>if</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> <code>else</code> <i> statement </i> </dd>
+<dt id="dt:statement-2"><a href="#dt:statement-2"><i>statement</i> →</a></dt>
+<dd>
+ <code>#if</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> <br><b>|</b> <code>#if</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> <code>#else</code> <i> statement </i> </dd>
+<dt id="dt:statement_except_hashif-3"><a href="#dt:statement_except_hashif-3"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <code>while</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> <br><b>|</b> <code>do</code> <i> statement </i> <code>while</code> <code>(</code> <i> expression </i> <code>)</code> <code>;</code> </dd>
+<dt id="dt:for_post"><a href="#dt:for_post"><i>for_post</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> for_post_nonempty </i> </dd>
+<dt id="dt:for_post_nonempty"><a href="#dt:for_post_nonempty"><i>for_post_nonempty</i> →</a></dt>
+<dd>
+ <i> for_post_one </i> <br><b>|</b> <i> for_post_nonempty </i> <code>,</code> <i> for_post_one </i> </dd>
+<dt id="dt:for_post_one"><a href="#dt:for_post_one"><i>for_post_one</i> →</a></dt>
+<dd>
+ <i> assign_stmt </i> <br><b>|</b> <i> assignop </i> <br><b>|</b> <i> expression </i> </dd>
+<dt id="dt:for_pre"><a href="#dt:for_pre"><i>for_pre</i> →</a></dt>
+<dd>
+ <i> local </i> <br><b>|</b> <i> for_post </i> </dd>
+<dt id="dt:statement_except_hashif-4"><a href="#dt:statement_except_hashif-4"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <code>for</code> <code>(</code> <i> for_pre </i> <code>;</code> <i> expression_opt </i> <code>;</code> <i> for_post </i> <code>)</code> <i> statement </i> <br><b>|</b> <code>switch</code> <code>(</code> <i> expression </i> <code>)</code> <code>{</code> <i> stmt_or_case_list </i> <code>}</code> </dd>
+<dt id="dt:stmt_or_case"><a href="#dt:stmt_or_case"><i>stmt_or_case</i> →</a></dt>
+<dd>
+ <i> statement_except_hashif </i> <br><b>|</b> <i> cond_case_statement </i> <br><b>|</b> <i> case_statement </i> </dd>
+<dt id="dt:cond_case_statement"><a href="#dt:cond_case_statement"><i>cond_case_statement</i> →</a></dt>
+<dd>
+ <code>#if</code> <code>(</code> <i> expression </i> <code>)</code> <code>{</code> <i> stmt_or_case_list </i> <code>}</code> <br><b>|</b> <code>#if</code> <code>(</code> <i> expression </i> <code>)</code> <code>{</code> <i> stmt_or_case_list </i> <code>}</code> <code>#else</code> <code>{</code> <i> stmt_or_case_list </i> <code>}</code> </dd>
+<dt id="dt:stmt_or_case_list"><a href="#dt:stmt_or_case_list"><i>stmt_or_case_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> stmt_or_case_list </i> <i> stmt_or_case </i> </dd>
+<dt id="dt:statement_except_hashif-5"><a href="#dt:statement_except_hashif-5"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <code>delete</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>try</code> <i> statement </i> <code>catch</code> <i> statement </i> <br><b>|</b> <code>after</code> <i> expression </i> <i>identifier</i> <code>:</code> <i> expression </i> <code>;</code> </dd>
+<dt id="dt:ident_list"><a href="#dt:ident_list"><i>ident_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> nonempty_ident_list </i> </dd>
+<dt id="dt:nonempty_ident_list"><a href="#dt:nonempty_ident_list"><i>nonempty_ident_list</i> →</a></dt>
+<dd>
+ <i> ident </i> <br><b>|</b> <i> nonempty_ident_list </i> <code>,</code> <i> ident </i> </dd>
+<dt id="dt:ident_or_discard_list"><a href="#dt:ident_or_discard_list"><i>ident_or_discard_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> nonempty_ident_or_discard_list </i> </dd>
+<dt id="dt:nonempty_ident_or_discard_list"><a href="#dt:nonempty_ident_or_discard_list"><i>nonempty_ident_or_discard_list</i> →</a></dt>
+<dd>
+ <i> ident_or_discard </i> <br><b>|</b> <i> nonempty_ident_or_discard_list </i> <code>,</code> <i> ident_or_discard </i> </dd>
+<dt id="dt:statement_except_hashif-6"><a href="#dt:statement_except_hashif-6"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <code>after</code> <i> expression </i> <code>-&gt;</code> <code>(</code> <i> ident_or_discard_list </i> <code>)</code> <code>:</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>after</code> <i> expression </i> <code>-&gt;</code> <i> ident </i> <code>:</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>after</code> <i> expression </i> <code>-&gt;</code> <i> discard </i> <code>:</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>after</code> <i> expression </i> <code>:</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>after</code> <code>:</code> <i> expression </i> <code>;</code> <br><b>|</b> <code>assert</code> <i> expression </i> <code>;</code> </dd>
+<dt id="dt:log_kind"><a href="#dt:log_kind"><i>log_kind</i> →</a></dt>
+<dd>
+ <i>identifier</i> <br><b>|</b> <code>error</code> </dd>
+<dt id="dt:log_level"><a href="#dt:log_level"><i>log_level</i> →</a></dt>
+<dd>
+ <i> expression </i> <code>then</code> <i> expression </i> <br><b>|</b> <i> expression </i> </dd>
+<dt id="dt:statement_except_hashif-7"><a href="#dt:statement_except_hashif-7"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <code>log</code> <i> log_kind </i> <code>,</code> <i> log_level </i> <code>,</code> <i> expression </i> <code>:</code> <i> bracketed_string_literal </i> <i> log_args </i> <code>;</code> <br><b>|</b> <code>log</code> <i> log_kind </i> <code>,</code> <i> log_level </i> <code>:</code> <i> bracketed_string_literal </i> <i> log_args </i> <code>;</code> <br><b>|</b> <code>log</code> <i> log_kind </i> <code>:</code> <i> bracketed_string_literal </i> <i> log_args </i> <code>;</code> </dd>
+<dt id="dt:hashselect"><a href="#dt:hashselect"><i>hashselect</i> →</a></dt>
+<dd>
+ <code>#select</code> </dd>
+<dt id="dt:statement_except_hashif-8"><a href="#dt:statement_except_hashif-8"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <i> hashselect </i> <i> ident_or_discard </i> <code>in</code> <code>(</code> <i> expression </i> <code>)</code> <code>where</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> <i> hashelse </i> <i> statement </i> <br><b>|</b> <code>foreach</code> <i> ident_or_discard </i> <code>in</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> <br><b>|</b> <code>#foreach</code> <i> ident_or_discard </i> <code>in</code> <code>(</code> <i> expression </i> <code>)</code> <i> statement </i> </dd>
+<dt id="dt:case_statement"><a href="#dt:case_statement"><i>case_statement</i> →</a></dt>
+<dd>
+ <code>case</code> <i> expression </i> <code>:</code> <br><b>|</b> <code>default</code> <code>:</code> </dd>
+<dt id="dt:statement_except_hashif-9"><a href="#dt:statement_except_hashif-9"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <code>goto</code> <i> ident </i> <code>;</code> <br><b>|</b> <code>break</code> <code>;</code> <br><b>|</b> <code>continue</code> <code>;</code> <br><b>|</b> <code>throw</code> <code>;</code> <br><b>|</b> <code>return</code> <code>;</code> <br><b>|</b> <code>return</code> <i> initializer </i> <code>;</code> <br><b>|</b> <i> error_stmt </i> </dd>
+<dt id="dt:error_stmt"><a href="#dt:error_stmt"><i>error_stmt</i> →</a></dt>
+<dd>
+ <code>error</code> <code>;</code> <br><b>|</b> <code>error</code> <i> bracketed_string_literal </i> <code>;</code> </dd>
+<dt id="dt:statement_except_hashif-10"><a href="#dt:statement_except_hashif-10"><i>statement_except_hashif</i> →</a></dt>
+<dd>
+ <i> warning_stmt </i> </dd>
+<dt id="dt:warning_stmt"><a href="#dt:warning_stmt"><i>warning_stmt</i> →</a></dt>
+<dd>
+ <code>_warning</code> <i> bracketed_string_literal </i> <code>;</code> </dd>
+<dt id="dt:log_args"><a href="#dt:log_args"><i>log_args</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> log_args </i> <code>,</code> <i> expression </i> </dd>
+<dt id="dt:compound_statement"><a href="#dt:compound_statement"><i>compound_statement</i> →</a></dt>
+<dd>
+ <code>{</code> <i> statement_list </i> <code>}</code> </dd>
+<dt id="dt:statement_list"><a href="#dt:statement_list"><i>statement_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> statement_list </i> <i> statement </i> </dd>
+<dt id="dt:local_keyword"><a href="#dt:local_keyword"><i>local_keyword</i> →</a></dt>
+<dd>
+ <code>local</code> </dd>
+<dt id="dt:static"><a href="#dt:static"><i>static</i> →</a></dt>
+<dd>
+ <code>session</code> </dd>
+<dt id="dt:local_decl_kind"><a href="#dt:local_decl_kind"><i>local_decl_kind</i> →</a></dt>
+<dd>
+ <i> local_keyword </i> <br><b>|</b> <i> static </i> </dd>
+<dt id="dt:local"><a href="#dt:local"><i>local</i> →</a></dt>
+<dd>
+ <i> local_decl_kind </i> <i> cdecl_maybe_discarded </i> <br><b>|</b> <code>saved</code> <i> cdecl_maybe_discarded </i> <br><b>|</b> <i> local_decl_kind </i> <i> cdecl_maybe_discarded </i> <code>=</code> <i> initializer </i> <br><b>|</b> <code>saved</code> <i> cdecl_maybe_discarded </i> <code>=</code> <i> initializer </i> <br><b>|</b> <i> local_decl_kind </i> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <br><b>|</b> <code>saved</code> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <br><b>|</b> <i> local_decl_kind </i> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <code>=</code> <i> initializer </i> <br><b>|</b> <code>saved</code> <code>(</code> <i> cdecl_maybe_discarded_list_nonempty </i> <code>)</code> <code>=</code> <i> initializer </i> </dd>
+<dt id="dt:simple_array_list"><a href="#dt:simple_array_list"><i>simple_array_list</i> →</a></dt>
+<dd>
+ &lt;empty&gt; <br><b>|</b> <i> simple_array_list </i> <code>[</code> <i> expression </i> <code>]</code> </dd>
+<dt id="dt:hook_decl"><a href="#dt:hook_decl"><i>hook_decl</i> →</a></dt>
+<dd>
+ <code>hook</code> <code>(</code> <i> cdecl_maybe_discarded_list </i> <code>)</code> <i> ident </i> <i> simple_array_list </i> <code>;</code> </dd>
+<dt id="dt:object-6"><a href="#dt:object-6"><i>object</i> →</a></dt>
+<dd>
+ <i> hook_decl </i> </dd>
+<dt id="dt:objident_list"><a href="#dt:objident_list"><i>objident_list</i> →</a></dt>
+<dd>
+ <i> objident </i> <br><b>|</b> <i> objident_list </i> <code>,</code> <i> objident </i> </dd>
+<dt id="dt:objident_base"><a href="#dt:objident_base"><i>objident_base</i> →</a></dt>
+<dd>
+ <i> ident </i> <br><b>|</b> <code>register</code> </dd>
+<dt id="dt:objident"><a href="#dt:objident"><i>objident</i> →</a></dt>
+<dd>
+ <i> objident_base </i> <br><b>|</b> <code>discard</code> </dd>
+<dt id="dt:ident_or_discard"><a href="#dt:ident_or_discard"><i>ident_or_discard</i> →</a></dt>
+<dd>
+ <i> ident </i> <br><b>|</b> <i> discard </i> </dd>
+<dt id="dt:discard"><a href="#dt:discard"><i>discard</i> →</a></dt>
+<dd>
+ <code>discard</code> </dd>
+<dt id="dt:ident"><a href="#dt:ident"><i>ident</i> →</a></dt>
+<dd>
+ <code>attribute</code> <br><b>|</b> <code>bank</code> <br><b>|</b> <code>bitorder</code> <br><b>|</b> <code>connect</code> <br><b>|</b> <code>constant</code> <br><b>|</b> <code>device</code> <br><b>|</b> <code>event</code> <br><b>|</b> <code>field</code> <br><b>|</b> <code>footer</code> <br><b>|</b> <code>group</code> <br><b>|</b> <code>header</code> <br><b>|</b> <code>implement</code> <br><b>|</b> <code>import</code> <br><b>|</b> <code>interface</code> <br><b>|</b> <code>loggroup</code> <br><b>|</b> <code>method</code> <br><b>|</b> <code>port</code> <br><b>|</b> <code>size</code> <br><b>|</b> <code>subdevice</code> <br><b>|</b> <code>then</code> <br><b>|</b> <code>throws</code> <br><b>|</b> <code>_header</code> <br><b>|</b> <code>provisional</code> <br><b>|</b> <code>param</code> <br><b>|</b> <code>saved</code> <br><b>|</b> <code>independent</code> <br><b>|</b> <code>startup</code> <br><b>|</b> <code>memoized</code> <br><b>|</b> <i>identifier</i> <br><b>|</b> <code>class</code> <br><b>|</b> <code>enum</code> <br><b>|</b> <code>namespace</code> <br><b>|</b> <code>private</code> <br><b>|</b> <code>protected</code> <br><b>|</b> <code>public</code> <br><b>|</b> <code>restrict</code> <br><b>|</b> <code>union</code> <br><b>|</b> <code>using</code> <br><b>|</b> <code>virtual</code> <br><b>|</b> <code>volatile</code> <br><b>|</b> <code>call</code> <br><b>|</b> <code>auto</code> <br><b>|</b> <code>static</code> <br><b>|</b> <code>select</code> <br><b>|</b> <code>async</code> <br><b>|</b> <code>await</code> <br><b>|</b> <code>with</code> </dd>
+</dl>
+
+<div class="chain">
+<a href="changes-manual.html">D.6 Backward incompatible changes, not automatically converted</a>
+</div>

@@ -1,0 +1,612 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>SystemC Checkpoint Library Manual</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="systemc-checkpoint-library-manual"><a href="#systemc-checkpoint-library-manual">SystemC Checkpoint Library Manual</a></h1>
+<h2 id="introduction"><a href="#introduction">1 Introduction</a></h2>
+<p>The SystemC Checkpoint Library provides the capability to save and restore the
+state of SystemC devices. Using the API, users can add checkpoint support to
+their devices. C++ and SystemC data types, user-defined data types, pointers,
+generic payloads, and STL containers can be saved in checkpoints.</p>
+<p>The library also provides infrastructure for state keepers. This is useful when
+applications need to handle parts of device state separately, for example for
+large memory images.</p>
+<p>The checkpoint library is integrated into the Simics SystemC Library, which makes save
+and restore of SystemC state analogous to the rest of Simics. The checkpoint library can
+also be used independently of Simics.</p>
+<p>This manual describes how to use the checkpoint library to serialize SystemC
+modules and other user types.</p>
+<h2 id="concept-overview"><a href="#concept-overview">2 Concept Overview</a></h2>
+<p>The checkpoint API relies on the Boost C++ Libraries, specifically the Boost.Serialization library. To maintain a clear separation between Boost and the Checkpoint library the Serialization library has been forked into the <code>cci::</code> namespace.</p>
+<h3 id="serializers"><a href="#serializers">2.1 Serializers</a></h3>
+<p>Classes that contain state should implement a <code>serialize</code> function. This
+function is invoked when checkpoints are saved or loaded and should serialize
+all state within the class. Any subsequent objects contained within the class
+may in turn be serialized by invoking their <code>serialize</code> function.</p>
+<p>SystemC modules are serialized by the checkpoint library itself. The code that
+provides a module is responsible for instantiating a <code>Serializer</code>, which
+registers that module type with the framework so that it may be automatically
+serialized. That is, a library providing modules is responsible for registering
+those modules, and a programmer creating a new module is responsible for
+registering it with the checkpoint library.</p>
+<p>This is described in detail in the <a href="#serialization">Serialization</a> section.</p>
+<p>Reference snippets:</p>
+<!-- AUTO-SNIPPET: user-module -->
+<pre><code class="language-cpp">SC_MODULE(UserModule) {
+  public:
+    SC_CTOR(UserModule) : a_(0), b_(0) {}
+
+  private:
+    int a_;
+    int b_;
+
+    friend class cci::serialization::access;
+    template &lt;class Archive&gt;
+        void serialize(Archive&amp; ar, const unsigned int version) {
+        ar &amp; SMD(a_);
+        ar &amp; SMD(b_);
+    }
+};
+</code></pre>
+<!-- AUTO-SNIPPET: user-module-serializer -->
+<pre><code class="language-cpp">static sc_checkpoint::serialization::Serializer&lt;UserModule&gt; um_serializer;
+</code></pre>
+<h3 id="non-modules"><a href="#non-modules">2.2 Non-modules</a></h3>
+<p>Types that are not SystemC modules must be explicitly serialized in the parent
+class <code>serialize</code> function. These types do not need a <code>Serializer</code> instance.</p>
+<p>The user does not have to provide <code>serialize</code> functions for all types,
+however. For instance, C++ data types are supported by Boost.Serialization
+out-of-the-box. Furthermore, the checkpoint library provides serialization
+support for some SystemC types and STL containers.</p>
+<p>See the <a href="#serialization">Serialization</a> section for details.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: non-module -->
+<pre><code class="language-cpp">SC_MODULE(A) {
+  public:
+    SC_CTOR(A) : a_(0) {}
+    int a_;
+
+    template &lt;class Archive&gt;
+    void serialize(Archive&amp; ar, const unsigned int version) {
+        ar &amp; SMD(a_);
+    }
+};
+
+class B {
+  public:
+    B() : b_(0) {}
+    int b_;
+
+    template &lt;class Archive&gt;
+    void serialize(Archive&amp; ar, const unsigned int version) {
+        ar &amp; SMD(b_);
+    }
+};
+
+SC_MODULE(C) {
+  public:
+    SC_CTOR(C) : a_("a") {}
+    A a_;
+    B b_;
+
+    template &lt;class Archive&gt;
+    void serialize(Archive&amp; ar, const unsigned int version) {
+        // no need to explicitly serialize a_ since it is a module
+        ar &amp; SMD(b_);
+    }
+};
+
+static sc_checkpoint::serialization::Serializer&lt;A&gt; a_serializer;
+// there is no serializer for 'B'
+static sc_checkpoint::serialization::Serializer&lt;C&gt; c_serializer;
+</code></pre>
+<h3 id="state-keepers"><a href="#state-keepers">2.3 State Keepers</a></h3>
+<p>State keepers let users handle saving and restoration for parts of their system,
+which is useful for large memory images and incremental checkpoints.</p>
+<p>All SystemC objects implementing the state-keeper interface are discovered
+automatically. There is no need to register a <code>serialize</code> function for these
+objects. Instead, the methods in the state-keeper interface are used for
+checkpoint handling.</p>
+<p>This is detailed in the <a href="#state-keeper-interface">State Keeper Interface</a>
+section.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: state-keeper-interface -->
+<pre><code class="language-cpp">class StateKeeperInterface {
+  public:
+    virtual ~StateKeeperInterface() {}
+
+    /**
+     * State in the implementer is saved incrementally using this function. The
+     * function must produce a handle which the library can use to restore or
+     * merge with other in-memory states.
+     */
+    virtual bool save(void **handleOut) = 0;
+
+    /**
+     * Arbitrary state is restored in the implementer when this function is
+     * invoked with a corresponding handle.
+     */
+    virtual bool restore(void *handle) = 0;
+
+    /**
+     * This function merges two states that are identified by the handles. The
+     * contents of handleRemove are appended to handlePrevious, and
+     * handleRemove is subsequently removed rendering the handle invalid.
+     * NOTE: handlePrevious could be NULL, in which case handleRemove is just
+     * removed
+     */
+    virtual bool merge(void *handlePrevious, void *handleRemove) = 0;
+
+    /**
+     * Write the state to disk. Dir is the directory in which state shall be
+     * saved and prefix is a directory unique identifier. Persistent is a
+     * boolean that indicates whether or not only persistent state should be
+     * saved to disk. If persistent is not set all state is saved.
+     */
+    virtual bool write(const std::string &amp;dir,
+                       const std::string &amp;prefix,
+                       bool persistent) = 0;
+
+    /**
+     * Write a standalone checkpoint to disk. That is, the written checkpoint
+     * cannot be dependent on any previous checkpoints. Dir is the directory in
+     * which state shall be saved and prefix is a directory unique
+     * identifier. Persistent is a boolean that indicates whether or not only
+     * persistent state should be saved to disk. If persistent is not set all
+
+     * state is saved.
+     */
+    virtual bool write_standalone(
+        const std::string &amp;dir, const std::string &amp;prefix, bool persistent) = 0;
+
+    /**
+     * Restore state from disk. Dirs is a list of checkpoint directories and
+     * prefix is an identifier.
+     */
+    virtual bool read(const std::vector&lt;std::string&gt; &amp;dirs,
+                      const std::string prefix, bool persistent) = 0;
+};
+</code></pre>
+<h3 id="threads"><a href="#threads">2.4 Threads</a></h3>
+<p>The checkpoint library does not save and restore thread stacks directly. It
+provides the means to restart threads and restore the corresponding thread
+stacks. This is accomplished by a combination of using the <code>serialize</code>
+function of the parent module to restore the state of the thread and a
+following reset of the thread process. The checkpoint library guarantees that
+all <code>serialize</code> functions are called before threads are restarted.</p>
+<p>See the <a href="#thread-stack-restore">Thread Stack Restore</a> section for details.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: thread -->
+<pre><code class="language-cpp">SC_MODULE(ThreadModule) {
+    enum {
+        WAIT_FOR_EVENT,
+        WAIT_FOR_TIME,
+        DONE
+    };
+    SC_CTOR(ThreadModule) : state_(WAIT_FOR_EVENT) {
+        SC_THREAD(thread);
+    }
+    template &lt;class Archive&gt;
+        void serialize(Archive&amp; ar, const unsigned int version) {
+        ar &amp; SMD(state_);
+    }
+    void thread() {
+        while (true) {
+            switch (state_) {
+            case WAIT_FOR_EVENT: {
+                sc_core::wait(event_);
+                state_ = WAIT_FOR_TIME;
+            }
+                break;
+            case WAIT_FOR_TIME: {
+                sc_core::wait(5, sc_core::SC_PS);
+                state_ = DONE;
+            }
+                break;
+            case DONE: {
+                sc_core::wait();
+            }
+                break;
+            }
+        }
+    }
+
+    sc_core::sc_event event_;
+    int state_;
+};
+</code></pre>
+<h3 id="payloads"><a href="#payloads">2.5 Payloads</a></h3>
+<p>The checkpoint library also provides infrastructure for the restoration of
+generic payloads. In order to restore payloads, the objects that reference them
+must serialize them as part of their <code>serialize</code> functions, and a
+<code>PayloadUpdate</code> object should be provided to restore the contents of the
+payload.</p>
+<p>This is described in the <a href="#serializing-generic-payloads">Serializing Generic Payloads</a>
+section.</p>
+<p>Reference snippets:</p>
+<!-- AUTO-SNIPPET: payload-update -->
+<pre><code class="language-cpp">template &lt;class T&gt;
+class PayloadUpdate : public PayloadUpdateInterface {
+  public:
+    PayloadUpdate() {
+        PayloadUpdateRegistry::Instance()-&gt;registerUpdater(this);
+    }
+    virtual ~PayloadUpdate() {
+        PayloadUpdateRegistry::Instance()-&gt;unregisterUpdater(this);
+    }
+
+    virtual void set_data_ptr(T *t, tlm::tlm_generic_payload *payload) {}
+    virtual void set_byte_enable_ptr(T *t,
+                                     tlm::tlm_generic_payload *payload) {}
+    virtual void set_extensions(T *t, tlm::tlm_generic_payload *payload) {}
+    virtual void set_memory_manager(T *t, tlm::tlm_generic_payload *payload) {}
+
+  private:
+    virtual bool isUpdatable(sc_core::sc_object *object) {
+        return dynamic_cast&lt;T *&gt; (object) != NULL;
+    }
+    virtual void updateDataPtr(sc_core::sc_object *object,
+                               tlm::tlm_generic_payload *payload) {
+        set_data_ptr(static_cast&lt;T *&gt;(object), payload);
+    }
+    virtual void updateByteEnablePtr(sc_core::sc_object *object,
+                                     tlm::tlm_generic_payload *payload) {
+        set_byte_enable_ptr(static_cast&lt;T *&gt;(object), payload);
+    }
+    virtual void updateExtensions(sc_core::sc_object *object,
+                                  tlm::tlm_generic_payload *payload) {
+        set_extensions(static_cast&lt;T *&gt;(object), payload);
+    }
+    virtual void updateMemoryManager(sc_core::sc_object *object,
+                                     tlm::tlm_generic_payload *payload) {
+        set_memory_manager(static_cast&lt;T *&gt;(object), payload);
+    }
+};
+</code></pre>
+<!-- AUTO-SNIPPET: payload -->
+<pre><code class="language-cpp">SC_MODULE(PayloadModule) {
+  public:
+    SC_CTOR(PayloadModule) {
+        payload_ = new tlm::tlm_generic_payload;
+    }
+    template &lt;class Archive&gt;
+    void serialize(Archive&amp; ar, const unsigned int version) {
+        ar &amp; SMD(data_)
+           &amp; SMD(payload_);
+    }
+
+    unsigned char data_[10];
+    tlm::tlm_generic_payload *payload_;
+};
+
+class PayloadUpdater : public sc_checkpoint::PayloadUpdate&lt;PayloadModule&gt; {
+  public:
+    PayloadUpdater() {}
+    virtual void set_data_ptr(PayloadModule *m,
+                              tlm::tlm_generic_payload *p) {
+        p-&gt;set_data_ptr(m-&gt;data_);
+    }
+};
+
+static sc_checkpoint::serialization::Serializer&lt;PayloadModule&gt; p_serializer;
+static PayloadUpdater p_updater;
+</code></pre>
+<h2 id="serialization"><a href="#serialization">3 Serialization</a></h2>
+<p>To interact with Boost.Serialization, the checkpoint library provides a custom
+archive and a set of macros/functions used to transform state to and from text.</p>
+<p>The checkpoint library serializes SystemC state and formats output as JSON text.
+Only state is saved and restored. Configuration recreation is the user’s
+responsibility.</p>
+<h3 id="serializing-user-types"><a href="#serializing-user-types">3.1 Serializing User Types</a></h3>
+<p>Classes that should be serialized implement a <code>serialize</code> function.</p>
+<p>Use the <code>SMD</code> macro to capture serializable metadata from variables. Use
+<code>create_smd</code> when you want explicit naming for compatibility over time.
+This is recommended for backwards compatibility when the contents otherwise
+wrapped in <code>SMD</code> are likely to change.</p>
+<p>Do not serialize the same instance multiple times; behavior is undefined.</p>
+<p>For advanced Boost.Serialization patterns (split save/load, external serialize,
+and so on), see the Boost.Serialization documentation.</p>
+<p>Reference snippets:</p>
+<!-- AUTO-SNIPPET: static -->
+<pre><code class="language-cpp">template &lt;class Archive&gt;
+void serialize(Archive&amp; ar, const unsigned int version) {
+    ar &amp; SMD(static_array_);
+}
+</code></pre>
+<!-- AUTO-SNIPPET: heap -->
+<pre><code class="language-cpp">template&lt;class Archive&gt;
+void save(Archive &amp;ar, const unsigned int version) const {
+    ar &lt;&lt; SMD(size_)
+       &lt;&lt; sc_checkpoint::serialization::create_smd(
+              "array", sc_checkpoint::serialization::make_array(array_, size_));
+}
+
+template&lt;class Archive&gt;
+void load(Archive &amp;ar, const unsigned int version) {
+    delete[] array_;
+    ar &gt;&gt; SMD(size_);
+
+    array_ = new int[size_];
+    ar &gt;&gt; sc_checkpoint::serialization::create_smd(
+              "array", sc_checkpoint::serialization::make_array(array_, size_));
+}
+
+CCI_SERIALIZATION_SPLIT_MEMBER()
+</code></pre>
+<h3 id="type-registration"><a href="#type-registration">3.2 Type Registration</a></h3>
+<p>When modules implement <code>serialize</code>, register them by creating a matching
+<code>Serializer&lt;T&gt;</code> instance.
+This is done on a class-by-class basis; it is not necessary to instantiate a
+<code>Serializer</code> for every class instance.</p>
+<p>Only module types need <code>Serializer</code> registration. Supporting non-module types
+need only implement <code>serialize</code> and be archived by containing modules.
+If a third-party library provides checkpointable modules, that library is
+responsible for creating the necessary <code>Serializer</code> instances.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: user-module-serializer -->
+<pre><code class="language-cpp">static sc_checkpoint::serialization::Serializer&lt;UserModule&gt; um_serializer;
+</code></pre>
+<h3 id="serializing-generic-payloads"><a href="#serializing-generic-payloads">3.3 Serializing Generic Payloads</a></h3>
+<p>Include <code>systemc-checkpoint/serialization/payload.h</code> and serialize payload
+members as normal.</p>
+<p>Also provide and instantiate a <code>PayloadUpdate&lt;OwnerModule&gt;</code> implementation that
+restores payload data.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: payload-update -->
+<pre><code class="language-cpp">template &lt;class T&gt;
+class PayloadUpdate : public PayloadUpdateInterface {
+  public:
+    PayloadUpdate() {
+        PayloadUpdateRegistry::Instance()-&gt;registerUpdater(this);
+    }
+    virtual ~PayloadUpdate() {
+        PayloadUpdateRegistry::Instance()-&gt;unregisterUpdater(this);
+    }
+
+    virtual void set_data_ptr(T *t, tlm::tlm_generic_payload *payload) {}
+    virtual void set_byte_enable_ptr(T *t,
+                                     tlm::tlm_generic_payload *payload) {}
+    virtual void set_extensions(T *t, tlm::tlm_generic_payload *payload) {}
+    virtual void set_memory_manager(T *t, tlm::tlm_generic_payload *payload) {}
+
+  private:
+    virtual bool isUpdatable(sc_core::sc_object *object) {
+        return dynamic_cast&lt;T *&gt; (object) != NULL;
+    }
+    virtual void updateDataPtr(sc_core::sc_object *object,
+                               tlm::tlm_generic_payload *payload) {
+        set_data_ptr(static_cast&lt;T *&gt;(object), payload);
+    }
+    virtual void updateByteEnablePtr(sc_core::sc_object *object,
+                                     tlm::tlm_generic_payload *payload) {
+        set_byte_enable_ptr(static_cast&lt;T *&gt;(object), payload);
+    }
+    virtual void updateExtensions(sc_core::sc_object *object,
+                                  tlm::tlm_generic_payload *payload) {
+        set_extensions(static_cast&lt;T *&gt;(object), payload);
+    }
+    virtual void updateMemoryManager(sc_core::sc_object *object,
+                                     tlm::tlm_generic_payload *payload) {
+        set_memory_manager(static_cast&lt;T *&gt;(object), payload);
+    }
+};
+</code></pre>
+<h3 id="stl-containers"><a href="#stl-containers">3.4 STL Containers</a></h3>
+<p>STL containers are supported similarly to Boost.Serialization. Include the
+matching checkpoint header:</p>
+<ul>
+<li><code>bitset</code> -&gt; <code>systemc-checkpoint/serialization/bitset.h</code></li>
+<li><code>deque</code> -&gt; <code>systemc-checkpoint/serialization/deque.h</code></li>
+<li><code>list</code> -&gt; <code>systemc-checkpoint/serialization/list.h</code></li>
+<li><code>map</code>/<code>multimap</code> -&gt; <code>systemc-checkpoint/serialization/map.h</code></li>
+<li><code>pair</code> -&gt; <code>systemc-checkpoint/serialization/pair.h</code></li>
+<li><code>queue</code>/<code>priority_queue</code> -&gt; <code>systemc-checkpoint/serialization/queue.h</code></li>
+<li><code>set</code>/<code>multiset</code> -&gt; <code>systemc-checkpoint/serialization/set.h</code></li>
+<li><code>stack</code> -&gt; <code>systemc-checkpoint/serialization/stack.h</code></li>
+<li><code>valarray</code> -&gt; <code>systemc-checkpoint/serialization/valarray.h</code></li>
+<li><code>vector</code> -&gt; <code>systemc-checkpoint/serialization/vector.h</code></li>
+</ul>
+<h3 id="arrays"><a href="#arrays">3.5 Arrays</a></h3>
+<p>Include <code>systemc-checkpoint/serialization/array.h</code>.</p>
+<p>Reference snippets:</p>
+<!-- AUTO-SNIPPET: static -->
+<pre><code class="language-cpp">template &lt;class Archive&gt;
+void serialize(Archive&amp; ar, const unsigned int version) {
+    ar &amp; SMD(static_array_);
+}
+</code></pre>
+<!-- AUTO-SNIPPET: heap -->
+<pre><code class="language-cpp">template&lt;class Archive&gt;
+void save(Archive &amp;ar, const unsigned int version) const {
+    ar &lt;&lt; SMD(size_)
+       &lt;&lt; sc_checkpoint::serialization::create_smd(
+              "array", sc_checkpoint::serialization::make_array(array_, size_));
+}
+
+template&lt;class Archive&gt;
+void load(Archive &amp;ar, const unsigned int version) {
+    delete[] array_;
+    ar &gt;&gt; SMD(size_);
+
+    array_ = new int[size_];
+    ar &gt;&gt; sc_checkpoint::serialization::create_smd(
+              "array", sc_checkpoint::serialization::make_array(array_, size_));
+}
+
+CCI_SERIALIZATION_SPLIT_MEMBER()
+</code></pre>
+<h3 id="base-classes"><a href="#base-classes">3.6 Base Classes</a></h3>
+<p>Use <code>SMD_BASE_OBJECT(BaseType)</code> to serialize base-class state.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: base -->
+<pre><code class="language-cpp">template &lt;class Archive&gt;
+void serialize(Archive&amp; ar, const unsigned int version) {
+    ar &amp; SMD_BASE_OBJECT(Base);
+}
+</code></pre>
+<h2 id="state-keeper-interface"><a href="#state-keeper-interface">4 State Keeper Interface</a></h2>
+<p>State keepers are useful when full-image save/restore is too expensive and
+incremental state handling is needed.</p>
+<p><code>StateKeeperInterface</code> includes methods for in-memory checkpoints (<code>save</code>,
+<code>load</code>, <code>merge</code>) and on-disk checkpoints (<code>write_standalone</code>, <code>write</code>, <code>read</code>).</p>
+<p>All methods report success/failure through their return value.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: state-keeper-interface -->
+<pre><code class="language-cpp">class StateKeeperInterface {
+  public:
+    virtual ~StateKeeperInterface() {}
+
+    /**
+     * State in the implementer is saved incrementally using this function. The
+     * function must produce a handle which the library can use to restore or
+     * merge with other in-memory states.
+     */
+    virtual bool save(void **handleOut) = 0;
+
+    /**
+     * Arbitrary state is restored in the implementer when this function is
+     * invoked with a corresponding handle.
+     */
+    virtual bool restore(void *handle) = 0;
+
+    /**
+     * This function merges two states that are identified by the handles. The
+     * contents of handleRemove are appended to handlePrevious, and
+     * handleRemove is subsequently removed rendering the handle invalid.
+     * NOTE: handlePrevious could be NULL, in which case handleRemove is just
+     * removed
+     */
+    virtual bool merge(void *handlePrevious, void *handleRemove) = 0;
+
+    /**
+     * Write the state to disk. Dir is the directory in which state shall be
+     * saved and prefix is a directory unique identifier. Persistent is a
+     * boolean that indicates whether or not only persistent state should be
+     * saved to disk. If persistent is not set all state is saved.
+     */
+    virtual bool write(const std::string &amp;dir,
+                       const std::string &amp;prefix,
+                       bool persistent) = 0;
+
+    /**
+     * Write a standalone checkpoint to disk. That is, the written checkpoint
+     * cannot be dependent on any previous checkpoints. Dir is the directory in
+     * which state shall be saved and prefix is a directory unique
+     * identifier. Persistent is a boolean that indicates whether or not only
+     * persistent state should be saved to disk. If persistent is not set all
+
+     * state is saved.
+     */
+    virtual bool write_standalone(
+        const std::string &amp;dir, const std::string &amp;prefix, bool persistent) = 0;
+
+    /**
+     * Restore state from disk. Dirs is a list of checkpoint directories and
+     * prefix is an identifier.
+     */
+    virtual bool read(const std::vector&lt;std::string&gt; &amp;dirs,
+                      const std::string prefix, bool persistent) = 0;
+};
+</code></pre>
+<h3 id="maintaining-portability"><a href="#maintaining-portability">4.1 Maintaining Portability</a></h3>
+<p>When writing checkpoints to disk, use relative references rather than absolute
+paths. If checkpoint directories move, relative references remain valid and can
+be remapped from the path list provided during read.</p>
+<h2 id="thread-stack-restore"><a href="#thread-stack-restore">5 Thread Stack Restore</a></h2>
+<p>Thread stack restoration uses a two-phase process:</p>
+<ol>
+<li>Restore serialized state.</li>
+<li>Restart thread processes and rebuild stacks.</li>
+</ol>
+<p>Thread restart logic must not rely on global synchronization or restart order.</p>
+<p>Do not catch <code>sc_unwind_exception</code>. Since it derives from <code>std::exception</code>,
+avoid broad exception handling that would intercept it.</p>
+<h2 id="callbacks"><a href="#callbacks">6 Callbacks</a></h2>
+<p>Devices may need pre/post actions during serialization (for cache flushing,
+thread preparation, and similar work).</p>
+<p>Implement <code>SerializeCallbackInterface</code> to receive callback hooks around
+serialization and before thread startup.</p>
+<p>Reference snippet:</p>
+<!-- AUTO-SNIPPET: serialize-callback-interface -->
+<pre><code class="language-cpp">class SerializeCallbackInterface {
+  public:
+    enum State {
+        State_Saving = 0x1,
+        State_Loading,
+        State_Persistent = 0x10,
+        State_Saving_Persistent = State_Saving | State_Persistent,
+        State_Loading_Persistent = State_Loading | State_Persistent
+    };
+
+    virtual ~SerializeCallbackInterface() {}
+
+    /**
+     * Invoked before any save/load/serialize function is called and before any
+     * state keepers are invoked.
+     */
+    virtual void pre_serialize_callback(State state) = 0;
+
+    /**
+     * Invoked after any save/load/serialize function has been called, but
+     * before any threads have been restarted.
+     */
+    virtual void post_serialize_callback(State state) = 0;
+};
+</code></pre>
+<h2 id="dmi-handling"><a href="#dmi-handling">7 DMI Handling</a></h2>
+<p>Models are responsible for their own memory management. DMI addresses can
+change between runs, so DMI addresses received before checkpoint restore must be
+invalidated on load.</p>
+<h2 id="checkpoint-control"><a href="#checkpoint-control">8 Checkpoint Control</a></h2>
+<p>In standalone applications (without Simics), use <code>CheckpointControl</code> to trigger
+save/load operations.</p>
+<p>Reference snippets:</p>
+<!-- AUTO-SNIPPET: in-memory-state-interface -->
+<pre><code class="language-cpp">class InMemoryStateInterface {
+  public:
+    virtual ~InMemoryStateInterface() {}
+    virtual bool save(void **handle) = 0;
+    virtual bool restore(void *handle) = 0;
+    virtual bool merge(void *handlePrevious, void *handleRemove) = 0;
+};
+</code></pre>
+<!-- AUTO-SNIPPET: on-disk-state-interface -->
+<pre><code class="language-cpp">class OnDiskStateInterface {
+  public:
+    virtual ~OnDiskStateInterface() {}
+
+    virtual bool write(const std::string &amp;dir, bool persistent) = 0;
+
+    virtual bool write_standalone(const std::string &amp;dir, bool persistent) = 0;
+
+    virtual bool read(const std::vector&lt;std::string&gt; &amp;dirs,
+                      bool persistent) = 0;
+};
+</code></pre>
+<p><code>CheckpointControl</code> is declared in:</p>
+<ul>
+<li><code>systemc-checkpoint/checkpoint_control.h</code></li>
+</ul>
+<h2 id="limitations"><a href="#limitations">9 Limitations</a></h2>
+<ul>
+<li>Disk checkpoints are not platform-independent between Linux and Windows.</li>
+<li>Thread stacks are not saved directly; only restart/reconstruction support is
+provided.</li>
+<li>Floating-point save/restore may lose precision.</li>
+<li>Persistent-only state save is not yet supported.</li>
+<li>Dynamic processes are not supported.</li>
+<li>Dynamic events are not supported.</li>
+<li>Checkpoint updaters for old-checkpoint compatibility are not supported.</li>
+<li>Only the QuickThreads backend is supported.</li>
+<li>DMI requires explicit model-level invalidation handling.</li>
+<li>Serializing the same instance multiple times is forbidden.</li>
+<li>Event ordering indeterminism inside a delta cycle is not corrected.</li>
+</ul>
+
+<div class="chain">
+<span></span>
+</div>

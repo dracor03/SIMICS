@@ -1,0 +1,248 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Notifiers</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-errors.html">Errors and Exceptions</a>
+<a href="dev-api-global-notifiers.html">Global Notifiers</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Notifiers</h1>
+<h2 id="SIM_add_notifier"><a href="#SIM_add_notifier">SIM_add_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_add_notifier — add a notifier callback</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+notifier_handle_t *
+SIM_add_notifier(
+        conf_object_t *NOTNULL obj,
+        notifier_type_t type,
+        conf_object_t *subscriber,
+        void (*callback)(conf_object_t *subscriber,
+                         conf_object_t *NOTNULL notifier,
+                         lang_void *data),
+        lang_void *data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_add_notifier(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_add_notifier</code> installs a notifier of type <code>type</code> on the object <code>obj</code>.</p>
+<p>The <code>subscriber</code> argument should be the object listening for the notification; this object is passed as the first argument to the <code>callback</code> function. The installed callback is automatically removed if the subscriber object is deleted. It is legal to pass <code>NULL</code> in the <code>subscriber</code> argument if there is no object associated with the callback.</p>
+<p>The <code>data</code> argument is passed as the last argument to the <code>callback</code> function.</p>
+<p>The function returns a handle to the installed notifier or <code>NULL</code> if the notifier type is not supported by the object.</p>
+<p>Adding a notifier callback from another notifier callback of the same notifier type and object does not trigger an immediate callback invocation (from the same call to <a href="dev-api-notifiers.html#SIM_notify"><code>SIM_notify</code></a>).</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-notifiers.html#SIM_delete_notifier"><code>SIM_delete_notifier</code></a>, <a href="dev-api-notifiers.html#SIM_register_notifier"><code>SIM_register_notifier</code></a></p>
+</section>
+<h2 id="SIM_class_has_notifier"><a href="#SIM_class_has_notifier">SIM_class_has_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_class_has_notifier — query class for notifier</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_class_has_notifier(conf_class_t *NOTNULL cls, notifier_type_t type);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_class_has_notifier(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_class_has_notifier</code> returns <code>true</code> if the class <code>cls</code> supports the notifier specified by <code>type</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_delete_notifier"><a href="#SIM_delete_notifier">SIM_delete_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_delete_notifier — delete notifier callback</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_delete_notifier(conf_object_t *NOTNULL obj, notifier_handle_t *handle);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_delete_notifier(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_delete_notifier</code> deletes the notifier callback specified by the handle <code>handle</code>.</p>
+<p>Notifiers callbacks are deleted automatically when the subscribing object is deleted.</p>
+<p>Deleting a notifier callback from another notifier callback of the same notifier type and object may or may not inhibit the last invocation of the deleted callback; this is undefined.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-notifiers.html#SIM_add_notifier"><code>SIM_add_notifier</code></a></p>
+</section>
+<h2 id="SIM_describe_notifier"><a href="#SIM_describe_notifier">SIM_describe_notifier, SIM_notifier_description</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_describe_notifier, SIM_notifier_description — set short description</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_describe_notifier(notifier_type_t type, const char *NOTNULL generic_desc);
+
+const char *
+SIM_notifier_description(notifier_type_t type);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_describe_notifier(...)
+simics.SIM_notifier_description(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_describe_notifier</code> sets <code>generic_desc</code> as a generic description of the notification specified by the <code>type</code> argument. If the function is called multiple times then the description supplied during the last invocation of the function will be used. The generic description is shown when no description has been provided to the <a href="dev-api-notifiers.html#SIM_register_notifier"><code>SIM_register_notifier</code></a> or <a href="dev-api-notifiers.html#SIM_register_notifier"><code>SIM_register_tracked_notifier</code></a> functions.</p>
+<p><code>SIM_notifier_description</code> returns a generic description that was set with the <code>SIM_describe_notifier</code> for the notification specified by the <code>type</code> argument, or the empty string if no description has been set.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_has_notifier"><a href="#SIM_has_notifier">SIM_has_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_has_notifier — query object for notifier</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_has_notifier(conf_object_t *NOTNULL obj, notifier_type_t type);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_has_notifier(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_has_notifier</code> returns <code>true</code> if the object <code>obj</code> supports the notifier specified by <code>type</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-notifiers.html#SIM_register_notifier"><code>SIM_register_notifier</code></a></p>
+</section>
+<h2 id="SIM_notifier_type"><a href="#SIM_notifier_type">SIM_notifier_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_notifier_type — get notifier type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+notifier_type_t
+SIM_notifier_type(const char *NOTNULL type);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_notifier_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>Given a notifier type <code>type</code> specified in the form of a string, return a <a href="dev-api-types-generic.html#notifier_type_t"><code>notifier_type_t</code></a> identifier which uniquely corresponds to this type.</p>
+<p>This function always returns a valid notifier type; if a particular type string has not been seen before, then a new notifier type is created and associated with this string.</p>
+<p>The string must consist of printable 7-bit ASCII characters, and by convention it should be expressed as a noun with words separated by dashes.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_notify"><a href="#SIM_notify">SIM_notify</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_notify — trigger notification callbacks</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_notify(conf_object_t *NOTNULL obj, notifier_type_t type);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_notify(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_notify</code> function triggers all callbacks associated with the notifier <code>notifier</code> which have been installed on the object <code>obj</code>.</p>
+<p>The order in which notifier callbacks are invoked is undefined, but the same order every time.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-notifiers.html#SIM_register_notifier"><code>SIM_register_notifier</code></a>, <a href="dev-api-notifiers.html#SIM_add_notifier"><code>SIM_add_notifier</code></a></p>
+</section>
+<h2 id="SIM_register_notifier"><a href="#SIM_register_notifier">SIM_register_notifier, SIM_register_tracked_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_register_notifier, SIM_register_tracked_notifier — register notifier</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_register_notifier(conf_class_t *NOTNULL cls, notifier_type_t type,
+                      const char *desc);
+
+void
+SIM_register_tracked_notifier(conf_class_t *NOTNULL cls, notifier_type_t type,
+                              const char *desc,
+                              void (*subscribed_changed)(conf_object_t *obj,
+                                                         notifier_type_t type,
+                                                         bool has_subscribers));
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_register_notifier(...)
+simics.SIM_register_tracked_notifier(...)
+</code></pre>
+<h2>Description</h2>
+<p>These functions add the notifier <code>type</code> (returned by the <a href="dev-api-notifiers.html#SIM_notifier_type"><code>SIM_notifier_type</code></a> function) to the set of notifiers supported by the class <code>cls</code>. The <code>desc</code> argument can be used to provide any relevant documentation, e.g., information about when the notifier is triggered and how it should be used by the objects that subscribe to it. For uniformity, we suggest formatting the description similar to this one of the “frequency-change” notifier: “Notifier that is triggered when frequency changes. New frequency can be read via the frequency interface of the object.”</p>
+<p><code>SIM_register_notifier</code> is the base registration function. It should be used in most cases.</p>
+<p><code>SIM_register_tracked_notifier</code> accepts an additional argument - the <code>subscribed_changed</code> callback. This callback can be used to track whether any respective notification subscribers are installed. The callback is invoked in following cases:</p>
+<ul>
+<li>a. there are no objects subscribed to <code>type</code>’s notifications from <code>obj</code> of <code>cls</code> class, and a new object subscribes to such notifications, i.e., calls <a href="dev-api-notifiers.html#SIM_add_notifier"><code>SIM_add_notifier</code></a>. In this case the callback is invoked with the <code>has_subscribers</code> argument equal to <code>true</code>.</li>
+<li>b. the only object that was subscribed to <code>type</code>’s notifications from <code>obj</code> of <code>cls</code> class unsubscribes from such notifications, either explicitly by a call to <a href="dev-api-notifiers.html#SIM_delete_notifier"><code>SIM_delete_notifier</code></a>, or implicitly when the subscriber object is deleted. In this case the callback is invoked with the <code>has_subscribers</code> argument equal to <code>false</code>.</li>
+</ul>
+<p>If the <code>subscribed_changed</code> argument is equal to <code>NULL</code> then it is just ignored.</p>
+<p>The <code>subscribed_changed</code> callback is not invoked while the notifier object is being deleted. Thus, if the callback relies on data structures owned by the notifier object, then it is still safe for the object’s destructor to deinitialize these data structures needed by the callback.</p>
+<p>It is legal to call <code>SIM_register_notifier</code> multiple times for the same class and the same notifier type. All subsequent invocations done after the notifier was registered are ignored. Calling <code>SIM_register_tracked_notifier</code> multiple times registers multiple <code>subscribed_changed</code> callbacks. All of them will be invoked as it is specified above.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-notifiers.html#SIM_notifier_type"><code>SIM_notifier_type</code></a>, <a href="dev-api-notifiers.html#SIM_notify"><code>SIM_notify</code></a>, <a href="dev-api-notifiers.html#SIM_add_notifier"><code>SIM_add_notifier</code></a></p>
+</section>
+<div class="chain">
+<a href="dev-api-errors.html">Errors and Exceptions</a>
+<a href="dev-api-global-notifiers.html">Global Notifiers</a>
+</div>

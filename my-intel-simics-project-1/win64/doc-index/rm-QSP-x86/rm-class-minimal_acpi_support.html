@@ -1,0 +1,123 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>minimal_acpi_support</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-irq_pin_to_ioapic.html">irq_pin_to_ioapic</a>
+<a href="rm-class-pass_through_remap_unit.html">pass_through_remap_unit</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="minimal_acpi_support"><a href="#minimal_acpi_support">minimal_acpi_support</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>minimal_acpi_support</tt> provides an ACPI timer, shutdown detection, some "Flash"and an SMM trigger mechanism.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-flash_regs"><a href="#dt:bank-flash_regs">bank.flash_regs</a></dt>
+<dd>
+<a href="rm-class-minimal_acpi_support.html#minimal_acpi_support.flash_regs">minimal_acpi_support.flash_regs</a>
+</dd>
+<dt id="dt:bank-pm_regs"><a href="#dt:bank-pm_regs">bank.pm_regs</a></dt>
+<dd>
+<a href="rm-class-minimal_acpi_support.html#minimal_acpi_support.pm_regs">minimal_acpi_support.pm_regs</a>
+</dd>
+<dt id="dt:bank-smm_regs"><a href="#dt:bank-smm_regs">bank.smm_regs</a></dt>
+<dd>
+<a href="rm-class-minimal_acpi_support.html#minimal_acpi_support.smm_regs">minimal_acpi_support.smm_regs</a>
+</dd>
+<dt id="dt:bank-timer_regs"><a href="#dt:bank-timer_regs">bank.timer_regs</a></dt>
+<dd>
+<a href="rm-class-minimal_acpi_support.html#minimal_acpi_support.timer_regs">minimal_acpi_support.timer_regs</a>
+</dd>
+<dt id="dt:internal_flash"><a href="#dt:internal_flash">internal_flash</a></dt>
+<dd>image – Internal Flash</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-minimal_acpi_support.html#minimal_acpi_support.HRESET">minimal_acpi_support.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-minimal_acpi_support.html#minimal_acpi_support.SRESET">minimal_acpi_support.SRESET</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-minimal_acpi_support.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-minimal_acpi_support.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cpus"><a href="#dt:cpus">
+<i>cpus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>CPUs receiving direct pin connections for SMI</dd>
+<dt id="dt:internal_flash_size"><a href="#dt:internal_flash_size">
+<i>internal_flash_size</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Size of internal flash</dd>
+<dt id="dt:pm_timer_notify_count"><a href="#dt:pm_timer_notify_count">
+<i>pm_timer_notify_count</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of <tt>acpi-pm-timer-read</tt> notifications to send on each read of the ACPI PM timer. Zero, the default, disables the notifications entirely. Intended for benchmarking the cost of the notifier mechanism; it has no functional effect on the model.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.generic-pc-support.html">generic-pc-support</a>
+</section>
+<h2 id="minimal_acpi_support.HRESET"><a href="#minimal_acpi_support.HRESET">minimal_acpi_support.HRESET</a></h2>
+<h2 id="minimal_acpi_support.SRESET"><a href="#minimal_acpi_support.SRESET">minimal_acpi_support.SRESET</a></h2>
+<h2 id="minimal_acpi_support.flash_regs"><a href="#minimal_acpi_support.flash_regs">minimal_acpi_support.flash_regs</a></h2>
+<h2 id="minimal_acpi_support.pm_regs"><a href="#minimal_acpi_support.pm_regs">minimal_acpi_support.pm_regs</a></h2>
+<h2 id="minimal_acpi_support.smm_regs"><a href="#minimal_acpi_support.smm_regs">minimal_acpi_support.smm_regs</a></h2>
+<h2 id="minimal_acpi_support.timer_regs"><a href="#minimal_acpi_support.timer_regs">minimal_acpi_support.timer_regs</a></h2>
+<div class="chain">
+<a href="rm-class-irq_pin_to_ioapic.html">irq_pin_to_ioapic</a>
+<a href="rm-class-pass_through_remap_unit.html">pass_through_remap_unit</a>
+</div>

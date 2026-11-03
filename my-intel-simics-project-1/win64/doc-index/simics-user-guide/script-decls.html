@@ -1,0 +1,284 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5.1 Old Script Parameters</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="appendix.html">5 Appendix</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="appendix.html">5 Appendix</a>
+&nbsp;/&nbsp;</div><h1 id="old-script-parameters"><a href="#old-script-parameters">5.1 Old Script Parameters</a></h1>
+<p>This describes the old script parameter system, which is deprecated. See section
+<a class="reference" href="script-support-in-simics.html#targets-and-parameters">2.3.3</a> for the target parameter
+framework.</p>
+<p>A Simics target script may declare its parameters and resulting values.</p>
+<h2 id="declarations-and-parameters"><a href="#declarations-and-parameters">5.1.1 Declarations and Parameters</a></h2>
+<p>Script declaration blocks are optional, and have the form</p>
+<pre><code>  decl {
+    declarations
+  }
+</code></pre>
+<p>Such a block must come before any commands in the script file. Possible
+declarations are:</p>
+<ul>
+<li>Parameters</li>
+<li>Results</li>
+<li>Script documentation</li>
+<li>Imported parameters</li>
+<li>Parameter groups</li>
+</ul>
+<p>Whitespace (spaces, tabs, line breaks) is in general not significant unless
+specifically noted. Comments are allowed, starting with ‘#’ and running to the
+end of the line.</p>
+<p>A parameter declaration takes the form</p>
+<pre><code>  param NAME : TYPE [= DEFAULT-VALUE]
+</code></pre>
+<p>where the default value is optional. Example:</p>
+<pre><code>  param ram_size : int = 8
+</code></pre>
+<p>This means that the variable <code>$ram_size</code> will be set when the script is
+executed, that it must be an integer, and that it will be 8 if not specified in
+any other way.</p>
+<p>If there is no default value, then the parameter must be specified; otherwise,
+it is optional.</p>
+<p>A script with a declaration block will only see the variables that have been
+declared as parameters. Other variables are hidden during the script’s execution
+and will re-appear when the script terminates.</p>
+<h2 id="results"><a href="#results">5.1.2 Results</a></h2>
+<p>A script can return variables that it has set by declaring <em>results</em>:</p>
+<pre><code>  result NAME : TYPE
+</code></pre>
+<p>Example:</p>
+<pre><code>  result mac_address : string
+</code></pre>
+<p>It means that the script must set <code>$mac_address</code> before terminating, that it
+must be a string value, and that this variable is available to the caller. All
+other variables assigned to by the script are lost.</p>
+<p>The same name can be used for both a parameter and a result.</p>
+<h2 id="running-scripts"><a href="#running-scripts">5.1.3 Running Scripts</a></h2>
+<p>Parameters are given on the command line when running Simics:</p>
+<pre><code>$ ./simics myscript.simics ram_size=64
+</code></pre>
+<p>or as arguments to the <code>run-script</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script myscript.simics ram_size = 64</strong>
+</code></pre>
+<p>or by setting the CLI variables before invoking the script:</p>
+<pre><code class="language-simics">simics&gt; <strong>$ram_size = 64</strong>
+simics&gt; <strong>run-script myscript.simics</strong>
+</code></pre>
+<p>The <code>-help</code> command-line option will show all parameters of a script:</p>
+<pre><code>$ ./simics myscript.simics -help
+</code></pre>
+<p>From the Simics command line, the arguments for a file can be listed by using
+the <code>help</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help myscript.simics</strong>
+The original IBM PC XT from 1983, complete with
+a full-height 10 MB fixed disk.
+
+networking:
+  mac_addr  -  string or NIL
+...
+</code></pre>
+<p>It is also possible to use tab completion with the <code>run-script</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script myscript.simics&lt;tab&gt;</strong>
+  -local  -main-branch  ram_size =  cpu_freq =
+</code></pre>
+<h2 id="types"><a href="#types">5.1.4 Types</a></h2>
+<p>The following type specifications are allowed in the declarations of parameters
+and results. Each item in the list below describes the values permitted by the
+type.</p>
+<dl>
+<dt id="dt:int"><a href="#dt:int">int</a></dt>
+<dd>
+<p>An integer. Integers can be written in decimal,
+hex (<code>0x1e3</code>) or binary (<code>0b1011</code>).</p>
+</dd>
+<dt id="dt:float"><a href="#dt:float">float</a></dt>
+<dd>
+<p>A floating-point number or integer.</p>
+</dd>
+<dt id="dt:string"><a href="#dt:string">string</a></dt>
+<dd>
+<p>Any string, like “Miss Piggy”. Quotes can be
+omitted for word-like strings, like <code>x86_64</code>.</p>
+</dd>
+<dt id="dt:bool"><a href="#dt:bool">bool</a></dt>
+<dd>
+<p>Either <code>TRUE</code> or <code>FALSE</code>.</p>
+</dd>
+<dt id="dt:file-pattern"><a href="#dt:file-pattern">file(PATTERN)</a></dt>
+<dd>
+<p>A string that names an existing file.
+PATTERN is a (double-quoted) string with a pattern that suggests what file
+names are acceptable, such as <code>"*.exe"</code>. The pattern is just a hint for the
+user interface; any existing file will be accepted. Use <code>file("*")</code> to
+indicate no particular file name preference.</p>
+<p>File names may start with <code>%simics%</code> to force a look-up relative to the current
+project and Simics package path, or with <code>%script%</code> representing the script
+directory itself. (<code>%script%</code> is only allowed in default values.)</p>
+</dd>
+<dt id="dt:value1-value2"><a href="#dt:value1-value2">{VALUE1, VALUE2, …}</a></dt>
+<dd>
+<p>One of the enumerated values (which each can be of any type).</p>
+<p>Example: <code>{1, "apple pie", 8.25}</code></p>
+</dd>
+<dt id="dt:type-or-nil"><a href="#dt:type-or-nil">TYPE or nil</a></dt>
+<dd>
+<p>A value that matches TYPE or is the value NIL.</p>
+<p>Example: <code>string or nil</code> will match <code>"abc"</code> or NIL, but not <code>1.3</code>.</p>
+</dd>
+</dl>
+<p>Complex or compound data types can often be packed into a string and unpacked
+and verified by the receiver in Simics. See documentation of the <code>split-string</code>
+command.</p>
+<h2 id="documentation"><a href="#documentation">5.1.5 Documentation</a></h2>
+<p>Parameters can have documentation strings that are shown in the command-line.
+These consist of one or more lines that begin with an exclamation mark,
+immediately following the parameter. Example:</p>
+<pre><code>  param ram_size : int
+  ! RAM size in megabytes.
+  ! Note that Windows 95 needs at least 2 MiB to run.
+</code></pre>
+<p>The script itself can also be described in the same way, by putting a
+documentation string first in a declaration block:</p>
+<pre><code>  decl {
+    ! Atari 2600 Video Game Console System
+    param cartridge : string = "COMBAT"
+  }
+</code></pre>
+<p>Documentation strings are written in a subset of the Simics JDocu mark-up
+language, which is XML-based. Most plain text can be written directly, but the
+symbols ‘&lt;’ and ‘&amp;’ must be written ‘<code>&amp;lt;</code>’ and ‘<code>&amp;amp;</code>’, respectively. Use
+blank lines to break paragraphs.</p>
+<p>The following typographic elements exist:</p>
+<dl>
+<dt id="dt:tt-text-tt"><a href="#dt:tt-text-tt"><code>&lt;tt&gt;TEXT&lt;/tt&gt;</code></a></dt>
+<dd>set TEXT in a fixed-width font.</dd>
+<dt id="dt:em-text-em"><a href="#dt:em-text-em"><code>&lt;em&gt;TEXT&lt;/em&gt;</code></a></dt>
+<dd>set TEXT for emphasis (italic).</dd>
+<dt id="dt:param-text-param"><a href="#dt:param-text-param"><code>&lt;param&gt;TEXT&lt;/param&gt;</code></a></dt>
+<dd>set TEXT as the name of a parameter.</dd>
+</dl>
+<h2 id="parameters-from-other-scripts"><a href="#parameters-from-other-scripts">5.1.6 Parameters from Other Scripts</a></h2>
+<p>Parameter declarations can be taken (imported) from other script files by using
+the declaration</p>
+<pre><code>  params from SCRIPT [except NAMES] [default NAME = VALUE ...]
+</code></pre>
+<p>All parameter (but not result) declarations from the given script will be used
+as if they had been declared in the importing script.</p>
+<p>The optional <code>except</code> clause will exclude one or more comma-separated
+parameters.</p>
+<p>Example: if the script a.simics contains:</p>
+<pre><code>  decl {
+    params from "b.simics" except y
+    param x : int
+    result r : string
+  }
+</code></pre>
+<p>and b.simics contains:</p>
+<pre><code>  decl {
+    param y : int = 10
+    param z : bool = TRUE
+    result s : string
+  }
+</code></pre>
+<p>then a.simics will behave as if it had been written:</p>
+<pre><code>  decl {
+    param z : bool = TRUE
+    param x : int
+    result r : string
+  }
+</code></pre>
+<p>The default value of imported parameters can be overridden by adding <code>default</code>
+clauses. Example:</p>
+<pre><code>  params from "hardware-setup.simics"
+    default ram_size = 256
+    default cpu_freq = 3.58e6
+</code></pre>
+<p>There is also a <code>substitute</code> declaration that is reserved for Simics internal
+use.</p>
+<h2 id="parameter-groups"><a href="#parameter-groups">5.1.7 Parameter Groups</a></h2>
+<p>Parameters can be arranged into groups, to make them easier to browse when they
+are numerous. The declaration</p>
+<pre><code>  group "Networking"
+</code></pre>
+<p>will put all parameters that follow (in that file) into the group named
+“Networking”. Groups do not affect how parameters actually work; they only serve
+to make the presentation better.</p>
+<h2 id="script-execution"><a href="#script-execution">5.1.8 Script Execution</a></h2>
+<p>When a script with a declaration block is run, interactively or from another
+script, this is what happens in detail:</p>
+<ol>
+<li>The script declaration is read and checked for errors. Imported parameters
+(“<code>params from</code>”) are resolved recursively.</li>
+<li>Actual parameter values are taken from, in order:
+<ol>
+<li>The supplied arguments, if the script was started from a shell command,
+or from <code>run-script</code>.</li>
+<li>CLI variables.</li>
+<li>Default values from the script declaration.</li>
+</ol>
+</li>
+</ol>
+<p>An error is signalled if a parameter value is missing or has the wrong type.</p>
+<ol>
+<li>The current CLI variables, if any, are saved away and replaced with the
+script parameters having their initial values as described above.</li>
+<li>The command part of the script (below the declaration) is executed. If the
+script runs another script, this entire algorithm is used again.</li>
+<li>CLI variables corresponding to declared result names are retrieved. An error
+is signalled for missing results or ones with the wrong type.</li>
+<li>The saved CLI variables are restored, throwing away all current variables
+except for the declared results, which retain their values from the executed
+script.</li>
+</ol>
+<h2 id="example"><a href="#example">5.1.9 Example</a></h2>
+<p>Here is a slightly longer example of a script declaration block.</p>
+<pre><code># A machine from the good old days (?)
+decl {
+  ! The original IBM PC XT from 1983, complete with
+  ! a &lt;em&gt;full-height&lt;/em&gt; 10 MB fixed disk.
+
+  # Note that comments (like this one) are distinct from doc strings.
+
+  param ram_size : int = 256
+  ! RAM size in KiB. Max is 640, which should be enough for anyone.
+
+  param cpu_freq : float = 4.77
+  ! CPU frequency in MHz.
+
+  param video : {mda, cga, hercules} = cga
+  ! Type of video card. mda &amp;amp; hercules look best.
+
+  group "networking"
+  param mac_addr : string or nil = NIL
+  ! Ethernet MAC address, or NIL if no Ethernet adapter present.
+
+  param rom_file : file("*.bin") = "%script%/pc_xt_rom.bin"
+  ! File containing the ROM image. Must be exactly 40 KiB.
+
+  param rtc_time : string = "2015-02-01 13:37:00"
+  ! Initial time and date of the real-time clock, on the form
+  ! &lt;tt&gt;"YYYY-MM-DD HH:MM:SS"&lt;/tt&gt;.
+
+  # Include parameters declared in another file.
+  params from "ms-dos.simics"
+
+  # Override the default value of a parameter from that file
+  default dos_ver = "2.11"
+
+  result system : string
+  ! Name of generated system component object.
+}
+
+# Here the actual script starts with commands to execute.
+</code></pre>
+
+<div class="chain">
+<a href="appendix.html">5 Appendix</a>
+</div>

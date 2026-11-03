@@ -1,0 +1,325 @@
+{
+  "is_book": false,
+  "anchor": "application_notes",
+  "style": "unstyled",
+  "file": "README.html",
+  "name": "Using CMake* with the Intel Simics Simulator",
+  "headings": [
+    {
+      "level": 1,
+      "anchor": "introduction-to-cmake",
+      "text": "1 Introduction to CMake"
+    },
+    {
+      "level": 2,
+      "anchor": "why-cmake",
+      "text": "1.1 Why CMake?"
+    },
+    {
+      "level": 2,
+      "anchor": "what-is-cmake",
+      "text": "1.2 What is CMake"
+    },
+    {
+      "level": 2,
+      "anchor": "the-key-to-understanding-cmake",
+      "text": "1.3 The key to understanding CMake"
+    },
+    {
+      "level": 1,
+      "anchor": "minimum-requirements",
+      "text": "2 Minimum requirements"
+    },
+    {
+      "level": 2,
+      "anchor": "recommended-version",
+      "text": "2.1 Recommended version"
+    },
+    {
+      "level": 1,
+      "anchor": "current-limitations",
+      "text": "3 Current limitations"
+    },
+    {
+      "level": 1,
+      "anchor": "recommendations",
+      "text": "4 Recommendations"
+    },
+    {
+      "level": 1,
+      "anchor": "working-with-cmake-recommended-reading-and-references",
+      "text": "5 Working with CMake: recommended reading and references"
+    },
+    {
+      "level": 1,
+      "anchor": "creating-an-intel-simics-project-with-cmake-support",
+      "text": "6 Creating an Intel Simics project with CMake support"
+    },
+    {
+      "level": 2,
+      "anchor": "updating-an-existing-project-from-gnu-make-to-cmake",
+      "text": "6.1 Updating an existing project from GNU Make to CMake"
+    },
+    {
+      "level": 1,
+      "anchor": "adding-modules-to-the-intel-simics-project",
+      "text": "7 Adding modules to the Intel Simics project"
+    },
+    {
+      "level": 1,
+      "anchor": "building-modules",
+      "text": "8 Building modules"
+    },
+    {
+      "level": 2,
+      "anchor": "general-usage",
+      "text": "8.1 General usage"
+    },
+    {
+      "level": 2,
+      "anchor": "build-modules-using-the-standard-cmake-program",
+      "text": "8.2 Build modules using the standard CMake program"
+    },
+    {
+      "level": 2,
+      "anchor": "build-modules-using-tiny-gnu-make-wrapper",
+      "text": "8.3 Build modules using tiny GNU Make wrapper"
+    },
+    {
+      "level": 2,
+      "anchor": "build-modules-using-explicit-invocation-of-the-generated-build-system",
+      "text": "8.4 Build modules using explicit invocation of the generated build system"
+    },
+    {
+      "level": 2,
+      "anchor": "build-modules-using-your-favourite-ide-that-supports-cmake",
+      "text": "8.5 Build modules using your favourite IDE that supports CMake"
+    },
+    {
+      "level": 1,
+      "anchor": "testing-modules",
+      "text": "9 Testing modules"
+    },
+    {
+      "level": 1,
+      "anchor": "more-details-on-how-it-works",
+      "text": "10 More details on how it works"
+    },
+    {
+      "level": 1,
+      "anchor": "partially-converted-project",
+      "text": "11 Partially converted project"
+    },
+    {
+      "level": 1,
+      "anchor": "converting-an-existing-gnu-makefile-to-cmakelists-txt",
+      "text": "12 Converting an existing GNU Makefile to CMakeLists.txt"
+    },
+    {
+      "level": 2,
+      "anchor": "a-makefile-is-using-variable-references",
+      "text": "A) Makefile is using variable references"
+    },
+    {
+      "level": 2,
+      "anchor": "b-makefile-is-using-wildcard-to-locate-files",
+      "text": "B) Makefile is using wildcard to locate files"
+    },
+    {
+      "level": 2,
+      "anchor": "c-makefile-is-referencing-files-from-common-code-via-extra_module_vpath",
+      "text": "C) Makefile is referencing files from common code via EXTRA_MODULE_VPATH"
+    },
+    {
+      "level": 3,
+      "anchor": "c1-makefile-is-not-passing-custom-defines-to-the-common-code",
+      "text": "C1) Makefile is not passing custom defines to the common code"
+    },
+    {
+      "level": 3,
+      "anchor": "c2-makefile-is-passing-custom-defines-to-the-common-code-or-is-just-referencing-the-headers",
+      "text": "C2) Makefile is passing custom defines to the common code, or is just referencing the headers"
+    },
+    {
+      "level": 2,
+      "anchor": "d-makefile-is-referencing-files-from-other-modules-via-extra_module_vpath",
+      "text": "D) Makefile is referencing files from other modules via EXTRA_MODULE_VPATH"
+    },
+    {
+      "level": 3,
+      "anchor": "d1-source-files",
+      "text": "D1) Source files"
+    },
+    {
+      "level": 3,
+      "anchor": "d2-header-files",
+      "text": "D2) Header files"
+    },
+    {
+      "level": 2,
+      "anchor": "e-makefile-is-generating-files-based-on-other-files",
+      "text": "E) Makefile is generating files based on other files"
+    },
+    {
+      "level": 2,
+      "anchor": "f-copy-python-files-from-other-modules",
+      "text": "F) Copy Python files from other modules"
+    },
+    {
+      "level": 1,
+      "anchor": "general-notes-tips-and-tricks",
+      "text": "13 General notes / Tips and tricks"
+    },
+    {
+      "level": 2,
+      "anchor": "cmake-vs-ninja-vs-ctest",
+      "text": "13.1 CMake vs. Ninja vs. CTest"
+    },
+    {
+      "level": 2,
+      "anchor": "access-the-built-in-cmake-help",
+      "text": "13.2 Access the built-in CMake help"
+    },
+    {
+      "level": 2,
+      "anchor": "use-built-in-cmake-commands-to-stay-portable",
+      "text": "13.3 Use built-in CMake commands to stay portable"
+    },
+    {
+      "level": 2,
+      "anchor": "keep-things-as-local-and-targeted-as-possible",
+      "text": "13.4 Keep things as local and “targeted” as possible"
+    },
+    {
+      "level": 2,
+      "anchor": "use-the-cmake-api-as-intended",
+      "text": "13.5 Use the CMake API as intended"
+    },
+    {
+      "level": 2,
+      "anchor": "use-log-level-to-differentiate-messages",
+      "text": "13.6 Use log-level to differentiate messages"
+    },
+    {
+      "level": 2,
+      "anchor": "tracing-support",
+      "text": "13.7 Tracing support"
+    },
+    {
+      "level": 2,
+      "anchor": "printf-debugging",
+      "text": "13.8 Printf-debugging"
+    },
+    {
+      "level": 2,
+      "anchor": "don-t-forget-to-build-static-libraries",
+      "text": "13.9 Don’t forget to build static libraries"
+    },
+    {
+      "level": 2,
+      "anchor": "must-build-with-fpic",
+      "text": "13.10 Must build with -fPIC"
+    },
+    {
+      "level": 2,
+      "anchor": "to-share-headers-between-modules-create-an-interface-library",
+      "text": "13.11 To share headers between modules, create an INTERFACE library"
+    },
+    {
+      "level": 2,
+      "anchor": "to-share-files-create-a-static-library",
+      "text": "13.12 To share files, create a STATIC library"
+    },
+    {
+      "level": 2,
+      "anchor": "set-rpath",
+      "text": "13.13 Set RPATH"
+    },
+    {
+      "level": 2,
+      "anchor": "setting-properties-per-source-file",
+      "text": "13.14 Setting properties per source file"
+    },
+    {
+      "level": 2,
+      "anchor": "selecting-compiler-and-build-system-runner",
+      "text": "13.15 Selecting compiler and build system runner"
+    },
+    {
+      "level": 2,
+      "anchor": "use-presets",
+      "text": "13.16 Use presets"
+    },
+    {
+      "level": 2,
+      "anchor": "don-t-forget-to-reconfigure-the-project-when-things-are-not-working",
+      "text": "13.17 Don’t forget to reconfigure the project when things are not working"
+    },
+    {
+      "level": 2,
+      "anchor": "setting-the-project-build-id-for-all-modules",
+      "text": "13.18 Setting the project build-id for all modules"
+    },
+    {
+      "level": 1,
+      "anchor": "differences-between-the-old-gnu-make-based-and-the-new-cmake-based-build-systems",
+      "text": "14 Differences between the old GNU-Make-based and the new CMake-based build systems"
+    },
+    {
+      "level": 1,
+      "anchor": "things-to-note-when-working-on-windows",
+      "text": "15 Things to note when working on Windows"
+    },
+    {
+      "level": 2,
+      "anchor": "paths",
+      "text": "15.1 Paths"
+    },
+    {
+      "level": 2,
+      "anchor": "installing-cmake-ninja-and-gcc",
+      "text": "15.2 Installing CMake, Ninja, and GCC"
+    },
+    {
+      "level": 1,
+      "anchor": "coverage-with-gcov-lcov",
+      "text": "16 Coverage with GCOV/LCOV"
+    },
+    {
+      "level": 2,
+      "anchor": "how-it-works",
+      "text": "16.1 How it works"
+    },
+    {
+      "level": 2,
+      "anchor": "configuration",
+      "text": "16.2 Configuration"
+    },
+    {
+      "level": 2,
+      "anchor": "example",
+      "text": "16.3 Example"
+    },
+    {
+      "level": 1,
+      "anchor": "sanitization-with-asan-and-ubsan",
+      "text": "17 Sanitization with ASAN and UBSAN"
+    },
+    {
+      "level": 2,
+      "anchor": "asan-considerations",
+      "text": "17.1 ASAN Considerations"
+    },
+    {
+      "level": 2,
+      "anchor": "sanitized-modules-in-cli",
+      "text": "17.2 Sanitized modules in CLI"
+    },
+    {
+      "level": 1,
+      "anchor": "checking-for-dead-dml-methods",
+      "text": "18 Checking for dead DML methods"
+    }
+  ],
+  "children": []
+}

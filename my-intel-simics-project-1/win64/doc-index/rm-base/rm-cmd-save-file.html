@@ -1,0 +1,49 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>save-file</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-save-component-template.html">save-component-template</a>
+<a href="rm-cmd-save-image-contents.html">save-image-contents</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="save-file"></a>
+<a name="image.save-file"></a>
+<a name="memory_space.save-file"></a>
+<h1 id="save-file"><a href="#save-file">save-file</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>save-file</b> [<i>object</i>] <i>filename</i> <i>start</i> <i>length</i> [-overwrite] <br><b>&lt;image&gt;.save-file</b> <i>filename</i> <i>start</i> <i>length</i> [-overwrite] <br><b>&lt;memory_space&gt;.save-file</b> <i>filename</i> <i>start</i> <i>length</i> [-overwrite] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Saves the contents of a memory region, defined by <i>start</i> address and <i>length</i> to the file <i>filename</i> in binary format.
+<p>
+The command will fail if the destination file already exists, unless <tt>-overwrite</tt> is specified.
+</p><p>
+The non-namespace version of the command uses the specified <i>object</i>, with the default being the current frontend processor's physical memory space. The <code>save-file</code> command exists for symmetry with the other <code>save-file</code> commands. It is more efficient to use the <code>save-image-contents</code> or <code>&lt;image&gt;.save</code> commands. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-load-file.html">load-file</a>, 
+<a href="rm-cmd-image.save.html">&lt;image&gt;.save</a>, 
+<a href="rm-cmd-save-image-contents.html">save-image-contents</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-save-component-template.html">save-component-template</a>
+<a href="rm-cmd-save-image-contents.html">save-image-contents</a>
+</div>

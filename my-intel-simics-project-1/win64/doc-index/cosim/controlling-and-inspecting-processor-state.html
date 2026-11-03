@@ -1,0 +1,71 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Controlling and Inspecting Processor State</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="direct-access-to-memory.html">3 Direct Access to Memory</a>
+<a href="processor-api-breakpoints.html">5 Breakpoints</a>
+</div>
+<div class="path">
+<a href="index.html">Processor Model Integration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="controlling-and-inspecting-processor-state"><a href="#controlling-and-inspecting-processor-state">4 Controlling and Inspecting Processor State</a></h1>
+<p>The processor state can be controlled and inspected using commands or GUI controls.
+This chapter describes the interfaces, haps, and breakpoint functionality required for supporting this.</p>
+<h2 id="commands"><a href="#commands">4.1 Commands</a></h2>
+<p>Several generic Simics commands work automatically when standard interfaces are implemented. How the interfaces map onto objects depends on how the model is designed, for example the type of models described in Chapter <a class="reference" href="cosimulator-examples.html">1</a>.</p>
+<h2 id="interfaces"><a href="#interfaces">4.2 Interfaces</a></h2>
+<p>This section lists the interfaces that can be implemented by the processor model to enable certain Simics features.
+They are not required, but implementing them will allow user defined processor models to support the same generic feature set as Simics standard processor models.
+If you intend to plug your model into an existing Simics-provided platform, then many of these interfaces are actually required for such a platform to function.</p>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#processor_info_v2_interface_t"><code>processor_info_v2</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#processor_cli_interface_t"><code>processor_cli</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#processor_gui_interface_t"><code>processor_gui</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#step_cycle_ratio_interface_t"><code>step_cycle_ratio</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#stall_interface_t"><code>stall</code></a></li>
+<li><a href="../rm-api/model-to-model-interfaces.html#int_register_interface_t"><code>int_register</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#decoder_interface_t"><code>decoder</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#exception_interface_t"><code>exception</code></a> <br>
+The <code>exception</code> interface is used together with the Core_Exception hap to enable inspection abilities for triggered exceptions.</li>
+<li><a href="../rm-api/simulator-to-simulator-interfaces.html#context_handler_interface_t"><code>context_handler</code></a></li>
+<li><a href="../rm-api/model-to-model-interfaces.html#exec_trace_interface_t"><code>exec_trace</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#opcode_info_interface_t"><code>opcode_info</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#virtual_data_breakpoint_interface_t"><code>virtual_data_breakpoint</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#virtual_instruction_breakpoint_interface_t"><code>virtual_instruction_breakpoint</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#describe_registers_interface_t"><code>describe_registers</code></a></li>
+</ul>
+<h2 id="using-haps"><a href="#using-haps">4.3 Using Haps</a></h2>
+<p>A hap is an event or occurrence in Simics with some specific semantic meaning, either related to the target or to the internals of the simulator.
+Haps can for instance be used by the cosimulator to trigger events on control register reads or writes.</p>
+<p>The cosimulator calls one of the <code>SIM_c_hap_occurred...</code> functions to trigger a hap.
+The <a href="../simics-user-guide/script-support-in-simics.html#haps">Simics User’s Guide</a> document describes how to get a callback when a hap is triggered.</p>
+<p>To be fully compatible with regular Simics CPU models, a cosimulator should trigger the following haps:</p>
+<ul>
+<li><a href="../rm-base/rm-haps.html#Core_Exception">Core_Exception</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Exception_Return">Core_Exception_Return</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Asynchronous_Trap">Core_Asynchronous_Trap</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Control_Register_Read">Core_Control_Register_Read</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Control_Register_Write">Core_Control_Register_Write</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_External_Interrupt">Core_External_Interrupt</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Sync_Instruction">Core_Sync_Instruction</a></li>
+<li>Core_Mode_Switch (x86 processors only)</li>
+<li>Core_Interrupt_Status (x86 processors only)</li>
+<li><a href="../rm-base/rm-haps.html#Core_Magic_Instruction">Core_Magic_Instruction</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Mode_Change">Core_Mode_Change</a></li>
+</ul>
+<p>Details about the haps can be found in the <em>Simics Reference Manual</em>, or online with the <code>list-haps</code> command.
+The <code>sample-risc</code> module in <code>[simics]/src/extensions/sample-risc/</code> contains example code how to raise <em>Core_Control_Register_Read</em> and <em>Core_Control_Register_Write</em> haps.</p>
+<p>The cosimulator should not trigger the following haps as they are triggered by the Simics core:</p>
+<ul>
+<li>Core_Breakpoint</li>
+<li><a href="../rm-base/rm-haps.html#Core_Breakpoint_Memop">Core_Breakpoint_Memop</a></li>
+</ul>
+
+<div class="chain">
+<a href="direct-access-to-memory.html">3 Direct Access to Memory</a>
+<a href="processor-api-breakpoints.html">5 Breakpoints</a>
+</div>

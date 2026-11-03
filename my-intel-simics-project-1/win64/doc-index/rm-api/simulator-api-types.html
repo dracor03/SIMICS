@@ -1,0 +1,69 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simulator API Data Types</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simulator-api.html">Simulator API</a>
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;</div>
+<h1>Simulator API Data Types</h1>
+<h2 id="addr_prof_iter_t"><a href="#addr_prof_iter_t">addr_prof_iter_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>addr_prof_iter_t — type used to iterate over a portion of the address space</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+typedef struct addr_prof_iter {
+        uint64 (*next)(struct addr_prof_iter *i);
+        void (*destroy)(struct addr_prof_iter *i);
+        generic_address_t addr;
+} addr_prof_iter_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.addr_prof_iter_t
+</code></pre>
+<h2>Description</h2>
+<p>An address profile iterator will iterate over a specified portion of the address space in some unspecified order, and return every nonzero counter value exactly once. When done, it will return 0.</p>
+</section>
+<h2 id="branch_arc_type_t"><a href="#branch_arc_type_t">branch_arc_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>branch_arc_type_t — list of different branch types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+typedef enum {
+        Branch_Arc_Branch,
+        Branch_Arc_Exception,
+        Branch_Arc_Exception_Return,
+        Branch_Arc_Max
+} branch_arc_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Branch_Arc_Branch
+simics.Branch_Arc_Max
+simics.Branch_Arc_Exception_Return
+simics.Branch_Arc_Exception
+</code></pre>
+</section>
+<div class="chain">
+<a href="simulator-api.html">Simulator API</a>
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+</div>

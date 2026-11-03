@@ -1,0 +1,103 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Output</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-object-locks.html">Object Locks</a>
+<a href="sim-api-path.html">Path</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Output</h1>
+<h2 id="SIM_add_output_handler"><a href="#SIM_add_output_handler">SIM_add_output_handler, SIM_remove_output_handler</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_add_output_handler, SIM_remove_output_handler — add or remove output handler</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_add_output_handler(void (*NOTNULL f)(lang_void *user_data,
+                                         const char *text,
+                                         size_t length),
+                       lang_void *user_data);
+
+void
+SIM_remove_output_handler(void (*NOTNULL f)(lang_void *user_data,
+                                            const char *text,
+                                            size_t length),
+                          lang_void *user_data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_add_output_handler(...)
+simics.SIM_remove_output_handler(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_add_output_handler</code> registers <code>f</code>(<code>user_data</code>, <code>text</code>, <code>length</code>) to be called whenever there is text output from Simics.</p>
+<p><code>text</code> contains <code>length</code> bytes of output data. <code>user_data</code> is passed unchanged to the output handler.</p>
+<p><code>SIM_remove_output_handler</code> removes <code>f</code> as an output recipient. If <code>user_data</code> is <code>NULL</code>, all output handlers with the same function will be removed; otherwise, only those with equal <code>user_data</code> will be removed.</p>
+<p>The C function is a thin wrapper that delegates to the OutputTee mechanism in simics._output.</p>
+<p>Output handlers must be thread-safe in order to handle output from different threads properly. There will only be one activation of each handler at a given instant so strict re-entrancy is not required, but proper locking around resources shared with other code should be in place.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-output.html#SIM_write"><code>SIM_write</code></a></p>
+</section>
+<h2 id="SIM_write"><a href="#SIM_write">SIM_write, SIM_flush, SIM_putchar, SIM_puts, SIM_printf_vararg, SIM_printf</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_write, SIM_flush, SIM_putchar, SIM_puts, SIM_printf_vararg, SIM_printf — text output routines</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int
+SIM_write(const void *NOTNULL src, int length);
+
+int
+SIM_flush();
+
+int
+SIM_putchar(int c);
+
+int
+SIM_puts(const char *NOTNULL s);
+
+int
+SIM_printf(const char *NOTNULL format, ...);
+
+// not available in DML
+
+int
+SIM_printf_vararg(const char *NOTNULL format, va_list ap);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_printf(...)
+</code></pre>
+<h2>Description</h2>
+<p>These are the Simics versions of the <code>write</code>, <code>putchar</code>, <code>puts</code>, <code>printf</code>, <code>vprintf</code>, and <code>fflush</code> C library functions. The arguments and return values are the same as for the library functions, except for <code>SIM_write</code> which does not take any file argument.</p>
+<p>The output will be sent to <em>stdout</em>, but more output recipients can be added using the <a href="sim-api-output.html#SIM_add_output_handler"><code>SIM_add_output_handler</code></a> function. Output is line buffered. <code>SIM_flush</code> will force output of an unterminated line.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-output.html#SIM_add_output_handler"><code>SIM_add_output_handler</code></a></p>
+</section>
+<div class="chain">
+<a href="sim-api-object-locks.html">Object Locks</a>
+<a href="sim-api-path.html">Path</a>
+</div>

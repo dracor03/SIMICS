@@ -1,0 +1,1256 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.5 Moving Data in and out of the Simulation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="configuration.html">2.4 Configuration and Checkpointing</a>
+<a href="instrumentation.html">2.6 Instrumentation</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="feature-overview.html">2 Feature Overview</a>
+&nbsp;/&nbsp;</div><h1 id="moving-data-in-and-out-of-the-simulation"><a href="#moving-data-in-and-out-of-the-simulation">2.5 Moving Data in and out of the Simulation</a></h1>
+<p>In order to use Simics, you must have <em>images</em> (also called <em>disk dumps</em>) with
+the operating system and the applications you plan to run. Depending on the type
+of machine you are using, these images will correspond to the contents of a
+disk, a flash memory, a CD-ROM, etc. There are some images provided that work
+with the example machines located in the <code>targets</code> directory.</p>
+<p>Simics images are usually stored in a special format called <code>craff</code> (for
+Compressed Random Access File Format) to save disk space. Simics also accepts
+raw binary dumps as well as VHDX images. The use of raw dumps as images can
+sometimes be more practical if you are manipulating images outside Simics.
+Simics comes with the <code>craff</code> utility to manipulate and convert images in
+<code>craff</code> format (see section <a class="reference" href="#the-craff-utility">2.5.2.8</a>).</p>
+<p>This chapter will explain the following:</p>
+<ul>
+<li>How to use Simics Agent to transfer files</li>
+<li>How to use Simics Agent to run commands on target systems</li>
+<li>How to work with images in general</li>
+<li>How to use CD-ROMs with Simics</li>
+<li>How to use the SimicsFS file system</li>
+<li>How to use the Virtio File System device</li>
+<li>How to import the contents of a real disk inside Simics</li>
+</ul>
+<p>To provide you with a more practical overview, here are the ways you can install
+and modify the operating system and the applications you wish to run:</p>
+<dl>
+<dt id="dt:using-simics"><a href="#dt:using-simics">Using Simics:</a></dt>
+<dd>
+<ul>
+<li>
+<p>You can install a completely new OS or simply copy files using a simulated
+CD-ROM drive, by linking it to a real CD-ROM drive on your host machine
+(Linux only) or by using a CD image file (refer to sections
+<a class="reference" href="#accessing-a-host-cd-rom-drive">2.5.3.1</a> and
+<a class="reference" href="#accessing-a-cd-rom-image-file">2.5.3.2</a>).</p>
+</li>
+<li>
+<p>You can use SimicsFS to directly access your host file systems from the
+simulated machine (see section <a class="reference" href="#using-simicsfs-with-fuse">2.5.5</a>).</p>
+</li>
+<li>
+<p>You can use VirtioFS to directly access your host file systems from the
+simulated machine. The VirtioFS device can also be used as a root file
+system device in Linux targets. (see section <a class="reference" href="#using-virtiofs">2.5.6</a>).</p>
+</li>
+<li>
+<p>You can use the <em>Simics Agent</em> application to copy files and directories
+between host and target systems, as well as issuing commands to be
+executed in a shell on the target. Full functionality is available from
+the Simics command line (see section
+<a class="reference" href="#file-transfers-using-the-simics-agent">2.5.1</a>).</p>
+<p>You can also run upload and download commands directly from the command-line in
+the target system shell, using the <em>Simics Agent</em> application.</p>
+</li>
+<li>
+<p>You can download files over the simulated network (see the <a href="../ethernet-networking/index.html">Ethernet
+Networking Technology Guide</a>).</p>
+</li>
+</ul>
+<p><strong>Do not forget to read more about <em>images</em> in section <a class="reference" href="#saving-changes-to-an-image">2.5.2.2</a> to learn how to save and re-use your changes.</strong></p>
+</dd>
+<dt id="dt:using-external-programs"><a href="#dt:using-external-programs">Using External Programs</a></dt>
+<dd>
+<ul>
+<li>You can install a new OS along with new programs on a real machine and
+create an image from the real machine storage (disk, flash memory, etc.).
+Section <a class="reference" href="#importing-a-real-disk-into-simics">2.5.9</a> shows how to perform this
+with a disk.</li>
+<li>You can modify a FAT image directly with Mtools (see section
+<a class="reference" href="#editing-fat-images-using-mtools">2.5.2.5</a>). (Linux only)</li>
+<li>You can modify an image directly via a loopback device (see section
+<a class="reference" href="#editing-images-using-loopback-mounting">2.5.2.6</a>). (Linux only)</li>
+<li>Use a tool such as SFMount from PassMark* Software. (Windows only)</li>
+</ul>
+</dd>
+</dl>
+<h2 id="file-transfers-using-the-simics-agent"><a href="#file-transfers-using-the-simics-agent">2.5.1 File Transfers Using the Simics Agent</a></h2>
+<p>Simics Agent is a feature in Simics which can be used to move files and
+directories in and out of a simulation in a deterministic way, without any
+network connection or kernel modules. It also provides a deterministic way of
+executing commands on the target systems and knowing when they finish.</p>
+<p>This feature consists of two parts. One part is present inside a Simics
+simulation session (<code>agent_manager</code> and <code>agent_handler</code> objects) and the other
+part is the <code>simics-agent</code> application running on the target system.</p>
+<p>The <code>simics-agent</code> application must be located on the target system and the user
+is in charge of starting it. The application as well as the target system must
+be running for its commands to execute. There is typically just a single Simics
+Agent in a target system, but there may be more target systems and agents.</p>
+<p>The user has to create the <code>agent_manager</code> object with the <code>start-agent-manager</code>
+Simics command. The object will find running Simics Agents and keep track of
+them. There can be only one <code>agent_manager</code> in Simics session.</p>
+<p>In order to control and issue commands to a Simics Agent, the user must run the
+<code>&lt;agent_manager&gt;.connect-to-agent</code> command, which returns a unique
+<code>agent_handle</code> for the Simics Agent. Several handles may be connected to one
+Simics Agent, which are executing commands concurrently.</p>
+<p>All the commands that the <code>agent_handle</code> provides are asynchronous and queued in
+the handle until they have completed. Handles can be created and used in
+scripts, script-branches, or interactively on the Simics command-line. The two
+commands, <code>&lt;agent_handle&gt;.run-until-job</code> and <code>&lt;agent_handle&gt;.wait-for-job</code>,
+allow the user to wait until a particular or all queued commands have finished.</p>
+<p>Exactly <em>when</em> a Simics Agent runs and executes a particular command is defined
+by the target system, neither Simics nor the user can control it.</p>
+<p>A ready-to-use Simics Agent is installed on some virtual platform images. Agents
+for some architectures are also available on CD (ISO) in the
+<code>[simics-base]/targets/common/images/</code> directory. For other use cases, the agent
+source code comes with Simics Base and can be copied onto and compiled for the
+target system, usually without, or with only minor, adjustments. The source code
+is located at <code>[simics-base]/src/misc/simics-agent/</code>.</p>
+<p>A Simics Agent runs only when needed, otherwise it sleeps and regularly polls
+for requests. Agent responsiveness versus performance taxing is a trade-off that
+is controlled by the polling interval, but affects all users of that Simics
+Agent.</p>
+<blockquote class="markdown-alert-note">
+<p>A checkpoint will contain Simics Agents and the Agent Manager, but not any
+Agent Handles. Thus, any ongoing transactions or pending commands are lost and
+must be rerun.</p>
+</blockquote>
+<p>The following sections shows an example where a binary is uploaded to the target
+system, started, and its output file downloaded to the host. See the <a href="../rm-base/index.html">Simics
+Reference Manual</a> or command-line interface help for
+details on <code>agent_manager</code> and <code>agent_handle</code> classes and the methods they
+provide.</p>
+<p>The examples assume that a target system is booted and a Simics Agent is running
+on it. All but the first example expects the simulation to be running.</p>
+<p>Creating a Simics Agent Manager is done once per simulation session, both for
+interactive use and for scripts.</p>
+<pre><code class="language-simics">simics&gt; <strong>start-agent-manager</strong>
+agent-manager 'agent_manager' is created and enabled.
+</code></pre>
+<h3 id="interactive-example"><a href="#interactive-example">2.5.1.1 Interactive Example</a></h3>
+<p>The <code>agent_manager</code> was started above, but the user needs an <code>agent_handle</code> to
+issue commands to. The connect command below will return immediately, whether
+the simulation is running or not, and whether there is any known Simics Agents
+matching the requested identity or not. Since no name was given, the returned
+handle will have the default name.</p>
+<p>It is recommended, but not required, to issue commands while the simulation is
+stopped, like in this example, for the sake of determinism and repeatability.</p>
+<pre><code class="language-simics">simics&gt; <strong>agent_manager.connect-to-agent</strong>
+matic0 connected to simics_agent0
+simics&gt; <strong>matic0.upload -executable my_test /bin/</strong>
+matic0:job 1
+simics&gt; <strong>matic0.run "/bin/my_test -out /var/my_test.log"</strong>
+matic0:job 2
+</code></pre>
+<p>Now two commands have been given, but since the simulation is stopped they will
+not execute yet. The first command will upload the application binary and make
+it executable (if it isn’t already), while the second command will run it. The
+queued commands can be listed along with their sequence id’s.</p>
+<pre><code class="language-simics">simics&gt; <strong>matic0.list-jobs</strong>
+	#1	upload my_test /bin/my_test, queued
+	#2	run "/bin/my_test -out /var/my_test.log", queued
+</code></pre>
+<p>Note that the <code>&lt;agent_handle&gt;.list-jobs</code> command does not require the simulation
+to be running (nor even a Simics Agent to exist). Then, run the queued commands
+and wait for them to complete.</p>
+<pre><code class="language-simics">simics&gt; <strong>matic0.run-until-job</strong>
+File my_test copied from host to target /bin/my_test
+... [the output of the my_test command, if any] ...
+matic0:job 2 finished
+</code></pre>
+<p>The test application produced an output log file that should be downloaded from
+the simulation to the host. When downloading files the user may want to specify
+the <code>-overwrite</code> flag. Otherwise the file will not be downloaded on following
+runs, as the file will persist on the host.</p>
+<pre><code class="language-simics">simics&gt; <strong>matic0.download -overwrite /var/my_test.log</strong>
+matic0:job 3
+simics&gt; <strong>matic0.run-until-job</strong>
+File /var/my_test.log copied from target to host ./my_test.log
+matic0:job 3 finished
+</code></pre>
+<h3 id="example-with-a-script-branch"><a href="#example-with-a-script-branch">2.5.1.2 Example with a Script Branch</a></h3>
+<p>This example will perform the same tasks as the previous example, but in a
+script-branch. The handle will automatically run the queued commands one after
+another in strict order, and they will complete in due time. Technically, the
+script-branch will queue all commands up until a <code>&lt;agent_handle&gt;.wait-for-job</code>
+command and only then wait for them to finish.</p>
+<pre><code class="language-simics">simics&gt; <strong>script-branch "run my_test" {</strong>
+    local $matic = (agent_manager.connect-to-agent)
+    $matic.upload -executable from = my_test to = /bin/
+    $job = ($matic.run -capture "/bin/my_test -out /var/my_test.log")
+    $matic.download -overwrite /var/my_test.log
+    $matic.wait-for-job  # wait until ALL jobs are done 
+    echo ($matic.get-captured-output $job)
+    $matic.delete-handle
+}
+</code></pre>
+<p>This example prints the output of the <code>my_test</code> application, but requires a
+<code>wait-for-job</code> command, because without it the application will not have run
+before the script-branch reaches the echo statement and then deletes the handle.</p>
+<p>It is good practice to delete any lingering objects in the end of a script
+branch. The output of the my_test command is captured and printed, but can
+alternatively be written to a file instead.</p>
+<pre><code>File my_test copied from host to target /bin/my_test
+File /var/my_test.log copied from target to host ./my_test.log
+... [the output of the my_test command, if any] ...
+</code></pre>
+<h3 id="example-from-the-target-shell"><a href="#example-from-the-target-shell">2.5.1.3 Example from the target shell</a></h3>
+<p>Similar to the previous examples, a test log file will be copied from the target
+system to the host system. Here, the execution is controlled completely from the
+command-line in the target system shell.</p>
+<blockquote class="markdown-alert-note">
+<p>The direction of the upload and download commands are reversed, when giving
+the commands from the target system, compared to the host system.</p>
+</blockquote>
+<pre><code>~ # simics-agent --executable --download my_test --to /bin/
+File my_test copied from host to target /bin/my_test
+The Simics target agent has quit.
+~ # my_test -out /var/my_test.log
+...
+~ # simics-agent --overwrite --upload /var/my_test.log
+File /var/my_test.log copied from target to host ./my_test.log
+The Simics target agent has quit.
+</code></pre>
+<p>Give the <code>--help</code> argument to the <code>simics-agent</code> for more information on the
+available commands and options.</p>
+<p>For these target initiated commands to work, the Agent Manager must be started
+on the host, but no Simics Agents are required to be running in the target
+system. Different Simics Agents and using them will not conflict or interfere
+with each other.</p>
+<h2 id="working-with-images"><a href="#working-with-images">2.5.2 Working with Images</a></h2>
+<h3 id="image-file-formats"><a href="#image-file-formats">2.5.2.1 Image File Formats</a></h3>
+<p>For Simics compatibility, a disk image needs to be either in the Simics-specific
+<code>craff</code> file format, or be a raw (linear) image.</p>
+<p>The raw format is what you get when dumping a disk with a utility such as <code>dd</code>.
+Keeping the image in raw format is useful if you want to be able to loopback
+mount the image, or if you want to update the image in-place using the
+read/write option in Simics. For most other use-cases, compressing the image
+with the <code>craff</code> utility will be beneficial as the host disk requirements will
+often be dramatically smaller than for raw images. Image file access is usually
+not frequent enough during simulation to impact performance. The <code>craff</code> format
+is recommended as the best all-round image file format for Simics. See section
+<a class="reference" href="#the-craff-utility">2.5.2.8</a> for more information about the <code>craff</code> utility.</p>
+<h3 id="saving-changes-to-an-image"><a href="#saving-changes-to-an-image">2.5.2.2 Saving Changes to an Image</a></h3>
+<p>If you modify or create new files on a storage device within Simics, you should
+remember that by default images are <em>read-only</em>. This means that the alterations
+made when running Simics are <em>not</em> written to the image, and will last only for
+the current Simics session. As described in the <a class="reference" href="configuration.html#images">2.4.2.3</a>
+section, this behavior has many advantages. You may however want to save your
+changes to the image, in order to re-use them in future simulations.</p>
+<p>The first thing you should do is to make sure that all the changes are actually
+written to the media you are using. In many cases, the simulated operating
+system caches operations to disks. A safe way to ensure that all
+changes are written back is to shutdown the simulated machine.</p>
+<p>When all changes have been written to the media <em>in</em> the simulation, you can
+save the new contents of the image in different ways:</p>
+<ul>
+<li>
+<p>Using the <code>save-persistent-state</code> command, all image changes for persistent
+storage media are saved to disk as a persistent state. <strong>This is the
+recommended way of saving your image changes</strong>.</p>
+</li>
+<li>
+<p>Using the <code>&lt;image&gt;.save-diff-file</code> command, you can manually save a diff file
+for the images you are interested in.</p>
+</li>
+<li>
+<p>Using the <code>&lt;image&gt;.save</code> command, you can create a new image file from the
+image. This image file is completely independent of all previous images and
+diff files. By default, the command creates an image file in the raw format.
+Image files in the raw format don’t use compression and may occupy large space
+on the disk. By passing the <code>-save-craff</code> flag to the command one can create
+an image file in the compressed Simics-specific craff format.</p>
+<blockquote class="markdown-alert-tip">
+<p>The <code>&lt;image&gt;.save</code> command can optionally save a <em>partial</em> dump of an image,
+which may be useful to dump a specific part of a disk.</p>
+</blockquote>
+</li>
+</ul>
+<p>Once you have saved the images, you can do the following:</p>
+<ul>
+<li>If you used <code>save-persistent-state</code>, you can issue the <code>load-persistent-state</code>
+command just after starting the original configuration. This will add the new
+changes to the persistent storage media images and the machine will boot with
+the changes included. <strong>This is the recommended way of using a saved
+persistent state</strong>.</li>
+</ul>
+<p>For example, let us suppose that you saved some new files on the disk of the
+<code>QSP-x86</code> platform (started with the <code>qsp-x86/firststeps</code> target). You saved the
+persistent state of the machine after stopping it to the file <code>new-files-added</code>.
+You can easily create a small script to start <code>QSP-x86</code> with the new files:</p>
+<pre><code>```simics
+# QSP-x86-new-files.simics
+&gt; load-target qsp-x86/firststeps
+&gt; load-persistent-state new-files-added
+```
+</code></pre>
+<ul>
+<li>You can also load the original configuration and add the diff files manually
+to the images, using the <code>&lt;image&gt;.add-diff-file</code> command.</li>
+<li>If you are building your own configurations (either as scripts or as
+checkpoints), you can add the diff files to the <code>files</code> attribute of the
+corresponding <code>image</code> object. This corresponds to what the
+<code>&lt;image&gt;.add-diff-file</code> command does.</li>
+</ul>
+<p>If you save several persistent states or image diff files that are dependent on
+each other, it may become cumbersome to take care of all these dependencies and
+to remember which files are important. You can <em>merge</em> the states or image diff
+files to create a new independent state:</p>
+<ul>
+<li>If you are working with persistent states, you can use the <code>checkpoint-merge</code>
+utility to create a persistent state that is independent of all previous
+files, including the original images provided with Simics. <strong>This is the
+recommended way of creating a new independent image</strong>. You can load it with
+the <code>load-persistent-state</code> command.</li>
+<li>If you saved some image diff files manually, you can use the <code>craff</code> utility
+described below to merge the diff files yourself.</li>
+</ul>
+<h3 id="reducing-memory-usage-due-to-images"><a href="#reducing-memory-usage-due-to-images">2.5.2.3 Reducing Memory Usage Due to Images</a></h3>
+<p>Although images are divided into pages that are only loaded on request, Simics
+can run out of host memory if very big images are used, or if the footprint of
+the software running on the simulated system is bigger than the host memory. To
+prevent these kind of problems, Simics implements a global image memory
+limitation controlled by the <code>set-image-memory-limit</code> command.</p>
+<p>When Simics is started a default memory-limit is automatically set based on the
+amount of physical memory available on the host. The default memory-limit does
+not consider if other applications and users are running on the same host, nor
+what kind of target system that is simulated in Simics. (For example each target
+processor will allocate additional non-image memory, so for systems with many
+processors the default limit could be too high).</p>
+<p>When the memory limit is reached, Simics will start swapping out pages to disk
+very much like an operating system would do. The <code>set-image-memory-limit</code>
+command lets you specify the maximum amount of memory that can be used, and
+where swapping should occur.</p>
+<blockquote class="markdown-alert-note">
+<p>This memory limitation only applies to <em>images</em>. Although this is unlikely,
+Simics can run out of memory due to other data structures becoming too large
+(for example memory profiling information) even though a memory limit has been
+set.</p>
+</blockquote>
+<h3 id="using-read-write-images"><a href="#using-read-write-images">2.5.2.4 Using Read/Write Images</a></h3>
+<p>As mentioned in section <a class="reference" href="configuration.html#images">2.4.2.3</a>, images can also work as
+read-write media, although this is <strong>not</strong> recommended. It can be useful
+sometimes when planning to make large changes to an image (like installing an
+operating system on a disk).</p>
+<p>To make an image read-write in your own configurations, simply set the second
+parameter (the “read-only” flag) of the <code>files</code> attribute in the image object to
+<code>"rw"</code>.</p>
+<p>In this example we will use <code>QSP-x86 Firststeps</code> and a raw
+file named <code>disk_image.raw</code> located in the project directory.</p>
+<pre><code class="language-simics"># launch Firststeps using a raw disk-image file
+$ ./simics qsp-x86/firststeps machine:software:linux:os_image=disk_image.raw
+# read the 'files' attribute
+simics&gt; <strong>@files = conf.board.disk0.hd_image.files</strong>
+simics&gt; <strong>@files</strong>
+[['%0%/disk_image.raw', 'ro', 0, 214748364800, 0]]
+# provide the absolute path to the file
+simics&gt; <strong>$img_file = (lookup-file disk_image.raw)</strong>
+simics&gt; <strong>@files[-1][0] = simenv.img_file</strong>
+# change the second element to make the file read-write
+simics&gt; <strong>@files[-1][1] = "rw"</strong>
+# check the result
+simics&gt; <strong>@conf.board.disk0.hd_image.files</strong>
+[['[project]&lt;/i&gt;/disk_image.raw', 'rw', 0, 214748364800, 0]]
+</code></pre>
+<p>Note that by indexing <code>files</code> with the index <code>-1</code>, the last element of the array
+is accessed, which is always the one that should be set read-write, in case
+<code>files</code> is a list of several files.</p>
+<p>Simics does not look for files in the Simics search path when the files are used
+in read-write mode. If you do not provide an absolute path to a read-write file,
+a new file (in the uncompressed craff format) will be created in the current
+directory.</p>
+<p>If the read/write file already exists, it must be a raw image or an uncompressed
+craff file. Simics does not support using compressed craff files in read/write
+mode.</p>
+<p><strong>Use this feature with caution</strong>. Make sure to take a copy of the original
+image before running Simics with the image in read-write mode. Remember to
+synchronize the storage device within the target OS before exiting Simics, for
+example by shutting down the simulated machine.</p>
+<h3 id="editing-fat-images-using-mtools"><a href="#editing-fat-images-using-mtools">2.5.2.5 Editing FAT Images Using Mtools</a></h3>
+<p>This is a Linux specific chapter. If you have an image that contains a FAT file
+system, you can use Mtools (<a href="http://mtools.linux.lu" rel="noopener noreferrer" target="_top">http://mtools.linux.lu</a>) to
+get read-write access to the image. You must have a raw binary dump of the image
+for Mtools to work. This can be obtained using the <code>craff</code> utility (see section
+<a class="reference" href="#the-craff-utility">2.5.2.8</a>).</p>
+<p>A few wrapper scripts around Mtools are included in the Simics distribution in
+the scripts directory.</p>
+<dl>
+<dt id="dt:create-fat-sh"><a href="#dt:create-fat-sh">create-fat.sh</a></dt>
+<dd>Creates an image with a formatted FAT file system.</dd>
+<dt id="dt:ls-fat-sh"><a href="#dt:ls-fat-sh">ls-fat.sh</a></dt>
+<dd>Lists files in an image.</dd>
+<dt id="dt:copy-to-fat-sh"><a href="#dt:copy-to-fat-sh">copy-to-fat.sh</a></dt>
+<dd>Copies one or more files or directories to an image.</dd>
+<dt id="dt:copy-from-fat-sh"><a href="#dt:copy-from-fat-sh">copy-from-fat.sh</a></dt>
+<dd>Copies a file or directory from an image.</dd>
+</dl>
+<p>If your image is partitioned (a complete disk for example), you may need to give
+Mtools special parameters like an <em>offset</em> or a <em>partition</em>. Please see the
+Mtools documentation for more information.</p>
+<h3 id="editing-images-using-loopback-mounting"><a href="#editing-images-using-loopback-mounting">2.5.2.6 Editing Images Using Loopback Mounting</a></h3>
+<p>This is a Linux specific chapter. If the host OS supports loopback devices,
+like, e.g., Linux, you can mount an image on your host machine and get direct
+read/write access to the files within the image. If you have root permissions
+this allows you to easily and quickly copy files.</p>
+<blockquote class="markdown-alert-note">
+<p>Remember that the image must be a raw binary dump. Disk dumps supplied with
+Simics are normally in <code>craff</code> format but you can use the <code>craff</code> utility to
+unpack the disk image to a raw image. The resulting images have the same size
+as the simulated disk, so you need to have sufficient free space on your host
+disk to contain the entire simulated disk image.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>Do not try to loopback mount an image over NFS. This does not work reliably on
+all operating systems (Linux, for example). Instead, move the image to a local
+disk and mount it from there.</p>
+</blockquote>
+<p><strong>On Linux:</strong></p>
+<pre><code>mount &lt;disk_dump&gt; mnt_pnt -o loop=/dev/loopn,offset=m
+</code></pre>
+<p>Example:</p>
+<pre><code># mount /disk1/rh6.2-kde-ws /mnt/loop -o loop=/dev/loop0,offset=17063424
+# cd /mnt/loop
+# ls
+bin   dev  home  lost+found  opt   root  tmp  var
+boot  etc  lib   mnt         proc  sbin  usr
+#
+</code></pre>
+<p>As shown in the example, the disk dump containing a Red Hat 6.2 KDE WS is
+mounted on the <code>/mnt/loop</code> directory. The file system mounted on <code>/</code> starts on
+the offset 17063424 on the disk. Linux autodetects the file system type when
+mounting (ext2 in this example). If you want to access another kind of file
+system, use the <em>-t <em>fs</em></em> option to the mount command. Once the file system is
+mounted, you can copy files in and out of the disk image.</p>
+<p>The <code>offset</code> can be calculated by examining the partition table with <code>fdisk</code>
+(from within Simics). Use <code>mount</code> to find the partition you want to edit or
+examine (e.g., <code>/dev/hda2</code> is mounted on <code>/usr</code> which you want to modify). Next,
+run <code>fdisk</code> on the device handling this partition (such as <code>fdisk /dev/hda</code>).
+From within <code>fdisk</code>, change the display unit to sectors instead of cylinders
+with the <code>u</code> command and print the partition table with <code>p</code>. You will now see
+the start and end sectors of the partitions; you can get the offset by taking
+the start sector multiplied with the sector size (512).</p>
+<p>When you have finished examining or modifying the disk, unmount it and touch the
+disk image. For example:</p>
+<pre><code>cd
+umount /mnt/loop
+touch /disk1/rh6.2-kde-ws
+</code></pre>
+<p>The modification date of the disk image does not change when you modify the disk
+via the loopback device. Thus, if you have run Simics on the disk image earlier,
+the OS might have cached disk pages from the now modified disk image in RAM.
+This would cause a new Simics session to still use the old disk pages instead of
+the newly modified pages. Touching the image file should ensure that the OS
+rereads each page.</p>
+<h3 id="constructing-a-disk-from-multiple-files"><a href="#constructing-a-disk-from-multiple-files">2.5.2.7 Constructing a Disk from Multiple Files</a></h3>
+<p>In some cases, you may want to populate a simulated disk from multiple files
+covering different parts of the disk. For example, the partition table and boot
+sectors could be stored in a different disk image file than the main contents of
+the disk. If that is the case, you cannot use the <code>&lt;image&gt;.add-diff-file</code>
+command: you must set manually the disk image <code>files</code> attribute to put each
+image file at its appropriate location.</p>
+<p>Assume you are simulating a PC and want to build a disk from a main file called
+<code>hda1_partition.img</code> and a master boot record image file called <code>MBR.img</code>. The
+main partition will start at offset 32256 of the disk, and the MBR (Master Boot
+Record) covers the first 512 bytes of the disk (typically, you would get the
+contents of these image files from the real disk as detailed in section
+<a class="reference" href="#importing-a-real-disk-into-simics">2.5.9</a>). The following command in Simics’s
+start-up script will build the disk from these two files.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module std-comp</strong>
+simics&gt; <strong>create-ide-disk-comp disk2 size = 2559836160</strong>
+simics&gt; <strong>@image = get_component_object(conf.disk2, 'hd_image')</strong>
+simics&gt; <strong>@image.files = [["hda1_partition.img", "ro", 32256, 1032151040, 0],</strong>
+                  ["MBR.img",            "ro",     0,        512, 0]]
+</code></pre>
+<p>Note that the two image files cover non-overlapping and non-contiguous sections
+of the disk.</p>
+<h3 id="the-craff-utility"><a href="#the-craff-utility">2.5.2.8 The Craff Utility</a></h3>
+<p>The images distributed with Simics, and in general most of the images created by
+Simics, are in the <code>craff</code> file format. The <code>craff</code> utility can convert files to
+and from the <code>craff</code> format, and also merge several <code>craff</code> files into a single
+file.</p>
+<p>In your Simics distribution you will find <code>craff</code> in <strong>Windows:</strong><code>[simics]\bin</code>,
+<strong>Linux:</strong><code>[simics]/bin</code>. The examples below assume that <code>craff</code> is present in
+your shell path.</p>
+<dl>
+<dt id="dt:convert-a-raw-dump-to-craff-format"><a href="#dt:convert-a-raw-dump-to-craff-format">Convert a raw dump to <code>craff</code> format</a></dt>
+<dd>
+<pre><code>&gt; craff -o mydisk.craff mydisk.img
+</code></pre>
+</dd>
+<dt id="dt:convert-a-single-craff-file-to-a-raw-file"><a href="#dt:convert-a-single-craff-file-to-a-raw-file">Convert a single <code>craff</code> file to a raw file</a></dt>
+<dd>
+<pre><code>&gt; craff --decompress -o mydisk.img mydisk.craff
+</code></pre>
+</dd>
+<dt id="dt:merge-multiple-craff-files-into-a-single-craff-file"><a href="#dt:merge-multiple-craff-files-into-a-single-craff-file">Merge multiple craff files into a single <code>craff</code> file</a></dt>
+<dd>
+<p>If more than one input file is specified, they will be merged so
+that later files override earlier files on the command line. The input craff
+files in this example come from several checkpoints.</p>
+<pre><code>&gt; craff -o merged.craff chkpt1.craff chkpt2.craff chkpt3.craff
+</code></pre>
+</dd>
+<dt id="dt:add-a-craff-file-to-a-raw-dump-producing-a-new-dump"><a href="#dt:add-a-craff-file-to-a-raw-dump-producing-a-new-dump">Add a <code>craff</code> file to a raw dump, producing a new dump</a></dt>
+<dd>
+<pre><code>&gt; craff --decompress -o new.img mydisk.img diff.craff
+</code></pre>
+<p>The input files can be any combination of raw and <code>craff</code> files.</p>
+</dd>
+<dt id="dt:make-a-file-of-the-differences-of-two-dumps"><a href="#dt:make-a-file-of-the-differences-of-two-dumps">Make a file of the differences of two dumps</a></dt>
+<dd>
+<pre><code>&gt; craff --diff -o diff.craff dump1.img dump2.img
+</code></pre>
+<p>The resulting file, <code>diff.craff</code>, will contain only what is needed to add to
+<code>dump1.img</code> in order to get <code>dump2.img</code>. This is useful to save space if little
+has been changed.</p>
+</dd>
+</dl>
+<p>See also the <a href="../rm-base/craff.html">craff section</a> in the <a href="../rm-base/index.html">Simics Reference
+Manual</a> for a full description of the <code>craff</code> utility and
+its parameters.</p>
+<h3 id="craff-fs"><a href="#craff-fs">2.5.2.9 craff-fs</a></h3>
+<p>Most large data files in Simics, such as disk images, are stored in the
+compressed random access file format (CRAFF). In order to manipulate the raw
+data in these files it is necessary to decompress the file using the <code>craff</code>
+tool. For disk images these files can be very large, so decompressing them is
+not always feasible. Therefore, we provide an alternative in the experimental
+craff-fs tool. With craff-fs you can “mount” the craff file and access it
+through the file system as if it is a normal raw file. The craff-fs tool is only
+available on Linux and is provided AS IS.</p>
+<p>craff-fs requires <code>libfuse</code> version 2.x.x (tested with 2.9.9) and <code>libvtutils</code>.</p>
+<p>The synopsis of craff-fs is as follows:</p>
+<pre><code># ./bin/craff-fs 
+craff-fs file mountpt [fuse-opts]
+</code></pre>
+<h4 id="example"><a href="#example">2.5.2.9.1 Example</a></h4>
+<p>This examples shows how to “mount” a craff image of a disk image in order to
+expose it as raw data without decompressing it and then mount the resulting file
+via loop back in order to access the disk’s file system. Mounting craff files as
+raw files does not require root privileges, but mounting loop back mounting the
+result usually does. In this example, we use the UEFI agent craff image from
+Simics package 2096.</p>
+<p>The first step is to mount the craff file with craff-fs to be able to access the
+raw data. Note that the mount point directory must always be created first. As
+explained further below, there are permission issues that one has to get right,
+and one way is to use administrator privileges everywhere, so in this example we
+will do that.</p>
+<pre><code>$ mkdir -p craff-mnt
+$ sudo ./bin/craff-fs targets/common/images/efi_agent_and_grub_only.craff craff-mnt
+</code></pre>
+<p>The mount point will now be populated with two files: <code>data</code> and <code>info</code>.</p>
+<p>Other users (including root or users with administrator privileges) cannot
+access the information mounted under craff-mnt mount point:</p>
+<pre><code>$ ls craff-mnt
+ls: cannot access 'craff-mnt': Permission denied
+</code></pre>
+<p>Details about the user, group and file permission cannot be accessed by other
+users (including root).</p>
+<pre><code>$ ls -l
+d????????? ? ?           ?               ?            ? craff-mnt/
+</code></pre>
+<p>If other users should access the mount point, “allow_others” should be
+uncommented from <code>/etc/fuse.conf</code> file. This will enable all users (including
+root) to list/view the contents.</p>
+<p>The <code>data</code> file contains the raw data that makes up the craff file, the <code>info</code>
+file contains additional information about the craff file in text format:</p>
+<pre><code>$ sudo cat craff-mnt/info 
+Craff mount: 0.1.0
+
+Craff version: 1
+Compression: gzip
+Size: 107374182400
+Block bits: 13
+Sub bits: 4
+Directory bits: 9
+</code></pre>
+<h5 id="use-of-parted-to-display-the-file-type-and-partitions"><a href="#use-of-parted-to-display-the-file-type-and-partitions">2.5.2.9.1.1 Use of parted to display the file type and partitions</a></h5>
+<p>Since a disk image will have different partitions at different offsets it is not
+possible to mount the “disk image”. It is necessary to mount the individual
+partitions. There is a tool called <code>parted</code> that can display this information.</p>
+<pre><code>$ sudo parted craff-mnt/data
+GNU Parted 3.5
+Using /disk1/simics-6/craff-mnt/data
+Welcome to GNU Parted! Type 'help' to view a list of commands.
+(parted) unit
+Unit?  [compact]? b
+(parted) print
+Model:  (file)
+Disk /disk1/jhbaarnh/simics/merge-6/simics-base/craff-mnt/data: 107374182400B
+Sector size (logical/physical): 512B/512B
+Partition Table: loop
+Disk Flags: 
+
+Number  Start  End            Size           File system  Flags
+ 1      0B     107374182399B  107374182400B  fat32
+(parted) q
+</code></pre>
+<p>CraffFS allows mounting as read-write and read-only. File systems successfully
+tested: ext2, ext3, ext4, NTFS, FAT32.</p>
+<p>It can be seen from the example above that the first partition has a fat32 file
+system and it starts at offset 0. This information will be required to mount
+that partition via the loop back device.</p>
+<h5 id="mounting-the-partitions"><a href="#mounting-the-partitions">2.5.2.9.1.2 Mounting the partitions</a></h5>
+<p>Mount as read-only:</p>
+<pre><code>$ mkdir -p mnt-loop
+$ sudo mount -o ro,loop,offset=0 craff-mnt/data mnt-loop
+$ ls mnt-loop
+EFI  SimicsAgent.efi
+$ 
+</code></pre>
+<p>Mount as read-write:</p>
+<pre><code>$ mkdir -p mnt-loop
+$ sudo mount -o rw,loop,offset=1048576 craff-mnt/data mnt-loop
+$ ls mnt-loop
+EFI  SimicsAgent.efi
+$ 
+</code></pre>
+<p>Mount command used with options (-o) requires administrator privileges. If the
+craff-fs command is run without administrator privileges, even if mount command
+is run as root, mounting will fail. There are two options:</p>
+<ol>
+<li>Run both craff-fs and mount commands as root.</li>
+<li>Run craff-fs as normal user but edit <code>/etc/fuse.conf</code> and uncomment
+“allow_others”. Root (and other users) can mount and access mounted files.</li>
+</ol>
+<h5 id="unmounting-the-partitions"><a href="#unmounting-the-partitions">2.5.2.9.1.3 Unmounting the partitions</a></h5>
+<pre><code>$ sudo fusermount -u mnt-loop
+$ sudo fusermount -u craff-mnt
+</code></pre>
+<h4 id="use-craff-tool-to-reduce-the-size-of-craff-files-if-needed"><a href="#use-craff-tool-to-reduce-the-size-of-craff-files-if-needed">2.5.2.9.2 Use CRAFF tool to reduce the size of CRAFF files if needed</a></h4>
+<p>Craff files will increase in size as files and information is written, but the
+file will not automatically decrease if same files or others are
+removed/deleted. To shrink the craff file size after delete, create an zero file
+(full of zeros) until the end of the partition and use the <code>craff</code> tool. This
+tool will ignore all zero blocks and will shrink the craff file.</p>
+<h2 id="cd-roms"><a href="#cd-roms">2.5.3 CD-ROMs</a></h2>
+<h3 id="accessing-a-host-cd-rom-drive"><a href="#accessing-a-host-cd-rom-drive">2.5.3.1 Accessing a Host CD-ROM Drive</a></h3>
+<p>This is a Linux specific chapter. Accessing the CD-ROM of the host machine from
+inside the simulation is supported on Linux hosts. This is done by creating a
+<code>cdrom-image</code> object using the <code>new-cdrom-image</code> command. First, you should
+insert the CD in the host machine and figure out which device name it uses.</p>
+<p>On a Linux host, this is typically <code>/dev/cdrom</code>, which is a symbolic link to the
+actual CD-ROM device, e.g., <code>/dev/hdc</code>. Note that you need read/write access to
+the CD-ROM device for this to work.</p>
+<p>When you have the correct device file name, you create a <code>cdrom-image</code> object
+and insert it into the simulated CD-ROM drive:</p>
+<pre><code class="language-simics">simics&gt; <strong>new-cdrom-image /dev/cdrom file_cd0</strong>
+CDROM 'file_cd0' created
+simics&gt; <strong>cd0.insert file_cd0</strong>
+Inserting media 'file_cd0' into CDROM drive
+</code></pre>
+<p>Note that you must replace <code>/dev/cdrom</code> with the correct host device name as
+mentioned above, and <code>cd0</code> with the correct Simics object name. Use the
+<code>list-objects</code> command to find the correct object of class <code>ide-cdrom</code>.</p>
+<p>The <code>cd0.insert</code> command simulates inserting a new disk into the CD-ROM drive,
+and there is also a corresponding <code>cd0.eject</code> command that simulates ejecting
+the disk.</p>
+<h3 id="accessing-a-cd-rom-image-file"><a href="#accessing-a-cd-rom-image-file">2.5.3.2 Accessing a CD-ROM Image File</a></h3>
+<p>A file containing an ISO-9660 image can be used as medium in the simulated
+CD-ROM. This image file can be created from real CD-ROM disks, or from
+collections of files on any disk.</p>
+<p>On Linux, an image can be created from a set of files with the <code>mkisofs</code>
+program. For example:</p>
+<pre><code>mkisofs -l -L -o image -r dir
+</code></pre>
+<p>On Windows, you can use a third-party product to create ISO-9660 images from
+files or from CD-ROMs, and a non-exhaustive list is given in figure
+<a class="reference" href="#listofwindowsisoprograms">1</a>. Note that many programs can read CD-ROMs in
+either “file” or “raw” mode (“raw” mode is often called “aspi”). If CD-ROMs are
+read using file mode, the resulting image will not be bootable.</p>
+<figure id="listofwindowsisoprograms">
+<table><thead><tr><th style="text-align: left">Product</th><th style="text-align: left">Site</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left">WinImage</td><td style="text-align: left"><a href="http://www.winimage.com" rel="noopener noreferrer" target="_top">http://www.winimage.com</a></td><td style="text-align: left">Shareware, only copies images from real CD-ROM</td></tr>
+<tr><td style="text-align: left">WinISO</td><td style="text-align: left"><a href="http://www.winiso.com" rel="noopener noreferrer" target="_top">http://www.winiso.com</a></td><td style="text-align: left">Shareware</td></tr>
+<tr><td style="text-align: left"></td><td style="text-align: left"></td><td style="text-align: left"></td></tr>
+<tr><td style="text-align: left">UltraISO</td><td style="text-align: left"><a href="http://www.ezbsystems.com/" rel="noopener noreferrer" target="_top">http://www.ezbsystems.com/</a></td><td style="text-align: left">Shareware</td></tr>
+<tr><td style="text-align: left">MagicISO</td><td style="text-align: left"><a href="http://www.magiciso.com" rel="noopener noreferrer" target="_top">http://www.magiciso.com</a></td><td style="text-align: left">Shareware, can make images from files, CD-ROMs, and DVD-ROMs, and edit ISO images.</td></tr>
+<tr><td style="text-align: left">mkisofs</td><td style="text-align: left"><a href="http://wiki.osdev.org/Mkisofs" rel="noopener noreferrer" target="_top">http://wiki.osdev.org/Mkisofs</a></td><td style="text-align: left">Part of the cdrtools package, free, need Cygwin</td></tr>
+</tbody></table>
+ <figcaption>Figure 1. Windows Programs to Create ISO-9660 Images</figcaption> 
+</figure>
+<p>Once you have an image file, a <code>cdrom-image</code> object can be created, and then
+inserted into a simulated CD-ROM device in the same way as above:</p>
+<pre><code class="language-simics">simics&gt; <strong>new-cdrom-image myimage.iso</strong>
+CDROM 'myimage' created
+simics&gt; <strong>cd0.insert myimage</strong>
+Inserting media 'myimage' into CDROM drive
+</code></pre>
+<p>Note that <code>cd0</code> above refers to the Simics object name of the CD-ROM drive. This
+may or may not be called <code>cd0</code>. To see which object name to use, try the
+<code>list-objects</code> command and look for an object of class <code>ide-cdrom</code>.</p>
+<h2 id="usb-disks"><a href="#usb-disks">2.5.4 USB disks</a></h2>
+<p>Virtual USB disks can be used to transfer files to and from virtual machines.</p>
+<p>A virtual USB disk is created with the <code>new-usb-disk-comp</code> command. The command
+accepts a file with disk image and creates a USB disk component:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module usb-comp</strong>
+simics&gt; <strong>$usb_disk=(new-usb-disk-comp file = /tmp/stick.img name = usb_disk)</strong>
+</code></pre>
+<p>Next, you can insert the virtual USB disk into the machine. Exactly how that is
+done depends on the system that is being simulated. A virtual USB disk should be
+connected to an empty USB-port connector:</p>
+<pre><code class="language-simics">simics&gt; <strong>$usb_disk.connect-to $system</strong>
+Connecting usb_disk.usb_host to board.mb.sb.usb_port[10]
+</code></pre>
+<p>Writes to a virtual USB disk are normally not written directly to an image file,
+but cached in memory. The <code>&lt;image&gt;.save</code> command can be used to save changes to
+a new image file. One can find the objects that support the command with the
+help of the <code>list-objects</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects -all iface = image</strong>
++-------+----------------------------+
+| Class |           Object           |
++-------+----------------------------+
+...
+|&lt;image&gt;|usb_disk.usb_scsi_disk_image|
+...
+simics&gt; <strong>usb_disk.usb_scsi_disk_image.save new_image</strong>
+</code></pre>
+<h2 id="using-simicsfs-with-fuse"><a href="#using-simicsfs-with-fuse">2.5.5 Using SimicsFS with FUSE</a></h2>
+<p>SimicsFS with FUSE is a new implementation based on FUSE, Filesystem in
+Userspace, which is supported by most Linux systems[1]. This is a
+client-server solution, which is more feature complete and with better
+performance than the old SimicsFS kernel module and device solution.</p>
+<p>The Simics extension, SimicsFS with FUSE, will grant a simulated Linux system
+access to the file system of the host computer from inside the simulation. This
+allows more storage space for the target system and may make copying files to
+and from the target system unnecessary as they can be accessed directly from the
+host file system.</p>
+<p>The SimicsFS client, used for SimicsFS with FUSE, is a regular Linux user-space
+application that allows non-privileged users to mount and unmount file systems.
+The FUSE kernel module needs to be included in the Linux kernel and the libfuse
+userspace library[2] in the Linux distribution.</p>
+<p>All accesses to the host filesystem will be made with the privileges of the user
+starting the Simics session.</p>
+<blockquote class="markdown-alert-note">
+<p>[1] FUSE is compatible with all Linux kernels since version 2.4.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>[2] SimicsFS client is compatible with FUSE 3.13 or later.</p>
+</blockquote>
+<p>Some characteristics/limitations for SimicsFS with FUSE:</p>
+<ul>
+<li>The user can only mount on a mountpoint, for which the user has write
+permission.</li>
+<li>The mountpoint is owned by the user.</li>
+<li>No other user (including root) can access the contents of the mounted file
+system (although this can be relaxed by using the allow_other and allow_root
+mount options).</li>
+<li>All file system operations on the host are performed by the user running
+Simics, indifferent to which user requested the operations in the target
+system. Therefore even a super user on the target is constrained by the file
+system permissions of the user running Simics.</li>
+<li>SimicsFS does not perform any character set transformation of characters in
+the file paths, so if different character sets are used on the simulated
+target and on the host, the characters may be interpreted differently.</li>
+<li>SimicsFS is currently not using wide characters on Windows, and valid file
+path names are therefore limited to ASCII characters.</li>
+<li>Read-only files on the target system may not be copied to the mounted file
+system. See workaround in section <a class="reference" href="#using-simicsfs-client">2.5.5.2</a>.</li>
+<li>On Windows, the SimicsFS client only has partial access to the actual
+permissions of files and directories. Some permissions are not correctly
+reported, nor configurable by the client. See table below.</li>
+</ul>
+<p>Limitations for Windows hosts:</p>
+<table><thead><tr><th><strong>Operation</strong></th><th><strong>Restriction</strong></th></tr></thead><tbody>
+<tr><td>Read</td><td>Read accesses cannot be denied, any attempts are silently ignored.</td></tr>
+<tr><td>Read</td><td>Unreadable files may still appear readable, but reading will fail.</td></tr>
+<tr><td>Soft-link</td><td>Windows filesystems do not support it.</td></tr>
+<tr><td>Add/Remove</td><td>Write permission on the directory is ignored.</td></tr>
+</tbody></table>
+<h3 id="installing-simicsfs-client"><a href="#installing-simicsfs-client">2.5.5.1 Installing SimicsFS client</a></h3>
+<p>The SimicsFS client is installed on some disk images distributed with Simics.
+Where there is also a <code>/host</code> directory and definitions in <code>/etc/fstab</code> for
+mounting SimicsFS with the command <code>mount /host</code> by root. Then the host files
+become accessible by root alone.</p>
+<p>If you run your own Linux distribution you have to compile SimicsFS client
+yourself. The source code is located in the <code>src/misc/simicsfs-client/</code>
+directory and in the <code>src/misc/libmagicpipe/</code> directory of the Base package (pkg
+1000). The Linux kernel must be compiled with FUSE support and the file system
+must include libfuse.</p>
+<p>Example definition in the <code>/etc/fstab</code> for mounting SimicsFS with the command
+<code>mount /host</code> by root:</p>
+<pre><code>simicsfs-client /host fuse defaults,noauto 0 0
+</code></pre>
+<p>Replace <code>/host</code> with your mount point. The simicsfs-client executable must be
+located in a directory included in the PATH environment variable, either by
+placing it there or adding its directory.</p>
+<p>With the user option it is also possible to define entries in <code>/etc/fstab</code> for
+normal users to mount and unmount SimicsFS. Example showing mount of host user
+home directory on directory <code>&lt;dir&gt;</code>:</p>
+<pre><code>simicsfs-client &lt;dir&gt; fuse defaults,noauto,user,modules=subdir,subdir=/home/&lt;user&gt; 0 0
+</code></pre>
+<p>The <code>&lt;dir&gt;</code> directory must be empty and have write permission for the user. The
+user mounts with the command <code>mount &lt;dir&gt;</code> and unmounts with the command
+<code>fusermount -u &lt;dir&gt;</code>.</p>
+<p>See the fstab and fuse documentation (“man fstab”, “man fuse”) for more
+information about the available mount options.</p>
+<h3 id="using-simicsfs-client"><a href="#using-simicsfs-client">2.5.5.2 Using SimicsFS client</a></h3>
+<p>The SimicsFS client requires the SimicsFS server to be started:</p>
+<pre><code class="language-simics">simics&gt; <strong>start-simicsfs-server</strong>
+</code></pre>
+<p>Example commands showing how to mount SimicsFS with the command
+<code>simicsfs-client</code>:</p>
+<ul>
+<li>
+<p>Mount host root directory on directory <code>&lt;dir&gt;</code>:</p>
+<pre><code>~:$ simicsfs-client &lt;dir&gt;
+</code></pre>
+</li>
+<li>
+<p>Mount host user home directory on directory <code>&lt;dir&gt;</code>:</p>
+<pre><code>~:$ simicsfs-client &lt;dir&gt; -omodules=subdir,subdir=/home/&lt;user&gt;
+</code></pre>
+</li>
+</ul>
+<p>Example command showing how to unmount SimicsFS:</p>
+<ul>
+<li>Unmount SimicsFS on directory <code>&lt;dir&gt;</code>:
+<pre><code>~:$ fusermount -u &lt;dir&gt;
+</code></pre>
+</li>
+</ul>
+<p>Example commands showing how to mount SimicsFS on <code>/host</code> directory by root with
+definition in <code>/etc/fstab</code>, see section <a class="reference" href="#installing-simicsfs-client">2.5.5.1</a>:</p>
+<ul>
+<li>
+<p>Mount host root directory on <code>/host</code>:</p>
+<pre><code>~:$ mount /host
+</code></pre>
+</li>
+<li>
+<p>Mount host user home directory on <code>/host</code>:</p>
+<pre><code>~:$ mount /host -omodules=subdir,subdir=/home/&lt;user&gt;
+</code></pre>
+</li>
+</ul>
+<p>Example command showing how to mount SimicsFS on <code>&lt;dir&gt;</code> directory by a normal
+user:</p>
+<ul>
+<li>
+<p>Mount host user home directory on <code>&lt;dir&gt;</code>. A user cannot add options to the
+mount command so the options are added in <code>/etc/fstab</code>, see section
+<a class="reference" href="#installing-simicsfs-client">2.5.5.1</a>.</p>
+<pre><code>~:$ mount &lt;dir&gt;
+</code></pre>
+</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>Read-only files on the target system may not be copied to the mounted file
+system. A workaround is to first touch the file in the mounted file system,
+which creates the file with write permission, and then copy the file from the
+target system to the mounted file system. Finally change permission of the
+destination file to read-only.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>When running Simics on Windows host, replace all ‘\’ in the mount path with
+‘/’ to prevent interpretation of escape character by the simulated target
+software. Example:</p>
+<pre><code>~:$ simicsfs-client dir -omodules=subdir,subdir=D:/home/&lt;user&gt;
+</code></pre>
+</blockquote>
+<h3 id="simicsfs-path-substitution"><a href="#simicsfs-path-substitution">2.5.5.3 SimicsFS Path Substitution</a></h3>
+<p>The host directory mounted from a target system is the root directory by
+default, but that is configurable from the target system. Although, it may not
+be feasible or desirable to modify the target system configuration when the host
+system path changes. The path may also be part of a checkpoint and may not be
+applicable when the checkpoint is restored again. For these cases the host path
+can be substituted with a replacement path on the host.</p>
+<p>To perform a substitution a path rule must be created. These are applied to
+every operation, with immediate effect. A rule can be general to all clients or
+specific to just a group of clients. The rule will look for a substring in the
+requested path and replace that substring with the new destination path. The
+substring matching is performed from the beginning of the path, but need not
+match the whole requested path in the mount command on the target.</p>
+<p>A client may thus request an existing or non-existing path on the host. This
+path will be matched against the defined path rules to see if there is a match.
+Specific rules are checked first, then the general rules. Therefore a specific
+rule will always override a general one. Otherwise the rules are matched in the
+order they were added and only the first matching rule will be applied.</p>
+<p><strong>EXAMPLES:</strong></p>
+<p>One of the main use-cases for this feature is to allow access to a user defined
+path which is configured at run-time without the need to modify the target
+configuration. For instance the users may want to access their own home
+directories, without modifying the generic target image. For this purpose they
+define a mount-point <code>/mnt/home</code> which is configured to mount <code>/home/user</code> on
+the host. The host path <code>/home/user</code> may not exist on the host and requires the
+user to configure a path rule to substitute it for the real home directory of
+the current user.</p>
+<pre><code class="language-simics">simics&gt; <strong>$userhome = (env HOME)</strong>
+simics&gt; <strong>&lt;simicsfs-server&gt;.add-path-rule /home/user $userhome</strong>
+~:$ mount -t simicsfs-client /mnt/home -osubdir,subdir=/home/user
+</code></pre>
+<p>Another major use-case for this feature is to solve the checkpoint problem,
+where a user has mounted some path on the local machine. This checkpoint is then
+shared with a colleague, who has similar files stored in another path. The
+colleague will then need to replace the requested host path with the actual path
+to the equivalent folder local to this other machine.</p>
+<pre><code class="language-simics">simics&gt; <strong>&lt;simicsfs-server&gt;.add-path-rule /work/simics/proj /my/path/to/proj</strong>
+</code></pre>
+<p>Sometimes you may need to differentiate between different clients. When a client
+registers itself with the simicsfs server, it provides a bit of details on the
+target that it runs on. Each of these details can be used to select clients for
+different groups. These groups can then be given as an extra argument to the
+path rule, which will then only apply to the clients of that group. Once a
+client is registered, it is assigned a unique magic number.</p>
+<pre><code class="language-simics">simics&gt; <strong>&lt;simicsfs-server&gt;.add-client-group a_team magic 0x0103a1245edb31da</strong>
+simics&gt; <strong>&lt;simicsfs-server&gt;.add-path-rule "/" /proj/area_a a_team</strong>
+</code></pre>
+<p>The first line will create a group called <code>a_team</code> which will consist of the
+client with magic number <code>0x0103a1245edb31da</code>. Since the magic numbers are
+unique there can only be one client in this group. The second line will add a
+path rule that replaces the root directory with <code>/proj/area_a</code>, but only for
+clients that belong to group <code>a_team</code>.</p>
+<blockquote class="markdown-alert-note">
+<p>The simicsfs-client is not aware of any changes to the path rules, which means
+that recently accessed files may appear to still be present even though the
+path rule has changed to point to another destination. Operations on that
+file, however, will fail.</p>
+</blockquote>
+<h2 id="using-virtiofs"><a href="#using-virtiofs">2.5.6 Using VirtioFS</a></h2>
+<p>The Virtio File System Device is specified in the <a href="https://github.com/oasis-tcs/virtio-spec" rel="noopener noreferrer" target="_top">Virtio
+specification</a>. The device is used to
+share files between the host and the guest. There are drivers available for the
+VirtioFS device for Linux (<code>CONFIG_VIRTIO_FS</code>) ,
+<a href="https://github.com/tianocore/edk2/tree/master/OvmfPkg/VirtioFsDxe" rel="noopener noreferrer" target="_top">UEFI</a> and
+<a href="https://github.com/virtio-win/kvm-guest-drivers-windows/tree/master/viofs" rel="noopener noreferrer" target="_top">Windows</a>.</p>
+<h3 id="requirements"><a href="#requirements">2.5.6.1 Requirements</a></h3>
+<ul>
+<li>Target software with VirtioFS device driver</li>
+<li>Target platform with a free PCIe slot that supports devices implemented using
+the new PCIe library</li>
+<li>The simulator must be running on a Linux host</li>
+</ul>
+<h3 id="example-using-virtiofs-with-a-linux-target"><a href="#example-using-virtiofs-with-a-linux-target">2.5.6.2 Example Using VirtioFS with a Linux Target</a></h3>
+<p>This section describes how to use VirtioFS with a Linux target. Setting up
+target software on different target types (UEFI or Windows) is out of scope of
+this documentation. However, setup of the target platform would be similar.</p>
+<h4 id="linux-kernel"><a href="#linux-kernel">2.5.6.2.1 Linux Kernel</a></h4>
+<p>A Linux target would need to have <code>CONFIG_VIRTIO_FS</code>, <code>CONFIG_VIRTIO_PCI</code>,
+<code>CONFIG_PCI</code>, <code>CONFIG_PCI_MSI</code> and <code>CONFIG_FUSE_FS</code> enabled in the kernel
+configuration either as modules or built-in. For modern Linux distributions,
+these options are usually enabled by default.</p>
+<h4 id="platform-setup"><a href="#platform-setup">2.5.6.2.2 Platform Setup</a></h4>
+<p>The following example shows how to use VirtioFS on board that has a free PCIe
+slot that supports devices implemented using the new PCIe library.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module virtio-comp</strong>
+virtio-comp module loaded
+simics&gt; <strong>new-virtio-pcie-fs-comp fs0 share = &lt;a-directory-in-the-host&gt; tag_name = fs0</strong>
+Created instantiated 'virtio_pcie_fs_comp' component 'fs0'
+simics&gt; <strong>fs0.connect-to board</strong>
+Connecting fs0.upstream_target to board.mb.nb.pcie_slot[0]
+</code></pre>
+<h4 id="interacting-with-the-virtiofs-device"><a href="#interacting-with-the-virtiofs-device">2.5.6.2.3 Interacting with the VirtioFS Device</a></h4>
+<p>The following example will show commands executed on the target prepended with
+<strong>[root@board]#</strong> and commands executed on the host prepended with <strong>[host]#</strong>.
+Comments are prepended with <strong>#</strong>.</p>
+<pre><code class="language-shell"># Mount the VirtioFS device in the target, note that when we created the
+# VirtioFS device above, we set the tag_name to fs0.
+[root@board]# mount -t virtiofs fs0 /mnt
+[root@board]# echo "hello from target" &gt; /mnt/channel.txt
+[host]# cat &lt;shared-directory-in-the-host&gt;/channel.txt
+hello from target
+[host]# echo "hello from host" &gt; &lt;shared-directory-in-the-host&gt;/channel.txt
+[root@board]# cat /mnt/channel.txt
+hello from host
+[root@board]# umount /mnt
+</code></pre>
+<h4 id="using-the-virtiofs-device-as-a-root-file-system"><a href="#using-the-virtiofs-device-as-a-root-file-system">2.5.6.2.4 Using the VirtioFS Device as a Root File System</a></h4>
+<p>Since the VirtioFS device is recognized by linux as a file system device, it can
+also be mounted by Linux as a root file system during boot. This can for example
+be useful to quickly test changes in the root file system without needing to
+rebuild or relaunch the target.</p>
+<p>For this to work, the kernel command line must be modified to include
+<code>rootfstype=virtiofs root=&lt;tag&gt;</code> where <code>&lt;tag&gt;</code> would be <code>fs0</code> in the case of the
+created VirtioFS device above. Additionally, the files in the shared root file
+system directory on the host must have appropriate permissions. An example of
+having this set up is having buildroot creating a root file system with correct
+permissions by using for instance the <code>BR2_TARGET_ROOTFS_TAR</code> config. One would
+have to extract the content of the outputted tar file. Finally, since The
+virtioFS daemon does not do any uid/gid translation, the uid/gid of the user
+running the daemon is what the target will see. Therefore, running the simulator
+under <code>fakeroot</code> is suggested to get proper uid/gid translation.</p>
+<h5 id="the-user-provided-linux-qsp-target"><a href="#the-user-provided-linux-qsp-target">2.5.6.2.4.1 The User Provided Linux QSP Target</a></h5>
+<p>The user provided Linux target for QSP has some flexibility which makes
+integration of VirtioFS as a root file system device straight forward. An
+example of launching the user provided Linux target with VirtioFS as root file
+system is shown below.</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/user-provided-linux machine:software:linux:kernel=&lt;path-to-kernel-image&gt; machine:software:linux:virtio_rootfs=&lt;path-to-root-file-system-directory&gt; machine:software:linux:cmdline="console=ttyS0,115200n8 earlyprintk rootfstype=virtiofs root=myfs rw"</strong>
+</code></pre>
+<h2 id="using-tftp"><a href="#using-tftp">2.5.7 Using TFTP</a></h2>
+<p>It is possible to transfer files from the host environment to the target
+(simulated) machine by using the TFTP feature provided by the <code>service-node</code>.
+Since TFTP executes in lockstep, with only one packet acknowledged at a time, it
+is slower than for example FTP, but it reliably transports files between the
+host and target machines.</p>
+<p>It is assumed that a service node has been created and connected to the Ethernet
+device through an Ethernet link. The following example presents how TFTP is used
+on a target machine which is running Linux and has the <code>tftp</code> program installed.
+Furthermore, the target machine in this example is using the IP address
+10.10.0.10 and the service node uses 10.10.0.1.</p>
+<p>Creating a service node and connecting it to the target machine can be done with
+the <code>connect-real-network</code> command. This will also set up port forwarding to the
+real network, even though this is not a requirement for using TFTP:</p>
+<pre><code class="language-simics">simics&gt; <strong>connect-real-network 10.10.0.10</strong>
+</code></pre>
+<p>After booting the target machine into Linux the first step is to bring up the
+network interface that is connected to the service node. At the target prompt,
+issue:</p>
+<pre><code>joe@computer: ~# ifconfig eth0 10.10.0.10 up
+</code></pre>
+<p>To transfer the file <code>myfile.txt</code> from the host machine, issue:</p>
+<pre><code>joe@computer: ~# tftp -l myfile.txt -g 10.10.0.1
+</code></pre>
+<p>The directory that the service node uses to find files downloaded by the target
+can be changed with the <code>&lt;service-node&gt;.set-tftp-directory</code> command. This also
+controls where uploaded files are saved. The default is to search the Simics
+path, starting with the current working directory of the Simics process. The
+search path can be changed with the <code>add-directory</code> command and can be viewed
+with the <code>list-directories</code> command.</p>
+<h2 id="using-ftp-service"><a href="#using-ftp-service">2.5.8 Using FTP service</a></h2>
+<p>The <code>service-node</code> provides a FTP service to support file transfers with the
+host using FTP clients on a target machine.</p>
+<p>Assuming a <code>service-node</code> has been created, and that it is named
+<code>default_service_node0</code>, the FTP-service will be named
+<code>default_service_node0.ftp</code>. The service node must be configured with an IP
+address and connected to a link before the FTP service can be enabled and
+configured. The FTP root directory, the location on the host system for
+transferred files, can be set by the <code>set-ftp-directory</code> command. The default
+root directory is the current directory for the Simics session, usually your
+project directory.</p>
+<p>On a target that runs Clear Linux there is usually a <code>curl</code> command for
+transferring data using various protocols, it can put a file to the server and
+retrieve a file from the server.</p>
+<p>Here is an example on using the FTP service on a target running <code>Firststeps</code>
+with a network. Start Simics and run the following commands:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script "targets/qsp-x86/firststeps.simics"</strong>
+simics&gt; <strong>default_service_node0.set-ftp-directory dir = "/tmp/"</strong>
+</code></pre>
+<p>A <code>Firststeps</code> target was created. The target machine’s IP address is 10.10.0.1
+and it contains a <code>default_service_node0</code> with the FTP service. The root
+directory was set to the <code>/tmp/</code> directory on the host file system.</p>
+<p>Continue the simulation until a prompt is reached.</p>
+<pre><code class="language-simics">simics&gt; <strong>c</strong>
+</code></pre>
+<p>When prompt has been reached, the <code>curl</code> command can be run in the text console.</p>
+<pre><code>~ # curl -T /etc/hostname ftp://10.10.0.1/targetfile.txt
+</code></pre>
+<p>The contents of the target file <code>/etc/hostname</code> has now been sent to the host
+file <code>targetfile.txt</code> in the path set from the <code>set-ftp-directory</code> command. In
+similar way:</p>
+<pre><code>~ # curl ftp://10.10.0.1/targetfile.txt -o hostfile.txt
+</code></pre>
+<p>will retrieve a file, <code>targetfile.txt</code>, from the host and save it as
+<code>hostfile.txt</code> on the target.</p>
+<p>Using other kind of distributions of Linux than Clear Linux there will most
+likely exist a <code>ftp</code> command in the shell for running a ftp client. An example
+on how to put a file to the host:</p>
+<pre><code>#&gt; ftp 10.10.0.1
+Connected to 10.10.0.1.
+220 Welcome to the Simics FTP server
+Name (10.10.0.1:simics): &lt;enter&gt;
+230 User logged in
+ftp&gt; put /proc/cpuinfo targetfile.txt
+local: /proc/cpuinfo remote: targetfile.txt
+200 OK
+150 transfer about to start
+226 file transfer done
+6520 bytes sent in 0.00 secs (12734.4 kB/s)
+</code></pre>
+<p>If running Microsoft Windows as target then Windows Internet Explorer can be
+used as client to connect to the FTP service by entering
+<a href="ftp://10.10.0.1">ftp://10.10.0.1</a> as address. This will allow transfer from
+host to target. To be able to transfer files back to the host you will need to
+select <strong>Page → Open FTP Site in Windows Explorer</strong>.</p>
+<h2 id="importing-a-real-disk-into-simics"><a href="#importing-a-real-disk-into-simics">2.5.9 Importing a Real Disk into Simics</a></h2>
+<p>It is possible to create an image by copying data from a real disk. If the disk
+to be copied contains an operating system, you must have at least two operating
+systems on the machine, since the partition that should be copied should <strong>not</strong>
+be in use or mounted.</p>
+<p>Before making a copy of a disk, some information about the disk should be
+gathered:</p>
+<ul>
+<li>The number of disk cylinders</li>
+<li>The number of sectors per track</li>
+<li>The number of disk heads</li>
+<li>The offset where the specific partition starts (optional)</li>
+<li>The size of a specific partition (optional)</li>
+</ul>
+<p>On Linux, these numbers can be obtained using the <code>fdisk</code> utility. You can
+choose to make a copy of the whole disk or just a partition of the disk using
+the <code>dd</code> utility. Example:</p>
+<pre><code>dd if=/dev/hdb of=hdb_disk.img
+</code></pre>
+<p>On Windows, you can use the System Information application to find the
+information under <code>Components/Storage/Disks</code>. You have to select the <code>Advanced</code>
+setting from the <code>View</code> menu. If you have Cygwin
+(<a href="http://www.cygwin.com" rel="noopener noreferrer" target="_top">http://www.cygwin.com</a>) installed, you can use the <code>dd</code>
+utility to create the image, provided that the correct entries in the <code>/dev</code>
+file system are created. To access the first hard drive (<code>/dev/hda</code>):</p>
+<pre><code>mkdir -p /dev/hda
+mount -s -b '\\.\PHYSICALDRIVE0' /dev/hda
+</code></pre>
+<p>You can also mount a specific drive letter:</p>
+<pre><code>mkdir -p /dev/fd0
+mount -s -b '\\.\A:' /dev/fd0
+</code></pre>
+<p>or</p>
+<pre><code>mkdir -p /dev/hda1
+mount -s -b '\\.\C:' /dev/hda1
+</code></pre>
+<p>Cygwin’s <code>mount</code> program creates persistent mounts (they are stored in the
+registry), so you will only need to set these things up once. The <em>-b</em> option to
+<code>mount</code> ensures that no CR/LF conversions are made. See the Cygwin documentation
+for further details on how to use the <code>mount</code> command.</p>
+<p>On Windows hosts without Cygwin, a third-party program can be used to create the
+disk images. See figure <a class="reference" href="#listofwindowsisoprograms">1</a> for more details.</p>
+<blockquote class="markdown-alert-note">
+<p>To save space, you may want to compress the disk image using the <code>craff</code>
+utility. See section <a class="reference" href="#the-craff-utility">2.5.2.8</a>.</p>
+</blockquote>
+<p>The next step is to prepare the target configuration so it can use the new disk.
+For x86 targets, the <code>dredd</code> machine has a <code>$disk_files</code> parameter that can be
+set to a list of files to use in the image object of the boot disk, and also
+<code>$disk_size</code> that specifies the size of that disk.</p>
+<pre><code>$disk_size = 1056964608
+$disk_files = [["hdb_disk.img", "ro", 0, 1056964608, 0]]
+</code></pre>
+<p>For other machines, that do not have these parameters, attributes in the disk
+object and its corresponding image objects have to be set instead.</p>
+<p>Make sure to set the <code>$disk_size</code> correctly to reflect the size of the disk that
+has been copied. If only a partition has been copied, the offset where the
+partition starts, and the size of the partition, should be set in the file list.
+If the whole disk has been copied, the offset is zero and the size should be the
+size of the whole disk. Several partitions can be combined to form the complete
+disk, as described in section <a class="reference" href="#constructing-a-disk-from-multiple-files">2.5.2.7</a>.</p>
+<p>For an x86 machine, the system component will automatically set the BIOS
+geometry for the <code>C:</code> disk. It can also be set manually:</p>
+<pre><code class="language-simics">simics&gt; <strong>system_cmp0.cmos-hd C 1023 16 63</strong>
+</code></pre>
+<h2 id="foreign-image-formats-including-qemu-and-vmware"><a href="#foreign-image-formats-including-qemu-and-vmware">2.5.10 Foreign Image Formats Including QEMU and VMware</a></h2>
+<p>Similar to using a disk image copied from a real disk as in section
+<a class="reference" href="#importing-a-real-disk-into-simics">2.5.9</a>, images from other simulators or virtual
+machines can also be imported into Simics.</p>
+<p>As when importing real disks, care has to be taken to map parameters outside of
+the disk itself to suitable parameters in the Simics virtual machine. Such
+parameters include disk geometry, type of disk, and simulated hardware. For
+example, importing a SCSI disk image to an IDE disk image in Simics may cause
+issues as the disk may lack drivers for IDE, or the software configuration may
+simply expect the disk to show up with a name that corresponds to the type of
+disk, leading to failure in locating critical data.</p>
+<p>Many simulator and virtual machine file formats can be converted for Simics use
+through the <code>qemu-img</code> tool included with <code>QEMU</code>. Notably, any <code>QEMU</code> format and
+several <code>VMware</code> formats can be converted to the raw image format with
+<code>qemu-img</code>. The <code>qemu-img</code> tool is not included with Simics, but can be
+downloaded from <a href="http://www.qemu.org" rel="noopener noreferrer" target="_top">http://www.qemu.org</a>. See the <code>QEMU</code>
+documentation for more information about <code>qemu-img</code>.</p>
+<p>The resulting raw image file can be used directly in Simics, or converted to
+<code>craff</code>. See <a class="reference" href="#image-file-formats">2.5.2.1</a> for a description of Simics image file
+formats.</p>
+<h2 id="serial-links"><a href="#serial-links">2.5.11 Serial Links</a></h2>
+<h3 id="serial-link-component"><a href="#serial-link-component">2.5.11.1 Serial Link Component</a></h3>
+<p>Connecting simulated machines over a simulated serial connection is done by
+creating a <code>ser-link</code> component that connects to the serial devices in the
+machines. The link object can be thought of as modeling a serial cable that is
+plugged into the connectors on the devices—and just like a real cable, it is a
+point-to-point connection that connects exactly two devices.</p>
+<p>The link object models serial communication at the character level in a
+simplified way. The bandwidth for the connection is configured in the link
+object, which means that the serial devices do not need to be explicitly
+configured by software.</p>
+<p>New <code>ser-link</code> components can be added with the <code>new-ser-link</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module ser-link</strong>
+simics&gt; <strong>new-ser-link</strong>
+Created instantiated 'ser_link' component 'serial_link0'
+</code></pre>
+<p>Serial connectors of other components can then connect to that link. The serial
+link has two connectors, <code>device0</code> and <code>device1</code>, representing the two endpoints
+of the cable. For an <code>QSP-x86</code> machine, the second UART can be connected to the
+link the following way:</p>
+<pre><code class="language-simics">simics&gt; <strong>connect serial_link0.device0 board.mb.sb.serial[2]</strong>
+</code></pre>
+<h4 id="text-and-telnet-consoles"><a href="#text-and-telnet-consoles">2.5.11.1.1 Text and Telnet Consoles</a></h4>
+<p>In addition to simulated serial devices, either endpoint of a serial link can be
+hooked up to a text console. (And just as with serial devices, you have the
+option of connecting the two endpoints directly without having a link in
+between—though this is generally much more useful with consoles.)</p>
+<p>A text console can open GUI windows on the host computer, and let the user talk
+to the connected serial device. The text console also has the ability to start a
+telnet server; the user can then use any telnet program to connect to this
+server, and talk to the connected serial device.</p>
+<p>You create text consoles by instantiating <code>txt_console_comp</code> components, and
+connecting them to the link or device you want them to talk to, as in the
+following example:</p>
+<pre><code class="language-simics">simics&gt; <strong>new-txt-console-comp con visible=TRUE</strong>
+simics&gt; <strong>connect con.serial board.mb.sb.serial[2]</strong>
+</code></pre>
+<h3 id="host-serial-console"><a href="#host-serial-console">2.5.11.2 Host Serial Console</a></h3>
+<p>The text consoles also have the ability to open host serial connections. This is
+a way of connecting a terminal application through a serial port on the host
+machine to a serial device object in Simics. The procedure is almost identical
+in both Linux and Windows. The following examples show how to open host serial
+connections on a <code>QSP-x86</code> machine, first in Linux:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.serconsole.con.host-serial-setup pty = /dev/pts/1</strong>
+[board.serconsole.con info] Device opened: /dev/pts/1
+</code></pre>
+<p>And the same procedure in Windows:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.serconsole.con.host-serial-setup pty = COM1</strong>
+[board.serconsole.con info] Opened: COM1
+</code></pre>
+<p>The host serial connection will operate at the baud rate and other attributes
+that are set for the physical serial port of the host. In Linux these host
+settings are edited with <code>stty</code>. In Windows these settings must be edited from a
+<strong>Command Prompt</strong>, this is an example:</p>
+<pre><code>C:\&gt; mode com1: baud=4800 parity=n data=8 stop=1
+</code></pre>
+<p>It is also possible to open a host serial connection to a virtual serial port.
+In Linux this is called pseudo-terminal or pseudo-device. If there is no
+parameter specified to <code>host-serial-setup</code>, any free <code>pts</code> is opened.</p>
+<p>However, in Windows a virtual serial port must have been created in advance.
+There exist several Windows third-party utilities which create virtual serial
+port pairs for various purposes. In the following example, first such a pair has
+been created with the port names COM98 and COM99, then a host serial connection
+can be opened to port 98, and finally the terminal application can connect to
+port 99 and the two can communicate over the pair:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.serconsole.con.host-serial-setup pty = COM98</strong>
+[board.serconsole.con info] Opened: COM98
+</code></pre>
+<h4 id="using-host-serial-connections-with-windows-hyperterminal"><a href="#using-host-serial-connections-with-windows-hyperterminal">2.5.11.2.1 Using host serial connections with Windows HyperTerminal</a></h4>
+<p>Once the host serial connection has been configured within Simics it is possible
+to connect to it using a standard terminal program running on your host system.
+In this section we will use the HyperTerminal application, which comes bundled
+with some Windows versions, to connect to the simulated system.</p>
+<p>First launch HyperTerminal from <strong>Start Menu → All Programs → Accessories →
+Communications → HyperTerminal</strong>. The dialog <em>Connection Description</em> will
+appear, as shown in Figure <a class="reference" href="#host-serial-hyperterminal-setup">2</a>. Name the
+Connection “Simics” and press <em>OK</em>. In the next dialog, select the COM-port that
+Simics has opened in the field <em>Connect using</em>. In the next dialog, just accept
+the default settings and press <em>OK</em>.</p>
+<figure id="host-serial-hyperterminal-setup">
+<p><img alt="" src="hyperterm-1-new-connection.png"> </p><figcaption>Figure 2. Connecting to Simics using the
+Windows HyperTerminal</figcaption><p></p>
+</figure>
+<p>Now, resume the simulation in Simics. The output from the simulated serial
+console will appear in the HyperTerminal window. See figure
+<a class="reference" href="#host-serial-hyperterminal-running">3</a>.</p>
+<figure id="host-serial-hyperterminal-running">
+<p><img alt="" src="hyperterm-2-running.png"> </p><figcaption>Figure 3. HyperTerminal connected to a
+simulation</figcaption><p></p>
+</figure>
+
+<div class="chain">
+<a href="configuration.html">2.4 Configuration and Checkpointing</a>
+<a href="instrumentation.html">2.6 Instrumentation</a>
+</div>

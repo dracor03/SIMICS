@@ -1,0 +1,171 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>usb_tablet</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-usb_mouse.html">usb_mouse</a>
+<a href="rm-class-vga.html">vga</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="usb_tablet"><a href="#usb_tablet">usb_tablet</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A USB tablet device.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, abs_pointer, usb_device
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:usb_host-optional"><a href="#dt:usb_host-optional">usb_host (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: usb
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-usb_tablet.html#usb_tablet.HRESET">usb_tablet.HRESET</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-usb_tablet.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-usb_tablet.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:descriptor_data"><a href="#dt:descriptor_data">
+<i>descriptor_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The descriptors in data format.</dd>
+<dt id="dt:device_address"><a href="#dt:device_address">
+<i>device_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>USB device/function address.</dd>
+<dt id="dt:device_qualifier_descriptor_data"><a href="#dt:device_qualifier_descriptor_data">
+<i>device_qualifier_descriptor_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The device qualifier in data format.</dd>
+<dt id="dt:device_state"><a href="#dt:device_state">
+<i>device_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>USB device state.</dd>
+<dt id="dt:hid_report_descriptor_data"><a href="#dt:hid_report_descriptor_data">
+<i>hid_report_descriptor_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The descriptors in data format.</dd>
+<dt id="dt:ms_os_descriptor"><a href="#dt:ms_os_descriptor">
+<i>ms_os_descriptor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The Microsoft OS Descriptor.</dd>
+<dt id="dt:string_descriptor_array"><a href="#dt:string_descriptor_array">
+<i>string_descriptor_array</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[d*]</code>
+<br>String descriptors.</dd>
+<dt id="dt:tablet_hid_data"><a href="#dt:tablet_hid_data">
+<i>tablet_hid_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiiiii]</code>
+<br>The USB HID report data</dd>
+<dt id="dt:usb_host"><a href="#dt:usb_host">
+<i>usb_host</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The USB host controller.
+<p>
+Required interface: <tt>usb</tt></p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.usb-tablet.html">usb-tablet</a>
+</section>
+<h2 id="usb_tablet.HRESET"><a href="#usb_tablet.HRESET">usb_tablet.HRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-usb_mouse.html">usb_mouse</a>
+<a href="rm-class-vga.html">vga</a>
+</div>

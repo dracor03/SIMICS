@@ -1,0 +1,271 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>RISC-V CPU (Package Number 2050) Release Notes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="risc-v-cpu-package-number-2050-release-notes"><a href="#risc-v-cpu-package-number-2050-release-notes">RISC-V CPU (Package Number 2050) Release Notes</a></h1>
+<p>This document contains release notes for the package <em>RISC-V CPU</em>
+(package number 2050) for Simics 7.
+The release notes describe new features, bug fixes, and other changes.</p>
+<h2 id="changes-since-version-7-0-0"><a href="#changes-since-version-7-0-0">Changes Since Version 7.0.0</a></h2>
+<p>The following is a list of changes since the initial 7.0.0 release.</p>
+<h2 id="7-36-0-build-7214"><a href="#7-36-0-build-7214">7.36.0 (build 7214)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes"><a href="#generic-risc-v-cpu-model-changes">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li><code>mstatus.SUM</code> and <code>sstatus.SUM</code> are now read-only zero on cores with S-mode but only a bare MMU, as required by the privileged specification since <code>satp.MODE</code> is read-only zero.</li>
+<li>PMP CSRs for unimplemented PMP entries are now read-only zero, as required by the privileged specification, instead of raising an illegal instruction exception. On cores with fewer than 16 PMP entries this covers <code>pmpaddr0</code>-<code>pmpaddr15</code> and <code>pmpcfg0</code>-<code>pmpcfg3</code>, and on cores that support privileged specification 1.12 all 64 entries.</li>
+<li>Reset now clears all implemented PMP registers. Previously only <code>pmpaddr0</code>-<code>pmpaddr15</code> and their configuration registers were cleared.</li>
+<li>A bus error when reading or updating a page table entry now raises an access fault matching the original access type (instruction, load or store/AMO) with the virtual address in <code>xtval</code>, instead of a load access fault with the page table entry address.</li>
+<li>Writing the reserved value 0b10 to the CBIE field of <code>menvcfg</code>, <code>senvcfg</code> or <code>henvcfg</code> now leaves the field unchanged.</li>
+<li><code>cbo.clean</code>, <code>cbo.flush</code> and <code>cbo.inval</code> are now permitted when either a load or a store to the cache block is permitted by the page tables and PMP, as required by the Zicbom specification, instead of requiring store permission.</li>
+<li>Fixed <code>mepc</code> for exceptions raised by <code>cbo.clean</code>, <code>cbo.flush</code>, <code>cbo.inval</code> and <code>cbo.zero</code> executed after other instructions in the same block; it pointed to an earlier instruction.</li>
+<li><code>mstatus.SUM</code> no longer allows S-mode to execute from U-mode pages.</li>
+<li>The TLB is now flushed at reset.</li>
+<li>A page fault is now raised for PTEs with reserved bits set (bits 63:54, or D, A or U in a non-leaf PTE).</li>
+<li>Accessing <code>fflags</code>, <code>frm</code> or <code>fcsr</code> while <code>mstatus.FS</code> is Off now raises an illegal instruction exception, and writing them sets <code>mstatus.FS</code> to Dirty.</li>
+<li>Fixed PMP checks being bypassed when a higher-priority PMP entry only covers part of a page that had already been accessed.</li>
+<li>Reserved bits in <code>pmpcfg</code> now read as zero, and the reserved permission combination R=0, W=1 is cleared (unless <code>mseccfg.MML</code> is set).</li>
+<li>Added attribute <code>access_fault_for_misaligned_atomic</code>. When set, misaligned AMO, LR and SC instructions raise an access fault instead of an address-misaligned exception.</li>
+<li>Misaligned atomic instructions now raise the misaligned exception before any page fault, and write the virtual address to <code>xtval</code>. A failing SC now raises the page faults and access faults the store would have raised.</li>
+<li>Fixed a crash when an atomic instruction to a memory-mapped device got an access fault. SC and AMOs now raise a store/AMO access fault in this case instead of a load access fault.</li>
+<li><code>minstret</code> no longer counts exceptions and interrupts, nor the instruction that writes <code>minstret</code>.</li>
+<li>WFI in U-mode on cores without S-mode no longer traps when <code>mstatus.TW</code> is clear.</li>
+<li>SRET in U-mode now raises an illegal instruction exception instead of a virtual instruction exception or no exception.</li>
+<li>SRET in M-mode no longer traps when <code>mstatus.TSR</code> is set.</li>
+<li>Writes to <code>sip</code> can no longer set STIP or SEIP; only SSIP is writable.</li>
+<li>EBREAK and C.EBREAK now write the address of the instruction to <code>mtval</code>/<code>stval</code>.</li>
+<li><code>mcounteren</code>, <code>scounteren</code> and <code>hcounteren</code> are now 32 bits wide on RV64 cores.</li>
+<li>On cores that implement fewer than 32 hardware performance counters, <code>mhpmcounter3</code>-<code>mhpmcounter31</code>, <code>mhpmevent3</code>-<code>mhpmevent31</code> and <code>hpmcounter3</code>-<code>hpmcounter31</code> now all exist, as required by the privileged specification. The ones for unimplemented counters are read-only zero instead of raising an illegal instruction exception.</li>
+<li><code>mhpmcounter3</code>-<code>mhpmcounter31</code> are now writable counters that do not count, instead of being hardwired to zero.</li>
+<li>Reserved values are no longer accepted in <code>mstatus.MPP</code> (2 is always reserved), <code>medeleg</code> (bit 16, and the guest bits without the H extension) and <code>mideleg</code> (machine-level interrupts).</li>
+<li>Bit 0 of <code>mepc</code>, <code>sepc</code>, <code>vsepc</code> and <code>mnepc</code> is now hardwired to zero, and so is bit 1 on cores without the C extension. On cores with C, bit 1 reads as zero while C is disabled in <code>misa</code>.</li>
+<li>FENCE with both the predecessor and successor sets empty is now executed as a HINT (no operation) instead of raising an illegal instruction exception.</li>
+<li>FENCE and FENCE.I instructions with non-zero reserved fields (fm, rs1 and rd, and the immediate of FENCE.I) now execute normally instead of raising an illegal instruction exception.</li>
+<li>Custom CPU classes: added the <code>Zcb</code>, <code>Zcmp</code> and <code>Zcmt</code> parameters. The combination of parameters is now validated, for example <code>Zcb</code>, <code>Zcmp</code> and <code>Zcmt</code> require the C extension and <code>Zcmp</code> and <code>Zcmt</code> cannot be combined with C and D, S requires U, H requires S and <code>mmu_mode_support</code> requires S. An invalid combination no longer creates a class.</li>
+<li>Added the code size reduction extensions Zcb, Zcmp and Zcmt, controlled through the <code>extensions</code> port. They are only available when <code>misa.C</code> is set, Zca, Zcf and Zcd are controlled by <code>misa.C</code>. Zcmp and Zcmt cannot be combined with the C and D extensions.</li>
+</ul>
+<h2 id="7-35-0-build-7201"><a href="#7-35-0-build-7201">7.35.0 (build 7201)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-2"><a href="#generic-risc-v-cpu-model-changes-2">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Added more details to the output of the <code>status</code> and <code>pregs</code> (<code>print-processor-registers</code>) commands. The package now requires Simics-Base 7.108.0.</li>
+<li>Cores with Smrnmi: Fixed WFI not waking up on interrupts while <code>mnstatus.NMIE</code> is clear.</li>
+</ul>
+<h2 id="7-34-0-build-7173"><a href="#7-34-0-build-7173">7.34.0 (build 7173)</a></h2>
+<h3 id="cpu-generic"><a href="#cpu-generic">CPU generic</a></h3>
+<ul>
+<li>Fixed a memory leak in the event queue handling.</li>
+</ul>
+<h3 id="risc-v-generic-package-changes"><a href="#risc-v-generic-package-changes">RISC-V Generic Package Changes</a></h3>
+<ul>
+<li>Added new model <code>riscv-rv64h</code>, which is similar to rv64 but with Hypervisor extension enabled.</li>
+</ul>
+<h2 id="7-33-0-build-7172"><a href="#7-33-0-build-7172">7.33.0 (build 7172)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-3"><a href="#generic-risc-v-cpu-model-changes-3">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>The <code>reset_vector</code> and <code>nmi_vector</code> ports, which allow the vectors to be set through an interface, are now deprecated. The recommended approach is to implement a register bank and set the <code>reset_vector</code> and/or <code>nmi_vector</code> attributes to point to the desired register within that bank.</li>
+<li>The <code>reset_vector</code> and <code>nmi_vector</code> attributes can now be configured to reference a remote register with an optional offset. The address will be read from that register whenever it is required, allowing the same register to be shared across multiple harts. Two additional read-only attributes, <code>read_reset_vector</code> and <code>read_nmi_vector</code>, have been added to retrieve the effective address regardless of whether it is configured locally or remotely.</li>
+<li>mcycle and minstret are now reset to zero when cores are reset.</li>
+</ul>
+<h2 id="7-32-0-build-7164"><a href="#7-32-0-build-7164">7.32.0 (build 7164)</a></h2>
+<h3 id="cpu-generic-2"><a href="#cpu-generic-2">CPU generic</a></h3>
+<ul>
+<li>The package now requires Simics-Base version 7.89.0 or later.</li>
+</ul>
+<h2 id="7-31-0-build-7161"><a href="#7-31-0-build-7161">7.31.0 (build 7161)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-4"><a href="#generic-risc-v-cpu-model-changes-4">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Exceptions while in RNMI-mode (<code>mnstatus.NMIE</code> cleared) will now go to the <code>nmi_vector</code>. The attribute <code>rnmi_exception_vector</code> is still present to make checkpoints work but there is no functionality behind it.</li>
+</ul>
+<h2 id="7-30-0-build-7156"><a href="#7-30-0-build-7156">7.30.0 (build 7156)</a></h2>
+<h3 id="cpu-generic-3"><a href="#cpu-generic-3">CPU generic</a></h3>
+<ul>
+<li>Instrumentation that only increments counters (such as
+instruction-histogram) now runs slightly faster and consumes
+significantly less memory, improving performance in
+workloads with large code footprints such as operating
+system boots.</li>
+</ul>
+<h2 id="7-29-0-build-7150"><a href="#7-29-0-build-7150">7.29.0 (build 7150)</a></h2>
+<h3 id="common"><a href="#common">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h2 id="7-28-0-build-7145"><a href="#7-28-0-build-7145">7.28.0 (build 7145)</a></h2>
+<h3 id="cpu-generic-4"><a href="#cpu-generic-4">CPU generic</a></h3>
+<ul>
+<li>Added ports <code>physical_memory_inspection</code> and <code>logical_memory_inspection</code> to inspect the
+physical memory attached to the processor. These ports add the architectural atoms representing the
+current state of the processor before forwarding the transaction
+to the <code>physical_memory</code> (fixes SIMICS-22568).</li>
+</ul>
+<h2 id="7-27-0-build-7138"><a href="#7-27-0-build-7138">7.27.0 (build 7138)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-5"><a href="#generic-risc-v-cpu-model-changes-5">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>A full reset is now done in the last phase of creation of a core. Execution will start at the <code>reset_vector</code> set during creation.</li>
+</ul>
+<h2 id="7-26-0-build-7128"><a href="#7-26-0-build-7128">7.26.0 (build 7128)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-6"><a href="#generic-risc-v-cpu-model-changes-6">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Added attribute <code>rnmi_exception_vector</code> for coder with Smrnmi enabled that can be used to set the vector used for exceptions while cpu is in machine mode and mnstatus.NMIE is cleared.</li>
+</ul>
+<h2 id="7-25-0-build-7122"><a href="#7-25-0-build-7122">7.25.0 (build 7122)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-7"><a href="#generic-risc-v-cpu-model-changes-7">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Fixed a bug where reading certain register values with the TCF
+debugger would cause an assertion to trigger.</li>
+<li>The attribute <code>reset_misa</code> will now complain if a value with not supported
+extensions is set.</li>
+<li>The CLI-command list-riscv-custom-cpu-parameters is now lifted from tech-preview.
+It will list options available for customization of most RISC-V cores.
+There is an example in src/extensions/riscv-custom-cpu/.</li>
+<li>Improved customization options, more extensions added to several CPU-classes.</li>
+</ul>
+<h2 id="7-24-0-build-7117"><a href="#7-24-0-build-7117">7.24.0 (build 7117)</a></h2>
+<h3 id="cpu-generic-5"><a href="#cpu-generic-5">CPU generic</a></h3>
+<ul>
+<li>Fixed an invalid dependency from CPU models using the new simgen to the old simgen, causing problems building the CPU model on systems without 32-bit support.</li>
+</ul>
+<h2 id="7-23-0-build-7116"><a href="#7-23-0-build-7116">7.23.0 (build 7116)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-8"><a href="#generic-risc-v-cpu-model-changes-8">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Added support for Smrnmi, Extension for Resumable Non-Maskable Interrupts.
+Note, it is not available on all targets.</li>
+</ul>
+<h2 id="7-22-0-build-7115"><a href="#7-22-0-build-7115">7.22.0 (build 7115)</a></h2>
+<h3 id="cpu-generic-6"><a href="#cpu-generic-6">CPU generic</a></h3>
+<ul>
+<li>Instruction breakpoints for physical addresses reported the
+address of the beginning of the instruction even though the
+breakpoint starts on the second half of a page crossing
+instructions. This is different from breakpoints triggered by
+transactions sent to the memory system, which do not know about the
+beginning of the instruction. This bug is now fixed, and only the part
+which actually crosses the breakpoint is reported, bug SIMICS-9695.</li>
+</ul>
+<h2 id="7-21-0-build-7111"><a href="#7-21-0-build-7111">7.21.0 (build 7111)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-9"><a href="#generic-risc-v-cpu-model-changes-9">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>The ATOM riscv_io_error_ret is now added to all transactions.</li>
+</ul>
+<h2 id="7-20-0-build-7108"><a href="#7-20-0-build-7108">7.20.0 (build 7108)</a></h2>
+<h3 id="risc-v-generic-package-changes-2"><a href="#risc-v-generic-package-changes-2">RISC-V Generic Package Changes</a></h3>
+<ul>
+<li>The <code>riscv-interrupt-controller</code> model has been moved to
+package <code>RISC-V-Simple</code>, package number 2053.</li>
+</ul>
+<h2 id="7-19-0-build-7088"><a href="#7-19-0-build-7088">7.19.0 (build 7088)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-10"><a href="#generic-risc-v-cpu-model-changes-10">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Fixed off-by-one error in PMP range checking.</li>
+</ul>
+<h2 id="7-18-0-build-7084"><a href="#7-18-0-build-7084">7.18.0 (build 7084)</a></h2>
+<h3 id="cpu-generic-7"><a href="#cpu-generic-7">CPU generic</a></h3>
+<ul>
+<li>Fixed a rare bug where the results of Just-In-Time (JIT) compiled
+code could be inconsistent with those produced by the interpreter.
+This inconsistency occurred when the memory hierarchy replaced the
+value to be written, which was incorrectly ignored by the JIT compiler.
+This issue has now been corrected (fixes HSD-14024141137).</li>
+</ul>
+<h2 id="7-17-0-build-7079"><a href="#7-17-0-build-7079">7.17.0 (build 7079)</a></h2>
+<h3 id="cpu-generic-8"><a href="#cpu-generic-8">CPU generic</a></h3>
+<ul>
+<li>New probes were added to measure the wall clock time spent in uncore simulation. Currently this is only for memory mapped IO activities. The new probe-kinds are: <code>cpu.time.uncore</code>, <code>cell.time.uncore</code>, and <code>sim.time.uncore</code>.</li>
+</ul>
+<h2 id="7-16-0-build-7075"><a href="#7-16-0-build-7075">7.16.0 (build 7075)</a></h2>
+<h2 id="7-15-0-build-7072"><a href="#7-15-0-build-7072">7.15.0 (build 7072)</a></h2>
+<h3 id="cpu-generic-9"><a href="#cpu-generic-9">CPU generic</a></h3>
+<ul>
+<li>Fixed a bug in the instrumentation framework. Previously, removed instrumentation callbacks could continue to block VMP from executing, bug SIMICS-23063.</li>
+</ul>
+<h2 id="7-14-0-build-7069"><a href="#7-14-0-build-7069">7.14.0 (build 7069)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-11"><a href="#generic-risc-v-cpu-model-changes-11">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Added port <code>nmi_vector</code> exposing interface uint64_state. It can be used to update nmi_vector during runtime.</li>
+<li>Corrected unaligned memory accesses crossing page boundary.</li>
+</ul>
+<h2 id="7-13-0-build-7064"><a href="#7-13-0-build-7064">7.13.0 (build 7064)</a></h2>
+<h3 id="cpu-generic-10"><a href="#cpu-generic-10">CPU generic</a></h3>
+<ul>
+<li><code>transaction_translators</code> that needs to perform side effects on a page access can now deny a <code>inquiry</code> direct memory lookup from CPUs. The CPU will follow up with a real access and then retry the direct memory lookup. Before this change, such behavior by <code>transaction_translator</code> would significantly degrade the runtime Simics performance (fixes SIMICS-19940).</li>
+</ul>
+<h2 id="7-12-0-build-7063"><a href="#7-12-0-build-7063">7.12.0 (build 7063)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-12"><a href="#generic-risc-v-cpu-model-changes-12">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Updated all RISC-V CPU:s to build with Simgen 2.0.1</li>
+</ul>
+<h2 id="7-11-0-build-7058"><a href="#7-11-0-build-7058">7.11.0 (build 7058)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-13"><a href="#generic-risc-v-cpu-model-changes-13">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>In some cases, the RISC-V models now start JIT compilation earlier,
+since some corner-cases previously did not initiate JIT compilation.
+This could result in slightly higher performance.</li>
+</ul>
+<h2 id="7-10-0-build-7055"><a href="#7-10-0-build-7055">7.10.0 (build 7055)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-14"><a href="#generic-risc-v-cpu-model-changes-14">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Implementation of atomic instructions <code>LR</code> and <code>SC</code> that accesses device registers or not yet accessed memory now acquires the cell instead of requesting serialized execution.</li>
+</ul>
+<h2 id="7-9-0-build-7053"><a href="#7-9-0-build-7053">7.9.0 (build 7053)</a></h2>
+<h2 id="7-8-0-build-7050"><a href="#7-8-0-build-7050">7.8.0 (build 7050)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-15"><a href="#generic-risc-v-cpu-model-changes-15">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Added support of the <code>fence.tso</code> instruction.</li>
+</ul>
+<h2 id="7-7-0-build-7028"><a href="#7-7-0-build-7028">7.7.0 (build 7028)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-16"><a href="#generic-risc-v-cpu-model-changes-16">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Added generic support for NMI. New signal <code>port.NMI</code>, new attribute <code>nmi_vector</code> to control the vector used and new attribute <code>nmi_signal_cause</code> to control the values used in mcause when the NMI signal is raised.</li>
+</ul>
+<h2 id="7-6-0-build-7023"><a href="#7-6-0-build-7023">7.6.0 (build 7023)</a></h2>
+<h3 id="common-2"><a href="#common-2">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h2 id="7-5-0-build-7019"><a href="#7-5-0-build-7019">7.5.0 (build 7019)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-17"><a href="#generic-risc-v-cpu-model-changes-17">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>The extensions presented with the <code>info</code> command has been improved. The list of extensions is now presented in the correct order and based on the settings in the <code>extensions</code> port object.</li>
+</ul>
+<h2 id="7-4-0-build-7017"><a href="#7-4-0-build-7017">7.4.0 (build 7017)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-18"><a href="#generic-risc-v-cpu-model-changes-18">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>The <code>print-pmp-regions</code> command is added. It will list PMP-regions currently setup in the PMP-registers.</li>
+</ul>
+<h2 id="7-3-0-build-7016"><a href="#7-3-0-build-7016">7.3.0 (build 7016)</a></h2>
+<h3 id="cpu-generic-11"><a href="#cpu-generic-11">CPU generic</a></h3>
+<ul>
+<li>The size of the module global JIT area has increased from 64MB to 256MB. Workloads with very large instruction footprint, could fill up the entire JIT code area, resulting in a flush and slow recompilation.</li>
+<li>Linux only: If the kernel supports Transparent Huge Pages (THP), the JIT code area now makes use of 2MB TLB mappings. This could slightly increase execution performance.</li>
+</ul>
+<h3 id="generic-risc-v-cpu-model-changes-19"><a href="#generic-risc-v-cpu-model-changes-19">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>New interface <code>riscv_custom_csr</code> added enable implementation of custom CSRs.</li>
+<li>New interface <code>riscv_instrumentation_action</code> added to simplify implementation of custom instruction semantics.</li>
+</ul>
+<h2 id="7-2-0-build-7009"><a href="#7-2-0-build-7009">7.2.0 (build 7009)</a></h2>
+<h3 id="generic-risc-v-cpu-model-changes-20"><a href="#generic-risc-v-cpu-model-changes-20">Generic RISC-V CPU model Changes</a></h3>
+<ul>
+<li>Don’t allow instructions to update locked pmpaddr-registers.</li>
+<li>Improved checkpoint recoverability for <code>mcycle</code> and <code>minstret</code> (fixes SIMINT-1612).</li>
+</ul>
+<h2 id="7-1-0-build-7007"><a href="#7-1-0-build-7007">7.1.0 (build 7007)</a></h2>
+<h3 id="common-3"><a href="#common-3">Common</a></h3>
+<ul>
+<li>Updated the batch (<code>.bat</code>) files in the <code>bin</code> folder so that they do not leak environment variables to the current <code>cmd.exe</code> command shell on Windows (fixes SIMICS-21906).</li>
+</ul>
+<h2 id="7-0-0-build-7006"><a href="#7-0-0-build-7006">7.0.0 (build 7006)</a></h2>
+<h2 id="changes-since-previous-major-in-initial-release"><a href="#changes-since-previous-major-in-initial-release">Changes Since Previous Major in Initial Release</a></h2>
+<p>The following is a list of changes in 7.0.0 since the previous major.</p>
+<h3 id="risc-v-generic-package-changes-3"><a href="#risc-v-generic-package-changes-3">RISC-V Generic Package Changes</a></h3>
+<ul>
+<li>The locking of PMP entry was not correctly implemented (fixes SIMINT-1596).</li>
+<li>The package now contains a file <code>third-party-programs.txt</code> with a list of third party software included in the package.</li>
+</ul>
+
+<div class="chain">
+<span></span>
+</div>

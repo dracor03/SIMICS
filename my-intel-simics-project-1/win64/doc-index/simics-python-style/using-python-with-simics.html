@@ -1,0 +1,38 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>11 Using Python with Simics</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="other-considerations.html">10 Other considerations</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="using-python-with-simics"><a href="#using-python-with-simics">11 Using Python with Simics</a></h1>
+<p>Use magic attributes to access objects, attributes and interfaces by name,
+rather than <code>SIM_</code> functions:</p>
+<pre><code>x = conf.cpu0.attr.pc                                # GOOD
+x = SIM_get_attribute(SIM_get_object("cpu0"), "pc")  # BAD
+
+obj.iface.foo_interface.frobble()                    # GOOD
+SIM_get_interface(obj, "foo_interface").frobble()    # BAD
+
+name = obj.name                                      # GOOD
+name = SIM_object_name(obj)                          # BAD
+
+classname = obj.classname                              # GOOD
+classname = SIM_get_class_name(SIM_object_class(obj))  # BAD
+</code></pre>
+<p>But using the <code>SIM_</code> functions is better than constructing a string and
+<code>eval()</code>:</p>
+<pre><code>x = eval("conf.%s.%s[0x%xL]" % (name, attr, addr))       # BAD
+x = SIM_get_attribute(SIM_get_object(name), attr)[addr]  # GOOD
+</code></pre>
+<p>In general, avoid <code>eval()</code> where possible as a matter of style.
+It includes too many opportunities of breaking abstraction barriers.</p>
+
+<div class="chain">
+<a href="other-considerations.html">10 Other considerations</a>
+</div>

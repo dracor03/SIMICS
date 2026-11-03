@@ -1,0 +1,156 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>The CRAFF File Format</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="the-craff-file-format"><a href="#the-craff-file-format">The CRAFF File Format</a></h1>
+<h2 id="abstract"><a href="#abstract">Abstract</a></h2>
+<p>This document describes the CRAFF on-disk file format independently of its
+implementation. There is also a short discussion of possible improvements.</p>
+<h2 id="overview"><a href="#overview">Overview</a></h2>
+<p>CRAFF (Compressed Random-Access File Format) is designed for storing large,
+sparse linear address spaces such as memory or disk dumps in a portable way.</p>
+<p>To the user, a CRAFF file appears as a collection of addressable data blocks.
+The file can be sparse (blocks can be missing), and the presence of each block
+can be queried.</p>
+<h2 id="conceptual-structure"><a href="#conceptual-structure">Conceptual structure</a></h2>
+<p>The file format consists of a header, which contains parameters, and the data
+arranged as a radix tree:</p>
+<pre><code>             root dir
+root ----&gt; +---------+
+           |---------|       lvl 1 dir
+           |---------|----&gt; +---------+
+           |---------|      |---------|       lvl 2 dir
+           +---------+      |---------|----&gt; +---------+
+                            |---------|      |---------|       data block
+                            +---------+      |---------|----&gt; +---------+
+                                             |---------|      |         |
+                                             +---------+      |         |
+                                                              |         |
+                                                              +---------+
+</code></pre>
+<p>The header contains the size of each tree node (directory) and of the data
+blocks, and a pointer to the root directory block. The number of tree levels is
+implicit in the size of the directory and data blocks, and of the highest
+address used.</p>
+<p>There is also a list of free blocks which have been created as other blocks have
+been erased. These free blocks are used when adding new data to the file. If the
+free block list is empty, new data is added last in the file.</p>
+<h2 id="on-disk-structure"><a href="#on-disk-structure">On-disk structure</a></h2>
+<p>All fields are unsigned integers unless stated otherwise, and all are stored in
+big-endian byte order.</p>
+<p>The file header comes first in the file, and contains the following fields:</p>
+<pre><code>Offset   Size    Field           Description
+     0      4    magic           must be 0x89bf1e83 (in big-endian order)
+     4      4    version         file format version. This document
+                                 describes the version 1 format.
+     8      4    block_bits	    log2 of the data block size in bytes.
+                                 Default is 13 (8k blocks)
+    12      4    sub_blocks	    number of sub-blocks each data block is
+                                 subdivided into. Default is 16.
+                                 Must be a power of 2.
+    16      4    directory_bits  log2 of the number of entries per directory
+                                 node. Default is 9 (512 entries)
+    20      4    compression	    0 = none, 1 = bz2, 2 = zlib
+    24      4    clean           1 if file was cleanly closed, 0 if not
+    28      4    reserved
+    32      8    free_list       file offset of the start of the free block
+                                 list
+    40      8    size            size of the address space. This is the size
+                                 of the file encoded in the CRAFF file.
+    48      8    root            file offset of the root directory block,
+                                 or of the (only) data block if 
+                                 size &lt;= (1&lt;&lt;block_bits).
+</code></pre>
+<p>The number of directory levels depends on the size, so that</p>
+<pre><code>size &lt;= 2 ** (block_bits + directory_levels * directory_bits)
+</code></pre>
+<p>I.e.,</p>
+<pre><code>directory_levels = max(ceil((ceil(log2(size)) - block_bits) / directory_bits), 0)
+</code></pre>
+<p>A logical address can be decomposed as follows (example shown with
+directory_levels == 3):</p>
+<pre><code>bit 63.................................................................0
+    +------------------------------------------------------------------+
+    |  0  |       d0      |       d1      |       d2      |    ofs     |
+    +------------------------------------------------------------------+
+            directory_bits  directory_bits  directory_bits   block_bits  
+</code></pre>
+<p>where d0 is the index into the root directory, d1 into the level 1 directory,
+and so on, and ofs the offset within the data block.</p>
+<p>Each data or directory block is stored as one or more fragments, each preceded
+by a fragment header:</p>
+<pre><code>Offset  Size     Field      Description
+     0     8     size       size of this fragment in bytes, not including
+                            this header
+     8     8     next       file offset of the next fragment of this
+                            logical block, or zero if last
+(total size: 16 bytes)
+</code></pre>
+<p>To read a data or directory block, it is necessary to read each fragment and
+assemble them into a contiguous logical block, stripping the fragment headers.</p>
+<p>A logical directory block is preceded by a directory header:</p>
+<pre><code>Offset  Size    Field           Description
+     0     4    num_entries     number of entries in this directory,
+                                always equal to 1 &lt;&lt; directory_bits.
+     4     4    reserved
+(total size: 8 bytes)
+</code></pre>
+<p>The directory itself then consists of num_entries directory entries, each of
+which having the following format:</p>
+<pre><code>Offset  Size    Field           Description
+     0     4    present         1 if block is present, 0 if not
+     4     4    reserved
+     8     8    block_start     file offset to the block or directory
+                                (its first fragment), if present == 1
+(total size: 16 bytes)
+</code></pre>
+<p>Each logical data block is preceded by a sub-block bitmap, whose size is</p>
+<pre><code>     bitmap_bytes = floor((sub_blocks + 7) / 8)
+</code></pre>
+<p>Each bit in the bitmap corresponds to a sub-block. The bitmap is in
+little-endian byte and bit order: the Nth sub-block corresponds to bit <code>(N % 8)</code>
+of byte <code>(N / 8)</code> of the bitmap. Each sub-block counts as present if its bit is
+set in the bitmap, and absent otherwise.</p>
+<p>Logical directory and data blocks are compressed according to the compression
+field in the file header. For data blocks, the compression includes the
+sub-block bitmap. The fragmentation is done after the compression, which is done
+one logical block at a time.</p>
+<p>The free block list is a linked list of free chunks in the file. Each chunk
+begins the following header:</p>
+<pre><code>Offset  Size    Field           Description
+     0     8    size            size of chunk in bytes, not including
+                                this header
+     8     8    next            file offset to next free chunk,
+                                or zero if last
+(total size: 16 bytes)
+</code></pre>
+<p>Note that the free list has the same format as the fragment list for each
+logical block. This way, the fragments of a freed logical block can quickly be
+appended to the free list.</p>
+<h2 id="problems-and-improvements"><a href="#problems-and-improvements">Problems and improvements</a></h2>
+<p>The num_entries field in the directory header is superfluous since it must be
+equal to <code>(1&lt;&lt;directory_bits)</code>. This means that the directory header can be
+eliminated.</p>
+<p>The “present” field of each directory entry can be eliminated by setting the
+block_start field to zero if the block is absent. This would make the directory
+blocks half as big as before, or double their capacity, which would reduce the
+average number of directory levels and therefore reduce the number of disk
+accesses.</p>
+<p>It would be possible to change this while keeping code for compatibility with
+the version 1 format.</p>
+<p>In uncompressed files, the fragment list is not used since blocks always keep
+their size regardless of content. In this case the fragment headers could be
+eliminated, storing logical blocks directly. This would give a minor space
+saving and possibly better alignment of blocks to actual disk blocks, possibly
+increasing performance.</p>
+<p>If sub_blocks is 1, then the sub-block bitmap is not really required (the
+single sub-block could always be considered “present”). This would be the common
+case when a craff file represents memory.</p>
+
+<div class="chain">
+<span></span>
+</div>

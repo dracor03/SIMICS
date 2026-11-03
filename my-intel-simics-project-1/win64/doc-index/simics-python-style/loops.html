@@ -1,0 +1,42 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 Loops</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="variables.html">5 Variables</a>
+<a href="exceptions-and-finishing.html">7 Exceptions and finishing</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="loops"><a href="#loops">6 Loops</a></h1>
+<p>Prefer list/generator comprehensions to explicit loops.
+So, instead of:</p>
+<pre><code>s = ""
+for x in mylist:
+    s = s + x.description    # CLUMSY
+</code></pre>
+<p>better write:</p>
+<pre><code>s = "".join(x.description for x in mylist)   # NEATER
+</code></pre>
+<p>This may also be more efficient, since strings are immutable in Python and each
+concatenation must allocate a new one.</p>
+<p>Also prefer comprehensions to <code>map</code> and <code>filter</code> with <code>lambda</code> expressions:</p>
+<pre><code>pyfiles = filter(lambda f: f.endswith(".py"),
+                 map(lambda f: os.path.join(mydir, f),
+                     files))                            # CLUMSY
+pyfiles = [os.path.join(mydir, f) 
+           for f in files if f.endswith(".py")]         # BETTER
+</code></pre>
+<p>Use the fact that many objects, such as files, are directly iterable:</p>
+<pre><code>for line in file(filename):
+    dostuff(line)
+</code></pre>
+<p>The file will be closed automatically when the <code>for</code> statement terminates.</p>
+
+<div class="chain">
+<a href="variables.html">5 Variables</a>
+<a href="exceptions-and-finishing.html">7 Exceptions and finishing</a>
+</div>

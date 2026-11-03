@@ -1,0 +1,176 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>tcf-context-proxy</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-tcf-agent.html">tcf-agent</a>
+<a href="rm-class-tcf-serial-tee.html">tcf-serial-tee</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="tcf-context-proxy"><a href="#tcf-context-proxy">tcf-context-proxy</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+TCF Context Proxy
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, symdebug, run_control
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-tcf-context-proxy.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-tcf-context-proxy.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="commands-for-interface-symdebug">
+<a href="#commands-for-interface-symdebug">Commands for interface symdebug</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-symdebug.bp-break-source-line.html">bp-break-source-line</a>
+ – add breakpoint at a source code line</li>
+<li>
+<a href="rm-cmd-symdebug.bp-break-source-location.html">bp-break-source-location</a>
+ – add breakpoint at a location</li>
+<li>
+<a href="rm-cmd-symdebug.bp-run-until-source-line.html">bp-run-until-source-line</a>
+ – run until reaching source code line</li>
+<li>
+<a href="rm-cmd-symdebug.bp-run-until-source-location.html">bp-run-until-source-location</a>
+ – run until reaching location</li>
+<li>
+<a href="rm-cmd-symdebug.bp-trace-source-line.html">bp-trace-source-line</a>
+ – enable tracing of source code line reaches</li>
+<li>
+<a href="rm-cmd-symdebug.bp-trace-source-location.html">bp-trace-source-location</a>
+ – enable tracing of location reaches</li>
+<li>
+<a href="rm-cmd-symdebug.bp-wait-for-source-line.html">bp-wait-for-source-line</a>
+ – wait until reaching source code line</li>
+<li>
+<a href="rm-cmd-symdebug.bp-wait-for-source-location.html">bp-wait-for-source-location</a>
+ – wait until reaching location</li>
+<li>
+<a href="rm-cmd-symdebug.down.html">down</a>
+ – go down N stack frames</li>
+<li>
+<a href="rm-cmd-symdebug.frame.html">frame</a>
+ – change current stack frame</li>
+<li>
+<a href="rm-cmd-symdebug.list.html">list</a>
+ – list source and/or disassemble</li>
+<li>
+<a href="rm-cmd-symdebug.stack-trace.html">stack-trace</a>
+ – display stack trace</li>
+<li>
+<a href="rm-cmd-symdebug.step-into.html">step-into</a>
+ – run to the next source line</li>
+<li>
+<a href="rm-cmd-symdebug.step-into-instruction.html">step-into-instruction</a>
+ – run to the next instruction</li>
+<li>
+<a href="rm-cmd-symdebug.step-out.html">step-out</a>
+ – finish the current function</li>
+<li>
+<a href="rm-cmd-symdebug.step-over.html">step-over</a>
+ – run to the next source line, skipping subroutine calls</li>
+<li>
+<a href="rm-cmd-symdebug.step-over-instruction.html">step-over-instruction</a>
+ – run to the next instruction, skipping subroutine calls</li>
+<li>
+<a href="rm-cmd-symdebug.sym-address.html">sym-address</a>
+ – return the address of expression or source line</li>
+<li>
+<a href="rm-cmd-symdebug.sym-file.html">sym-file</a>
+ – return source file for function or address</li>
+<li>
+<a href="rm-cmd-symdebug.sym-from-address.html">sym-from-address</a>
+ – return symbol name at a given address</li>
+<li>
+<a href="rm-cmd-symdebug.sym-function.html">sym-function</a>
+ – return function at a given address</li>
+<li>
+<a href="rm-cmd-symdebug.sym-line.html">sym-line</a>
+ – return source line for function or address</li>
+<li>
+<a href="rm-cmd-symdebug.sym-list.html">sym-list</a>
+ – list symbols</li>
+<li>
+<a href="rm-cmd-symdebug.sym-source.html">sym-source</a>
+ – print source location for function or address</li>
+<li>
+<a href="rm-cmd-symdebug.sym-string.html">sym-string</a>
+ – evaluate symbolic expression</li>
+<li>
+<a href="rm-cmd-symdebug.sym-type.html">sym-type</a>
+ – return the type of a symbolic expression</li>
+<li>
+<a href="rm-cmd-symdebug.sym-value.html">sym-value</a>
+ – evaluate symbolic expression</li>
+<li>
+<a href="rm-cmd-symdebug.sym-write.html">sym-write</a>
+ – write value to variable</li>
+<li>
+<a href="rm-cmd-symdebug.up.html">up</a>
+ – go up N stack frames</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:agent"><a href="#dt:agent">
+<i>agent</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The TCF agent owning the TCF context this object is a proxy for</dd>
+<dt id="dt:cid"><a href="#dt:cid">
+<i>cid</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>The TCF context ID for the context this object is a proxy for</dd>
+<dt id="dt:desc"><a href="#dt:desc">
+<i>desc</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[so]|[soi]</code>
+<br>Description of what this object is a proxy for. Either [<tt>"simobj"</tt>, <i>object</i>] or [<tt>"sw-node"</tt>, <i>software object</i>, <i>node ID</i>].</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+</section>
+<div class="chain">
+<a href="rm-class-tcf-agent.html">tcf-agent</a>
+<a href="rm-class-tcf-serial-tee.html">tcf-serial-tee</a>
+</div>

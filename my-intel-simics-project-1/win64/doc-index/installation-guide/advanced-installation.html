@@ -1,0 +1,152 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Advanced Installation Options</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="upgrading-major-versions.html">4 Upgrading Major Versions</a>
+<a href="open-source-software.html">6 Open Source Software</a>
+</div>
+<div class="path">
+<a href="index.html">Installation Guide</a>
+&nbsp;/&nbsp;</div><h1 id="advanced-installation-options"><a href="#advanced-installation-options">5 Advanced Installation Options</a></h1>
+<p>This section provides additional information for users who need deeper
+information about some issues.</p>
+<h2 id="manual-package-management"><a href="#manual-package-management">5.1 Manual Package Management</a></h2>
+<p>The Intel® Simics® Package Manager (ISPM) works well for many advanced use
+cases. However, sometimes it is necessary to use the <code>addon-manager</code> or the
+<code>project-setup</code> programs.</p>
+<blockquote class="markdown-alert-note">
+<p>The examples are run on Linux but everything works the same on Windows, except
+file paths and file suffixes.</p>
+</blockquote>
+<p>Packages are <em>not</em> installed on top of any other package. Instead each package,
+and different versions of it, stay in separate directories. Each user project is
+bound to a particular installation of Simics Base, and it keeps its own list of
+paths to selected add-on packages that makes them available to the simulation
+engine at run-time. To manually configure this list or bind to another
+installation of Simics Base, use the <code>addon-manager</code> and <code>project-setup</code>
+programs.</p>
+<p>Here are a few examples of what those programs can do:</p>
+<h3 id="listing-add-on-packages"><a href="#listing-add-on-packages">5.1.1 Listing Add-on Packages</a></h3>
+<p>This example will list the add-on packages configured for the particular user
+project.</p>
+<pre><code>[project]$ bin/addon-manager
+=== Using the package list in project ([project]) ===
+
+Configured add-on packages:
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+</code></pre>
+<p>If there are any invalid entries (their paths do not exist anymore, or the
+necessary information files are invalid), the <code>addon-manager</code> will suggest
+removing them right away.</p>
+<h3 id="adding-add-on-packages"><a href="#adding-add-on-packages">5.1.2 Adding Add-on Packages</a></h3>
+<p>This example will add a package to the list for the particular user project.</p>
+<pre><code>[project]$ bin/addon-manager -s [simics]/simics-gdb-7.0.0
+
+...
+Configured add-on packages:
+   QSP-x86  7.0.0   ../simics-qsp-x86-7.0.0
+
+The following operations will be performed:
+   -&gt; Add  GDB  7.0.0  ../simics-gdb-7.0.0
+
+New package list:
+   GDB      7.0.0  ../simics-gdb-7.0.0
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+
+Do you want to update the package list? (y/n) [y] &lt;ENTER&gt;
+Package list updated
+Do you want to update the project? (y/n) [y] &lt;ENTER&gt;
+Project updated successfully
+</code></pre>
+<h3 id="removing-add-on-packages"><a href="#removing-add-on-packages">5.1.3 Removing Add-on Packages</a></h3>
+<p>This example will remove an add-on package from the list for the particular user
+project.</p>
+<pre><code>[project]$ bin/addon-manager -d ../simics-gdb-7.0.0/
+
+...
+Configured add-on packages:
+   GDB      7.0.0  ../simics-gdb-7.0.0
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+
+The following operations will be performed:
+   -&gt; Remove  GDB 7.0.0  ../simics-gdb-7.0.0
+
+New package list:
+   QSP-x86  7.0.0  ../simics-qsp-x86-7.0.0
+
+Do you want to update the package list? (y/n) [y] &lt;ENTER&gt;
+...
+</code></pre>
+<h3 id="upgrade-version-of-simics-base"><a href="#upgrade-version-of-simics-base">5.1.4 Upgrade Version of Simics Base</a></h3>
+<p>To manually change which installation of Simics Base a user project is bound to,
+use the <code>project-setup</code> program of the installation to bind to.</p>
+<pre><code>[project]$ [simics]/bin/project-setup .
+Project-local package list updated successfully.
+Project updated successfully
+</code></pre>
+<p>The program will save any edited files it wants to update into the project’s
+<code>.backup</code> directory.</p>
+<p>When building custom modules or extensions on Windows, <code>bin\make.bat</code> must be
+setup to find the executables of MinGW. If needed it can be updated by using
+<code>project-setup</code> with the <em>–mingw-dir</em> option.</p>
+<br>
+<p>For more options and information about the <code>addon-manager</code> and <code>project-setup</code>
+programs, see the <a href="../rm-base/command-line-tools-and-programs.html"><em>Simics Reference
+Manual</em></a>.</p>
+<h2 id="multi-user-installations"><a href="#multi-user-installations">5.2 Multi-user Installations</a></h2>
+<h3 id="shared-installations"><a href="#shared-installations">5.2.1 Shared Installations</a></h3>
+<p>By default, the simulator is organized so that the installed packages can be
+left read-only in a common location accessible to all users. And users create
+custom Intel® Simics® project areas, as described in our manuals.</p>
+<h3 id="shared-configuration"><a href="#shared-configuration">5.2.2 Shared Configuration</a></h3>
+<p>Historically each installation of Simics Base kept its own list of paths to all
+installed add-on packages. Some organizations tweaked the list to create a
+“shared configuration” of selected add-on packages.</p>
+<p>It is now recommended to use ISPM and instead share <em>manifest files</em> with the
+users.</p>
+<p>However, if necessary an installation of Simics Base can be configured with
+specific add-on packages in the same way as manually managing user projects as
+described in a previous section of this chapter. For more information, see about
+the <code>addon-manager</code> in the <a href="../rm-base/addon-manager.html"><em>Simics Reference
+Manual</em></a>.</p>
+<h2 id="third-party-products-windows"><a href="#third-party-products-windows">5.3 Third-Party Products (Windows)</a></h2>
+<p>On Windows some functionality of the simulator requires support from third-party
+products. This section describes those products.</p>
+<dl>
+<dt id="dt:openvpn-tap-driver"><a href="#dt:openvpn-tap-driver">OpenVPN TAP driver</a></dt>
+<dd>
+<p>The port-forwarding kind of real
+network connection is included with the simulator. However, to access a real
+network using bridges or host connections the OpenVPN TAP driver is required.</p>
+<p>The OpenVPN TAP driver can be downloaded from
+<a href="https://build.openvpn.net/downloads/releases/" rel="noopener noreferrer" target="_top">build.openvpn.net/downloads/releases/</a>.</p>
+<p>To learn more about the different real network connection types available, see
+the <a href="../ethernet-networking/index.html"><em>Ethernet Networking</em></a> technology guide.</p>
+</dd>
+<dt id="dt:mingw-w64"><a href="#dt:mingw-w64">MinGW-w64</a></dt>
+<dd>
+<p>If you plan to create models or extensions
+for the simulator, you will need the MinGW tools for compilation.</p>
+<p>MinGW-w64 provides a GCC compiler and the make programs that are needed to
+compile modules on Windows. Download the version for the <em>UCRT runtime</em> with
+<em>POSIX threads</em> that is provided at <a href="https://winlibs.com" rel="noopener noreferrer" target="_top">winlibs.com</a>.</p>
+<p>Setting up a user project will search in <code>C:\</code> and in the parent folder of the
+Simics Base installation for a directory named <code>mingw64</code>, which must contain the
+executables.</p>
+</dd>
+<dt id="dt:virtual-serial-ports"><a href="#dt:virtual-serial-ports">Virtual Serial Ports</a></dt>
+<dd>
+<p>To connect a
+<code>host-serial-console</code> to a virtual serial (COM) port, that port must have been
+created in advance. Use any software that can set up virtual COM ports.</p>
+</dd>
+</dl>
+
+<div class="chain">
+<a href="upgrading-major-versions.html">4 Upgrading Major Versions</a>
+<a href="open-source-software.html">6 Open Source Software</a>
+</div>

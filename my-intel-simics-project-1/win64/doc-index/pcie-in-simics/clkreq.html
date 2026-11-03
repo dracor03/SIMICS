@@ -1,0 +1,31 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>CLKREQ template</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="extended-capabilities.html">Extended Capabilities templates</a>
+<a href="error.html">Error templates</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;
+<a href="dml-template-reference.html">DML template reference</a>
+&nbsp;/&nbsp;</div>
+<h1>CLKREQ template</h1>
+<h2 id="pcie_clkreq"><a href="#pcie_clkreq">pcie_clkreq</a></h2>
+<p>Defines a connect for the CLKREQ output signal of a PCIe Device.</p>
+<h3 id="connect-clkreq"><a href="#connect-clkreq">connect clkreq</a></h3>
+<p>CLKREQ output signal (active high)</p>
+<h4 id="clock_is_required-bool"><a href="#clock_is_required-bool">clock_is_required() -&gt; (bool)</a></h4>
+<p>Predicate function that determines whether the CLKREQ signal needs to be asserted.</p>
+<h4 id="update"><a href="#update">update()</a></h4>
+<p>Updates the state of the CLKREQ signal based on the current power management status.
+This is safe to call even if the signal does not change.</p>
+
+<div class="chain">
+<a href="extended-capabilities.html">Extended Capabilities templates</a>
+<a href="error.html">Error templates</a>
+</div>

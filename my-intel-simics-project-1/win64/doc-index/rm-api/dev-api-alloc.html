@@ -1,0 +1,103 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Dynamic Memory Management</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-frags-t.html">frags_t</a>
+<a href="obsolete-device-api-types-and-functions.html">Obsolete Device API Types and Functions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Dynamic Memory Management</h1>
+<h2 id="MM_FREE"><a href="#MM_FREE">MM_FREE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>MM_FREE — free allocation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// not available in DML
+
+MM_FREE(p);
+</code></pre>
+<h2>Description</h2>
+<p><code>MM_FREE</code> frees an allocation previously made with <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC</code></a>, <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC_SZ</code></a>, <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_ZALLOC</code></a>, <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_ZALLOC_SZ</code></a>, <a href="dev-api-alloc.html#MM_REALLOC"><code>MM_REALLOC</code></a>, <a href="dev-api-alloc.html#MM_REALLOC"><code>MM_REALLOC_SZ</code></a> or <a href="dev-api-alloc.html#MM_STRDUP"><code>MM_STRDUP</code></a>.</p>
+<p>A null pointer argument is legal, in which case nothing happens.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="MM_MALLOC"><a href="#MM_MALLOC">MM_MALLOC, MM_MALLOC_SZ, MM_ZALLOC, MM_ZALLOC_SZ</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>MM_MALLOC, MM_MALLOC_SZ, MM_ZALLOC, MM_ZALLOC_SZ — allocate memory</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// not available in DML
+
+MM_MALLOC(nelems, type);
+MM_MALLOC_SZ(size, type);
+MM_ZALLOC(nelems, type);
+MM_ZALLOC_SZ(size, type);
+</code></pre>
+<h2>Description</h2>
+<p><code>MM_MALLOC</code> allocates <code>nelems</code> objects of type <code>type</code>. <code>MM_MALLOC_SZ</code> specifies the total allocation size in bytes.</p>
+<p><code>MM_ZALLOC</code> and <code>MM_ZALLOC_SZ</code> do the same thing as <code>MM_MALLOC</code> and <code>MM_MALLOC_SZ</code> respectively but in addition fill the allocated memory with null bytes.</p>
+<p>If <code>nelems</code> or <code>size</code> are zero, either a null pointer or a pointer to a zero-sized allocation is returned.</p>
+<h2>Return Value</h2>
+<p>Pointer to the allocated object(s).</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="MM_REALLOC"><a href="#MM_REALLOC">MM_REALLOC, MM_REALLOC_SZ</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>MM_REALLOC, MM_REALLOC_SZ — reallocate memory</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// not available in DML
+
+MM_REALLOC(p, nelems, type);
+MM_REALLOC_SZ(p, size, type);
+</code></pre>
+<h2>Description</h2>
+<p><code>MM_REALLOC</code> changes the size of an allocated memory block to <code>nelems</code> elements. <code>MM_REALLOC_SZ</code> specifies the new size in bytes.</p>
+<p>The allocation must originally have been made by a call to <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC</code></a>, <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC_SZ</code></a>, <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_ZALLOC</code></a>, <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_ZALLOC_SZ</code></a>, <code>MM_REALLOC</code>, <code>MM_REALLOC_SZ</code> or <a href="dev-api-alloc.html#MM_STRDUP"><code>MM_STRDUP</code></a>.</p>
+<p>If the passed pointer is null, then these macros are equivalent to an allocation of the desired amount. If <code>nelems</code> or <code>size</code> is zero, either a null pointer or a pointer to a zero-sized allocation is returned, and the original allocation is freed.</p>
+<p>The allocation must be freed using <a href="dev-api-alloc.html#MM_FREE"><code>MM_FREE</code></a>.</p>
+<h2>Return Value</h2>
+<p>Pointer to the reallocated object(s).</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="MM_STRDUP"><a href="#MM_STRDUP">MM_STRDUP</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>MM_STRDUP — duplicate a string</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// not available in DML
+
+MM_STRDUP(str);
+</code></pre>
+<h2>Description</h2>
+<p>Allocates and initializes a copy of the null-terminated string <code>str</code>. The allocation must be freed with <a href="dev-api-alloc.html#MM_FREE"><code>MM_FREE</code></a>.</p>
+<h2>Return Value</h2>
+<p>Pointer to the newly allocated string.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<div class="chain">
+<a href="dev-api-frags-t.html">frags_t</a>
+<a href="obsolete-device-api-types-and-functions.html">Obsolete Device API Types and Functions</a>
+</div>

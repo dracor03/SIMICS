@@ -1,0 +1,634 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Style Guide for C</title>
+
+<section class="page" id="index.html"><h1 id="index.html:style-guide-for-c"><a href="#index.html:style-guide-for-c">Style Guide for C</a></h1>
+<p>This is a short summary of the programming style used in Simics for programming
+in C, but parts are also valid for other languages.
+Both syntactic issues and general language usages are covered.</p>
+</section><section class="page" id="document-level.html"><h1 id="document-level.html:document-level"><a href="#document-level.html:document-level">1 Document level</a></h1>
+<p>The rules below are recommendations which are there to be followed.
+They need not be obeyed by the letter all the time, since there will always be
+exceptions and nobody should be the slave under rigid rules.</p>
+<p>However, you should be prepared to justify every deviation from the rules.
+Their purpose is to make code easier to maintain for the programmer collective.
+Breaking them in a way that makes it harder for others is both unprofessional
+and egotistic.</p>
+<p>Changes to this document should not take place without prior consultation of
+those affected by the change.
+They should also be informed about changes afterwards.</p>
+</section><section class="page" id="language.html"><h1 id="language.html:language"><a href="#language.html:language">2 Language</a></h1>
+<p>This document does not cover C++; there is a separate style guide for that
+language.
+Older C++ code may be written in a style largely following the C rules, but new
+code should follow the language-specific style.</p>
+<p>The allowed language is ISO C99.
+Note that some files may have stricter requirements.
+For instance, many public header files need to work with Microsoft Visual C,
+which is approximately C89 but allowing <code>//</code>-style comments.</p>
+<p>Language extensions should only be used if there is a true benefit from doing so
+that outweighs the mess caused by conditional compilation to allow the code to
+build on platforms that do not support the extensions.</p>
+<p>String literals should always be considered to have the type <code>const char *</code>, not
+<code>char&nbsp;*</code>.</p>
+<p>Note that on Windows, <code>interface</code> is a reserved word or a preprocessor macro, so
+it cannot be used as an identifier.</p>
+<p>All source code is written in UTF-8 without BOM.
+Non-ASCII characters may be used in comments and string literals where
+appropriate.</p>
+</section><section class="page" id="general-syntax.html"><h1 id="general-syntax.html:general-syntax"><a href="#general-syntax.html:general-syntax">3 General syntax</a></h1>
+<p>The C style is Kernighan &amp; Ritchie with 8 steps indentation.
+Spaces are used, not tabs.
+Braces are put on the same line as the keyword.</p>
+<p>Put a single space:</p>
+<ul>
+<li>between <code>if</code>, <code>while</code>, <code>switch</code> and <code>for</code> and their opening parenthesis</li>
+<li>between <code>else</code>, <code>while</code> and <code>do</code> and nearby braces</li>
+<li>around binary operators except comma, dot and arrow (<code>-&gt;</code>)</li>
+<li>around <code>?</code> and <code>:</code></li>
+<li>after but not before colon (after goto or switch labels), semicolon and comma</li>
+<li>around the <code>##</code> operator if it makes the code clearer</li>
+<li>between a type and the <code>*</code> marking a pointer</li>
+</ul>
+<p>There should be no space:</p>
+<ul>
+<li>between a function/macro name and its opening parenthesis</li>
+<li>immediately inside parentheses or brackets</li>
+<li>between an unary operator (including casts) and its operand</li>
+<li>after the <code>*</code> marking a pointer in a declaration</li>
+</ul>
+<p>Function <em>definitions</em> are written with the function name starting in the
+leftmost column, so the return type is on the preceding line; this is so it can
+be easily found by grepping.
+Function <em>prototypes</em> are written the function name after the return type as
+usual.</p>
+<p>Example:</p>
+<pre><code>person_t *godfather(child);
+
+person_t *
+father(person_t *child)
+{
+        if (child-&gt;parent[0].sex == Male) {
+                if (child-&gt;parent[1].sex == Male)
+                        return child-&gt;parent[random() &amp; 1];
+                else
+                        return child-&gt;parent[0];
+        } else {
+                if (child-&gt;parent[1].sex == Male)
+                        return child-&gt;parent[1];
+                else
+                        return godfather(child);
+        }
+}
+</code></pre>
+<p>Case labels are outdented 8 spaces relative the current level, so that they are
+on the same level as the <code>switch</code> statement.
+The same applies to <code>goto</code> labels, but keep an indentation of at least one
+space, to avoid mistaking them for top-level definitions.</p>
+<p>Example:</p>
+<pre><code>int
+bonus(player_t *p)
+{
+        int b = 0;
+        switch (p-&gt;what) {
+        case Winning:
+                b = 1000;
+                goto mystery;
+        case Losing:
+                b = -1000; break;
+        }
+        return b;
+ mystery:
+        b += random() % 500;
+        return b;
+}
+</code></pre>
+<p>No braces are required around single-statement blocks (but see the rule for
+comments in section <a class="reference" href="#comments.html:comment-formatting">4.1</a>).</p>
+<p>If one or more branches of an “if-else” statement require braces, then all
+branches should be wrapped inside braces.</p>
+<pre><code>if (check(value)) {
+        apply(value);
+        return 0;
+} else  /* BAD */
+        return -1;
+
+if (check(value)) {
+        apply(value);
+        return 0;
+} else {  /* GOOD */
+        return -1;
+}
+</code></pre>
+<p>When the body of a while or for loop is left empty, indent the semicolon to the
+appropriate statement level:</p>
+<pre><code>for (s = 0; (1 &lt;&lt; s) &lt; x; s++)
+        ;
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>A very common style which yields dense yet readable code.
+8 steps indentation is common as well and gives very good separation of levels
+but may lead to excessive indentation; changing indentation width would be a
+major source code change.</p>
+</blockquote>
+<h2 id="general-syntax.html:line-length-and-breaking"><a href="#general-syntax.html:line-length-and-breaking">3.1 Line length and breaking</a></h2>
+<p>Lines should be kept shorter than 80 characters.
+Longer lines wrap or become partially invisible in editors whose windows have
+the standard width of 80 columns, which makes the code much harder to read.</p>
+<blockquote class="markdown-alert-note">
+<p>Having longer lines than the width of the screen (editor window) is
+unacceptable since it makes it much harder to read and completely destroys
+any structure given by indentation.
+Most lines are short, so forcing all programmers to have an editor window
+wide enough for a minority of lines wastes screen space, or forces people to
+use a smaller font that is harder on the eyes, especially for programmers
+without perfect eyesight.</p>
+<p>A window width of 80 columns is as close to standard as can be found anywhere,
+being used by many terminals and terminal emulators.
+It also matches normal width used by text printing software, which is
+important for printing source code for inspection.
+Additionally, printed text rarely has longer lines than this since it would
+make them harder to read.
+Finally, lines exactly 80 characters long are undesirable since they often
+wrap around in editors.</p>
+</blockquote>
+<p>Excessive indentation gives less room to write code without exceeding the line
+length limit.
+To avoid this in good coding style, you can:</p>
+<ul>
+<li>use <code>continue</code>, <code>break</code> or <code>return</code> to bypass code rather than putting code
+inside the body of a conditional</li>
+<li>factor out code into functions (possibly declared inline), which often
+improves legibility and sometimes speed as well</li>
+<li>only indent the first level of C code inside SimGen files one step (8 spaces)</li>
+</ul>
+<p>Break long lines before binary operators, not after:</p>
+<pre><code>x = (a_very_long_expression
+     + another_very_long_expression)
+    * a_third_long_expression;
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>This clearly indicates that a line continues an expression, and it is also
+consistent with several other standard styles.
+It also makes the operator easier to recognize, and is more in line with the
+familiar prefix notation used by function calls.</p>
+</blockquote>
+<p>Break conditional expressions before the <code>?</code>, or both before the <code>?</code> <em>and</em>
+before the <code>:</code>.
+Example:</p>
+<pre><code>harvest_resource(my-&gt;gas &lt; GAS_THRESHOLD
+                 ? Rsrc_Gas
+                 : (my-&gt;minerals &lt; MINERAL_THRESHOLD
+                    ? Rsrc_Minerals : nearest_resource()));
+</code></pre>
+<p>Following lines should be indented at their natural position, as shown above.
+Add parentheses if it makes indenting easier.</p>
+<p>Alternatively, conditional expressions may be structured in a chained fashion:</p>
+<pre><code>printf("Good %s!",
+       hour &lt; 12 ? "morning"
+       : hour &lt; 18 ? "afternoon"
+       : hour &lt; 22 ? "evening"
+       : "night");
+</code></pre>
+<p>The conditions may be put inside round brackets if that improves readability.</p>
+<p>You may also add spaces in expressions if you really want them to line up:</p>
+<pre><code>if (   (flags &amp; 0x86000001) == 0x84000001
+    || (flags &amp; 0xfc000003) == 0x38000002
+    || (flags &amp; 0x0000003f) == 0x0000001b)
+        ...
+</code></pre>
+<p>Long strings should be broken before a space between words, not after:</p>
+<pre><code>const char *letter = "Dear John,\n\tI did not want to write this"
+                     " letter but I cannot live with you any"
+                     " longer. You can keep the elephant and the"
+                     " zebra, but the giant squid is mine! MINE!";
+</code></pre>
+<p>This makes the spaces easier to find, and to prevent missing spaces where the
+strings are broken up.</p>
+<h2 id="general-syntax.html:parentheses"><a href="#general-syntax.html:parentheses">3.2 Parentheses</a></h2>
+<p>Parentheses not required by the language may be added to expressions for clarity
+or indentation.</p>
+<p>Parentheses <em>should</em> be added when the operator precedence is not intuitively
+obvious.
+This is <em>mandatory</em> to resolve precedence between the following operators, even
+if it is well-defined by the language:</p>
+<ul>
+<li><code>||</code> vs <code>&amp;&amp;</code></li>
+<li>bitwise operators (<code>|</code>, <code>&amp;</code>, <code>^</code>) vs each other</li>
+<li>bitwise operators vs arithmetic operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>)</li>
+<li>bitwise operators vs comparisons (<code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>)</li>
+<li>shift operators (<code>&lt;&lt;</code>, <code>&gt;&gt;</code>) vs arithmetic operators</li>
+<li>comparisons vs each other</li>
+<li>shift operators vs each other</li>
+</ul>
+<p>When neither language nor understanding or layout require parentheses, they
+should be omitted.</p>
+<blockquote class="markdown-alert-note">
+<p>C has some defects in its operator precedence rules for historical reasons;
+also, while it may be obvious to a hardware engineer that <code>&amp;</code> has higher
+precedence than <code>|</code>, it is not linguistically obvious.
+Gcc kindly warns in some but not all of these cases.
+Superfluous parentheses often make the code harder to read for a programmer
+who is familiar with the language, and may give false hints that something
+unusual is going on.</p>
+</blockquote>
+<p>Parentheses should also be added to assignment statements inside expressions, to
+clearly show that they were intended.</p>
+<p>Do not put parentheses around the <code>sizeof</code> operand when it is an expression:</p>
+<pre><code>int_size = sizeof(int);    // int is a type.
+x_size = sizeof x;         // x is an expression.
+</code></pre>
+</section><section class="page" id="comments.html"><h1 id="comments.html:comments"><a href="#comments.html:comments">4 Comments</a></h1>
+<h2 id="comments.html:comment-formatting"><a href="#comments.html:comment-formatting">4.1 Comment formatting</a></h2>
+<p>Really short comments can be winged (placed on the same line as the code).
+Leave at least two spaces between the code and the start of the comment.</p>
+<p>If a winged comment gets too long to fit, put it on the previous line.
+Indent short comments (if not winged) to the same level as surrounding code.</p>
+<p>Write multi-line comments as follows:</p>
+<pre><code>/*
+ * This is a long comment
+ * that consists of multiple lines
+ */
+</code></pre>
+<p>That is, no text on the first and last lines, and all asterisks lined up.
+This style is suitable for long comments, or where attention is required.</p>
+<p>Alternatively, the following style can be used:</p>
+<pre><code>/* This is another comment
+   that also consists of several lines */
+</code></pre>
+<p>That is, lines are lined up vertically and the closing */ is on the last text
+line.
+This style is suitable for slightly shorter multi-line comments.</p>
+<p><code>//</code>-style comments may also be used, but try to avoid mixing the different
+comment styles too much.
+They should be written without leading/trailing commented lines:</p>
+<pre><code>// This is a comment
+// that consists of multiple lines
+</code></pre>
+<p>Additionally, <code>//</code>-style comments can be appropriate for winged comments where
+horizontal space is scarce.</p>
+<p>Do not use a comment style other than these mentioned other than in very special
+circumstances.
+In particular, do not use banners, boxes or horizontal/vertical lines of
+characters.
+These just take up space for no good reason, and grab attention that is better
+directed to code.</p>
+<p>Consider comments to be statements for brace purposes.
+That is, the if-statement</p>
+<pre><code>if (drunk(user)) {
+        /* sober up */
+        drink(user, strong_coffee);
+}
+</code></pre>
+<p>needs braces as if the comment had been a statement.</p>
+<blockquote class="markdown-alert-note">
+<p>These rules are for visual consistency, to make it easier to locate, read and
+edit comments.</p>
+</blockquote>
+<p>Do not use comments to disable (comment out) code; use <code>#if 0</code> (or better,
+<code>#if SOMESYMBOL</code>).
+Exceptions are <code>#define</code>s which may be useful to turn on in special
+circumstances:</p>
+<pre><code>/* Turn on to get verbose printouts at each conditional branch */
+/* #define DEBUG_COND_BRANCH */
+</code></pre>
+<p>Do not check in disabled code without a very good reason for doing so and a
+comment stating why it is there.
+Lacking this, disabled code is fair game for removal without prior notice.</p>
+<h2 id="comments.html:contents-of-comments"><a href="#comments.html:contents-of-comments">4.2 Contents of comments</a></h2>
+<p>Comments should only contain information that cannot be easily inferred from the
+code.
+If the code is obvious enough, no comment is needed.
+If not, it is better to spend effort on making the code clearer than explaining
+it in a comment.</p>
+<p>Example of a <strong>bad</strong> comment:</p>
+<pre><code>/* Flush page cache. */
+flush_page_cache(cpu);
+</code></pre>
+<p>Explain <em>why</em>, not <em>what</em>.
+Reading the code gives you what, but not always why.
+Reasons for a particular design choice are much more useful to the reader.
+Do not sign comments with name or date.</p>
+<p>Do not keep history in comments.
+They should describe the code as it is, not as it has been.
+Erase anything that is no longer valid.</p>
+<p>Examples of <strong>bad</strong> comments:</p>
+<pre><code>/* moved here from processor.c */
+
+double delta;   /* no longer an integer */
+
+/* (mike) this is only safe if x != 0 */
+
+/* 980325 rewritten to use new event code */
+</code></pre>
+<p>When editing existing code, you are just as responsible for editing the comments
+that refer to that code so that they are still valid.
+Incorrect comments should not be left in the code; it is better to remove them
+if they cannot be updated to reflect the state of the code.</p>
+<p>Partly for this reason, it is desirable to keep comments as close as possible to
+the code they are commenting on.
+This makes them harder to miss when changing the code.
+(Do not overdo this and fragment the code with too many interspersed
+comments—try to strike a balance.)</p>
+<p>TODO and FIXME comments should make it clear what needs to be done or fixed, and
+why; otherwise they contain no information.</p>
+<p>Refer to Bugzilla bug numbers in comments if the issue is still open.
+When fixed, such references should be removed.
+Example:</p>
+<pre><code>/* FIXME: This is incorrect if p==0. (bug 4711) */
+</code></pre>
+<p>Prefer describing data to explaining code.
+This should be evident to experienced programmers: If the data structures are
+known, the code manipulating them should be natural and need little extra
+explanation.</p>
+<h2 id="comments.html:api-documentation"><a href="#comments.html:api-documentation">4.3 API documentation</a></h2>
+<p>Exported functions and types should be documented in a way that the Simics documentation <a href="../doc-guide/index.html"><code>tool</code></a> can parse:</p>
+<pre><code>/*:: add function to-section processor-api-functions
+short: Run processor sideways
+
+Instead of executing forwards or backwards, run sideways for `n` cycles. 
+`direction` can be either `Left` or `Right`.
+
+## Exceptions
+
+**General** Thrown when given an invalid argument.
+
+## Return Value
+The number of cycles actually executed.
+
+## See Also
+[`SIM_continue`]
+*/
+
+cycles_t
+SIM_run_sideways(cycles_t n, direction_t direction)
+{
+        ...
+}
+</code></pre>
+<p>The Simics documentation markup should not be indented.
+Do not use the Simics documentation markup for comments that are not used to
+generate documentation, such as in file comments.</p>
+<h2 id="comments.html:file-comments"><a href="#comments.html:file-comments">4.4 File comments</a></h2>
+<p>Comments at the beginning of source code may contain a brief description of the
+file if not evident.
+Ordinary comment rules apply.
+If copyright and license statements are required, they should also be added to
+the top comment section.</p>
+<p>Other than this, keep file comments to an absolute minimum, in accordance with the general comment principles above.</p>
+</section><section class="page" id="preprocessor-usage.html"><h1 id="preprocessor-usage.html:preprocessor-usage"><a href="#preprocessor-usage.html:preprocessor-usage">5 Preprocessor usage</a></h1>
+<p>If an <code>#else</code> or <code>#endif</code> is separated from its corresponding <code>#if</code> or <code>#else</code>
+by more than a trivial amount of lines, add a comment stating the condition for
+inclusion of the code below (for <code>#else</code>) or for the code above (for <code>#endif</code>):</p>
+<pre><code>#ifdef GREAT_CODE
+...
+#else  /* not GREAT_CODE */
+...
+#endif /* not GREAT_CODE */
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>This avoids needless editor trips to the top <code>#ifdef</code> just to see under what
+circumstances some lines are compiled.
+For the <code>#else</code>, inverting the original condition makes sense verbally (read
+“else, if not COND”).
+For the <code>#endif</code>, the corresponding <code>#else</code> or <code>#if</code> may not be visible so
+the only comment that makes sense is the one that describes the code ended by
+the <code>#endif</code>.
+This agrees with other code standards such as GNU.</p>
+</blockquote>
+<p>Use guards to prevent multiple inclusion of a header file:</p>
+<pre><code>#ifndef HEADER_FILE_H
+#define HEADER_FILE_H
+...
+#endif
+</code></pre>
+<p>Include sufficient amounts of the file path in the name of the guard for it to
+work even when multiple headers have the same name.
+For example, the file <code>src/weapons/nuclear/little-boy.h</code> could have the header
+guard <code>WEAPONS_NUCLEAR_LITTLE_BOY_H</code>.</p>
+<p>Use shallow (1-space) indentation to make preprocessor conditions more readable.
+Indent the whole directive, not just the word after the #:</p>
+<pre><code>#if defined HOPE &amp;&amp; defined GLORY
+ #include "honour.h"
+ typedef longsword_t weapon_t;
+ #if !defined SANITY
+  #define BERSERK 1
+ #else
+  #define BERSERK 0
+#else
+ #include "defeat.h"
+ typedef nuke_t weapon_t;
+#endif
+</code></pre>
+<p>If used carefully, this makes the above-mentioned comments less frequently
+needed, unless the conditionals span great distances.
+Small declarations (like the typedef in the example) may be indented similarly,
+but keep larger declarations and definitions (such as function definitions) in
+column 0.</p>
+<h2 id="preprocessor-usage.html:macros"><a href="#preprocessor-usage.html:macros">5.1 Macros</a></h2>
+<p>Macro names should be in upper case.
+Their formal arguments should be in lower case and parenthesised when used if
+they represent expressions.</p>
+<p>If a macro contains multiple statements, surround them with
+<code>do { ... } while (0)</code>.
+Macros intended to return a value should have parentheses around the expression
+if needed to allow them to be used in any expression context.
+Macros that expand to constants need no parentheses.</p>
+<p>Always right-justify the backslashes in multi-line macros, to make them easier
+to read (<code>C-c C-\</code> in Emacs).</p>
+<p>Examples:</p>
+<pre><code>#define THE_ANSWER_TO_EVERYTHING 42
+
+#define COMPOUND_SCORE(p) ((p)-&gt;score + (p)-&gt;bonus)
+
+#define FROBBLE(n, type)                \
+do {                                    \
+        type _x;                        \
+        gurgle_ ## type(&amp;_x, (n) + 1);  \
+        whistle(_x);                    \
+} while (0)
+</code></pre>
+<p>Always prefer using inline functions rather than macros if possible. Be careful when declaring variables inside macros; give them names that are unlikely to be used by actual parameters, to avoid accidental capture.</p>
+</section><section class="page" id="naming.html"><h1 id="naming.html:naming"><a href="#naming.html:naming">6 Naming</a></h1>
+<p>In absence of other rules, identifiers are written in lower case letters, words
+separated by underscores.</p>
+<h2 id="naming.html:functions-macros-and-variables"><a href="#naming.html:functions-macros-and-variables">6.1 Functions, macros and variables</a></h2>
+<p>Functions and macros that are executed primarily for their side-effect should be
+named after what they do.
+Functions and macros executed for their return value should be named after what
+they return.
+If the function or macro is a predicate (returning a boolean value), it should
+be named after the condition when it returns a true value.</p>
+<p>Examples:</p>
+<pre><code>void show_death_animation(monster_t *m);
+float magic_power(monster_t *m, int colour);
+bool is_undead(monster_t *m);
+</code></pre>
+<p>Variables should be named after what they contain, not from the variable or its
+type.
+The more local a variable is, the shorter can be its name.
+Use long, descriptive names for global variables; use short names in local
+scopes.
+Names more frequently used can also be shorter.</p>
+<p>Do not append a number as a general method to create new identifiers, other than
+in very special circumstances:</p>
+<pre><code>void draw_line(int x1, int y1, int x2, int y2); /* good */
+int invalidate_object2(conf_object_t *obj);     /* BAD */
+</code></pre>
+<p>In particular, do not use “<code>tmp</code>” or “<code>ptr</code>” in identifiers; it is rare that it
+is needed to point out that a variable contains a temporary value or a pointer.</p>
+<p>Do not prefix names with an article, such as <code>an_object</code> or <code>the_score</code>.</p>
+<h2 id="naming.html:types"><a href="#naming.html:types">6.2 Types</a></h2>
+<p>Enum members are capitalised, each word separately.
+To avoid namespace clashes, consider using a common prefix:</p>
+<pre><code>enum monster_state { Sleeping, Awake, Angry, Fleeing };
+enum shape { Sh_Rect, Sh_Rounded_Rect, Sh_Circle };
+</code></pre>
+<p>Typedef names should end in <code>_t</code>.
+Typedef structs, unions and enums unless only used locally.
+Do not define tags unless needed.
+If a struct/enum/union tag is defined, make it equal to the typedef but without
+the <code>_t</code> suffix.</p>
+<p>Where possible, make struct definitions private to code if other parts of the
+source only need to handle pointers to the struct.</p>
+<h2 id="naming.html:files"><a href="#naming.html:files">6.3 Files</a></h2>
+<p>In file names, words are separated by hyphens rather than underscores.</p>
+</section><section class="page" id="code-arrangement.html"><h1 id="code-arrangement.html:code-arrangement"><a href="#code-arrangement.html:code-arrangement">7 Code arrangement</a></h1>
+<p>The functions and variables exported from a <code>.c</code> file should be declared in the
+corresponding <code>.h</code> file.
+That header should be included first in the <code>.c</code> file.</p>
+<blockquote class="markdown-alert-note">
+<p>This practice forces header files to be independent so that they do not
+require any other headers to be included first, which simplifies their use
+elsewhere.
+Making a unit include its own header will check that the definitions in both
+files agree.</p>
+</blockquote>
+<p>Function prototypes in the header should not be declared <code>extern</code>; that keyword
+is superfluous there.
+The header should only contain the types actually needed for other units to
+interface with it.
+Where possible, opaque struct and class types should be used.</p>
+<p>Any functions or variables that are not used outside the unit should be declared
+<code>static</code>.</p>
+<p>Reorder functions to avoid the need of forward declarations where possible.</p>
+<blockquote class="markdown-alert-note">
+<p>Forward declarations are just a pointless exercise required by the language,
+needing extra maintenance and taking up space. Ordering functions in the
+calling order also makes it easier to navigate in the code since it imposes
+a consistent direction to look for functions and their callers.</p>
+</blockquote>
+</section><section class="page" id="various-issues.html"><h1 id="various-issues.html:various-issues"><a href="#various-issues.html:various-issues">8 Various issues</a></h1>
+<p>Avoid assignments inside expressions, unless needed for flow control reasons:</p>
+<pre><code>if ((err = hurt_enemy(e)) &lt; 0) ...           /* BAD */
+
+err = hurt_enemy(e);
+if (err &lt; 0) ...                             /* GOOD */
+
+while ((victim = next_target()) != NULL) ... /* GOOD */
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>This makes the expressions simpler to analyze and immediately understand;
+side-effects require some further thought.
+It also saves on parentheses and line length.</p>
+</blockquote>
+<p>Use <code>NULL</code> instead of 0 as a null data pointer.
+Use <code>(type *)0</code> as a null function pointer.</p>
+<blockquote class="markdown-alert-note">
+<p><code>NULL</code> is a pointer, <code>0</code> is an integer; the choice sends a strong message to
+the reader about the intention of the code.
+Unfortunately, the use of <code>NULL</code> as a function pointer cannot be used in
+portable C, hence the need to use <code>0</code>, cast as appropriate.
+Using <code>0</code> instead of a pointer type as argument to a vararg function is
+undefined and can (and will) cause crashes.</p>
+</blockquote>
+<p>Avoid casts where possible, since this can hide errors while suppressing
+warnings:</p>
+<ul>
+<li>Do not cast pointers to/from <code>void *</code></li>
+<li>Use intermediate variables to convert a <code>void *</code> to a specific pointer.</li>
+<li>Take the address of substructures instead of casting struct pointers.</li>
+</ul>
+<p>Examples:</p>
+<pre><code>void *p = ...
+int strength = ((troll_t *)p)-&gt;strength;   /* BAD */
+
+troll_t *t = p;
+int strength = t-&gt;strength;                /* GOOD */
+
+save_object((conf_object_t *)cpu);         /* BAD */
+save_object(&amp;cpu-&gt;obj);                    /* GOOD */
+</code></pre>
+<p>When comparing an expression against a constant, put the constant last:</p>
+<pre><code>if (2 == x) ...              /* BAD */
+if (x == 2) ...              /* GOOD */
+</code></pre>
+<p>This is more intuitive and scans better, since it corresponds more closely to
+how you would pronounce it in natural language (“if x is equal to two”, never
+“if two is equal to x”, since “two” is not likely to change.)</p>
+<h2 id="various-issues.html:switch-statements"><a href="#various-issues.html:switch-statements">8.1 Switch statements</a></h2>
+<p>Always indicate a switch case fall-through with a comment.</p>
+<pre><code>switch (monster-&gt;state) {
+case Sleeping:
+        wake_up(monster);
+        /* FALLTHROUGH */
+case Awake:
+        attack(monster, player);
+        break;
+case Dead:
+        rattle_bones(monster-&gt;corpse);
+        break;
+}
+</code></pre>
+<p>All other cases should have a <code>break</code> statement, even the last case in the
+switch, unless they use a <code>return</code>/<code>continue</code>/<code>goto</code> to transfer control
+elsewhere.</p>
+<p>Blocks inside switch clauses, when needed for local variables, do not introduce
+a new indentation level:</p>
+<pre><code>switch (cmd.type) {
+case Sail: {
+        double distance = hypot(cmd.x, cmd.y);
+        double direction = atan2(cmd.y, cmd.x);
+        go(direction, distance);
+        break;
+}
+case Anchor:
+        drop_anchor(current_position);
+        break;
+}
+</code></pre>
+<h2 id="various-issues.html:boolean-expressions"><a href="#various-issues.html:boolean-expressions">8.2 Boolean expressions</a></h2>
+<p>You may use implicit comparison against 0 in conditions for boolean values only.
+This includes pointers and other values where 0 can be interpreted as falsehood:</p>
+<pre><code>typedef enum { Red, Blue } colour_t;
+colour_t halo_team(player_t *p);
+...
+if (halo_team(p)) ...          /* BAD - not a boolean */
+
+monster_t *m = make_gelatinous_cube();
+if (m) ...                     /* Good - NULL is false */
+</code></pre>
+<p>For example, a function returning zero on failure and a positive result
+otherwise could be used in boolean context.</p>
+<p>Expressions where 0 is not intuitively understood as false must always use
+explicit comparisons.
+In particular, the <code>strcmp</code> function does not return a boolean value:</p>
+<pre><code>if (!strcmp(login, "root")) ...      /* BAD */
+if (strcmp(login, "root") == 0) ...  /* GOOD */
+</code></pre>
+<p>This is also true for calls that return -1 on failure and 0 on success:</p>
+<pre><code>if (rmdir(game_dir)) ...                 /* BAD */
+if (rmdir(game_dir) == -1) ...           /* GOOD */
+if (rmdir(game_dir) &lt; 0) ...             /* GOOD */
+</code></pre>
+</section><section class="page" id="editor-support.html"><h1 id="editor-support.html:editor-support"><a href="#editor-support.html:editor-support">9 Editor support</a></h1>
+<p>The following will help following these rules when using Emacs.
+Place in your .emacs file:</p>
+<pre><code>(setq load-path (cons "/home/packages/vt-elisp" load-path))
+(load "vt-elisp-start")
+</code></pre>
+<p>This does not absolve you from doing the right thing where Emacs is wrong
+(which, unlikely as it sounds, may happen occasionally).</p>
+<p>For more information, read <code>/home/packages/vt-elisp/README</code>.</p>
+</section>

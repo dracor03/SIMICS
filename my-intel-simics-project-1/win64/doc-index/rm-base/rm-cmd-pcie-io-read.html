@@ -1,0 +1,51 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pcie-io-read</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-pcie-config-write.html">pcie-config-write</a>
+<a href="rm-cmd-pcie-io-write.html">pcie-io-write</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="pcie-io-read"></a>
+<h1 id="pcie-io-read"><a href="#pcie-io-read">pcie-io-read</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>pcie-io-read</b> [<i>"hierarchy"</i>] [<i>"pcie-downstream-port"</i>] <i>address</i> [<i>size</i>] [-l] [-b] [-inquiry] [-add-atoms] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ PCIe IO space read. The read will be of <i>size</i> bytes to <i>address</i>. The default <i>size</i> is 4 bytes, but it can be anywhere between 1 and 1024 inclusive. This command will issue a transaction with the payload and flags set, the <tt>pcie_type</tt> atom set to <tt>PCIE_Type_IO</tt>. It will issue the transaction to the io space of the object specified by the mutually exclusive arguments <i>hierarchy</i> or <i>pcie-downstream-port</i>. The <i>hierarchy</i> argument specifies the top-level PCIe hierarchy object to which the transaction will be issued. The <i>pcie-downstream-port</i> specifies an arbitrary downstream port object anywhere in the hierarchy. If there is only one top-level PCIe hierarchy in the system, the <i>hierarchy</i> argument can be omitted. The command will automatically find the top-level PCIe hierarchy object and issue the transaction to it.
+<p>
+The <tt>-inquiry</tt> flag is used to mark the issued transaction as an inquiry, which result in the DMA setting the memory without any side-effects. By default, the transaction is not using the inquiry flag.
+</p><p>
+The <tt>-l</tt> and <tt>-b</tt> flags are used to select little-endian or big-endian byte order, respectively used to determine how the bytes in memory should be interpreted as a value. If neither is given, then little endian is used.
+</p><p>
+Transaction <tt>atoms</tt> can be used for routing rules and access rights in a platform. The <tt>-add-atoms</tt> flag opens up the capability to set transaction <tt>atoms</tt> on the command line: once the flag is set the command accepts additional arguments that have names starting with <tt>ATOM_</tt> prefix. Tab complete after setting the <tt>-add-atoms</tt> flag to see the available <tt>atoms</tt>. These arguments are used by the command to pass in atom values to the translators it passes through during the transaction probing.
+</p><p>
+Please note that the <tt>ATOM_...</tt> arguments can be used only to specify values for transaction atoms that have integer values and provide Python wrappings. Complex atoms such as pointers and structures are not available from CLI.
+</p><p>
+Note! The <tt>data</tt>, <tt>flags</tt> and <tt>pcie_type</tt> atoms will be ignored if they are set using the <tt>-add-atoms</tt> as those are added by this command. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-pcie-io-write.html">pcie-io-write</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-pcie-config-write.html">pcie-config-write</a>
+<a href="rm-cmd-pcie-io-write.html">pcie-io-write</a>
+</div>

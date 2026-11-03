@@ -1,0 +1,111 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>linux_mapper</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-linux_analyzer.html">linux_analyzer</a>
+<a href="rm-class-linux_tracker.html">linux_tracker</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="linux_mapper"><a href="#linux_mapper">linux_mapper</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Standard Linux Node Tree.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, osa_mapper_admin, osa_mapper_control, osa_mapper_query, osa_linux_software_info, osa_target_info
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-linux_mapper.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-linux_mapper.log-syscalls.html">log-syscalls</a>
+ – start logging system calls</li>
+<li>
+<a href="rm-cmd-linux_mapper.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:node_tree_admin"><a href="#dt:node_tree_admin">
+<i>node_tree_admin</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Object that administrates the node tree. Must implement the osa_node_tree_admin interface</dd>
+<dt id="dt:tracker_state_notification"><a href="#dt:tracker_state_notification">
+<i>tracker_state_notification</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Object to subscribe for tracker state updates on. Must implement the osa_tracker_state_notification interface</dd>
+<dt id="dt:tracker_state_query"><a href="#dt:tracker_state_query">
+<i>tracker_state_query</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Object that keeps the tracker state. Must implements the osa_tracker_state_query interface</dd>
+<dt id="dt:tracker"><a href="#dt:tracker">
+<i>tracker</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Software tracker object</dd>
+<dt id="dt:ignore_empty_name"><a href="#dt:ignore_empty_name">
+<i>ignore_empty_name</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If set to true updates to the name property that are empty strings will be ignored.</dd>
+<dt id="dt:enabled"><a href="#dt:enabled">
+<i>enabled</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>b</code>
+<br>Mapper enabled - read only</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.linux-tracker.html">linux-tracker</a>
+</section>
+<div class="chain">
+<a href="rm-class-linux_analyzer.html">linux_analyzer</a>
+<a href="rm-class-linux_tracker.html">linux_tracker</a>
+</div>

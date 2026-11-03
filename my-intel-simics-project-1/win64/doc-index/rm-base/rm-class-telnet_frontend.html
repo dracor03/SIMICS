@@ -1,0 +1,105 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>telnet_frontend</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-telemetry_manager.html">telemetry_manager</a>
+<a href="rm-class-terminal_frontend.html">terminal_frontend</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="telnet_frontend"><a href="#telnet_frontend">telnet_frontend</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Class implementing telnet access to the Simics command line. The <tt>telnet_frontend</tt> should only be used in a secure environment since the port is open for telnet access from any user.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, terminal_client, external_connection_events
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:tcp"><a href="#dt:tcp">tcp</a></dt>
+<dd>
+<a href="rm-class-tcp-server.html#tcp-server">tcp-server</a>
+ – telnet-frontend TCP server</dd>
+<dt id="dt:unix_socket"><a href="#dt:unix_socket">unix_socket</a></dt>
+<dd>
+<a href="rm-class-unix-socket-server.html#unix-socket-server">unix-socket-server</a>
+ – telnet-frontend Unix domain socket server</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-telnet_frontend.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-telnet_frontend.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:max_connections"><a href="#dt:max_connections">
+<i>max_connections</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The maximum number of allowed telnet connections. Once this number of connections have been created, no further ones are accepted until the <tt>num_connections</tt> attribute is reset. If the value is zero, no limit is set.</dd>
+<dt id="dt:interactive"><a href="#dt:interactive">
+<i>interactive</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to TRUE, default, if future telnet connections will be interactive and FALSE if not. Non-interactive connections are useful for scripted control of the command line since no formatting and color codes are used and the prompt is always synchronous.</dd>
+<dt id="dt:plain_text"><a href="#dt:plain_text">
+<i>plain_text</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to TRUE if future telnet connections only should use plain text without any formatting and color codes in the output. Default is FALSE.</dd>
+<dt id="dt:num_connections"><a href="#dt:num_connections">
+<i>num_connections</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The number of connections done so far since the object was created or the count was reset by a write to this attribute.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.telnet-frontend.html">telnet-frontend</a>
+</section>
+<div class="chain">
+<a href="rm-class-telemetry_manager.html">telemetry_manager</a>
+<a href="rm-class-terminal_frontend.html">terminal_frontend</a>
+</div>

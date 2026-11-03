@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.exc.trace</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.exc.run-until.html">bp.exc.run-until</a>
+<a href="rm-cmd-bp-manager.exc.wait-for.html">bp.exc.wait-for</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.exc.trace"></a>
+<h1 id="bp-manager.exc.trace"><a href="#bp-manager.exc.trace">bp.exc.trace</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.exc&gt;.trace</b> [<i>object</i>] (<i>"name"</i>|<i>number</i>|-all) [-recursive] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Enables tracing of exceptions. When this is enabled, every time the specified exception occurs during simulation, a message is printed.
+<p>
+The <i>name</i> or <i>number</i> parameter specify which exception the script branch should wait on. The available exceptions depend on the simulated target. Instead of an exception, the <tt>-all</tt> flag may be given, which results in all exceptions being traced.
+</p><p>
+If no processor object is specified, the currently selected processor is used.
+</p><p>
+If <tt>-recursive</tt> is used, not only the object, but the objects hierarchically below the object will be considered when adding the breakpoint. If <i>object</i> is provided, then the breakpoint functionality is added on that object.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.exc.run-until.html">bp.exc.run-until</a>
+<a href="rm-cmd-bp-manager.exc.wait-for.html">bp.exc.wait-for</a>
+</div>

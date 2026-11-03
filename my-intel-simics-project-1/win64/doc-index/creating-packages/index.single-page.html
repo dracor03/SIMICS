@@ -1,0 +1,130 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Creating Simics Packages</title>
+
+<section class="page" id="index.html"><div class="note">
+<h2 id="index.html:technology-preview"><a href="#index.html:technology-preview">Technology Preview</a></h2>
+<p>This is a technology preview of the packaging system for Simics. Everything here
+is subject to change without notice.</p>
+</div>
+<h1 id="index.html:creating-simics-packages"><a href="#index.html:creating-simics-packages">Creating Simics Packages</a></h1>
+<p>Simics packages are created using the script <code>bin/create-packages</code>. This
+script takes a <em>package specification file</em> as input, and assembles files from
+the local filesystem into a Simics package.</p>
+<h2 id="index.html:package-specification-files"><a href="#index.html:package-specification-files">Package specification files</a></h2>
+<p>A package specification file is a JSON file. A formal JSON validation schema
+for this file is available in the Simics base package, in the path
+<code>scripts/package-specs-schema.json</code>.</p>
+<p>The top level of the file is an array, i.e., <code>list</code> in Python, of <em>package
+specifications</em>, where one package specification is an object, i.e., <code>dict</code> in
+Python, with string keys.</p>
+<h2 id="index.html:required-properties-of-a-package-specification"><a href="#index.html:required-properties-of-a-package-specification">Required properties of a package specification</a></h2>
+<h3 id="index.html:package-name-string"><a href="#index.html:package-name-string"><code>package-name</code> (string)</a></h3>
+<p>Name identifier of the package, used for the install directory name.
+The naming convention is <code>Camel-Kebab-Case</code>. e.g. <code>"Simics-Base"</code> or <code>"QSP"</code>.</p>
+<h3 id="index.html:package-number-integer-or-null"><a href="#index.html:package-number-integer-or-null"><code>package-number</code> (integer or null)</a></h3>
+<p>Package number. Must be globally unique. If null, the package cannot be
+created; this can be useful for defining quasi-packages that never should be
+shipped.</p>
+<h3 id="index.html:name-string"><a href="#index.html:name-string"><code>name</code> (string)</a></h3>
+<p>Name as a string, used e.g. for titles in UIs and documents. Often
+<code>package-name</code> with hyphens replaced with spaces.</p>
+<h3 id="index.html:description-string"><a href="#index.html:description-string"><code>description</code> (string)</a></h3>
+<p>One-line description of the package. Can be the empty string.</p>
+<h3 id="index.html:host-string"><a href="#index.html:host-string"><code>host</code> (string)</a></h3>
+<p>The host OS this package can be installed on. Must be <code>"linux64"</code> or <code>"win64"</code>.</p>
+<h3 id="index.html:version-string"><a href="#index.html:version-string"><code>version</code> (string)</a></h3>
+<p>Version, typically on the form <code>X.Y.Z</code> or <code>X.Y.preZ</code> where X, Y and Z are
+integers.</p>
+<h3 id="index.html:build-id-integer"><a href="#index.html:build-id-integer"><code>build-id</code> (integer)</a></h3>
+<p>A number that should increase monotonically on every release. This number has
+no technical significance for the package; in this context it is mainly useful
+as a hint to the end-user to see which packages were released at the same time.
+There is no global naming convention; some vendors use timestamps, others use
+an integer that is incremented on every release.</p>
+<h3 id="index.html:build-id-namespace-string"><a href="#index.html:build-id-namespace-string"><code>build-id-namespace</code> (string)</a></h3>
+<p>An identifier unique to a package vendor, identifying a naming scheme for the
+<code>build-id</code> property. The idea is that it makes sense to compare the build IDs
+of two packages only if the packages have the same build ID namespace.</p>
+<h3 id="index.html:confidentiality-string"><a href="#index.html:confidentiality-string"><code>confidentiality</code> (string)</a></h3>
+<p>A string indicating confidentiality of the model. This can be used by package
+databases for restricting access to a package, e.g. in case the model
+specification is only accessible under a non-disclosure agreement. Publicly
+available models can use <code>"Public"</code>.</p>
+<p>Other values used in packages provided by Intel include <code>"Intel Confidential"</code>
+and <code>"Intel Top Secret"</code>, but any string is permitted.</p>
+<h3 id="index.html:files-object"><a href="#index.html:files-object"><code>files</code> (object)</a></h3>
+<p>Describes the files to be distributed in the package.</p>
+<p>For each file in the package, the object maps the <em>destination</em> path,
+i.e. where within the installation the file should appear, to <em>source</em> path,
+i.e. the absolute path of file on the local filesystem. The destination path is
+a relative path, using <code>/</code> as directory separator and no <code>.</code> or <code>..</code> component,
+whereas the source path is an absolute path using the host’s path
+conventions. I.e., on Windows, backslashes may be used in the source path but
+not in the destination path.</p>
+<p>If a destination path ends with <code>/</code>, it denotes a whole directory, and the
+destination is given by an object instead of a string. This notation is
+intended for cases when the exact contents of a directory cannot be determined
+by the time the package specification file is created.</p>
+<p>The destination object has three entries:</p>
+<h4 id="index.html:source-directory-string"><a href="#index.html:source-directory-string"><code>source-directory</code> (string)</a></h4>
+<p>Absolute path to a directory on the local filesystem where the files to be
+packaged are located.</p>
+<h4 id="index.html:file-list-string"><a href="#index.html:file-list-string"><code>file-list</code> (string)</a></h4>
+<p>Absolute path to a file on the local filesystem containing a complete list of
+files to be distributed in this directory. The file is in JSON format and
+contains a single list of strings, each one representing a file to be included
+under this directory. Each string is a <code>/</code>-separated relative path without <code>.</code>
+or <code>..</code> path elements, and denote the location relative both to the
+<code>source-directory</code> and the destination path.</p>
+<h4 id="index.html:suffixes-list-of-strings"><a href="#index.html:suffixes-list-of-strings"><code>suffixes</code> (list of strings)</a></h4>
+<p>The <code>suffixes</code> property lists what file endings may be present among files in
+<code>file-list</code>. It is often possible to know this in advance; if it is not, then
+passing <code>[""]</code> as the set of suffixes denotes that any filename may appear.</p>
+<p>The purpose of <code>suffixes</code> is to allow a reliable way of extracting a complete
+list of files with a particular suffix from a package specification, before all
+file lists have been generated. This is particularly useful for extraction of
+reference documentation, which needs the set of <code>.so</code> or <code>.dll</code> files of a
+package, but the set of files produced by the reference manual itself is
+defined by a file list because its HTML file names are not known in advance. If
+this file list declares a set of suffixes that does not include <code>.so</code> or <code>.dll</code>
+files, then it is safe for the reference documentation extraction to not scan
+this file list.</p>
+<h2 id="index.html:optional-properties-of-package-specification"><a href="#index.html:optional-properties-of-package-specification">Optional properties of package specification</a></h2>
+<h3 id="index.html:type"><a href="#index.html:type"><code>type</code></a></h3>
+<p>Must be <code>"addon"</code>, unless you are building the base package (which is not
+externally supported).</p>
+<h3 id="index.html:disabled-boolean"><a href="#index.html:disabled-boolean"><code>disabled</code> (boolean)</a></h3>
+<p>Default <code>false</code>. Controls the default behaviour of the <code>create-packages</code>
+script, which is to create packages for all non-disabled packages.</p>
+<h2 id="index.html:other-commonly-used-properties"><a href="#index.html:other-commonly-used-properties">Other commonly used properties</a></h2>
+<p>These properties are ignored by packaging scripts, but may be used by other
+tools.</p>
+<h3 id="index.html:make-targets-list-of-strings"><a href="#index.html:make-targets-list-of-strings"><code>make-targets</code> (list of strings)</a></h3>
+<p>Defines make targets to build in order to create the files needed to create
+this package.</p>
+<h3 id="index.html:doc-title-string"><a href="#index.html:doc-title-string"><code>doc-title</code> (string)</a></h3>
+<p>Title to use in reference manuals. Often identical to the <code>name</code> property.</p>
+<h2 id="index.html:module-cache"><a href="#index.html:module-cache">Module cache</a></h2>
+<p>When Simics is installed on a network mount and the installation contains a
+large number of modules, then it can take a long time to start Simics because
+module scanning needs to examine a large number of files over the
+network. Package specific module caches provide a remedy to this problem, by
+collecting all module metadata of a package into one file.</p>
+<p>The module cache file of a package is named
+<tt><v>host</v>/lib/<v>Package-Name</v>.modcache</tt>, e.g.,
+<code>linux64/lib/Simics-Base.modcache</code>.  The script <code>bin/create-modcache</code> can be
+used to create this file. The script takes a package specification JSON file as
+argument, and by default creates <code>.modcache</code> files for all packages defined
+there matching the current host. It does so by inspecting the <code>files</code> property
+of all packages. For each package that distributes a modcache entry with the
+expected filename, it creates a modcache file on the path on the local
+filesystem where the specification expects to find it. The modcache is created
+by extracting module metadata from all module files distributed in the package.</p>
+<p>Note that the module cache generation step needs to be done after all modules
+have been built. Furthermore, Simics blindly trusts the package-level module
+cache, so if a module is rebuilt after the modcache is generated, then any
+updated module metadata will be ignored. Therefore, modcache generation should
+normally only be done by packaging scripts.</p>
+</section>

@@ -1,0 +1,40 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8 Editor Support</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="various-issues.html">7 Various issues</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for DML</a>
+&nbsp;/&nbsp;</div><h1 id="editor-support"><a href="#editor-support">8 Editor Support</a></h1>
+<p>Included in the Simics distribution are Emacs and Vim editing modes for DML.
+For Emacs, add the code below to your <code>.emacs</code> file to automatically use it when
+editing DML, but change the path to your Simics installation:</p>
+<pre><code>(setq load-path (cons "/simics-install-dir/scripts" load-path))
+(autoload 'dml-mode "dml-mode" "DML mode" t)
+(add-to-list 'auto-mode-alist '("\\.dml$" . dml-mode))
+
+(c-add-style "dml"
+             '((comment-column . 45)
+               (c-basic-offset . 4)
+               (c-offsets-alist . ((substatement-open . 0)
+                                   (topmost-intro-cont . +)))
+               (c-block-comment-prefix . "")
+               (indent-tabs-mode . nil)))
+
+(setq c-default-style (cons '(dml-mode . "dml")
+                             c-default-style)) 
+</code></pre>
+<p>For Vim, copy the following lines to your <code>.vimrc</code>, but change the path to your
+Simics installation:</p>
+<pre><code>au BufRead,BufNewFile *.dml set filetype=dmllang
+au! Syntax dmllang source /simics-install-dir/scripts/dml.vim
+</code></pre>
+
+<div class="chain">
+<a href="various-issues.html">7 Various issues</a>
+</div>

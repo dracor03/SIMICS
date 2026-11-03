@@ -1,0 +1,630 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>qsp-x86/clear-linux-2c</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="clear-linux-target.html">qsp-x86/clear-linux</a>
+<a href="clear-linux-multi-target.html">qsp-x86/clear-linux-multi</a>
+</div>
+<div class="path">
+<a href="index.html">QSP-x86 Target Guide</a>
+&nbsp;/&nbsp;
+<a href="targets.html">3 Targets</a>
+&nbsp;/&nbsp;</div>
+<h1>qsp-x86/clear-linux-2c</h1>
+<ul>
+<li><em><strong>machine</strong></em>
+<ul>
+<li><em><strong>system_info</strong></em> <br> A short string describing what this system is.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: Clear Linux with UEFI</li>
+</ul>
+</li>
+<li><em><strong>hardware:name</strong></em> <br> Name of the machine. Used for the top-level component.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: qsp</li>
+<li><strong>Required</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:memory_megs</strong></em> <br> Amount of RAM in the machine, in MiB. The highest supported value is 65536 (64 GiB).
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 8192</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:class</strong></em> <br> It should be specified as processor component class without the “processor_” prefix and with underscores replaced with hyphens, e.g. x86-skylake. Tip: to obtain the list of processor component classes please use the “list-classes substr = processor_” Simics command.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: x86QSP3</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:num_cores</strong></em> <br> Number of cores per physical processor or slot in the machine. Allowed values are 1 - 128.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:freq_mhz</strong></em> <br> Processor frequency in MHz.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 2000</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:cpi</strong></em> <br> Clock cycles per executed instruction for the processors. Must be a power of 2.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:num_slots</strong></em> <br> Number of physical processors (sockets/packages) in the machine.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:num_dies</strong></em> <br> Number of dies per package (if package supports dies).
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:num_modules</strong></em> <br> Number of modules per die (if modules are supported).
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:num_cores_small</strong></em> <br> Number of small cores per physical processor in the machine (only applicable if the processor class specified by the cpu_comp_class parameter supports heterogeneous setups).
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 0</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:num_threads</strong></em> <br> Number of threads per processor core in the machine.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 1</li>
+<li><strong>Allowed values</strong>: [1, 2, 4]</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:num_threads_small</strong></em> <br> Number of threads per small core in the machine (only applicable if the processor class specified by the cpu_comp_class parameter supports heterogeneous setups).
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 0</li>
+<li><strong>Allowed values</strong>: [0, 1, 2, 4]</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:apic_freq_mhz</strong></em> <br> APIC frequency in MHz.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 133</li>
+</ul>
+</li>
+<li><em><strong>hardware:processor:do_not_initialize_mtrr</strong></em> <br> If true, prevents the motherboard component from initializing the mtrr registers of the cores. Can stay turned off when using the UEFI BIOS.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con0:create</strong></em> <br> Create a console for COM1 (a.k.a. com[0]).
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con0:show</strong></em> <br> Automatically display the text console on the first serial port.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con0:fg_color</strong></em> <br> The foreground color, or RGB in #12ab89 format.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: #80ff80</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con0:bg_color</strong></em> <br> The background color, or RGB in #12ab89 format.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: black</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con1:create</strong></em> <br> Create a console for COM2 (a.k.a. com[1]).
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con1:show</strong></em> <br> Automatically display the text console on the second serial port.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con1:fg_color</strong></em> <br> The foreground color, or RGB in #12ab89 format.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: white</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:con1:bg_color</strong></em> <br> The background color, or RGB in #12ab89 format.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: black</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:gfx_con:create</strong></em> <br> Create a graphics console.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:gfx_con:show</strong></em> <br> Automatically display the graphics console.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:consoles:gfx_con:no_gpu_if_no_console</strong></em> <br> Do not create a GPU if no graphics console is created.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk0:name</strong></em> <br> The name of the disk component.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk0:slot</strong></em> <br> IDE/SATA/PCIe slot to connect to.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk0:create</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk0:interface</strong></em> <br> Create and connect to the target machine a virtual hard disk of type SATA, IDE, or NVMe. Simics object machine_name.disk0 is created and connected to the target machine.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: sata</li>
+<li><strong>Allowed values</strong>: [‘sata’, ‘ide’, ‘nvme’]</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk0:image</strong></em> <br> Disk image file for the machine_name.disk0 virtual disk. Files in craff (Simics own file format), VHDX, and raw formats are supported.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: ^software:linux:os_image</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk0:size</strong></em> <br> Size of the machine_name.disk0 virtual disk in bytes. If NIL, the size of disk0_image is used.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk1:name</strong></em> <br> The name of the disk component.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk1:slot</strong></em> <br> IDE/SATA/PCIe slot to connect to.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk1:create</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk1:interface</strong></em> <br> Create and connect to the target machine a virtual hard disk of type SATA, IDE, or NVMe. Simics object machine_name.disk0 is created and connected to the target machine.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: sata</li>
+<li><strong>Allowed values</strong>: [‘sata’, ‘ide’, ‘nvme’]</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk1:image</strong></em> <br> Disk image file for the machine_name.disk0 virtual disk. Files in craff (Simics own file format), VHDX, and raw formats are supported.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: ^software:linux:auxiliary_image</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:disk1:size</strong></em> <br> Size of the machine_name.disk0 virtual disk in bytes. If NIL, the size of disk0_image is used.
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:cdrom:create</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:cdrom:name</strong></em> <br> The name of the cdrom component.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: cdrom</li>
+</ul>
+</li>
+<li><em><strong>hardware:storage:cdrom:interface</strong></em> <br> Create and connect to the target machine a virtual hard disk of type SATA or IDE. Creates a Simics object called machine_name.disk0, connected to the target machine.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: sata</li>
+<li><strong>Allowed values</strong>: [‘sata’, ‘ide’]</li>
+</ul>
+</li>
+<li><em><strong>hardware:rtc:time</strong></em> <br> The date and time of the simulated real-time clock set when the configuration is created. The format is “YYYY-MM-DD HH:MM:SS”. Can also be set to “auto” to use the current host time.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: auto</li>
+</ul>
+</li>
+<li><em><strong>hardware:usb_tablet:create</strong></em> <br> Connects a USB tablet device for input using absolute positioning that provides a better user experience than a mouse.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>hardware:apic_bus:class</strong></em> <br> APIC bus class. It should be the apic bus class that comes with the same module as the apic used in the CPU model. If set to “auto_apic_bus” the script will attempt to find the correct apic bus class automatically. If that fails the apic-bus class will be used.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: apic_bus_v2</li>
+</ul>
+</li>
+<li><em><strong>hardware:external_remap_unit:class</strong></em> <br> Setting this to a classname will create two instances of this class and set the external_remap_unit connect of the X58 core device function 0 to point to these two instances.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: NIL</li>
+</ul>
+</li>
+<li><em><strong>hardware:root_ports:class</strong></em> <br> Setting this to a classname will override the default root port class used in the root ports of the X58 core device.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: x58-pcie-port</li>
+</ul>
+</li>
+<li><em><strong>hardware:nic:mac_address</strong></em> <br> MAC address of the built-in Ethernet adapter in the ICH10 chipset. The format is “XX:XX:XX:XX:XX:XX”. Can also be set to “auto” to obtain an auto-generated unique MAC address.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: auto</li>
+</ul>
+</li>
+<li><em><strong>hardware:smbus_ctrl:use_i2c_v2</strong></em> <br> Use i2c v1 or v2 for the SMBUS.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>hardware:pcie_demo_led_device:enabled</strong></em> <br> Set to true to add PCIe demo card
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>hardware:pcie_demo_led_device:master_system</strong></em> <br> The name of the system inside of which we create the card
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:pcie_demo_led_device:subsystem_name</strong></em> <br> Name of the PCIe demo device
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: demo_card</li>
+</ul>
+</li>
+<li><em><strong>hardware:pcie_demo_led_device:pcie_slot</strong></em> <br> The PCIe slot to which to connect the card
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:pcie_demo_led_device:device_type</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Allowed values</strong>: [‘systemc’, ‘dml’]</li>
+</ul>
+</li>
+<li><em><strong>hardware:pcie_demo_led_device:serconsole</strong></em> <br> The serial console used to upload driver and command
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:firmware:bios</strong></em> <br> BIOS file.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: ^software:firmware:bios</li>
+</ul>
+</li>
+<li><em><strong>hardware:firmware:lan_bios</strong></em> <br> ROM BIOS file for the ICH10 LAN Ethernet adaptor
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:firmware:spi_flash</strong></em> <br> The ICH10 SPI flash file to use.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: ^software:firmware:spi_flash</li>
+</ul>
+</li>
+<li><em><strong>hardware:simulation:enable_break_on_reboot</strong></em> <br> Interrupts the simulation if the machine is rebooted.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: ^simulation:enable_break_on_reboot</li>
+</ul>
+</li>
+<li><em><strong>hardware:simulation:system_clock:enable</strong></em> <br> Enables a configuration with a separate clock to which devices are bound instead of to the first CPU.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: ^simulation:system_clock:enable</li>
+</ul>
+</li>
+<li><em><strong>hardware:simulation:system_clock:class</strong></em> <br> The class used for the system clock if the enable_system_clock parameter is true.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ^simulation:system_clock:class</li>
+</ul>
+</li>
+<li><em><strong>hardware:simulation:use_vmp</strong></em> <br> Enables host virtualization (VMP) for better simulation performance. This option affects simulated time. See the performance chapter in the Simics User’s Guide for more information about VMP.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: ^simulation:use_vmp</li>
+</ul>
+</li>
+<li><em><strong>hardware:simulation:uefi_dev_name</strong></em> <br> Name of Simics UEFI device. Will not be instantiated if set to empty string (the default).
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>:</li>
+</ul>
+</li>
+<li><em><strong>hardware:output:system</strong></em> <br> The system top-level component object, output parameter
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:output:console</strong></em> <br> The serial console of the created system, output parameter
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:output:mac_address</strong></em> <br> The mac address assigned to the NIC, output parameter
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>hardware:output:eth_slot</strong></em> <br> Board ethernet connector, output parameter
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>software:firmware:bios</strong></em> <br> BIOS file.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/qsp-x86/images/SIMICSX58X64_2_0_0_r.fd</li>
+</ul>
+</li>
+<li><em><strong>software:firmware:lan_bios</strong></em> <br> ROM BIOS file for the ICH10 LAN Ethernet adaptor
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+</ul>
+</li>
+<li><em><strong>software:firmware:spi_flash</strong></em> <br> The ICH10 SPI flash file to use.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/qsp-x86/images/spi-flash.bin</li>
+</ul>
+</li>
+<li><em><strong>software:linux:os_image</strong></em> <br> Bootable disk image that will be used for the first disk and should auto-boot the desired OS.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/qsp-x86/images/cl-b28910-v2.craff</li>
+</ul>
+</li>
+<li><em><strong>software:linux:auxiliary_image</strong></em> <br> Optional image that will be used for the second disk.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/common/images/efi_agent_and_grub_only.craff</li>
+</ul>
+</li>
+<li><em><strong>software:linux:auto_login</strong></em> <br> Automatically log in as a “simics” user on the serial console.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>software:linux:auto_login_root</strong></em> <br> Automatically log in as a “root” user on the serial console. When the parameter is set it overrides the “auto_login” parameter.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>software:osa:create</strong></em> <br> Create the top-level node for OS awareness. Does not configure the OS awareness.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>software:osa:create_tracker</strong></em> <br> Creates the Linux tracker object.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>software:osa:tracker_params</strong></em> <br> OS awareness parameter file for the Linux kernel running on the machine.
+<ul>
+<li><strong>Type</strong>: <code>file</code></li>
+<li><strong>Default value</strong>: %simics%/targets/qsp-x86/images/cl-b28910-v2.params</li>
+</ul>
+</li>
+<li><em><strong>simulation:use_vmp</strong></em> <br> Enables host virtualization (VMP) for better simulation performance. This option affects simulated time. See the performance chapter in the Simics User’s Guide for more information about VMP.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>simulation:enable_real_time_mode</strong></em> <br> Enables real-time mode after having logged in to Linux. See command ‘enable-real-time-mode’.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>simulation:enable_break_on_reboot</strong></em> <br> Interrupts the simulation if the machine is rebooted.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>simulation:system_clock:enable</strong></em> <br> Enables a configuration with a separate clock to which devices are bound instead of to the first CPU.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: False</li>
+</ul>
+</li>
+<li><em><strong>simulation:system_clock:class</strong></em> <br> The class used for the system clock if the enable_system_clock parameter is true.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: clock</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>network</strong></em>
+<ul>
+<li><em><strong>switch:create_network</strong></em> <br> Creates an Ethernet switch and connects the primary Ethernet adapter to it.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>switch:ethernet_switch:name</strong></em> <br> Name of the created ethernet switch
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ethernet_switch</li>
+</ul>
+</li>
+<li><em><strong>switch:ethernet_switch:global_id</strong></em> <br> Global ID for the link in a distributed setup (it should only be set if the link should be distributed and must match the links in other Simics sessions).
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 0</li>
+</ul>
+</li>
+<li><em><strong>switch:ethernet_switch:goal_latency</strong></em> <br> Goal latency in seconds for communication (see also the set-min-latency command)
+<ul>
+<li><strong>Type</strong>: <code>float</code></li>
+<li><strong>Default value</strong>: 1e-05</li>
+</ul>
+</li>
+<li><em><strong>service_node:create</strong></em> <br> Create a service node.
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>service_node:name</strong></em> <br> Name of the created service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: service_node</li>
+</ul>
+</li>
+<li><em><strong>service_node:ethernet_switch</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ^network:switch:ethernet_switch:name</li>
+<li><strong>Required</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>service_node:ip_address</strong></em> <br> IP address of the service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: 10.10.0.1</li>
+</ul>
+</li>
+<li><em><strong>service_node:clock</strong></em> <br> Name of clock to use for service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+<li><em><strong>service_node:connect_real_network</strong></em> <br> Connects the simulated Ethernet switch to the host network using NAPT (Network Address and Port Translation)
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Allowed values</strong>: [‘napt’]</li>
+</ul>
+</li>
+<li><em><strong>service_node:dhcp:setup</strong></em> <br> Setup service node DHCP service
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Default value</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>service_node:dhcp:domain</strong></em> <br> Domain name to use for the DHCP server in the service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: network.sim</li>
+</ul>
+</li>
+<li><em><strong>service_node:dhcp:pool:starting_ip_address</strong></em> <br> First IP address to serve from the DHCP server in the service node
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: 10.10.0.100</li>
+</ul>
+</li>
+<li><em><strong>service_node:dhcp:pool:size</strong></em> <br> Size of the IP address pool for the DHCP server in the service node
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default value</strong>: 100</li>
+</ul>
+</li>
+<li><em><strong>ip_address</strong></em> <br> The IP address to assign to the given MAC over DHCP
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: auto</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>persistent_state</strong></em>
+<ul>
+<li><em><strong>system</strong></em> <br> The root of the hierarchy for the persistent state objects.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ^machine:hardware:output:system</li>
+<li><strong>Required</strong>: True</li>
+</ul>
+</li>
+<li><em><strong>writable_state_dir</strong></em> <br> If not NIL, the parameter is interpreted as a directory name. It is passed as an argument to the enable-writable-persistent-state command in order to set up a writable persistent state for the configuration.
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><em><strong>output</strong></em>
+<ul>
+<li><em><strong>system</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Default value</strong>: ^machine:hardware:output:system</li>
+</ul>
+</li>
+<li><em><strong>ip_address</strong></em> <br>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="chain">
+<a href="clear-linux-target.html">qsp-x86/clear-linux</a>
+<a href="clear-linux-multi-target.html">qsp-x86/clear-linux-multi</a>
+</div>

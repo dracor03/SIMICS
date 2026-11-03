@@ -1,0 +1,151 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>x58-pcie-port</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-x58-ioxapic-legacy.html">x58-ioxapic-legacy</a>
+<a href="rm-class-x58-pcie-port-acs.html">x58-pcie-port-acs</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="x58-pcie-port"><a href="#x58-pcie-port">x58-pcie-port</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+PCI Express Root Port unit in the Intel® X58 Express Chipset.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_device, pcie_hotplug_events, transaction_translator, translation_flush
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:clkreq-optional"><a href="#dt:clkreq-optional">clkreq (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+<dt id="dt:upstream_target-optional"><a href="#dt:upstream_target-optional">upstream_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pcie_map
+</dd>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, pcie_link_control, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-pcie_config"><a href="#dt:bank-pcie_config">bank.pcie_config</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port.pcie_config">x58-pcie-port.pcie_config</a>
+</dd>
+<dt id="dt:downstream_port"><a href="#dt:downstream_port">downstream_port</a></dt>
+<dd>pcie-downstream-port-legacy</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port.HRESET">x58-pcie-port.HRESET</a>
+</dd>
+<dt id="dt:port-_upstream_egress"><a href="#dt:port-_upstream_egress">port._upstream_egress</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port._upstream_egress">x58-pcie-port._upstream_egress</a>
+</dd>
+<dt id="dt:port-_upstream_egress_dead_end"><a href="#dt:port-_upstream_egress_dead_end">port._upstream_egress_dead_end</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port._upstream_egress_dead_end">x58-pcie-port._upstream_egress_dead_end</a>
+</dd>
+<dt id="dt:port-upstream_ingress"><a href="#dt:port-upstream_ingress">port.upstream_ingress</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port.upstream_ingress">x58-pcie-port.upstream_ingress</a>
+</dd>
+<dt id="dt:port-upstream_message"><a href="#dt:port-upstream_message">port.upstream_message</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port.upstream_message">x58-pcie-port.upstream_message</a>
+ – consumes Upstream PCIe Messages</dd>
+<dt id="dt:port-upstream_message_router"><a href="#dt:port-upstream_message_router">port.upstream_message_router</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port.upstream_message_router">x58-pcie-port.upstream_message_router</a>
+</dd>
+<dt id="dt:upstream_ingress_targets"><a href="#dt:upstream_ingress_targets">upstream_ingress_targets</a></dt>
+<dd>
+<a href="rm-class-x58-pcie-port.html#x58-pcie-port.upstream_ingress_targets">x58-pcie-port.upstream_ingress_targets</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-x58-pcie-port.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-x58-pcie-port.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:clkreq"><a href="#dt:clkreq">
+<i>clkreq</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>CLKREQ output signal (active high)
+<p>
+Required interface: <tt>signal</tt></p></dd>
+<dt id="dt:link_width"><a href="#dt:link_width">
+<i>link_width</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>i</code>
+<br>Link Width as reflected in Link Capabilities and Link Status registers</dd>
+<dt id="dt:port_index"><a href="#dt:port_index">
+<i>port_index</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The index of this port, must be in the range 1-10</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.X58-devices.html">X58-devices</a>
+</section>
+<h2 id="x58-pcie-port.HRESET"><a href="#x58-pcie-port.HRESET">x58-pcie-port.HRESET</a></h2>
+<h2 id="x58-pcie-port._upstream_egress"><a href="#x58-pcie-port._upstream_egress">x58-pcie-port._upstream_egress</a></h2>
+<h2 id="x58-pcie-port._upstream_egress_dead_end"><a href="#x58-pcie-port._upstream_egress_dead_end">x58-pcie-port._upstream_egress_dead_end</a></h2>
+<h2 id="x58-pcie-port.pcie_config"><a href="#x58-pcie-port.pcie_config">x58-pcie-port.pcie_config</a></h2>
+<h2 id="x58-pcie-port.upstream_ingress"><a href="#x58-pcie-port.upstream_ingress">x58-pcie-port.upstream_ingress</a></h2>
+<h2 id="x58-pcie-port.upstream_ingress_targets"><a href="#x58-pcie-port.upstream_ingress_targets">x58-pcie-port.upstream_ingress_targets</a></h2>
+<h2 id="x58-pcie-port.upstream_message"><a href="#x58-pcie-port.upstream_message">x58-pcie-port.upstream_message</a></h2>
+<h2 id="x58-pcie-port.upstream_message_router"><a href="#x58-pcie-port.upstream_message_router">x58-pcie-port.upstream_message_router</a></h2>
+<div class="chain">
+<a href="rm-class-x58-ioxapic-legacy.html">x58-ioxapic-legacy</a>
+<a href="rm-class-x58-pcie-port-acs.html">x58-pcie-port-acs</a>
+</div>

@@ -1,0 +1,78 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Notifiers</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="add-on-interfaces.html">4 Interfaces</a>
+<a href="rm-haps.html">6 Haps</a>
+</div>
+<div class="path">
+<a href="index.html">RISC-V CPU Reference Manual</a>
+&nbsp;/&nbsp;</div><h1 id="notifiers">5 <a href="#notifiers">Notifiers</a></h1>
+<article class="not-numbered">
+<h2 id="cell-change"><a href="#cell-change">cell-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Notifier that is triggered after the object's cell was changed.
+<h2 id="classes">
+<a href="#classes">Classes</a>
+</h2>Triggered by instances of all classes.
+</section>
+<h2 id="freerunning-mode-change"><a href="#freerunning-mode-change">freerunning-mode-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+Notifier that is triggered when freerunning mode is enabled or disabled. The new enabled/disabled state is available through the freerun interface.
+<h2 id="classes-2">
+<a href="#classes-2">Classes</a>
+</h2>
+<a href="rm-class-riscv-rv32.html#riscv-rv32">riscv-rv32</a>, 
+<a href="rm-class-riscv-rv32ema.html#riscv-rv32ema">riscv-rv32ema</a>, 
+<a href="rm-class-riscv-rv64.html#riscv-rv64">riscv-rv64</a>, 
+<a href="rm-class-riscv-rv64h.html#riscv-rv64h">riscv-rv64h</a>
+</section>
+<h2 id="frequency-change"><a href="#frequency-change">frequency-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+Notifier that is triggered when frequency changes. New frequency can be read via the frequency interface of the object.
+<h2 id="classes-3">
+<a href="#classes-3">Classes</a>
+</h2>
+<a href="rm-class-riscv-rv32.html#riscv-rv32">riscv-rv32</a>, 
+<a href="rm-class-riscv-rv32ema.html#riscv-rv32ema">riscv-rv32ema</a>, 
+<a href="rm-class-riscv-rv64.html#riscv-rv64">riscv-rv64</a>, 
+<a href="rm-class-riscv-rv64h.html#riscv-rv64h">riscv-rv64h</a>
+</section>
+<h2 id="object-delete"><a href="#object-delete">object-delete</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-4">
+<a href="#description-4">Description</a>
+</h2>
+Notifier that is triggered just before Simics object is deleted.
+<h2 id="classes-4">
+<a href="#classes-4">Classes</a>
+</h2>Triggered by instances of all classes.
+</section>
+<h2 id="queue-change"><a href="#queue-change">queue-change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-5">
+<a href="#description-5">Description</a>
+</h2>
+Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.
+<h2 id="classes-5">
+<a href="#classes-5">Classes</a>
+</h2>Triggered by instances of all classes.
+</section>
+</article>
+<div class="chain">
+<a href="add-on-interfaces.html">4 Interfaces</a>
+<a href="rm-haps.html">6 Haps</a>
+</div>

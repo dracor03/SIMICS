@@ -1,0 +1,73 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>subsystem-namespace</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-step-counter-extension.html">step-counter-extension</a>
+<a href="rm-class-sync_domain.html">sync_domain</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="subsystem-namespace"><a href="#subsystem-namespace">subsystem-namespace</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Extension class that defines an attribute for storing meta-data about the sub-system.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:blueprint"><a href="#dt:blueprint">
+<i>blueprint</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>The blueprint that created the hierarchy</dd>
+<dt id="dt:icon"><a href="#dt:icon">
+<i>icon</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>The system icon filename.</dd>
+<dt id="dt:info"><a href="#dt:info">
+<i>info</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>The system information.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.blueprints.html">blueprints</a>
+</section>
+<div class="chain">
+<a href="rm-class-step-counter-extension.html">step-counter-extension</a>
+<a href="rm-class-sync_domain.html">sync_domain</a>
+</div>

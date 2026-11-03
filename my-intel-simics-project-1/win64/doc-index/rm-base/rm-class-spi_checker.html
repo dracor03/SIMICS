@@ -1,0 +1,92 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>spi_checker</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sparse-memory.html">sparse-memory</a>
+<a href="rm-class-sr_histogram.html">sr_histogram</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="spi_checker"><a href="#spi_checker">spi_checker</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This object checks the communication between a SPI master and slave, and reports test failures if any of the objects breaches the SPI protocol. The spi_checker implements both the SPI master and slave interfaces, and should be used as a proxy between these. You should initially set the 'slave' attribute of the spi_checker to the slave object you wish to check, and then connect the spi_checker object as a slave to the spi_master object.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, serial_peripheral_interface_master, serial_peripheral_interface_slave
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-spi_checker.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-spi_checker.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:master"><a href="#dt:master">
+<i>master</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>o</code>
+<br></dd>
+<dt id="dt:active"><a href="#dt:active">
+<i>active</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>True while an SPI transaction is active, lowered to False after a transaction's last SPI request from the master device.</dd>
+<dt id="dt:slave"><a href="#dt:slave">
+<i>slave</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The connected slave device</dd>
+<dt id="dt:slave_expected_size"><a href="#dt:slave_expected_size">
+<i>slave_expected_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i|n</code>
+<br>If this is a number, we expect the next operation to be a response of this size from the slave.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.spi_checker.html">spi_checker</a>
+</section>
+<div class="chain">
+<a href="rm-class-sparse-memory.html">sparse-memory</a>
+<a href="rm-class-sr_histogram.html">sr_histogram</a>
+</div>

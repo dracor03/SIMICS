@@ -1,0 +1,451 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>QSP-CPU Release Notes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="qsp-cpu-release-notes"><a href="#qsp-cpu-release-notes">QSP-CPU Release Notes</a></h1>
+<p>This document contains release notes for the package <em>QSP-CPU</em>
+(package number 8112) for Simics 7.
+The release notes describe new features, bug fixes, and other changes.</p>
+<h2 id="changes-since-version-7-0-0"><a href="#changes-since-version-7-0-0">Changes Since Version 7.0.0</a></h2>
+<p>The following is a list of changes since the initial 7.0.0 release.</p>
+<h2 id="7-36-0-build-7213"><a href="#7-36-0-build-7213">7.36.0 (build 7213)</a></h2>
+<h3 id="new-features-and-bug-fixes"><a href="#new-features-and-bug-fixes">New features and bug fixes</a></h3>
+<ul>
+<li>Implemented Processor Trace trace-address pre-translation (TAPT), so EPT violations on trace output are reported before the output region is used. This also fixes a crash caused by recurring EPT violation.</li>
+</ul>
+<h3 id="x86-generic"><a href="#x86-generic">x86 Generic</a></h3>
+<ul>
+<li>The <code>print-cpuid</code> command has been extended (fixes SIMICS-17215):
+<ul>
+<li>Optional <code>subleaf</code> argument limits the output to a single subleaf, and the subleaf is printed in hexadecimal, like the leaf.</li>
+<li>Optional <code>register</code> argument prints and returns the value of a single CPUID output register.</li>
+<li>The output is rendered with the Simics table formatting. The command return value changed accordingly, from a list of preformatted lines to a list of rows.</li>
+</ul>
+</li>
+</ul>
+<h2 id="7-35-0-build-7211"><a href="#7-35-0-build-7211">7.35.0 (build 7211)</a></h2>
+<h3 id="x86-generic-2"><a href="#x86-generic-2">x86 Generic</a></h3>
+<ul>
+<li>Fixed a bug causing sysexit incorrectly returning to 64bit code when REX.W prefix was used (fixes SIMICSTS-1850).</li>
+<li>Fixed SAI to check only BIOS_DONE bit 0 instead of the whole MSR value.</li>
+</ul>
+<h2 id="7-34-0-build-7209"><a href="#7-34-0-build-7209">7.34.0 (build 7209)</a></h2>
+<h3 id="x86-generic-3"><a href="#x86-generic-3">x86 Generic</a></h3>
+<ul>
+<li>Eliminated spurious page faults while running with VMP that could cause incorrect virtual time bookkeeping.</li>
+</ul>
+<h2 id="7-33-0-build-7207"><a href="#7-33-0-build-7207">7.33.0 (build 7207)</a></h2>
+<h3 id="new-features-and-bug-fixes-2"><a href="#new-features-and-bug-fixes-2">New features and bug fixes</a></h3>
+<ul>
+<li>Fixed Processor Trace still running after reset</li>
+<li>CPU components no longer set bootstrap processor flag for unpowered cores.</li>
+</ul>
+<h3 id="x86-generic-4"><a href="#x86-generic-4">x86 Generic</a></h3>
+<ul>
+<li>Removed destination operand side effects from CVTPS2PD instruction when an exception is raised (related HSD-14028615876).</li>
+<li>Added missing logic to handle overlapping destination and source operands in emulation of CVTPS2PD instruction (fixes HSD-14028615876).</li>
+<li>Added missing scaling of displacement to Intel® Advanced Vector Extensions 512 (Intel® AVX-512) variant of VEXTRACTPS (fixes HSD-14028584368).</li>
+</ul>
+<h2 id="7-32-0-build-7202"><a href="#7-32-0-build-7202">7.32.0 (build 7202)</a></h2>
+<h3 id="x86-generic-5"><a href="#x86-generic-5">x86 Generic</a></h3>
+<ul>
+<li>CPUID.(EAX=24H, ECX=01H):ECX[2] is now exposed and supported as AVX10_V1_AUX under AVX10.2 environments (fixes CRSQ-2119)</li>
+</ul>
+<h2 id="7-31-0-build-7198"><a href="#7-31-0-build-7198">7.31.0 (build 7198)</a></h2>
+<h3 id="x86-generic-6"><a href="#x86-generic-6">x86 Generic</a></h3>
+<ul>
+<li>Added VMP support for virtualization of Intel® Flexible Return and Event Delivery (Intel® FRED). Note, legacy instructions used for ring transitions such as far-CALL, IRET, far-JMP, far-RET and SWAPGS will not behave as expected with Intel® FRED enabled.</li>
+<li>Access size to LTCTRLSTS register has been corrected to 4B.</li>
+</ul>
+<h2 id="7-30-0-build-7194"><a href="#7-30-0-build-7194">7.30.0 (build 7194)</a></h2>
+<h3 id="new-features-and-bug-fixes-3"><a href="#new-features-and-bug-fixes-3">New features and bug fixes</a></h3>
+<ul>
+<li>Fixed triple fault behavior: processor now goes to Shutdown activity state.</li>
+</ul>
+<h3 id="x86-blueprint"><a href="#x86-blueprint">x86 Blueprint</a></h3>
+<ul>
+<li>Extended blueprints to match legacy components.</li>
+</ul>
+<h3 id="x86-generic-7"><a href="#x86-generic-7">x86 Generic</a></h3>
+<ul>
+<li>Fixed bug causing spurious Intel® Control-Flow Enforcement Technology (Intel® CET) #CP(ENDBR) exceptions.</li>
+<li>MSR 0x982 IA32_TME_ACTIVATE now uses the uncore as storage instead of local CPU storage. This ensures the package-scope MSR is reset correctly when the BSP is disabled.</li>
+<li>Fixed a bug in the <code>class_disassembly</code> interface handling where disassembling instructions that check MSR values would result in a crash (fixes HSD-15019734260).</li>
+</ul>
+<h2 id="7-29-0-build-7188"><a href="#7-29-0-build-7188">7.29.0 (build 7188)</a></h2>
+<h3 id="new-features-and-bug-fixes-4"><a href="#new-features-and-bug-fixes-4">New features and bug fixes</a></h3>
+<ul>
+<li>Correctly disassemble instruction Set AL Based on Carry Flag.</li>
+</ul>
+<h2 id="7-28-0-build-7187"><a href="#7-28-0-build-7187">7.28.0 (build 7187)</a></h2>
+<h3 id="new-features-and-bug-fixes-5"><a href="#new-features-and-bug-fixes-5">New features and bug fixes</a></h3>
+<ul>
+<li>Allow MSR 0x773 write before HWP_ENABLE is set (HSD-14028250791).</li>
+</ul>
+<h3 id="x86-generic-8"><a href="#x86-generic-8">x86 Generic</a></h3>
+<ul>
+<li>GETSEC broadcast logic now skips logical processors in the Shutdown activity state, so that such processors are no longer sent the SMX broadcast signal.</li>
+</ul>
+<h2 id="7-27-0-build-7182"><a href="#7-27-0-build-7182">7.27.0 (build 7182)</a></h2>
+<h3 id="x86-blueprint-2"><a href="#x86-blueprint-2">x86 Blueprint</a></h3>
+<ul>
+<li>The blueprints now respect the <code>use_vmp</code> configuration parameter.</li>
+</ul>
+<h3 id="x86-generic-9"><a href="#x86-generic-9">x86 Generic</a></h3>
+<ul>
+<li>The BIOS guard now uses helper objects of the <code>crypto_engine_openssl</code> class, instead of the <code>crypto_engine_rsa</code> class. The package now requires version 7.21.0 or higher of package 1030.</li>
+</ul>
+<h2 id="7-26-0-build-7180"><a href="#7-26-0-build-7180">7.26.0 (build 7180)</a></h2>
+<h3 id="x86-generic-10"><a href="#x86-generic-10">x86 Generic</a></h3>
+<ul>
+<li>The BIOS guard now uses the <code>rsa_v2</code> interface instead of the <code>rsa</code> interface.</li>
+</ul>
+<h3 id="x86-public-64-bit-blueprints"><a href="#x86-public-64-bit-blueprints">x86 public 64-bit blueprints</a></h3>
+<ul>
+<li>Blueprint implementation of public Intel® 64 processor components. All processor classes from x86-public64-comp are now available as blueprint functions with legacy component adapter support.</li>
+</ul>
+<h2 id="7-25-0-build-7174"><a href="#7-25-0-build-7174">7.25.0 (build 7174)</a></h2>
+<h3 id="cpu-generic"><a href="#cpu-generic">CPU generic</a></h3>
+<ul>
+<li>Fixed a memory leak in the event queue handling.</li>
+</ul>
+<h3 id="x86-generic-11"><a href="#x86-generic-11">x86 Generic</a></h3>
+<ul>
+<li>Add CPUID fuse check for MSR 0x982 TME_ACTIVATE</li>
+</ul>
+<h2 id="7-24-0-build-7171"><a href="#7-24-0-build-7171">7.24.0 (build 7171)</a></h2>
+<h3 id="x86-generic-12"><a href="#x86-generic-12">x86 Generic</a></h3>
+<ul>
+<li>Added new VMP backoff mechanism used to prevent execution of instructions not supported by the host CPU. Can significantly improve performance in scenarios such as running Intel® Advanced Vector Extensions 512 (Intel® AVX-512) workloads on a host lacking support for the same technology.</li>
+</ul>
+<h2 id="7-23-0-build-7164"><a href="#7-23-0-build-7164">7.23.0 (build 7164)</a></h2>
+<h3 id="cpu-generic-2"><a href="#cpu-generic-2">CPU generic</a></h3>
+<ul>
+<li>The package now requires Simics-Base version 7.89.0 or later.</li>
+</ul>
+<h3 id="x86-generic-13"><a href="#x86-generic-13">x86 Generic</a></h3>
+<ul>
+<li>Added support for acceleration of Intel® Control-Flow Enforcement Technology (Intel® CET) Shadow Stack using VMP. Requires vmxmon 1.16.20.</li>
+<li>An error is logged when SMRAM reading or writing fails via the x86_smm_state interface.</li>
+<li>Updates to PKRU coming from XRSTOR operation will now correctly flush TLB entries to prevent using stale read-write permissions for translations with changed keys.</li>
+</ul>
+<h2 id="7-22-0-build-7161"><a href="#7-22-0-build-7161">7.22.0 (build 7161)</a></h2>
+<h3 id="x86-generic-14"><a href="#x86-generic-14">x86 Generic</a></h3>
+<ul>
+<li>Memory type calculation is now always done for memory accesses. Corresponding fields in CPU’s memory transactions are always filled. Attribute <code>enable_effective_memory_type_calculation</code> no longer has an effect on the calculation of memory types; it still affects a handful of target instructions using non-temporal accesses.</li>
+<li>Fixed UD1 exception priority regression (fixes HSD-21044489242).</li>
+<li>Fixed CAR data corruption when BIOS reprograms MTRRs for an already active CAR region with no underlying RAM. Previously, remounting copied 0xFF bytes from unmapped memory into CAR, overwriting valid data. The fix detects whether real RAM or ROM backs the CAR region and skips the data copy when it does not. Still a problem for CAR regions with valid underlying memory.</li>
+<li>VCR accesses through the MSR and I/O space now use <code>transaction_t</code> instead of <code>memory_transaction_t</code>. The transactions have the <code>x86_msr_number</code> ATOM attached which allows the handlers to know which MSR is being accessed that caused the VCR access (fixes SIMICSTS-1768). The memory space that’s attached to the <code>msr_space</code> attribute on x86-* CPUs must now implement the <code>transaction</code> interface.</li>
+</ul>
+<h2 id="7-21-0-build-7157"><a href="#7-21-0-build-7157">7.21.0 (build 7157)</a></h2>
+<h2 id="7-20-0-build-7156"><a href="#7-20-0-build-7156">7.20.0 (build 7156)</a></h2>
+<h3 id="cpu-generic-3"><a href="#cpu-generic-3">CPU generic</a></h3>
+<ul>
+<li>Instrumentation that only increments counters (such as
+instruction-histogram) now runs slightly faster and consumes
+significantly less memory, improving performance in
+workloads with large code footprints such as operating
+system boots.</li>
+</ul>
+<h3 id="x86-generic-15"><a href="#x86-generic-15">x86 Generic</a></h3>
+<ul>
+<li>LTCTRLSTS MSR write access masks were aligned with documentation. In particular, bit 4 SCHECK_PASS was enabled (fixes HSD-18044244311).</li>
+</ul>
+<h2 id="7-19-0-build-7151"><a href="#7-19-0-build-7151">7.19.0 (build 7151)</a></h2>
+<h3 id="common"><a href="#common">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h2 id="7-18-0-build-7149"><a href="#7-18-0-build-7149">7.18.0 (build 7149)</a></h2>
+<h3 id="x86-generic-16"><a href="#x86-generic-16">x86 Generic</a></h3>
+<ul>
+<li>Fixed VAB authentication issue in ACM validation.</li>
+<li>Optimized the PC (program counter) bootstrap code in the interpreter (rebind), by using our page cache for code. If a translation exists, we can immediately use it.</li>
+</ul>
+<h2 id="7-17-0-build-7146"><a href="#7-17-0-build-7146">7.17.0 (build 7146)</a></h2>
+<h3 id="new-features-and-bug-fixes-6"><a href="#new-features-and-bug-fixes-6">New features and bug fixes</a></h3>
+<ul>
+<li>Removed obsolete cpuid_cr_iface attribute.</li>
+</ul>
+<h3 id="x86-generic-17"><a href="#x86-generic-17">x86 Generic</a></h3>
+<ul>
+<li>The following attributes that could be used to force model behavior to become incompatible with Intel® 64 architecture are now deprecated: <code>null_clear_base_and_limit</code>, <code>debug_len_10b_8_bytes</code>, <code>lar_ldt_lm_invalid</code>, <code>load_far_ptr_64</code>, <code>skip_canonical_logical_check</code>, <code>mov_default32</code>, <code>seg_push_zero_pad</code>, <code>sp_mask_non64</code>. Writing to them will have no effects.</li>
+</ul>
+<h2 id="7-16-0-build-7144"><a href="#7-16-0-build-7144">7.16.0 (build 7144)</a></h2>
+<h3 id="cpu-generic-4"><a href="#cpu-generic-4">CPU generic</a></h3>
+<ul>
+<li>Added ports <code>physical_memory_inspection</code> and <code>logical_memory_inspection</code> to inspect the
+physical memory attached to the processor. These ports add the architectural atoms representing the
+current state of the processor before forwarding the transaction
+to the <code>physical_memory</code> (fixes SIMICS-22568).</li>
+</ul>
+<h3 id="x86-blueprint-3"><a href="#x86-blueprint-3">x86 Blueprint</a></h3>
+<ul>
+<li>Fixed a bug with instantiation of public cores due to removal of <code>sgx_crypto_*</code> attributes.</li>
+</ul>
+<h3 id="x86-generic-18"><a href="#x86-generic-18">x86 Generic</a></h3>
+<ul>
+<li>Made all deprecated pseudo-attributes internal.</li>
+<li>Logging of VMP return events is made consistent with documentation strings of VMP return codes used in probes.</li>
+</ul>
+<h2 id="7-15-0-build-7142"><a href="#7-15-0-build-7142">7.15.0 (build 7142)</a></h2>
+<h3 id="cpu-generic-5"><a href="#cpu-generic-5">CPU generic</a></h3>
+<ul>
+<li>Fixed an invalid dependency from CPU models using the new simgen to the old simgen, causing problems building the CPU model on systems without 32-bit support.</li>
+<li>Instruction breakpoints for physical addresses reported the
+address of the beginning of the instruction even though the
+breakpoint starts on the second half of a page crossing
+instructions. This is different from breakpoints triggered by
+transactions sent to the memory system, which do not know about the
+beginning of the instruction. This bug is now fixed, and only the part
+which actually crosses the breakpoint is reported, bug SIMICS-9695.</li>
+</ul>
+<h3 id="flexible-return-and-event-delivery-fred"><a href="#flexible-return-and-event-delivery-fred">Flexible Return and Event Delivery (FRED)</a></h3>
+<ul>
+<li>According to FRED 9.0, in presence of supervisor indirect branch tracking, FRED event delivery does not enter WAIT_FOR_ENDBRANCH state.</li>
+</ul>
+<h3 id="intel-64-public-cores"><a href="#intel-64-public-cores">Intel® 64 public cores</a></h3>
+<ul>
+<li>Attributes for following MSRs were renamed to msr_XXXh: 0x615, 0x412, 0x413.</li>
+<li>Intel® Software Guard Extensions (Intel® SGX) and Intel® Trust Domain Extensions (Intel® TDX) support was removed, since not all dependencies for those features are shipped.</li>
+<li>msr-get, msr-set, msr-read and msr-write commands now support <code>name</code> argument.</li>
+</ul>
+<h3 id="new-features-and-bug-fixes-7"><a href="#new-features-and-bug-fixes-7">New features and bug fixes</a></h3>
+<ul>
+<li>Opcode bytes printed by <code>disassemble</code> command are now correctly fetched in the case when the target instruction opcode sequence crosses virtual page boundary.</li>
+<li>Report separate VMP exit codes for various no-progress and no-action-needed events instead of one ambiguous VMRET_NOP. This addresses SIMICSTS-1636.</li>
+<li>Introduce exponential backoff for VMP no-progress situations. This provides a better solution to SIMICS-23084.</li>
+<li>Introduce exponential backoff for VMP no-progress situations. This provides a better solution to SIMICS-23084.</li>
+</ul>
+<h3 id="x86-generic-19"><a href="#x86-generic-19">x86 Generic</a></h3>
+<ul>
+<li>C‑state transitions have been made faster. Systems that have a large number of CPU cores within the processor package will benefit the most.</li>
+<li><code>read-cpuid</code> command was added. Global version of <code>print-cpuid</code> command was added.</li>
+<li>The TLB model x86ex_tlb did not flush internal CPU caches correctly when a mapping was updated, this is now fixed. It also now reclaims the internal memory correctly if the object is deleted.</li>
+<li>The <code>pregs</code> command has been updated with a new way of presenting the bit fields of the different control registers. Now lines are used to connect the bits with the field names which, makes it more readable.</li>
+<li>Fix sporadic instability when handling instructions crossing page boundaries.</li>
+<li>Fix sporadic instability causing the wrong instruction to be executed.</li>
+<li>Fix inconsistent reading of last-branch records (LBR state) values when accessed via MSR IA32_LBR_x_INFO for supported counters (fixes HSD-13014068634).</li>
+<li>Made MSR IA32_DEBUGCTL available if architectural Last Branch Records (LBRs) is supported, preventing incorrect unimplemented logging.</li>
+<li>The <code>x86-bare</code> module has been fixed so that it used the correct tlb, compatible with the core.</li>
+<li>Prevent out of bounds read in AVX2 gather/scatter instructions (fixes SIMICSTS-1665).</li>
+<li>Ensure MSR 0x981 IA32_TME_CAPABILITY is only available when Intel® Total Memory Encryption (Intel® TME) is supported (partial fix for HSD-15018262218).</li>
+<li>Fixed a bug when a physical breakpoint is removed from the second part of a page crossing instruction, previously Simics could crash if the address of the (removed) breakpoint was reached again, bug HSD-15017812702.</li>
+<li>Fix SIMICSTS-1633 “Assertion error when updating vm_disable_reasons stats”.</li>
+<li>Added Hypervisor CPUID Leaf 0x4fffffff for SIMFLAG check of Running in Simics Environment for FW/SW.</li>
+<li>Added four new Xed classifications for an instruction in the xed_access interface: Xed_Iclass, Xed_Extension, Xed_IsaSet, and Xed_Category.</li>
+<li>Removed support for loading MCHECK using the <code>sgx_mcheck_module</code> attribute. All virtual platforms have migrated to using the <code>mcheck_section</code> attribute by now.</li>
+</ul>
+<h2 id="7-14-0-build-7103"><a href="#7-14-0-build-7103">7.14.0 (build 7103)</a></h2>
+<h3 id="x86-blueprint-4"><a href="#x86-blueprint-4">x86 Blueprint</a></h3>
+<ul>
+<li>Adding generic blueprints for x86 CPUs to the QSP-x86-CPU package.</li>
+</ul>
+<h2 id="7-13-0-build-7097"><a href="#7-13-0-build-7097">7.13.0 (build 7097)</a></h2>
+<h3 id="new-features-and-bug-fixes-8"><a href="#new-features-and-bug-fixes-8">New features and bug fixes</a></h3>
+<ul>
+<li>Fixed regression in target PAE paging not reloading PDPTEs after loading target CR3 when using VMP engine.</li>
+</ul>
+<h3 id="x86-generic-20"><a href="#x86-generic-20">x86 Generic</a></h3>
+<ul>
+<li>Added log-group <code>X86_Microcode_Update</code> and increased log-level for messages related to loading/rejecting Microcode Patches.</li>
+</ul>
+<h2 id="7-12-0-build-7093"><a href="#7-12-0-build-7093">7.12.0 (build 7093)</a></h2>
+<h3 id="cpu-generic-6"><a href="#cpu-generic-6">CPU generic</a></h3>
+<ul>
+<li>Fixed a rare bug where the results of Just-In-Time (JIT) compiled
+code could be inconsistent with those produced by the interpreter.
+This inconsistency occurred when the memory hierarchy replaced the
+value to be written, which was incorrectly ignored by the JIT compiler.
+This issue has now been corrected (fixes HSD-14024141137).</li>
+<li>New probes were added to measure the wall clock time spent in uncore simulation. Currently this is only for memory mapped IO activities. The new probe-kinds are: <code>cpu.time.uncore</code>, <code>cell.time.uncore</code>, and <code>sim.time.uncore</code>.</li>
+</ul>
+<h3 id="intel-qsp3-core"><a href="#intel-qsp3-core">Intel® QSP3 core</a></h3>
+<ul>
+<li>Initial release of the Intel® QSP3 core. It is based on the Golden Cove core with CPUID overrides to make it run more in VMP accelerated mode for e.g. Linux boot.</li>
+</ul>
+<h3 id="new-features-and-bug-fixes-9"><a href="#new-features-and-bug-fixes-9">New features and bug fixes</a></h3>
+<ul>
+<li>Removed legacy MSR commands: trace-msr, trace-msr-read, break-msr, break-msr-read. MSR breakpoints (bp.msr) are used for this functionality instead</li>
+<li>Added class_disassembly interface (fixes SIMICS-16975)</li>
+<li>Support relaxed error code checking in vmx event injection (HSD-14025062355).</li>
+<li>EPT violation exit qualifier set bit 0 and 1 correctly (HSD-15015916629).</li>
+<li>VMP session’s return code VMRET_NOP is now treated as eligible for VMP backoff. This addresses SIMICS-23084, where a suspected host IRQ overload causes no-progress in simulation.</li>
+<li>Implemented return compression for Processor Trace (HSD-18041551993).</li>
+<li>In 64-bit mode, do not allowed CR0.PG to be cleared.</li>
+</ul>
+<h3 id="x86-generic-21"><a href="#x86-generic-21">x86 Generic</a></h3>
+<ul>
+<li>The <code>near_branches_64</code> attribute has been deprecated in all x86 models, this was an AMD64 compatible attribute for changing the behavior of near branches for 16 bit operand size. Setting the attribute has now no effect, and its default value has changed to TRUE.</li>
+<li>Fixed a memory leak related to the one in HSD-22021270646.</li>
+<li>Fixed a memory leak, HSD-22021270646.</li>
+</ul>
+<h2 id="7-11-0-build-7077"><a href="#7-11-0-build-7077">7.11.0 (build 7077)</a></h2>
+<h3 id="new-features-and-bug-fixes-10"><a href="#new-features-and-bug-fixes-10">New features and bug fixes</a></h3>
+<ul>
+<li>Fix for wrong RIP on VMEXIT when PREEMPTION TIMER=0 and #DB exception (partial fix for HSD-15015916269).</li>
+</ul>
+<h2 id="7-10-0-build-7076"><a href="#7-10-0-build-7076">7.10.0 (build 7076)</a></h2>
+<h3 id="cpu-generic-7"><a href="#cpu-generic-7">CPU generic</a></h3>
+<ul>
+<li>Fixed a bug in the instrumentation framework. Previously, removed instrumentation callbacks could continue to block VMP from executing, bug SIMICS-23063.</li>
+</ul>
+<h3 id="new-features-and-bug-fixes-11"><a href="#new-features-and-bug-fixes-11">New features and bug fixes</a></h3>
+<ul>
+<li>Implemented IP Filter type 2 for Processor Trace (HSD-18041345372).</li>
+</ul>
+<h2 id="7-9-0-build-7071"><a href="#7-9-0-build-7071">7.9.0 (build 7071)</a></h2>
+<h3 id="new-features-and-bug-fixes-12"><a href="#new-features-and-bug-fixes-12">New features and bug fixes</a></h3>
+<ul>
+<li>Implemented IP Filter type 1 for Processor Trace (HSD-18041345372).</li>
+<li>Fixed Processor Trace bug causing PSB packets with FUP indicating branch target to appear before TIP for that branch (fixes HSD-18041507035).</li>
+</ul>
+<h2 id="7-8-0-build-7068"><a href="#7-8-0-build-7068">7.8.0 (build 7068)</a></h2>
+<h2 id="7-7-0-build-7064"><a href="#7-7-0-build-7064">7.7.0 (build 7064)</a></h2>
+<h3 id="cpu-generic-8"><a href="#cpu-generic-8">CPU generic</a></h3>
+<ul>
+<li><code>transaction_translators</code> that needs to perform side effects on a page access can now deny a <code>inquiry</code> direct memory lookup from CPUs. The CPU will follow up with a real access and then retry the direct memory lookup. Before this change, such behavior by <code>transaction_translator</code> would significantly degrade the runtime Simics performance (fixes SIMICS-19940).</li>
+</ul>
+<h3 id="new-features-and-bug-fixes-13"><a href="#new-features-and-bug-fixes-13">New features and bug fixes</a></h3>
+<ul>
+<li>Fixed attribute for Intel® Software Guard Extensions (Intel® SGX): removed side effects when setting the value.</li>
+<li>Instead of ambiguous “64-bit mode” used before, <code>print-registers</code> is updated to mention specifically 4- and 5-level paging modes.</li>
+</ul>
+<h2 id="7-6-0-build-7062"><a href="#7-6-0-build-7062">7.6.0 (build 7062)</a></h2>
+<h3 id="new-features-and-bug-fixes-14"><a href="#new-features-and-bug-fixes-14">New features and bug fixes</a></h3>
+<ul>
+<li>Host processors older than the fourth generation Intel(R) Core(TM) processors (formerly Haswell) are no longer supported.</li>
+<li>Fixed a rare bug in Processor Trace PSB+ FUP generation that caused incorrect FUP.IP payload</li>
+<li>Fix SMM flow (HSD-14018530725).</li>
+<li>Fix callbacks for MSR 0x2e2 - 0x2e5 (fixes HSD-16026004728).</li>
+<li>Check reserved guest physical address width bits in guest page table entries in VMX non-root mode (partially fixes HSD-15015896288).</li>
+<li>Fixed a bug in Processor Trace PSB+ generation when packet_en transitions to enabled. FUP and MODE.Exec are suppressed until TIP.PGE is sent.</li>
+<li>Implemented Power Event Trace enumeration and packet generation (implements HSD-18013500825).</li>
+</ul>
+<h2 id="7-5-0-build-7049"><a href="#7-5-0-build-7049">7.5.0 (build 7049)</a></h2>
+<h3 id="new-features-and-bug-fixes-15"><a href="#new-features-and-bug-fixes-15">New features and bug fixes</a></h3>
+<ul>
+<li>Added Processor Trace VMCS packet generation and VMX scenarios for FUP, PIP, TIP and MODE.Exec (fixes HSD-18039542262).</li>
+</ul>
+<h2 id="7-4-0-build-7045"><a href="#7-4-0-build-7045">7.4.0 (build 7045)</a></h2>
+<h3 id="new-features-and-bug-fixes-16"><a href="#new-features-and-bug-fixes-16">New features and bug fixes</a></h3>
+<ul>
+<li>Optimized writes to TPR in VMP when the target enables interrupt virtualization in VMX non-root mode. This noticeably improves performance when running Windows with Virtualization-based Security enabled on the target.</li>
+</ul>
+<h2 id="7-3-0-build-7044"><a href="#7-3-0-build-7044">7.3.0 (build 7044)</a></h2>
+<h3 id="intel-64-public-cores-2"><a href="#intel-64-public-cores-2">Intel® 64 public cores</a></h3>
+<ul>
+<li>Add MSR IA32_DEBUGCTL[2] bit to reserved mask for the <code>x86-alderlake</code> CPU class (fixes HSD-14023239580).</li>
+</ul>
+<h2 id="7-2-0-build-7034"><a href="#7-2-0-build-7034">7.2.0 (build 7034)</a></h2>
+<h3 id="intel-64-public-cores-3"><a href="#intel-64-public-cores-3">Intel® 64 public cores</a></h3>
+<ul>
+<li>Added new optional “format” parameter to trace-msr and trace-msr-read commands</li>
+<li>Added a check that ACM fits into MTRR range in the CPU classes starting <code>x86-wlc</code> and <code>x86-tnt</code> (implements HSD-22020285641).</li>
+<li>Removed ACM alignment requirement in the CPU classes starting <code>x86-wlc</code> and <code>x86-tnt</code> (implements HSD-22020285641).</li>
+</ul>
+<h3 id="new-features-and-bug-fixes-17"><a href="#new-features-and-bug-fixes-17">New features and bug fixes</a></h3>
+<ul>
+<li>Added Processor Trace CYC packets generation for PIP and TNT, changed standalone CYC frequency.</li>
+</ul>
+<h2 id="7-1-0-build-7030"><a href="#7-1-0-build-7030">7.1.0 (build 7030)</a></h2>
+<h3 id="cpu-generic-9"><a href="#cpu-generic-9">CPU generic</a></h3>
+<ul>
+<li>The size of the module global JIT area has increased from 64MB to 256MB. Workloads with very large instruction footprint, could fill up the entire JIT code area, resulting in a flush and slow recompilation.</li>
+<li>Linux only: If the kernel supports Transparent Huge Pages (THP), the JIT code area now makes use of 2MB TLB mappings. This could slightly increase execution performance.</li>
+</ul>
+<h3 id="common-2"><a href="#common-2">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h3 id="flexible-return-and-event-delivery-fred-2"><a href="#flexible-return-and-event-delivery-fred-2">Flexible Return and Event Delivery (FRED)</a></h3>
+<ul>
+<li>Record event data injected at VM-entry over NMI source information in FRED return stack. This is according to FRED 5.0 specification (chapter 9.5.4).</li>
+<li>Fixed a bug where the NMI source was not recorded if an NMI occurred in VMX non-root mode with FRED disabled in the guest (fixes HSD-22020188866).</li>
+</ul>
+<h3 id="intel-64-public-cores-4"><a href="#intel-64-public-cores-4">Intel® 64 public cores</a></h3>
+<ul>
+<li>msr-get, msr-set, msr-read and msr-write commands were added.</li>
+<li>print-msrs command was added.</li>
+<li>Removed incorrect enumeration of Intel® SGX from the <code>x86-alderlake</code> CPU class.</li>
+</ul>
+<h3 id="new-features-and-bug-fixes-18"><a href="#new-features-and-bug-fixes-18">New features and bug fixes</a></h3>
+<ul>
+<li>Corrected the DWARF IDs used by the R16-R31 registers added by Intel® Advanced Performance Extensions (Intel® APX) (fixes HSD-18039292554).</li>
+<li>Fixed a situation when a target using 5-level EPT paging caused VMP to misinterpret it as 4-level EPT paging (fixes HSD-15016077738).</li>
+<li>Honor PT2GPA and EPT on the first Processor Trace packets when tracing starts disabled due to context.</li>
+<li>Fixed a bug in ia32_spec_ctrl MSR handler that caused some side effects when no side effects access was used (fixes HSD-14022136686).</li>
+<li>Fixed a bug that could cause incorrect state component offsets when saving compacted XSAVE state if non-saved aligned components were included (fixes HSD-14022348780).</li>
+<li>Add SEAM safe address checks for RTIT. Intel® TDX key bits cannot be set in mask or address when it is  outside the SEAM (fixes HSD-18020627633).</li>
+<li>Ensure that the MXCSR mask always reports the same value in all simulation engines on Intel® 64 Architecture targets (fixes HSD-15015935589).</li>
+<li>Fix CR4.FRED handling upon GETSEC[ENTERACCS/EXITAC] (fixes HSD-18038889559).</li>
+<li>Run single_step if inside opcode that clears TF. Fixes one of the problems reported in (fixes HSD-15015891903).</li>
+<li>De-enumerate MPX on all CPU models that claimed to support it. MPX has been officially deprecated since 2019. It has been operating as NOPs in Simics since 2022. It is no longer enumerated in CPUID (fixes HSD-1309925665 and HSD-18038801416.</li>
+<li>Fix IDTR:LIMIT handling upon GETSEC[ENTERACCS/EXITAC] (fixes HSD-18038890251).</li>
+<li>Clear pending debug exception on cpu reset. Fixes an issue where old pending debug exception could be delivered after reset.</li>
+<li>The rflags register is now exposed to TCF through the describe_registers interface (fixes HSD-18038862421).</li>
+<li>Fix calculation of max XSAVE area required in CPUID.0DH.00H:EBX and ECX (fixes HSD-18038659155).</li>
+<li>Handle VMX injected event while MTF is enabled. Fixes one of the problems reported in (fixes HSD-15015916269).</li>
+<li>More precise check for reserved bits in CR3. Fixes one of the problems reported in (fixes HSD-15015916269).</li>
+<li>Fixed crash on cross-page Processor Trace write in VMX mode (fixes HSD-15012410613).</li>
+<li>Removed a <code>INST_INFO: 0xX</code> debug printout accidentally left in the VM exit code (fixes HSD-14022562102).</li>
+<li>Handle #DB/#BP when RTM advanced debug enabled. Fixes one of the problems reported in (fixes HSD-15015916269).</li>
+<li>Use MSR 0x2d9 FUSA_CAPABILITIES fields STARTUP_SCAN_BIST[0] and PERIODIC_SCAN_BIST[4] to determine if SAF is enumerated (fixes SIMICSTS-1318).</li>
+<li>Correct DR6 register and exit qualifier VMCS field. Bits in DR6 are no longer cleared after every #DB, and VCMS field exit qualifier will have all bits correctly set if more than 1 exception scenario happens on the same cycle. This fixes one of the problems reported in (fixes HSD-15015916269).</li>
+<li>Use MSR 0x2d9 FUSA_CAPABILITIES.SBFT[8] to determine if SBFT is enumerated (fixes SIMICSTS-1316).</li>
+<li>Change Processor Trace packet order so MODE.Exec is in between coupled FUP and TIP.</li>
+<li>Fix writing to MSR ACTIVATE_SCAN (0x2c6). Start using mask taken from register drop, instead of hardcoded value (fixes SIMICSTS-1317).</li>
+<li>Fix writing to MSR ACTIVATE_SBFT (0x2bc). Start using mask taken from register drop, instead of hardcoded value (fixes HSD-18020627607).</li>
+<li>Set EXT bit in the interrupt error code correctly (fixes HSD-15013738894).</li>
+<li>Implement Processor Trace TIP package generation scenarios: IRET, SYSENTER/SYSEXIT, SYSCALL/SYSRET, JMPABS.</li>
+<li>Do not report mixing reset flows for unrelated processors (fixes SIMICSTS-1305).</li>
+<li>Fix Processor Trace TNT branch taken detection in case where taken and not-taken destinations differ only by page part of the address.</li>
+<li>Fix writing invalid page part of the address to LBR_x_TO MSRs (fixes HSD-18034413312).</li>
+<li>Fix invalid IP payload generation in Processor Trace TIP packet when near return crosses page boundary (fixes HSD-18035194187).</li>
+<li>Implement 64-bit IP payload for Processor Trace FUP, TIP and TIP.PGE packets.</li>
+<li>Add information about linear address masking (LAM) in 4- and 5-level paging modes for user code (LAM_U48 and LAM_U57) to layout of CR3 available via describe_registers interface (fixes HSD-18031041673).</li>
+<li>Add TNT buffer flush on Processor Trace PSB packet (fixes HSD-18035192151).</li>
+<li>Change Processor Trace CYC packet format to match the specification.</li>
+<li>Add SEAM safe address check for APIC_BASE. Upper bits cannot be set in address when it is outside the SEAM (fixes SIMICSTS-1259).</li>
+<li>Add SEAM safe address check for TME_EXCLUDE. Upper bits cannot be set in address when it is outside the SEAM (fixes SIMICSTS-1261).</li>
+<li>Revert SEAM safe mask check for PRMRR. Following the documentation, PRMRR_MASK ignores bits above physical size in calculations (fixes HSD-14022009940).</li>
+<li>Add clearing of CPU caches at SMM exit to protect SMM-private memory from being accessible outside SMM (fixes HSD-15014556607).</li>
+<li>Fixed handling of SIPI signals during Application Processor startup (fixes HSD-15015543927).</li>
+<li>Add SEAM safe address check for HW_FEEDBACK_PTR. Intel® TDX key bits cannot be set in address when it is outside the SEAM (fixes SIMICSTS-1258).</li>
+<li>Implement Processor Trace Paging Information Packet generation (fixes HSD-18021309126).</li>
+<li>Fixed delivery of INIT signals received in Virtual Machine Extensions (VMX) root mode (fixes HSD-13011704431).</li>
+<li>Add SEAM safe address and mask checks for FUSARR. Intel® TDX key bits cannot be set in mask or address when it is outside the SEAM (fixes SIMICSTS-1255).</li>
+<li>Add SEAM safe address and mask checks for PRMRR. Intel® TDX key bits cannot be set in mask or address when it is outside the SEAM (fixes SIMICSTS-1254).</li>
+<li>Removed support for usage of final opcodes other than [0x0f, 0x00, 0xc4] from the <code>sgx_mcheck_module</code> attribute.</li>
+<li>Add SEAM safe address and mask checks for SMRR2. Intel® TDX key bits cannot be set in mask or address when it is outside the SEAM (fixes SIMICSTS-1253).</li>
+<li>Add SEAM safe address and mask checks for SMRR. Intel® Trust Domain Extensions (Intel® TDX) key bits cannot be set in mask or address when it is outside the SEAM (fixes SIMICSTS-1252).</li>
+<li>Fix activity state machine on signal trigger (fixes HSD-22014874712 ).</li>
+<li>Added check to be ensured that physical addresses in MTRR ranges not be accessed by VMP when CPU not in SMM mode (fixes HSD-15014556607).</li>
+<li>Ensured monitored address range established using MONITOR/MWAIT is cleared while asserting the INIT# pin (fixes HSD-15015405027).</li>
+<li>Bit2 of ia32_mcu_enumeration depends on the value of 2 other MSRs. bit3 of prmrr_base_0 and bit10 of prmrr_mask (fixes HSD-14018515716).</li>
+<li>Improvement of variable MTRR ranges support. Supported number of variable MTRR ranges as enumerated in IA32_MTRRCAP.VCNT field (bits 0-7). Static amount of cached ranges changed to VCNT dynamic base. Car support updated in acordance of relevant changes of variable MTRR ranges (fixes HSD-15010401529).</li>
+<li>Added missing minimum ACM size validation to GETSEC[ENTERACCS] (fixes HSD-18036827407).</li>
+</ul>
+<h2 id="7-0-0-build-7008"><a href="#7-0-0-build-7008">7.0.0 (build 7008)</a></h2>
+<h2 id="changes-in-version-7"><a href="#changes-in-version-7">Changes in version 7</a></h2>
+<h2 id="disclaimer"><a href="#disclaimer">Disclaimer</a></h2>
+<p>This is a pre-release of QSP-CPU.</p>
+<ol>
+<li>There is no guarantee about compatibility between this pre-release and
+any other pre-releases of QSP-CPU, older or newer.</li>
+<li>This pre-release may not be fully tested and may contain bugs or
+errors.</li>
+<li>Regulatory approvals (such as UL or FCC) have not been obtained, and
+this pre-release may therefore not be certified for use in certain
+countries or environments.</li>
+<li>Intel can provide no assurance that it will ever produce or make
+generally available a non-pre-release of QSP-CPU.</li>
+</ol>
+
+<div class="chain">
+<span></span>
+</div>

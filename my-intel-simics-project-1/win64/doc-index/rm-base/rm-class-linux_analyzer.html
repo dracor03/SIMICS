@@ -1,0 +1,65 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>linux_analyzer</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-legacy-upstream-pcie-adapter.html">legacy-upstream-pcie-adapter</a>
+<a href="rm-class-linux_mapper.html">linux_mapper</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="linux_analyzer"><a href="#linux_analyzer">linux_analyzer</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Linux Analyzer
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, osa_tracker_control
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:node_tree"><a href="#dt:node_tree">
+<i>node_tree</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The node tree object, must implement software_node_tree_tracker, osa_machine_query and osa_machine_notification interfaces</dd>
+<dt id="dt:analyze"><a href="#dt:analyze">
+<i>analyze</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>i</code>
+<br>Run a new analyze pass and update the node tree</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.linux-tracker.html">linux-tracker</a>
+</section>
+<div class="chain">
+<a href="rm-class-legacy-upstream-pcie-adapter.html">legacy-upstream-pcie-adapter</a>
+<a href="rm-class-linux_mapper.html">linux_mapper</a>
+</div>

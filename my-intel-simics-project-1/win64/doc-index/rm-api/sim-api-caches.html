@@ -1,0 +1,117 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simulator Translation Caches</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-services.html">Simulation Independent Services</a>
+<a href="sim-api-stalling.html">Stalling</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Simulator Translation Caches</h1>
+<h2 id="SIM_STC_flush_cache"><a href="#SIM_STC_flush_cache">SIM_STC_flush_cache, SIM_flush_I_STC_logical, SIM_flush_D_STC_logical, SIM_flush_I_STC_physical, SIM_flush_D_STC_physical</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_STC_flush_cache, SIM_flush_I_STC_logical, SIM_flush_D_STC_logical, SIM_flush_I_STC_physical, SIM_flush_D_STC_physical — flush or remove entries in the STCs of a cpu</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+void
+SIM_STC_flush_cache(conf_object_t *NOTNULL cpu);
+
+void
+SIM_flush_I_STC_logical(conf_object_t *NOTNULL cpu,
+			logical_address_t vaddr,
+                        logical_address_t length);
+
+void
+SIM_flush_D_STC_logical(conf_object_t *NOTNULL cpu,
+			logical_address_t vaddr,
+                        logical_address_t length);
+
+void
+SIM_flush_I_STC_physical(conf_object_t *NOTNULL cpu,
+                         physical_address_t paddr,
+                         physical_address_t length);
+
+void
+SIM_flush_D_STC_physical(conf_object_t *NOTNULL cpu,
+                         physical_address_t paddr,
+                         physical_address_t length,
+                         read_or_write_t read_or_write);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_STC_flush_cache(...)
+simics.SIM_flush_I_STC_logical(...)
+simics.SIM_flush_D_STC_logical(...)
+simics.SIM_flush_I_STC_physical(...)
+simics.SIM_flush_D_STC_physical(...)
+</code></pre>
+<h2>Description</h2>
+<p>These functions remove entries from the Simics internal caches (STCs) or completely flushes the STCs contents. Memory mappings which have been cached in the STCs will be faster for Simics to execute. Simics extensions such as a cache model will need to flush entries in the STC when a cache line is replaced, in order to be called when a cache line is used again.</p>
+<p><code>SIM_STC_flush_cache</code> flushes the entire contents of the STCs (both instruction and data) from the specified cpu.</p>
+<p>The <code>SIM_flush_</code><em>xxx</em> functions removes specified memory ranges in the instruction or data STC. The address range is either the logical or the physical address. The <code>read_or_write</code> parameter specifies whether the read or the write D-STC should be flushed. If the function doesn’t have such a parameter, both read and write D-STCs are flushed. The flushed address range is at least [ <em>vaddr</em> … (<em>vaddr</em> + <em>length</em> - 1) ], but may be larger. <code>SIM_flush_D_STC_logical</code> currently always flushes an entire page.</p>
+<p>The <code>SIM_flush_</code><em>xxx</em> functions can only be used on CPUs that implement the internal <code>stc</code> interface; hence, they can not be used on user-defined CPU models.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_flush_all_caches"><a href="#SIM_flush_all_caches">SIM_flush_all_caches</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_flush_all_caches — clear Simics’s internal caches</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_flush_all_caches();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_flush_all_caches(...)
+</code></pre>
+<h2>Description</h2>
+<p>Clears Simics’s internal caches such as STC contents and intermediate code. This function is mainly for internal use (for debugging purposes) and may be removed in the future.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_flush_cell_caches"><a href="#SIM_flush_cell_caches">SIM_flush_cell_caches</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_flush_cell_caches — clear internal caches for a given cell</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_flush_cell_caches(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_flush_cell_caches(...)
+</code></pre>
+<h2>Description</h2>
+<p>Clears internal caches in Simics for a given cell, such as STC contents and intermediate code.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-services.html">Simulation Independent Services</a>
+<a href="sim-api-stalling.html">Stalling</a>
+</div>

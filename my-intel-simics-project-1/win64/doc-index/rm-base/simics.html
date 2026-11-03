@@ -1,0 +1,197 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.1 simics</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="command-line-tools-and-programs.html">2 Command-Line Tools and Programs</a>
+<a href="addon-manager.html">2.2 addon-manager</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="command-line-tools-and-programs.html">2 Command-Line Tools and Programs</a>
+&nbsp;/&nbsp;</div><h1 id="simics"><a href="#simics">2.1 simics</a></h1>
+<article class="not-numbered not-in-toc doc-item">
+<h2 id="options"><a href="#options">OPTIONS</a></h2>
+<dl>
+<dt id="dt:batch-mode"><a href="#dt:batch-mode"><code>--batch-mode</code></a></dt>
+<dd>
+<p>Run in batch mode. This means that Simics will exit when all
+commands and scripts given on the command line have executed.</p>
+<p>If an error has occurred, Simics will exit with a non-zero
+status. If all commands run to completion without any error,
+Simics exits with status 0, indicating success.</p>
+<p>Simics will not use the command history file in batch mode.</p>
+</dd>
+<dt id="dt:license"><a href="#dt:license"><code>--license</code></a></dt>
+<dd>
+<p>Print the Simics license text and exit. This is the
+default license and is also included in the <code>LICENSE</code>
+file.</p>
+</dd>
+<dt id="dt:log-file-file"><a href="#dt:log-file-file"><code>--log-file FILE</code></a></dt>
+<dd>
+<p>Log issued CLI commands to a different file than the
+default. This implies -log
+(unless -no-log was specified).</p>
+</dd>
+<dt id="dt:no-win"><a href="#dt:no-win"><code>--no-win</code></a></dt>
+<dd>
+<p>Disable external windows. This will prevent Simics from
+opening target console windows or any other external
+windows.</p>
+<p>Disabling a target console only makes it invisible. It
+does not change its simulated functionality. Disabling
+it is useful when running in batch mode or when the
+target console isn’t needed, since it doesn’t require
+access to a graphical environment, and running with
+windows disabled is usually somewhat faster.</p>
+</dd>
+<dt id="dt:script-trace"><a href="#dt:script-trace"><code>--script-trace</code></a></dt>
+<dd>
+<p>Show when a Simics script is entered/exited, along with any
+parameters passed to it and result variables returned from it.</p>
+</dd>
+<dt id="dt:verbose"><a href="#dt:verbose"><code>--verbose</code></a></dt>
+<dd>
+<p>Make Simics more verbose. This makes Simics give ample details
+about the execution. This is the opposite of the <code>--quiet</code> flag.
+The quiet and verbose flags turn off each other. The default is
+somewhere in the middle with a “reasonable” output level.</p>
+<p>Setting the verbose flag can be useful when solving problems
+with Simics. Some friendly warnings are not printed unless
+verbose is turned on.</p>
+<p>Note that there will be quite a bit of information printed,
+most of which isn’t usually needed.</p>
+</dd>
+<dt id="dt:e-command-or-execute-command"><a href="#dt:e-command-or-execute-command"><code>-e COMMAND</code> or <code>--execute COMMAND</code></a></dt>
+<dd>
+<p>Execute a CLI command. Equivalent of typing in
+the command at the command line prompt.</p>
+</dd>
+<dt id="dt:h-help"><a href="#dt:h-help"><code>-h</code>, <code>--help</code></a></dt>
+<dd>
+<p>Makes Simics print a brief help screen and exit.</p>
+</dd>
+<dt id="dt:q-or-quiet"><a href="#dt:q-or-quiet"><code>-q or --quiet</code></a></dt>
+<dd>
+<p>Make Simics less verbose. This makes Simics output less
+information, which is useful for batch execution. The opposite
+effect can be obtained with the <code>--verbose</code> flag. The quiet and
+verbose flags turn off each other. If you want Simics to be
+really quiet you can also give the <code>--no-copyright</code> flag.</p>
+<p>Note that Simics is rather quiet by default, so this flag
+usually does not have much effect.</p>
+</dd>
+<dt id="dt:v-version-base-version"><a href="#dt:v-version-base-version"><code>-v, --version, --base-version</code></a></dt>
+<dd>
+<p>Print the Simics version number and exit. Other
+information printed include the information of
+packages. <code>--base-version</code> only prints out
+Simics version.</p>
+</dd>
+<dt id="dt:x"><a href="#dt:x"><code>-x</code></a></dt>
+<dd>
+<p>This flag has no effect and is kept for
+compatibility; it takes no arguments.</p>
+</dd>
+</dl>
+<h2 id="advanced-options"><a href="#advanced-options">ADVANCED-OPTIONS</a></h2>
+<dl>
+<dt id="dt:dump-core"><a href="#dt:dump-core"><code>--dump-core</code></a></dt>
+<dd>
+<p>Allow Simics to dump core on fatal signals. The deprecated
+name for this flag is <code>-core</code>.</p>
+</dd>
+<dt id="dt:echo"><a href="#dt:echo"><code>--echo</code></a></dt>
+<dd>
+<p>Enable command echoing. When echoing is
+enabled, Simics will echo all commands executed
+by startup scripts. Note that this only affects
+any startup scripts loaded after the <code>--echo</code>
+flag on the command line.</p>
+</dd>
+<dt id="dt:module-path"><a href="#dt:module-path"><code>--module-path</code></a></dt>
+<dd>
+<p>Add a path to the directory list that Simics searches for modules.</p>
+</dd>
+<dt id="dt:no-copyright"><a href="#dt:no-copyright"><code>--no-copyright</code></a></dt>
+<dd>
+<p>Do not display copyright information when starting
+Simics. See also the <code>--verbose</code> and <code>--quiet</code> flags.</p>
+</dd>
+<dt id="dt:no-settings"><a href="#dt:no-settings"><code>--no-settings</code></a></dt>
+<dd>
+<p>Do not read any settings files, such as preferences.</p>
+</dd>
+<dt id="dt:stop-on-error"><a href="#dt:stop-on-error"><code>--stop-on-error</code></a></dt>
+<dd>
+<p>Stop the simulation and interrupt the currently running script
+on error logs.</p>
+<p>With this option, error logs with be treated as actual errors,
+and set the exit status accordingly when used in combination
+with <code>--batch-mode</code>.</p>
+</dd>
+<dt id="dt:dstc"><a href="#dt:dstc"><code>-dstc</code></a></dt>
+<dd>
+<p>Force the D-STC to be enabled. See the <code>-no-stc</code> flag
+for more information.</p>
+</dd>
+<dt id="dt:istc"><a href="#dt:istc"><code>-istc</code></a></dt>
+<dd>
+<p>Force the I-STC to be enabled. See the <code>-no-stc</code> flag
+for more information.</p>
+</dd>
+<dt id="dt:n-no-startup"><a href="#dt:n-no-startup"><code>-n</code>, <code>--no-startup</code></a></dt>
+<dd>
+<p>Do not run the commands from the <code>startup-commands</code>
+script files.</p>
+</dd>
+<dt id="dt:no-dstc"><a href="#dt:no-dstc"><code>-no-dstc</code></a></dt>
+<dd>
+<p>Force the D-STC to be disabled. See the <code>-no-stc</code> flag
+for more information.</p>
+</dd>
+<dt id="dt:no-istc"><a href="#dt:no-istc"><code>-no-istc</code></a></dt>
+<dd>
+<p>Force the I-STC to be disabled. See the <code>-no-stc</code> flag
+for more information.</p>
+</dd>
+<dt id="dt:no-stc"><a href="#dt:no-stc"><code>-no-stc</code></a></dt>
+<dd>
+<p>Disable the Simics internal caches for memory
+operations and instruction fetches (STCs) that Simics
+uses to speed up the simulation.</p>
+<p>Disabling the STCs (this flag disables both the D-STC
+and the I-STC) can be useful for debugging plug-ins
+such as cache models, since it will ensure that all
+memory accesses are fully visible.</p>
+<p>It is possible to selectively disable the data and
+instruction STCs using the <code>-no-dstc</code> and <code>-no-istc</code>
+flags, respectively. The STCs are typically enabled by
+default, although in some versions of Simics they may
+be disabled. See also the <code>-stc</code> flag.</p>
+</dd>
+<dt id="dt:python-verbose"><a href="#dt:python-verbose"><code>-python-verbose</code></a></dt>
+<dd>
+<p>Set the Python verbose flag. This will, for example, make
+Python print information when Python modules are being loaded.
+This is the same option as the <code>-v</code> flag in <code>mini-python</code>.</p>
+</dd>
+<dt id="dt:stc"><a href="#dt:stc"><code>-stc</code></a></dt>
+<dd>
+<p>Force the I-STC and D-STC to be enabled (default). See
+the <code>-no-stc</code> flag for more information. The STCs are
+typically enabled by default, although in some versions
+of Simics they may be disabled.</p>
+</dd>
+</dl>
+</article>
+
+<div class="chain">
+<a href="command-line-tools-and-programs.html">2 Command-Line Tools and Programs</a>
+<a href="addon-manager.html">2.2 addon-manager</a>
+</div>

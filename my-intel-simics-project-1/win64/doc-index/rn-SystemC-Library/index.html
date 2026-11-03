@@ -1,0 +1,297 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>SystemC™ Library (Package Number 1013) Release Notes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="systemc-library-package-number-1013-release-notes"><a href="#systemc-library-package-number-1013-release-notes">SystemC™ Library (Package Number 1013) Release Notes</a></h1>
+<p>This document contains release notes for the package <em>SystemC™ Library</em>
+(package number 1013) for Simics 7.
+The release notes describe new features, bug fixes, and other changes.</p>
+<h2 id="changes-since-version-7-0-0"><a href="#changes-since-version-7-0-0">Changes Since Version 7.0.0</a></h2>
+<p>The following is a list of changes since the initial 7.0.0 release.</p>
+<h2 id="7-45-0-build-7208"><a href="#7-45-0-build-7208">7.45.0 (build 7208)</a></h2>
+<h3 id="systemc-library"><a href="#systemc-library">SystemC Library</a></h3>
+<ul>
+<li>Fixed a bug in <code>PcieMap::del_function</code> leaving a stale PCIe MSG-space mapping behind, which prevented deletion of <code>PcieGasket</code>-based endpoint objects after they were disconnected from the PCIe bus.</li>
+</ul>
+<h2 id="7-44-0-build-7206"><a href="#7-44-0-build-7206">7.44.0 (build 7206)</a></h2>
+<h3 id="systemc-kernel"><a href="#systemc-kernel">SystemC Kernel</a></h3>
+<ul>
+<li>Updated the kernel 3.0.0 patch version to <code>20260925-Intel</code>. Backported
+Accellera upstream commit 3570c37, removed nonstandard MSVC ostream <code>opfx</code> usage,
+and added support for building with MSVC 2026.</li>
+</ul>
+<h2 id="7-43-0-build-7200"><a href="#7-43-0-build-7200">7.43.0 (build 7200)</a></h2>
+<h3 id="simics-serialization-library"><a href="#simics-serialization-library">Simics Serialization Library</a></h3>
+<ul>
+<li>Updated to work with GCC 16 and Boost 1.91.0.</li>
+</ul>
+<h3 id="systemc-checkpoint-documentation"><a href="#systemc-checkpoint-documentation">SystemC Checkpoint Documentation</a></h3>
+<ul>
+<li>Migrated the documentation to Markdown</li>
+</ul>
+<h3 id="systemc-checkpoint-library"><a href="#systemc-checkpoint-library">SystemC Checkpoint Library</a></h3>
+<ul>
+<li>Bumped Boost to 1.91.0. This adds support for GCC 16 and C++20 as well. The requirement of a fixed version has been removed so the user can use any local version of boost newer than 1.83.0 now. It is recommended to use version 1.91.0 though. It is not possible to use the old 1.65.1 anymore.</li>
+</ul>
+<h3 id="systemc-library-2"><a href="#systemc-library-2">SystemC Library</a></h3>
+<ul>
+<li>Fixed SR-IOV VF enablement and disablement for PCIe devices with non-zero device numbers.</li>
+<li>Fixed a type problem preventing use of C++20.</li>
+</ul>
+<h2 id="7-42-0-build-7184"><a href="#7-42-0-build-7184">7.42.0 (build 7184)</a></h2>
+<h3 id="systemc-library-3"><a href="#systemc-library-3">SystemC Library</a></h3>
+<ul>
+<li>Added class-level control of when SystemC end-of-elaboration is triggered via <code>setDeferEndOfElaboration</code>. The default behavior remains legacy-compatible (end-of-elaboration in <code>finalize</code>). Device classes can defer end-of-elaboration to <code>objects_finalized</code>, which allows gaskets to be created in <code>finalize</code> methods of the Adapter’s port objects.</li>
+<li>Deferred the gasket binding check to the <code>objects_finalized</code> phase. This allows gaskets to be created and bound from within <code>Port::finalize</code> without triggering false missing-gasket errors (fixes SIMICS-23622).</li>
+</ul>
+<h2 id="7-41-0-build-7181"><a href="#7-41-0-build-7181">7.41.0 (build 7181)</a></h2>
+<h3 id="systemc-library-4"><a href="#systemc-library-4">SystemC Library</a></h3>
+<ul>
+<li>Improved Adapter validation errors for missing <code>set_gasket</code> calls by reporting the unresolved gasket names in the error message.</li>
+</ul>
+<h2 id="7-40-0-build-7175"><a href="#7-40-0-build-7175">7.40.0 (build 7175)</a></h2>
+<h3 id="systemc-interfaces"><a href="#systemc-interfaces">SystemC Interfaces</a></h3>
+<ul>
+<li>Improved the output formatting of <code>memory-profiler-results</code> by showing human-readable memory usage and using digit-grouped allocation counts for better readability (fixes SIMICS-19537).</li>
+</ul>
+<h2 id="7-39-0-build-7168"><a href="#7-39-0-build-7168">7.39.0 (build 7168)</a></h2>
+<h3 id="systemc-library-5"><a href="#systemc-library-5">SystemC Library</a></h3>
+<ul>
+<li>Simplified GCC-to-ABI version mapping by consolidating the mapping into a single Python source.</li>
+</ul>
+<h2 id="7-38-0-build-7164"><a href="#7-38-0-build-7164">7.38.0 (build 7164)</a></h2>
+<h3 id="systemc-kernel-2"><a href="#systemc-kernel-2">SystemC Kernel</a></h3>
+<ul>
+<li>Updated kernel patch version to <code>20260601-Intel</code>. Use single-entry cache in sc_simcontext.cpp to avoid repeated unordered_map lookups for Intel extension state.</li>
+</ul>
+<h2 id="7-37-0-build-7160"><a href="#7-37-0-build-7160">7.37.0 (build 7160)</a></h2>
+<h3 id="systemc-library-6"><a href="#systemc-library-6">SystemC Library</a></h3>
+<ul>
+<li>Improved simulation scheduling performance by reducing overhead in <code>get_delta</code> method for the common case where time has not advanced since the last clock tick.</li>
+</ul>
+<h2 id="7-36-0-build-7159"><a href="#7-36-0-build-7159">7.36.0 (build 7159)</a></h2>
+<h3 id="systemc-library-7"><a href="#systemc-library-7">SystemC Library</a></h3>
+<ul>
+<li>Added extra validation of BAR info during connect of PCIe gasket.</li>
+</ul>
+<h2 id="7-35-0-build-7155"><a href="#7-35-0-build-7155">7.35.0 (build 7155)</a></h2>
+<h3 id="systemc-library-8"><a href="#systemc-library-8">SystemC Library</a></h3>
+<ul>
+<li>Fixed <code>SYSTEMC_DEPS_CACHE</code> to support partial kernel version coverage. Users can now provide only the required kernel versions in the cache directory without needing all supported versions. Missing versions are automatically skipped during configuration.</li>
+<li>Fixed SimicsAdapter binding to prevent incorrect class mapping in multi-class setups (fixes SIMICS-23503).</li>
+</ul>
+<h2 id="7-34-0-build-7151"><a href="#7-34-0-build-7151">7.34.0 (build 7151)</a></h2>
+<h3 id="systemc-library-9"><a href="#systemc-library-9">SystemC Library</a></h3>
+<ul>
+<li>Added missing process stack handling to simics2tlm gaskets, fixing the re-entry problem when the process calls wait().</li>
+</ul>
+<h2 id="7-33-0-build-7150"><a href="#7-33-0-build-7150">7.33.0 (build 7150)</a></h2>
+<h3 id="common"><a href="#common">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h3 id="systemc-library-10"><a href="#systemc-library-10">SystemC Library</a></h3>
+<ul>
+<li>Gate PciExpress on <code>SIMICS_6_API</code> or <code>SHOW_OBSOLETE_API</code>.</li>
+<li>Adjusted the <code>build-systemc-libraries</code> build script to use the <code>RelWithDebInfo</code> build mode for non-debug builds, to match the previous GNU Make setup. Users that need to build with <code>Release</code> mode should switch to a CMake-only flow.</li>
+</ul>
+<h2 id="7-32-0-build-7148"><a href="#7-32-0-build-7148">7.32.0 (build 7148)</a></h2>
+<h3 id="systemc-library-11"><a href="#systemc-library-11">SystemC Library</a></h3>
+<ul>
+<li>The <code>systemc2simics::Signal::set_pin()</code> method now accepts an optional bool <code>initial_value</code> parameter (default false) to set the initial state of the underlying sc_signal&lt;bool&gt;, enabling correct modeling of active-low signals that are deasserted (high) after init.</li>
+</ul>
+<h2 id="7-31-0-build-7147"><a href="#7-31-0-build-7147">7.31.0 (build 7147)</a></h2>
+<h3 id="systemc-kernel-3"><a href="#systemc-kernel-3">SystemC Kernel</a></h3>
+<ul>
+<li>Updated kernel patch version to <code>20260317-Intel</code>. Use external data registry instead of embedding members in the <code>sc_simcontext</code> class to improve ABI compatibility.</li>
+</ul>
+<h2 id="7-30-0-build-7146"><a href="#7-30-0-build-7146">7.30.0 (build 7146)</a></h2>
+<h3 id="systemc-cci"><a href="#systemc-cci">SystemC CCI</a></h3>
+<ul>
+<li>Added support to build CCI with <code>INTC_EXT=0</code>.</li>
+</ul>
+<h3 id="systemc-library-12"><a href="#systemc-library-12">SystemC Library</a></h3>
+<ul>
+<li>Added support to build SystemC CCI with <code>INTC_EXT=0</code>.</li>
+<li>SystemC checkpointing is now skipped when running the <code>build-systemc-libraries</code> script with <code>INTC_EXT=0</code>.</li>
+</ul>
+<h2 id="7-29-0-build-7145"><a href="#7-29-0-build-7145">7.29.0 (build 7145)</a></h2>
+<h3 id="systemc-library-13"><a href="#systemc-library-13">SystemC Library</a></h3>
+<ul>
+<li>Added sized <code>operator delete(void*, std::size_t)</code> and <code>operator delete[](void*, std::size_t)</code> overloads to memory profiling to comply with C++14 standard and fix alloc-dealloc-mismatch errors with GCC 12.</li>
+</ul>
+<h2 id="7-28-0-build-7141"><a href="#7-28-0-build-7141">7.28.0 (build 7141)</a></h2>
+<h3 id="systemc-library-14"><a href="#systemc-library-14">SystemC Library</a></h3>
+<ul>
+<li>Improved handling of <code>ProcessStack</code>. Only needed for thread processes.</li>
+<li>Consolidated C++ ABI version mapping logic into a shared CMake function to avoid duplication across SystemC modules.</li>
+</ul>
+<h2 id="7-27-0-build-7140"><a href="#7-27-0-build-7140">7.27.0 (build 7140)</a></h2>
+<h3 id="systemc-library-15"><a href="#systemc-library-15">SystemC Library</a></h3>
+<ul>
+<li>Fixed a bug in <code>ProcessStack::pop()</code> by deferring event notification when kernel is in update phase.</li>
+</ul>
+<h2 id="7-26-0-build-7139"><a href="#7-26-0-build-7139">7.26.0 (build 7139)</a></h2>
+<h3 id="systemc-library-16"><a href="#systemc-library-16">SystemC Library</a></h3>
+<ul>
+<li>Fixed ABI version mapping for GCC 13 (corrected from ABI 13 to ABI 14 to match CXXABI_1.3.14).</li>
+</ul>
+<h2 id="7-25-0-build-7136"><a href="#7-25-0-build-7136">7.25.0 (build 7136)</a></h2>
+<h3 id="systemc-library-17"><a href="#systemc-library-17">SystemC Library</a></h3>
+<ul>
+<li>CMake minimum version for SystemC is 3.26, now added as an explicit requirement</li>
+<li>The default SystemC kernel used to build SystemC Library is changed from <code>2.3.3</code> to <code>2.3.4</code>.</li>
+<li>Moved internal <code>systemc.cmake</code> from Base to the 1013 add-on package.</li>
+<li>Moved <code>LogStream</code> class from SystemC Library to C++ API. The class is now available in <code>simics/log.h</code> with no API changes.</li>
+</ul>
+<h2 id="7-24-0-build-7135"><a href="#7-24-0-build-7135">7.24.0 (build 7135)</a></h2>
+<h3 id="systemc-cci-2"><a href="#systemc-cci-2">SystemC CCI</a></h3>
+<ul>
+<li>Updated CCI version from 1.0.0 to 1.0.2.</li>
+</ul>
+<h3 id="systemc-library-18"><a href="#systemc-library-18">SystemC Library</a></h3>
+<ul>
+<li>Fix rounding of SystemC timestamp conversion to avoid off-by-one errors when casting scaled seconds to integer.</li>
+</ul>
+<h2 id="7-23-0-build-7133"><a href="#7-23-0-build-7133">7.23.0 (build 7133)</a></h2>
+<h3 id="systemc-library-19"><a href="#systemc-library-19">SystemC Library</a></h3>
+<ul>
+<li>Removed the following unused and deprecated flags from the build script: <code>-u/--unittests</code>, <code>-m/--make</code> and <code>-std/--cxx-standard</code>. Added a new flag: <code>--verbose</code>.</li>
+<li>Migrated the build system from GNU Make to CMake &amp; Ninja. The preferred and recommended way to build the SystemC libraries and the SystemC modules moving forward is using CMake. Using GNU Make is still supported for backwards compatibility with existing configurations, however the build script for building the libraries now requires CMake and Ninja in PATH. The latest Simics Base package is also required.</li>
+<li>The <code>Transaction</code> gasket now leaves transaction deferral <strong>disabled by default</strong>. Users can opt in by calling <code>Transaction::set_deferrable(true)</code>. Because the benefit of deferral is model- and workload-dependent, this is an explicit integrator decision; see the “Asynchronous Completion” chapter in the Programming Guide for guidance.</li>
+</ul>
+<h2 id="7-22-0-build-7131"><a href="#7-22-0-build-7131">7.22.0 (build 7131)</a></h2>
+<h3 id="systemc-library-20"><a href="#systemc-library-20">SystemC Library</a></h3>
+<ul>
+<li>Improved the transaction path by removing redundant DMI handling logic. The logic is already done for <code>io_memory</code> and <code>transaction</code> gaskets and should never be done for other gaskets.</li>
+<li>Now the <code>TransactionExtension</code> is reset when a payload is returned to the <code>TransactionPool</code>, preventing stale state from leaking into subsequent transactions.</li>
+<li>Disabled the DMI support for gasket when <code>simics2tlm::ExtensionSender</code> is used as DMI would bypass the extension dispatch logic.</li>
+<li>Optimized the DMI path for <code>io_memory</code> and <code>transaction</code> gaskets. Checking for DMI earlier increased performance ~9% compared to the old implementation.</li>
+<li>Improved robustness of <code>composite::PcieGasket</code> gasket to handle cases where <code>device_id</code> inputs of the <code>connected</code> and <code>disconnect</code> methods may contain non-zero function numbers.</li>
+</ul>
+<h2 id="7-21-0-build-7125"><a href="#7-21-0-build-7125">7.21.0 (build 7125)</a></h2>
+<h3 id="systemc-library-21"><a href="#systemc-library-21">SystemC Library</a></h3>
+<ul>
+<li>The DMI attribute returned by <code>get_direct_mem_ptr</code> is now validated against the requested transaction’s address range and access type. If the DMI region does not fully cover the request or lacks the required access, a message is logged.</li>
+</ul>
+<h2 id="7-20-0-build-7122"><a href="#7-20-0-build-7122">7.20.0 (build 7122)</a></h2>
+<h3 id="systemc-library-22"><a href="#systemc-library-22">SystemC Library</a></h3>
+<ul>
+<li>Added TransactionDataBufferPool, reuse of buffers to reduce allocation overhead.</li>
+</ul>
+<h2 id="7-19-0-build-7118"><a href="#7-19-0-build-7118">7.19.0 (build 7118)</a></h2>
+<h3 id="systemc-library-23"><a href="#systemc-library-23">SystemC Library</a></h3>
+<ul>
+<li>Improved error handling of setting CCI attribute values. Now when trying to set an invalid attribute the error is always reported as a Simics attribute error. Previously it was sometimes reported during the <code>end-of-elaboration</code> phase.</li>
+</ul>
+<h2 id="7-18-0-build-7115"><a href="#7-18-0-build-7115">7.18.0 (build 7115)</a></h2>
+<h3 id="systemc-library-24"><a href="#systemc-library-24">SystemC Library</a></h3>
+<ul>
+<li>Moved the <code>c++-api</code> code from <code>src/devices</code> to <code>src/extensions</code>. For SystemC modules using <code>SYSTEMC = yes</code>, this change has no impact. For other modules, if the path to <code>c++-api</code> is hardcoded, please update it to reflect the new location.</li>
+</ul>
+<h2 id="7-17-0-build-7105"><a href="#7-17-0-build-7105">7.17.0 (build 7105)</a></h2>
+<h3 id="systemc-library-25"><a href="#systemc-library-25">SystemC Library</a></h3>
+<ul>
+<li>No memory or I/O mapping occurs when the PCIe gasket receives the <code>pcie_device</code> interface method <code>connected</code> and <code>hotReset</code> calls.</li>
+</ul>
+<h2 id="7-16-0-build-7102"><a href="#7-16-0-build-7102">7.16.0 (build 7102)</a></h2>
+<h3 id="systemc-library-26"><a href="#systemc-library-26">SystemC Library</a></h3>
+<ul>
+<li>Corrected the calculation of the length for PCI/PCIe memory mapping when the size is greater than or equal to 32 bits.</li>
+</ul>
+<h2 id="7-15-0-build-7101"><a href="#7-15-0-build-7101">7.15.0 (build 7101)</a></h2>
+<h3 id="systemc-library-27"><a href="#systemc-library-27">SystemC Library</a></h3>
+<ul>
+<li>Discontinued the handling of <code>retrieveFunctionData</code> when the PCI/PCIe SystemC model is unable to perform <code>transport_dbg</code>.</li>
+</ul>
+<h2 id="7-14-0-build-7095"><a href="#7-14-0-build-7095">7.14.0 (build 7095)</a></h2>
+<h3 id="systemc-library-28"><a href="#systemc-library-28">SystemC Library</a></h3>
+<ul>
+<li>Added support for <code>SIMICS_API</code> 7 to the composite PCIe gasket.</li>
+</ul>
+<h2 id="7-13-0-build-7088"><a href="#7-13-0-build-7088">7.13.0 (build 7088)</a></h2>
+<h3 id="systemc-library-29"><a href="#systemc-library-29">SystemC Library</a></h3>
+<ul>
+<li>Added support for configuring the SystemC time resolution through the Simics attribute <code>sc_time_resolution</code> (fixes SIMICS-23122).</li>
+</ul>
+<h2 id="7-12-0-build-7087"><a href="#7-12-0-build-7087">7.12.0 (build 7087)</a></h2>
+<h3 id="systemc-library-30"><a href="#systemc-library-30">SystemC Library</a></h3>
+<ul>
+<li>Added simics2tlm <code>serial_peripheral_interface_slave</code> and tlm2simics <code>serial_peripheral_interface_master</code> gaskets. The new gaskets are used to connect a SystemC SPI slave device with a Simics SPI master device.</li>
+<li>Added support for different SystemC simulation time resolutions.</li>
+<li>Added support for configuring the frequency of the SystemC adapter. By setting the <code>frequency</code> attribute, users can control the amount of time that advances in SystemC for each Simics cycle.</li>
+</ul>
+<h2 id="7-11-0-build-7079"><a href="#7-11-0-build-7079">7.11.0 (build 7079)</a></h2>
+<h3 id="systemc-library-31"><a href="#systemc-library-31">SystemC Library</a></h3>
+<ul>
+<li>Adjust SC verbosity level according to Simics log level (fixes SIMICS-23083).</li>
+</ul>
+<h2 id="7-10-0-build-7075"><a href="#7-10-0-build-7075">7.10.0 (build 7075)</a></h2>
+<h2 id="7-9-0-build-7071"><a href="#7-9-0-build-7071">7.9.0 (build 7071)</a></h2>
+<h3 id="systemc-library-32"><a href="#systemc-library-32">SystemC Library</a></h3>
+<ul>
+<li>Replaced offending words/phrases with inclusive language (fixes SIMICS-23059).</li>
+</ul>
+<h2 id="7-8-0-build-7069"><a href="#7-8-0-build-7069">7.8.0 (build 7069)</a></h2>
+<h3 id="systemc-library-33"><a href="#systemc-library-33">SystemC Library</a></h3>
+<ul>
+<li>Enhanced the logic for determining <code>AS_VERSION</code> and <code>LD_VERSION</code>. The updated logic now identifies version patterns in the format <code>X.Y</code>.</li>
+</ul>
+<h2 id="7-7-0-build-7064"><a href="#7-7-0-build-7064">7.7.0 (build 7064)</a></h2>
+<h3 id="systemc-library-34"><a href="#systemc-library-34">SystemC Library</a></h3>
+<ul>
+<li>Removed unused <code>simics::iface::PciBusInterface</code> class.</li>
+</ul>
+<h2 id="7-6-0-build-7063"><a href="#7-6-0-build-7063">7.6.0 (build 7063)</a></h2>
+<h3 id="systemc-kernel-4"><a href="#systemc-kernel-4">SystemC Kernel</a></h3>
+<ul>
+<li>Resolved MSVC 2022 warning C4530 by adding <code>/EHsc</code> flag.</li>
+</ul>
+<h2 id="7-5-0-build-7061"><a href="#7-5-0-build-7061">7.5.0 (build 7061)</a></h2>
+<h3 id="systemc-checkpoint-documentation-2"><a href="#systemc-checkpoint-documentation-2">SystemC Checkpoint Documentation</a></h3>
+<ul>
+<li>Added back the PDF documentation (fixes SIMICS-22949).</li>
+</ul>
+<h2 id="7-4-0-build-7055"><a href="#7-4-0-build-7055">7.4.0 (build 7055)</a></h2>
+<h3 id="systemc-library-35"><a href="#systemc-library-35">SystemC Library</a></h3>
+<ul>
+<li>Added optional <code>'-std'</code>/<code>'--cxx-standard'</code> option to the <code>build-systemc-libraries</code> build script to enable building libs with a different C++ language standard. Current supported options are <code>14</code> and <code>17</code>.</li>
+</ul>
+<h2 id="7-3-0-build-7053"><a href="#7-3-0-build-7053">7.3.0 (build 7053)</a></h2>
+<h3 id="systemc-library-36"><a href="#systemc-library-36">SystemC Library</a></h3>
+<ul>
+<li>A clear error message is now printed when <code>SYSTEMC_KERNEL_VERSION</code> is not set.</li>
+<li>Added support for SystemC kernel version 3.0.0. Current build options for <code>SYSTEMC_KERNEL_VERSION</code> are <code>2.3.3</code>, <code>2.3.4</code> and ‘3.0.0’.</li>
+</ul>
+<h2 id="7-2-0-build-7046"><a href="#7-2-0-build-7046">7.2.0 (build 7046)</a></h2>
+<h3 id="systemc-kernel-5"><a href="#systemc-kernel-5">SystemC Kernel</a></h3>
+<ul>
+<li>Added kernel 2.3.4.1_20240904-Intel. Use build option <code>SYSTEMC_KERNEL_VERSION</code> to select the kernel version.</li>
+</ul>
+<h3 id="systemc-library-37"><a href="#systemc-library-37">SystemC Library</a></h3>
+<ul>
+<li>Moved some GNU Make definitions from Base into SystemC add-on package. SystemC users using Simics Base 6.0.209 or newer must upgrade 1013 add-on package to version 7.2.0.</li>
+<li>The SystemC libraries have been reorganized and are now located in separate subdirectories based on their respective kernel versions. Specifically, you can find them under: <code>&lt;host&gt;/lib/systemc/2.3.3</code> and <code>&lt;host&gt;/lib/systemc/2.3.4</code></li>
+<li>Added <code>'--version'</code> option to the <code>build-systemc-libraries</code> build script to enable building libs with a different version of SystemC kernel. The default version used is <code>2.3.3</code>.</li>
+<li>Updated the version check logic. The <code>SCL_VERSION</code> variable now uses the build-id of package 1013 (<em>SystemC-Library</em>).</li>
+<li>All variables ending in <code>_not_set</code> in the class <code>PcieTlmExtension</code> have been renamed to end with <code>_set</code> to improve clarity and consistency. They now default to <code>false</code>, indicating that the corresponding variable is not set.</li>
+<li>Extended the class <code>PcieTlmExtension</code> with <code>ide_secured</code> ATOM support.</li>
+<li>Added support for selecting SystemC kernel versions. Current build options for <code>SYSTEMC_KERNEL_VERSION</code> are <code>2.3.3</code> and <code>2.3.4</code>. Users of add-on package #7213 must upgrade to the latest version.</li>
+<li>The C++ language standard C++14 (<code>-std=c++14</code>) is no longer used by default. Now the default C++ language standard is determined by the compiler, i.e, C++17 for GCC 12.</li>
+</ul>
+<h2 id="7-1-0-build-7039"><a href="#7-1-0-build-7039">7.1.0 (build 7039)</a></h2>
+<h3 id="systemc-library-38"><a href="#systemc-library-38">SystemC Library</a></h3>
+<ul>
+<li>Extended <code>get_device_id</code> method of <code>tlm2simics::pcie_map</code> class with parameter <code>dev_obj</code>. This makes it easier to support PCIe ports.</li>
+</ul>
+<h2 id="7-0-0-build-7037"><a href="#7-0-0-build-7037">7.0.0 (build 7037)</a></h2>
+<h2 id="changes-since-previous-major-in-initial-release"><a href="#changes-since-previous-major-in-initial-release">Changes Since Previous Major in Initial Release</a></h2>
+<p>The following is a list of changes in 7.0.0 since the previous major.</p>
+
+<div class="chain">
+<span></span>
+</div>

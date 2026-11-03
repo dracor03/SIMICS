@@ -1,0 +1,151 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Running the Simulator</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simics-command-line-interface.html">4 Command Line Interface (CLI)</a>
+<a href="hardware-inspection.html">6 Hardware Inspection</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;</div><h1 id="running-the-simulator"><a href="#running-the-simulator">5 Running the Simulator</a></h1>
+<p>This section describes how to:</p>
+<ul>
+<li>create a target machine</li>
+<li>run and stop the simulation</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>This tutorial assumes that the user has followed the installation steps in the
+<a href="installation.html">installation</a> section.</p>
+</blockquote>
+<p>The screenshots below were taken on Windows, but the Linux version of the Intel
+Simics simulator behaves similarly.</p>
+<blockquote class="markdown-alert-note">
+<p>While this section deals with <em>targets</em>, there is also a legacy way of
+creating target machines using scripts described
+<a href="using-simics-scripts.html">here</a>.</p>
+</blockquote>
+<h2 id="create-a-target-machine"><a href="#create-a-target-machine">5.1 Create a Target Machine</a></h2>
+<p>Let’s create a target machine by loading the <code>qsp-x86/firststeps</code> target.</p>
+<ol>
+<li>
+<p><a href="launch-exit.html">Launch</a> the simulator.</p>
+</li>
+<li>
+<p>Before loading the <code>qsp-x86/firststeps</code> target, let us first verify that this
+target is available in our project. To list available targets, run
+<code>list-targets</code> and verify that you see the target <code>qsp-x86/firststeps</code> in the
+listing:</p>
+<p><img alt="" src="running-simics-cli-list-1.png"></p>
+<p>It is also possible to list targets without starting an interactive session,
+by starting the simulator with the <code>-l</code> argument.</p>
+<p><img alt="" src="running-simics-cli-list-2.png"></p>
+</li>
+</ol>
+<p>If you don’t see <code>qsp-x86/firststeps</code>, you need to make sure that you have
+installed the <code>QSP-x86</code> (#2096), and that it is available in the project as an
+add-on package. Read more about installing the simulator in the
+<a href="installation.html">installation</a> section.</p>
+<ol>
+<li>
+<p>Now that we have verified that the <code>qsp-x86/firststeps</code> target is available,
+we will load it:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = "qsp-x86/firststeps"</strong>
+"firststeps"
+</code></pre>
+</li>
+<li>
+<p>A few new windows have popped up after a target machine has been created.
+Initially the consoles are blank, but the below screenshots are taken from a
+later time in the simulation to show something more interesting.</p>
+<ul>
+<li><strong>board.mb.sb.com[0] - serial console</strong> - Figure
+<a class="reference" href="#running-simics-cli-4.png">2</a> a text terminal window connected to a
+serial port of the target machine</li>
+<li><strong>board.mb.gpu.vga - graphics console</strong> - Figure
+<a class="reference" href="#running-simics-cli-5.png">3</a> a graphical display window connected to a
+graphical device of the target machine</li>
+<li><strong>Target Consoles</strong> - Figure <a class="reference" href="#running-simics-cli-5a.png">4</a><br>
+a utility window which allows showing or hiding the target consoles</li>
+</ul>
+ <figure id="running-simics-cli-4.png">
+ <img src="running-simics-cli-4.png" title="serial console">
+ <figcaption>Figure 2. A text terminal window connected to a serial port of the target machine</figcaption>
+ </figure>
+ <figure id="running-simics-cli-5.png">
+ <img src="running-simics-cli-5.png" title="graphics console">
+ <figcaption>Figure 3. A graphical display window connected to a graphical device of the target machine</figcaption>
+ </figure>
+ <figure id="running-simics-cli-5a.png">
+ <img src="running-simics-cli-5a.png" title="console control window">
+ <figcaption>Figure 4. A target console control window</figcaption>
+ </figure>
+</li>
+</ol>
+<h2 id="run-and-stop-the-simulation"><a href="#run-and-stop-the-simulation">5.2 Run and Stop the Simulation</a></h2>
+<p>One of the ways to start the simulation of the newly created target machine is
+to use the <code>run</code> command.</p>
+<ol>
+<li>
+<p>Start the simulation with the <code>run</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt; <strong></strong>
+</code></pre>
+</li>
+<li>
+<p>There may be messages printed in the CLI window:</p>
+<p><img alt="" src="running-simics-cli-7.png"></p>
+</li>
+</ol>
+<p>These messages are coming from models which, as messages report, may not
+simulate certain features. Many target models use a pragmatic approach and don’t
+simulate features which are not relevant for simulated machines, for example,
+thermal control. So, the messages are usually harmless.</p>
+<ol>
+<li>
+<p>As simulation progresses, the target machine will boot Linux operating system
+(this can take up to several minutes):</p>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>The login to the system is done automatically. After the login, one can
+interact with the operating system running on the target machine by running
+commands at the text console window. Here is a sample session when <code>pwd</code> and
+<code>uname -a</code> Linux commands were executed on the simulated machine after the
+login:
+<img alt="" src="running-simics-cli-9.png"></p>
+</li>
+<li>
+<p>One can stop simulation, thus pausing a target machine, by running the <code>stop</code>
+command:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>The target machine is paused now. But it can be resumed by entering the <code>run</code>
+command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+</ol>
+<p>To see other ways of starting and stopping the simulator, run <code>help</code> with
+the <code>Execution</code> category:</p>
+<pre><code class="language-simics">simics&gt; <strong>help Execution</strong>
+...
+run              start execution
+run-cycles       start execution
+run-seconds      execute for seconds
+...
+</code></pre>
+<p>For further information, see the <a href="simics-command-line-interface.html#the-help-command">help
+command</a> section.</p>
+
+<div class="chain">
+<a href="simics-command-line-interface.html">4 Command Line Interface (CLI)</a>
+<a href="hardware-inspection.html">6 Hardware Inspection</a>
+</div>

@@ -1,0 +1,132 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>update_checkpoint</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="comp.html">comp</a>
+<a href="hypersim_patterns.html">hypersim_patterns</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="update_checkpoint"><a href="#update_checkpoint">update_checkpoint</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>update_checkpoint</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import update_checkpoint
+</code></pre>
+<h2>Description</h2>
+<p>The update_checkpoint module contains Simics API functions for writing checkpoint updaters.</p>
+<p>See the <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a> for more details, in the <a href="../model-builder-user-guide/checkpoint-compatibility.html"><code>Checkpoint Compatibility</code></a> chapter.</p>
+</section>
+<h2 id="update_checkpoint.SIM_register_class_update"><a href="#update_checkpoint.SIM_register_class_update">update_checkpoint.SIM_register_class_update</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.SIM_register_class_update(build_id, classname, function)
+</code></pre>
+<h2>Description</h2>
+<p>Registers a class update function.</p>
+<p>Register the class update function <code>function</code> for class <code>classname</code>, to be run when updating a checkpoint to build-id <code>build_id</code>.</p>
+<p>The <code>function</code> acts on a single object of a given class. It will be called for all matching objects with the current object as argument. It doesn’t need to return anything, however it can’t create or destroy objects, only change the attributes of the object it got as parameter, except the object name.</p>
+</section>
+<h2 id="update_checkpoint.SIM_register_generic_update"><a href="#update_checkpoint.SIM_register_generic_update">update_checkpoint.SIM_register_generic_update</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.SIM_register_generic_update(build_id, function)
+</code></pre>
+<h2>Description</h2>
+<p>Registers a generic update function.</p>
+<p>Register the generic update function <code>function</code> to be run when updating a checkpoint to build-id <code>build_id</code>. The <code>function</code> acts on one or several objects of various classes, and may rename, create or destroy objects. When the checkpoint reaches the required build-id, the <code>function</code> will be called once with the complete set of objects that constitute the checkpoint as a parameter. It is expected to return three lists of pre_conf_objects: (deleted objects, changed objects, added objects). Deleted objects must have been removed from the configuration, changed objects can have any attribute changed (including their class or their name). Added objects must have been added to the configuration.</p>
+<p>When renaming an object, the <code>function</code> is expected to remove the object from the checkpoint set under its old name and to add it again under its new name. The object should be reported in the changed object list.</p>
+</section>
+<h2 id="update_checkpoint.SIM_register_post_update"><a href="#update_checkpoint.SIM_register_post_update">update_checkpoint.SIM_register_post_update</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.SIM_register_post_update(function)
+</code></pre>
+<h2>Description</h2>
+<p>Registers a generic update function.</p>
+<p>Register the generic update function <code>function</code> to be run when updating a checkpoint to build-id <code>build_id</code>. after all build-id based update functions have run, but before the checkpoint is loaded. The <code>function</code> should behave as functions added with <a href="update_checkpoint.html#update_checkpoint.SIM_register_generic_update"><code>update_checkpoint.SIM_register_generic_update</code></a>.</p>
+</section>
+<h2 id="update_checkpoint.all_objects"><a href="#update_checkpoint.all_objects">update_checkpoint.all_objects</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.all_objects(set, classname)
+</code></pre>
+<h2>Description</h2>
+<p>Returns all objects of a given class.</p>
+<p>This function should only be used while updating checkpoints, as</p>
+<p>described in <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a>, in the <a href="../model-builder-user-guide/checkpoint-compatibility.html"><code>Checkpoint Compatibility</code></a> chapter.</p>
+<p>Return a list of all objects of class <code>classname</code> present in the checkpoint <code>set</code>.</p>
+</section>
+<h2 id="update_checkpoint.for_all_objects"><a href="#update_checkpoint.for_all_objects">update_checkpoint.for_all_objects</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.for_all_objects(set, classname, function)
+</code></pre>
+<h2>Description</h2>
+<p>Apply a function on all objects of a given class.</p>
+<p>This function should only be used while updating checkpoints, as</p>
+<p>described in <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a>, in the <a href="../model-builder-user-guide/checkpoint-compatibility.html"><code>Checkpoint Compatibility</code></a> chapter.</p>
+<p>Apply the function <code>function</code> on all objects of class <code>classname</code> present in <code>set</code>. <code>function</code> is defined as:</p>
+<p><code>function(config, object)</code></p>
+<p>where <code>config</code> is the Python dictionary containing all objects, and object is an object of class <code>classname</code>.</p>
+</section>
+<h2 id="update_checkpoint.get_checkpoint_filename"><a href="#update_checkpoint.get_checkpoint_filename">update_checkpoint.get_checkpoint_filename</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.get_checkpoint_filename()
+</code></pre>
+<h2>Description</h2>
+<p>The file name of the checkpoint being updated.</p>
+</section>
+<h2 id="update_checkpoint.remove_attr"><a href="#update_checkpoint.remove_attr">update_checkpoint.remove_attr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.remove_attr(obj, name)
+</code></pre>
+<h2>Description</h2>
+<p>Removes an attribute.</p>
+<p>This function should only be used while updating checkpoints, as described in <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a>, in the <a href="../model-builder-user-guide/checkpoint-compatibility.html"><code>Checkpoint Compatibility</code></a> chapter.</p>
+<p>Remove the attribute <code>name</code> from the object <code>obj</code>.</p>
+</section>
+<h2 id="update_checkpoint.remove_class"><a href="#update_checkpoint.remove_class">update_checkpoint.remove_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.remove_class(set, classname)
+</code></pre>
+<h2>Description</h2>
+<p>Removes all instances of a class.</p>
+<p>This function should only be used while updating checkpoints, as described in <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a>, in the <a href="../model-builder-user-guide/checkpoint-compatibility.html"><code>Checkpoint Compatibility</code></a> chapter.</p>
+<p>In the checkpoint <code>set</code>, remove all objects of class <code>classname</code>.</p>
+</section>
+<h2 id="update_checkpoint.remove_class_attr"><a href="#update_checkpoint.remove_class_attr">update_checkpoint.remove_class_attr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.remove_class_attr(set, classname, name)
+</code></pre>
+<h2>Description</h2>
+<p>Removes a class attribute.</p>
+<p>This function should only be used while updating checkpoints, as described in <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a>, in the <a href="../model-builder-user-guide/checkpoint-compatibility.html"><code>Checkpoint Compatibility</code></a> chapter.</p>
+<p>In the checkpoint <code>set</code>, remove the class attribute <code>name</code> from all objects of class <code>classname</code>.</p>
+</section>
+<h2 id="update_checkpoint.rename_attr"><a href="#update_checkpoint.rename_attr">update_checkpoint.rename_attr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>update_checkpoint.rename_attr(obj, new_attr, old_attr)
+</code></pre>
+<h2>Description</h2>
+<p>Renames an attribute.</p>
+<p>This function should only be used while updating checkpoints, as described in <a href="../model-builder-user-guide/index.html"><code>Model Builder User's Guide</code></a>, in the <a href="../model-builder-user-guide/checkpoint-compatibility.html"><code>Checkpoint Compatibility</code></a> chapter.</p>
+<p>Rename the attribute <code>old_attr</code> to <code>new_attr</code> in the object <code>obj</code>.</p>
+</section>
+<div class="chain">
+<a href="comp.html">comp</a>
+<a href="hypersim_patterns.html">hypersim_patterns</a>
+</div>

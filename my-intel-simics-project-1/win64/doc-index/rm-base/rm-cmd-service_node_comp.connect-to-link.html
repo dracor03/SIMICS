@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;service_node_comp&gt;.connect-to-link</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-service_node_comp.change-reference-clock.html">&lt;service_node_comp&gt;.change-reference-clock</a>
+<a href="rm-cmd-service_node_comp.delete-host.html">&lt;service_node_comp&gt;.delete-host</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="service_node_comp.connect-to-link"></a>
+<h1 id="service_node_comp.connect-to-link"><a href="#service_node_comp.connect-to-link">&lt;service_node_comp&gt;.connect-to-link</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;service_node_comp&gt;.connect-to-link</b> <i>link</i> <i>"ip"</i> [<i>"netmask"</i>] [<i>"vlan_id"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Connect the service-node to the given <i>link</i>.
+<p>
+The <i>ip</i> argument is the IP address that the service node will use on the link, and optionally a prefix length on the form "1.2.3.4/24". The <i>netmask</i> argument can be used instead of a prefix length for IPv4 addresses for backwards compatibility. The default prefix length for IPv4 addresses is 24, and for IPv6 addresses 64. Use <i>vlan_id</i> to connect to VLAN.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.service-node.html">service-node</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-service_node_comp.change-reference-clock.html">&lt;service_node_comp&gt;.change-reference-clock</a>
+<a href="rm-cmd-service_node_comp.delete-host.html">&lt;service_node_comp&gt;.delete-host</a>
+</div>

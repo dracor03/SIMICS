@@ -1,0 +1,95 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 Installing Packages</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="hardware-and-software-requirements.html">2 Hardware and Software Requirements</a>
+<a href="upgrading-major-versions.html">4 Upgrading Major Versions</a>
+</div>
+<div class="path">
+<a href="index.html">Installation Guide</a>
+&nbsp;/&nbsp;</div><h1 id="installing-packages"><a href="#installing-packages">3 Installing Packages</a></h1>
+<p>As a customer you should have received instructions that describe which packages
+to install and where to find them. If this is not the case, contact your
+provider to obtain this information.</p>
+<p>For the installation, use the Intel® Simics® Package Manager (ISPM). ISPM can be
+used to check for updated packages, download and install/uninstall, and manage
+Intel Simics Projects, also called “user projects”. It supports both command
+line (batch) mode and GUI mode.</p>
+<p>The simulator is delivered in <em>packages</em>, each one containing different parts of
+the functionality. There is a <em>Simics Base</em> package and several add-on packages.
+The most common packages are:</p>
+<ul>
+<li>The <em>Simics Base</em> package which provides the simulation engine and the user
+interface, as well as a library of standard models.</li>
+<li>Add-on packages, one for each virtual platform, usually containing CPU cores
+and various devices. The virtual platform is the simulation platform and the
+model of the physical target hardware that is being simulated.</li>
+<li>The <em>Quick-Start Platform for x86</em> (QSP-x86) add-on package is meant for
+training, application development, demos, etc.</li>
+</ul>
+<p>Once ISPM has installed Simics Base and one or more platform packages it can
+create user projects. A user project is a directory for adding user files and
+developing simulation models, and is typically set up for a combination of a few
+packages of certain versions. Thus such projects enable users to work with
+different package combinations just by switching between projects.</p>
+<p>New users are suggested to study the <a href="../getting-started/index.html"><em>Getting
+Started</em></a> guide which describes how to launch the
+simulator and run the QSP-x86 platform.</p>
+<p>ISPM can, at any time, install more packages, other versions of already
+installed packages, or uninstall packages or versions no longer used.</p>
+<h2 id="installing-vmp"><a href="#installing-vmp">3.1 Installing VMP</a></h2>
+<p>VMP uses direct execution to simulate x86 systems at near native speed. A kernel
+module is needed to communicate directly with the host hardware, and installing
+the kernel module requires a separate step.</p>
+<p>The VMP feature requires that the host machine running the simulator has the
+Intel® Virtualization Technology (Intel® VT) for IA-32, Intel® 64, and that
+Intel® Architecture (Intel® VT-x) is enabled in the host machine firmware (the
+UEFI/BIOS) and visible to the VMXMON kernel module.</p>
+<p>For more information and known limitations, see <a href="../simics-user-guide/index.html"><em>Simics User’s
+Guide</em></a>, chapter “Simulation Performance”.</p>
+<h3 id="linux"><a href="#linux">3.1.1 Linux</a></h3>
+<p>Installing and managing VMP kernel modules requires sudo privileges. Installing
+will compile the kernel module and therefore also requires an environment to
+build kernel modules. Which packages you need for building kernel modules depend
+on the distribution of Linux that you are using, but at least for certain Red
+Hat based distributions you would need <code>gcc-c++</code>, <code>kernel-headers</code>, and
+<code>kernel-devel</code>. Change directory to the user project and run:</p>
+<pre><code>[project]$ bin/vmp-kernel-install
+</code></pre>
+<p>The script will compile and persistently install the kernel modules that are
+used by VMP. It will echo what needs to be done, which involves running scripts
+in the <code>[simics]/vmxmon/scripts/</code> directory.</p>
+<p>Disable VMP temporarily by running the <code>bin/vmp-kernel-unload</code> script, and
+enable VMP with the <code>bin/vmp-kernel-load</code> script. Permanently uninstall VMP from
+your host by running the <code>bin/vmp-kernel-uninstall</code> script.</p>
+<p>If the installation is read-only, or if you for some other reason want to have
+the built VMP artifacts outside of the installation, you can give a directory to
+the relevant VMP scripts, for example:</p>
+<pre><code>[project]$ bin/vmp-kernel-install /somewhere/directory
+[project]$ bin/vmp-kernel-load /somewhere/directory
+</code></pre>
+<h3 id="windows"><a href="#windows">3.1.2 Windows</a></h3>
+<p>The kernel module can be loaded and unloaded by running the
+<code>bin\vmp-kernel-load.bat</code> and <code>bin\vmp-kernel-unload.bat</code> scripts, respectively,
+as administrator. To do that, open a command shell as administrator and run:</p>
+<pre><code>[project]&gt; bin\vmp-kernel-load.bat
+</code></pre>
+<p>Another way to perform the same action would be to right-click on
+<code>vmp-kernel-load.bat</code> and select run as administrator.</p>
+<p>The <code>/AUTO</code> and <code>/DEMAND</code> options select the start option for the VMP service.
+With <code>/AUTO</code> (default), the service will be available after restart, whereas
+<code>/DEMAND</code> makes the service available just until shutdown or reboot, and then
+VMP has to be loaded again when needed.</p>
+<p>If the script fails, see the Windows event log for more information. The most
+common reason is that Intel® VT-x technology or the NX feature is not enabled in
+the UEFI/BIOS. The kernel module will also fail to load if the Hyper-V feature
+is enabled.</p>
+
+<div class="chain">
+<a href="hardware-and-software-requirements.html">2 Hardware and Software Requirements</a>
+<a href="upgrading-major-versions.html">4 Upgrading Major Versions</a>
+</div>

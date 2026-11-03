@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;pcie_function_info&gt;.pcie-memory-probe</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-pcie_function_info.pcie-dma-write.html">&lt;pcie_function_info&gt;.pcie-dma-write</a>
+<a href="rm-cmd-pcie_map_helper_cpp.info.html">&lt;pcie_map_helper_cpp&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="pcie_function_info.pcie-memory-probe"></a>
+<a name="pcie_function_info.pcie-dma-probe"></a>
+<h1 id="pcie_function_info.pcie-memory-probe"><a href="#pcie_function_info.pcie-memory-probe">&lt;pcie_function_info&gt;.pcie-memory-probe</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;pcie_function_info&gt;.pcie-memory-probe</b> <i>address</i> [-add-atoms] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Probes a PCIe DMA <i>address</i> for a PCIe function. This command will issue the Simics probe command with the <tt>pcie_requester_id</tt> atom set to the device id of the PCIe function, the <tt>pcie_type</tt> atom set to <tt>PCIE_Type_Mem</tt> and the <tt>initiator</tt> atom set to the function object. It will set the upstream target of the PCIe device the function belongs to as the probed object.
+<p>
+Transaction <tt>atoms</tt> can be used for routing rules and access rights in a platform. The <tt>-add-atoms</tt> flag opens up the capability to set transaction <tt>atoms</tt> on the command line: once the flag is set the command accepts additional arguments that have names starting with <tt>ATOM_</tt> prefix. Tab complete after setting the <tt>-add-atoms</tt> flag to see the available <tt>atoms</tt>. These arguments are used by the command to pass in atom values to the translators it passes through during the transaction probing.
+</p><p>
+Please note that the <tt>ATOM_...</tt> arguments can be used only to specify values for transaction atoms that have integer values and provide Python wrappings. Complex atoms such as pointers and structures are not available from CLI.
+</p><p>
+Note! The <tt>pcie_requester_id</tt>, <tt>pcie_type</tt> and <tt>initiator</tt> atoms will be ignored if they are set using the <tt>-add-atoms</tt> as those are added by this command. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-pcie_function_info.pcie-dma-write.html">&lt;pcie_function_info&gt;.pcie-dma-write</a>
+<a href="rm-cmd-pcie_map_helper_cpp.info.html">&lt;pcie_map_helper_cpp&gt;.info</a>
+</div>

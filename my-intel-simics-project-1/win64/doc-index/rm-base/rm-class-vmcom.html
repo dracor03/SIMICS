@@ -1,0 +1,179 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>vmcom</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-virtiofs_fuse.html">virtiofs_fuse</a>
+<a href="rm-class-vtime.html">vtime</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="vmcom"><a href="#vmcom">vmcom</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Implements the VMware tools protocol. Currently only supports the mouse protocol.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, abs_pointer, io_memory, recorded
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:mouse-required"><a href="#dt:mouse-required">mouse (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: abs_pointer_activate
+</dd>
+<dt id="dt:recorder-required"><a href="#dt:recorder-required">recorder (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: recorder_v2
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-_vmcom"><a href="#dt:bank-_vmcom">bank._vmcom</a></dt>
+<dd>
+<a href="rm-class-vmcom.html#vmcom._vmcom">vmcom._vmcom</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-vmcom.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-vmcom.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:current_mouse_state"><a href="#dt:current_mouse_state">
+<i>current_mouse_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiii]</code>
+<br>Current mouse state.</dd>
+<dt id="dt:last_mouse_state"><a href="#dt:last_mouse_state">
+<i>last_mouse_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiii]</code>
+<br>Last mouse state that was enqueued for delivery to software.</dd>
+<dt id="dt:mouse"><a href="#dt:mouse">
+<i>mouse</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Object that implements the abs-pointer-activate interface.
+<p>
+Required interfaces: <tt>abs_pointer_activate</tt>.</p></dd>
+<dt id="dt:mouse_data_queue"><a href="#dt:mouse_data_queue">
+<i>mouse_data_queue</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Mouse data enqueued for delivery to software.</dd>
+<dt id="dt:mouse_enabled"><a href="#dt:mouse_enabled">
+<i>mouse_enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Keeps track of whether the mouse protocol is enabled.</dd>
+<dt id="dt:recorder"><a href="#dt:recorder">
+<i>recorder</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Recorder device for playback of input.
+<p>
+Required interfaces: <tt>recorder_v2</tt>.</p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.vmcom.html">vmcom</a>
+</section>
+<h2 id="vmcom._vmcom"><a href="#vmcom._vmcom">vmcom._vmcom</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, int_register, io_memory, register_view, register_view_catalog
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+</section>
+<div class="chain">
+<a href="rm-class-virtiofs_fuse.html">virtiofs_fuse</a>
+<a href="rm-class-vtime.html">vtime</a>
+</div>

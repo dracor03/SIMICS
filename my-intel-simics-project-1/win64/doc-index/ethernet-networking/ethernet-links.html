@@ -1,0 +1,91 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.1 Ethernet Links</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simicsnet.html">2 Network Simulation</a>
+<a href="ethernet-vlan-switch.html">2.2 Ethernet VLAN Switch</a>
+</div>
+<div class="path">
+<a href="index.html">Ethernet Networking Technology Guide</a>
+&nbsp;/&nbsp;
+<a href="simicsnet.html">2 Network Simulation</a>
+&nbsp;/&nbsp;</div><h1 id="ethernet-links"><a href="#ethernet-links">2.1 Ethernet Links</a></h1>
+<p>Connecting simulated machines over a simulated Ethernet connection is done by
+creating a <em>link</em> using one of the components in the <code>eth-links</code> module:
+<code>ethernet-cable</code>, <code>ethernet-hub</code> or <code>ethernet_switch</code>. Any of these components
+can connect to the Ethernet devices of the simulated machines. They model
+Ethernet at the frame level, in that they perform delivery of complete frames
+sent from one device to another, and do not model collisions or lower-level
+signaling details. Each of the three Ethernet links has its own particularities:</p>
+<dl>
+<dt id="dt:ethernet_cable"><a href="#dt:ethernet_cable">ethernet_cable</a></dt>
+<dd>An Ethernet cable can only be
+connected to two devices, since, as a real Ethernet cable, it only has two
+ends. Apart from transporting Ethernet frames back and forth, an Ethernet
+cable models whether the signal is up or down.</dd>
+<dt id="dt:ethernet_hub"><a href="#dt:ethernet_hub">ethernet_hub</a></dt>
+<dd>An ethernet_hub is the simplest
+Ethernet link model: all frames are broadcast to all devices connected to the
+hub. It works like a traditional hub or coaxial cable.</dd>
+<dt id="dt:ethernet_switch"><a href="#dt:ethernet_switch">ethernet_switch</a></dt>
+<dd>An ethernet_switch also allows the
+connection of multiple devices, but functions rather like a switch: as it
+learns what MAC addresses the different devices have, it stops broadcasting
+and transports the frame more selectively. This can substantially improve
+simulation performance when several devices are talking on the link, and even
+more so when the simulation is distributed.</dd>
+</dl>
+<p>As all three models work more or less at the frame level; they can be used for
+any type of Ethernet connection, without limitations due to speed or technology.
+Traffic sent over the link can be anything, including TCP/IP or any other
+protocol stack that works on top of Ethernet. The link does not need to be
+configured for the intended use.</p>
+<p>The three components are provided in the <code>eth-links</code> module. They can be
+manipulated in the same way as any other component: after loading <code>eth-links</code>,
+the <code>create-ethernet-cable/hub/switch</code> commands are made available. They create
+non-instantiated components:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module eth-links</strong>
+simics&gt; <strong>create-ethernet-hub</strong>
+Created non-instantiated 'ethernet-hub' component 'ethernet_hub0'.
+</code></pre>
+<p>The name will be automatically chosen by Simics unless it is provided as an
+argument to the command:</p>
+<pre><code class="language-simics">simics&gt; <strong>create-ethernet-hub my_ethernet_hub</strong>
+Created non-instantiated 'ethernet-hub' component 'my_ethernet_hub'.
+</code></pre>
+<p>When a link component has been created, it is possible to connect the network
+devices by running the <code>connect</code> command for each Ethernet port. For
+demonstration, we will use x86 machines from the <em>QSP-x86</em> package. Start the
+simulation with the <code>firststeps-multi.simics</code> start script and run the following
+commands:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module eth-links</strong>
+simics&gt; <strong>create-ethernet-hub my_ethernet_hub</strong>
+Created non-instantiated 'ethernet_hub' component 'my_ethernet_hub'
+simics&gt; <strong>connect board0.mb.sb.eth_slot my_ethernet_hub.device0</strong>
+</code></pre>
+<p>To find a connector which is not connected for <code>ethernet_cable/hub/switch</code>
+components the <code>get-free-connector</code> command can be used. This command returns
+the name of a free connector:</p>
+<pre><code class="language-simics">simics&gt; <strong>my_ethernet_hub.get-free-connector</strong>
+"my_ethernet_hub.device1"
+</code></pre>
+<p>Together the <code>get-free-connector</code> and <code>connect</code> commands can be used to connect
+an Ethernet device to a free connector:</p>
+<pre><code class="language-simics">simics&gt; <strong>connect (my_ethernet_hub.get-free-connector) board1.mb.sb.eth_slot</strong>
+</code></pre>
+<p>Now, when all of the components of the system are configured and connected
+together, instantiate the link components:</p>
+<pre><code class="language-simics">simics&gt; <strong>instantiate-components</strong>
+</code></pre>
+<p>It is also possible to create instantiated links with the
+<code>new-ethernet-cable/hub/switch</code> commands, but note that this only works if there
+is already at least one instantiated top-level component in the simulation.</p>
+
+<div class="chain">
+<a href="simicsnet.html">2 Network Simulation</a>
+<a href="ethernet-vlan-switch.html">2.2 Ethernet VLAN Switch</a>
+</div>

@@ -1,0 +1,51 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.5 setup-venv</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="project-setup.html">2.4 project-setup</a>
+<a href="checkpoint-merge.html">2.6 checkpoint-merge</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="command-line-tools-and-programs.html">2 Command-Line Tools and Programs</a>
+&nbsp;/&nbsp;</div><h1 id="setup-venv"><a href="#setup-venv">2.5 setup-venv</a></h1>
+<article class="not-numbered not-in-toc doc-item">
+<h2 id="synopsis"><a href="#synopsis">SYNOPSIS</a></h2>
+<pre><code>setup-venv --project project --python python --base simics-base [options]
+</code></pre>
+<h2 id="description"><a href="#description">DESCRIPTION</a></h2>
+<p>Creates or updates a Python virtual environment for a Simics project and
+installs the Simics Python package and any requirements files found in the
+project or its add-on packages.</p>
+<h2 id="options"><a href="#options">OPTIONS</a></h2>
+<dl>
+<dt id="dt:project"><a href="#dt:project"><code>--project</code></a></dt>
+<dd>Path to the Simics project.</dd>
+<dt id="dt:python"><a href="#dt:python"><code>--python</code></a></dt>
+<dd>Path to the Python executable used to create the virtual environment.</dd>
+<dt id="dt:base"><a href="#dt:base"><code>--base</code></a></dt>
+<dd>Path to Simics-Base.</dd>
+<dt id="dt:venv"><a href="#dt:venv"><code>--venv</code></a></dt>
+<dd>Path to the Python virtual environment. If omitted, <code>.venv</code> in the
+project directory is used.</dd>
+<dt id="dt:with-gui"><a href="#dt:with-gui"><code>--with-gui</code></a></dt>
+<dd>Include Simics legacy GUI requirements.</dd>
+<dt id="dt:with-dev"><a href="#dt:with-dev"><code>--with-dev</code></a></dt>
+<dd>Include Simics developer dependencies.</dd>
+<dt id="dt:dry-run"><a href="#dt:dry-run"><code>--dry-run</code></a></dt>
+<dd>Show the operations without creating or updating the virtual
+environment.</dd>
+<dt id="dt:verbose"><a href="#dt:verbose"><code>--verbose</code></a></dt>
+<dd>Print more information about the actions taken by the script.</dd>
+</dl>
+</article>
+
+<div class="chain">
+<a href="project-setup.html">2.4 project-setup</a>
+<a href="checkpoint-merge.html">2.6 checkpoint-merge</a>
+</div>

@@ -1,0 +1,674 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Extended Capabilities templates</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="capabilities.html">Capabilities templates</a>
+<a href="clkreq.html">CLKREQ template</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;
+<a href="dml-template-reference.html">DML template reference</a>
+&nbsp;/&nbsp;</div>
+<h1>Extended Capabilities templates</h1>
+<p>These are templates for PCIe Extended Capabilities. They are designed to be
+applied on a <code>group</code>. For convenience there exists a template
+<code>defining_xyz_capability</code> for each capability <code>xyz</code> which defines a group
+<code>xyz</code> with the <code>xyz_capability</code> applied.  Most templates only define the
+registers with their standard access restrictions.  If additional behavior is
+needed, the user of the template must implement this manually.</p>
+<p>Each extended capability template uses the following parameters:</p>
+<ul>
+<li><code>base</code>: Base address of the capability header</li>
+<li><code>next_ptr</code>: Value of the next_ptr field in the capability header</li>
+</ul>
+<h2 id="advanced-error-reporting-aer-capability-registers"><a href="#advanced-error-reporting-aer-capability-registers">Advanced Error Reporting (AER) Capability registers</a></h2>
+<ul>
+<li>name: <code>aer_capability</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>Note that the methods in this capability are mainly intended to be called by
+the error signaling implementation part of the
+<a href="error.html#pcie_error_reporter"><code>pcie_error_reporter</code></a> template.</p>
+<p>Uses the following parameters:</p>
+<ul>
+<li>
+<p><code>has_root_registers</code>: The capability includes root registers, default true</p>
+</li>
+<li>
+<p><code>tlp_prefix_log_or_header_log_ctd_len</code>: The length in DWs of the TLP
+Prefix Log or Header Log (continued, for Flit mode) register. This
+register was introduced in PCIe version 2.1. For pcie_version 2.1 and
+later this parameter defaults to 4, for earlier versions it defaults to 0.</p>
+<pre><code> ### get_uncorrectable_error_severity(pcie_uncorrectable_error_t err) -&gt; (pcie_error_severity_t)
+</code></pre>
+</li>
+</ul>
+<ul>
+<li>
+<pre><code>  Returns the severity of an uncorrectable error as defined in the AER
+  capability instance.
+</code></pre>
+</li>
+</ul>
+<h3 id="register_correctable_error-uint8-err-pcie_aer_log_entry_t-err_log-throws"><a href="#register_correctable_error-uint8-err-pcie_aer_log_entry_t-err_log-throws">register_correctable_error(uint8 err, pcie_aer_log_entry_t err_log) throws</a></h3>
+<p>Registers a correctable error in the AER capability instance. Throws if
+the error is invalid.</p>
+<h3 id="corr_is_masked-uint8-err-bool-advisory_non_fatal-bool-throws"><a href="#corr_is_masked-uint8-err-bool-advisory_non_fatal-bool-throws">corr_is_masked(uint8 err, bool advisory_non_fatal) -&gt; (bool) throws</a></h3>
+<p>Returns whether a correctable error is masked in the AER capability.
+Throws if the error is invalid.</p>
+<h3 id="register_uncorrectable_error-pcie_uncorrectable_error_t-err-pcie_aer_log_entry_t-err_log-throws"><a href="#register_uncorrectable_error-pcie_uncorrectable_error_t-err-pcie_aer_log_entry_t-err_log-throws">register_uncorrectable_error(pcie_uncorrectable_error_t err, pcie_aer_log_entry_t err_log) throws</a></h3>
+<p>Registers an uncorrectable error in the AER capability instance. Throws
+if the error is invalid.</p>
+<h3 id="register_uncorrectable_error_advisory_non_fatal-pcie_uncorrectable_error_t-err-pcie_aer_log_entry_t-err_log-throws"><a href="#register_uncorrectable_error_advisory_non_fatal-pcie_uncorrectable_error_t-err-pcie_aer_log_entry_t-err_log-throws">register_uncorrectable_error_advisory_non_fatal(pcie_uncorrectable_error_t err, pcie_aer_log_entry_t err_log) throws</a></h3>
+<p>Registers an uncorrectable advisory non fatal error in the
+AER capability instance. Throws if the error is invalid.</p>
+<h3 id="unc_is_masked-pcie_uncorrectable_error_t-err-bool-throws"><a href="#unc_is_masked-pcie_uncorrectable_error_t-err-bool-throws">unc_is_masked(pcie_uncorrectable_error_t err) -&gt; (bool) throws</a></h3>
+<p>Returns whether an uncorrectable error is masked in the AER capability.
+Throws if the error is invalid.</p>
+<h3 id="report_root_error_corr-uint16-rid-uint2-ecs"><a href="#report_root_error_corr-uint16-rid-uint2-ecs">report_root_error_corr(uint16 rid, uint2 ecs)</a></h3>
+<p>Reports a correctable root error in the AER capability instance. This is
+only applicable for root ports. <code>rid</code> is the requester id of the issuer
+of the error message that has reached the root port and <code>ecs</code> is the
+ERR_COR Subclass.</p>
+<h3 id="report_root_error_uncorr-uint16-rid-pcie_error_severity_t-severity"><a href="#report_root_error_uncorr-uint16-rid-pcie_error_severity_t-severity">report_root_error_uncorr(uint16 rid, pcie_error_severity_t severity)</a></h3>
+<p>Reports an uncorrectable root error in the AER capability instance. This is
+only applicable for root ports. <code>rid</code> is the requester id of the issuer
+of the error message that has reached the root port.</p>
+<h3 id="header_log_size-uint8"><a href="#header_log_size-uint8">header_log_size() -&gt; (uint8)</a></h3>
+<p>Returns the size of the header log in DWs.</p>
+<h3 id="log_error-pcie_aer_log_entry_t-err_log"><a href="#log_error-pcie_aer_log_entry_t-err_log">log_error(pcie_aer_log_entry_t err_log)</a></h3>
+<p>Log a TLP in the AER capability instance. This method will check if the
+entry to log is of type flit or non-flit and call the appropriate log
+method (<a href="#log_flit_tlp-const-bytes_t-flit_tlp"><code>log_flit_tlp()</code></a> or
+<a href="#log_non_flit_tlp-pcie_aer_non_flit_tlp_t-non_flit_tlp"><code>log_non_flit_tlp()</code></a>).
+If the log is full, a correctable error of type Header Log Overflow will
+be submitted.</p>
+<h3 id="log_flit_tlp-const-bytes_t-flit_tlp"><a href="#log_flit_tlp-const-bytes_t-flit_tlp">log_flit_tlp(const bytes_t flit_tlp)</a></h3>
+<p>Log a Flit based TLP in the AER capability instance.If the log is full,
+a correctable error of type Header Log Overflow will be submitted.</p>
+<h3 id="log_non_flit_tlp-pcie_aer_non_flit_tlp_t-non_flit_tlp"><a href="#log_non_flit_tlp-pcie_aer_non_flit_tlp_t-non_flit_tlp">log_non_flit_tlp(pcie_aer_non_flit_tlp_t non_flit_tlp)</a></h3>
+<p>Log a non-Flit based TLP in the AER capability instance.If the log is,
+full a correctable error of type Header Log Overflow will be submitted.</p>
+<h3 id="clear_log"><a href="#clear_log">clear_log()</a></h3>
+<p>This method clears the log but should not be called by the user unless
+custom logic in addition to what is provided in this library has been
+introduced that justifies calling this method.</p>
+<h2 id="virtual-channel-vc-capability-registers"><a href="#virtual-channel-vc-capability-registers">Virtual Channel (VC) Capability registers</a></h2>
+<ul>
+<li>name: <code>vc_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="device-serial-number-dsn-capability-registers"><a href="#device-serial-number-dsn-capability-registers">Device Serial Number (DSN) Capability registers</a></h2>
+<ul>
+<li>name: <code>dsn_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="device-power-budgeting-dpb-capability-registers"><a href="#device-power-budgeting-dpb-capability-registers">Device Power Budgeting (DPB) Capability registers</a></h2>
+<ul>
+<li>name: <code>dpb_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="root-complex-link-declaration-rcld-capability-registers"><a href="#root-complex-link-declaration-rcld-capability-registers">Root Complex Link Declaration (RCLD) Capability registers</a></h2>
+<ul>
+<li>name: <code>rcld_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>num_links</code>: number of links.</li>
+</ul>
+<h2 id="root-complex-internal-link-control-rcilc-capability-registers"><a href="#root-complex-internal-link-control-rcilc-capability-registers">Root Complex Internal Link Control (RCILC) Capability registers</a></h2>
+<ul>
+<li>name: <code>rcilc_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="root-complex-event-collector-endpoint-association-rcecea-capability-registers"><a href="#root-complex-event-collector-endpoint-association-rcecea-capability-registers">Root Complex Event Collector Endpoint Association (RCECEA) Capability registers</a></h2>
+<ul>
+<li>name: <code>rcecea_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>version</code>: version number of this capability, default 2</li>
+</ul>
+<h2 id="multi-function-virtual-channel-mfvc-capability-registers"><a href="#multi-function-virtual-channel-mfvc-capability-registers">Multi-Function Virtual Channel (MFVC) Capability registers</a></h2>
+<ul>
+<li>name: <code>mfvc_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="rcrb-header-rcrb-capability-registers"><a href="#rcrb-header-rcrb-capability-registers">RCRB Header (RCRB) Capability registers</a></h2>
+<ul>
+<li>name: <code>rcrb_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="vendor-specific-extended-capability-vsec-registers"><a href="#vendor-specific-extended-capability-vsec-registers">Vendor-Specific Extended Capability (VSEC) registers</a></h2>
+<ul>
+<li>name: <code>vsec_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="access-control-services-acs-capability-registers"><a href="#access-control-services-acs-capability-registers">Access Control Services (ACS) Capability registers</a></h2>
+<ul>
+<li>name: <code>acs_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>acs_enhanced</code>: whether enhanced ACS is supported.</li>
+<li><code>acs_egress_vector_size</code>: size of the egress control vector (in bits).</li>
+</ul>
+<h2 id="alternate-routing-id-ari-capability-registers"><a href="#alternate-routing-id-ari-capability-registers">Alternate Routing ID (ARI) Capability registers</a></h2>
+<ul>
+<li>name: <code>ari_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="address-translation-service-ats-capability-registers"><a href="#address-translation-service-ats-capability-registers">Address Translation Service (ATS) Capability registers</a></h2>
+<ul>
+<li>name: <code>ats_capability</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>This is a partially functional template; the user must implement the method
+<code>invalidate_received</code>.</p>
+<h3 id="methods"><a href="#methods">Methods</a></h3>
+<h4 id="invalidate_received-transaction_t-t-uint64-addr-bool"><a href="#invalidate_received-transaction_t-t-uint64-addr-bool"><code>invalidate_received(transaction_t *t, uint64 addr) -&gt; (bool)</code></a></h4>
+<p>Called by the standard PCIe templates when an ATS Invalidate message
+is received. The default implementation logs an <code>unimpl</code> message and
+returns <code>false</code>, indicating a ‘Completer Abort’.</p>
+<h4 id="translation_request-unint64-addr-pcie_ats_translation_completion_entry_t-entries-int-nbr_entries-const-pcie_pasid_info_t-pasid-bool-no_write-bool-cxl_src-pcie_error_t-int"><a href="#translation_request-unint64-addr-pcie_ats_translation_completion_entry_t-entries-int-nbr_entries-const-pcie_pasid_info_t-pasid-bool-no_write-bool-cxl_src-pcie_error_t-int"><code>translation_request(unint64 addr, pcie_ats_translation_completion_entry_t *entries, int nbr_entries, const pcie_pasid_info_t *pasid, bool no_write, bool cxl_src)-&gt; (pcie_error_t, int)</code></a></h4>
+<p>Issue a translation request to Translation Agent (TA).
+Set <code>pasid</code> to NULL to exclude the <code>pcie_pasid</code> atom in the transaction.
+Returns error status and number of valid completion entries
+the TA has filled in.</p>
+<h4 id="translation_request_custom-unint64-addr-pcie_ats_translation_completion_entry_t-entries-int-nbr_entries-const-pcie_pasid_info_t-pasid-bool-no_write-bool-cxl_src-atom_t-extra_atoms-pcie_error_t-int"><a href="#translation_request_custom-unint64-addr-pcie_ats_translation_completion_entry_t-entries-int-nbr_entries-const-pcie_pasid_info_t-pasid-bool-no_write-bool-cxl_src-atom_t-extra_atoms-pcie_error_t-int"><code>translation_request_custom(unint64 addr, pcie_ats_translation_completion_entry_t *entries, int nbr_entries, const pcie_pasid_info_t *pasid, bool no_write, bool cxl_src, atom_t *extra_atoms)-&gt; (pcie_error_t, int)</code></a></h4>
+<p>A variant of
+<a href="#translation_request-unint64-addr-pcie_ats_translation_completion_entry_t-entries-int-nbr_entries-const-pcie_pasid_info_t-pasid-bool-no_write-bool-cxl_src-pcie_error_t-int"><code>translation_request()</code></a>
+that allows the user to add custom atoms to the transaction. The
+<code>extra_atoms</code> parameter is a list of atoms to be added to the
+transaction. The list must be terminated with <code>ATOM_list_end(0)</code>.</p>
+<h4 id="translation_size_to_entries-uint64-size-uint64"><a href="#translation_size_to_entries-uint64-size-uint64"><code>translation_size_to_entries(uint64 size) -&gt; (uint64)</code></a></h4>
+<p>Calculates the maximum number of translation completion entries required
+for TA to cover the requested translation of <code>size</code>.</p>
+<h4 id="get_translation_range-pcie_ats_translation_completion_entry_t-entry-uint64-uint64"><a href="#get_translation_range-pcie_ats_translation_completion_entry_t-entry-uint64-uint64"><code>get_translation_range(pcie_ats_translation_completion_entry_t entry) -&gt; (uint64, uint64)</code></a></h4>
+<p>Decodes the completion entry and returns the <code>translated</code> address
+and the <code>size</code> of the translated region.</p>
+<h4 id="get_invalidation_range-pcie_ats_invalidate_request_payload_t-payload-uint64-uint64"><a href="#get_invalidation_range-pcie_ats_invalidate_request_payload_t-payload-uint64-uint64"><code>get_invalidation_range(pcie_ats_invalidate_request_payload_t payload) -&gt; (uint64, uint64)</code></a></h4>
+<p>Decodes the invalidation request message and returns the <code>untranslated</code> address
+and the <code>size</code> of the untranslated region.</p>
+<h4 id="invalidate_complete-uint64-destination_id-uint32-itag_vector-pcie_error_t"><a href="#invalidate_complete-uint64-destination_id-uint32-itag_vector-pcie_error_t"><code>invalidate_complete(uint64 destination_id, uint32 itag_vector) -&gt; (pcie_error_t)</code></a></h4>
+<p>Sends the invalidation message to TA found at B:D:F <code>destination_id</code>.
+Returns PCIE_Error_No_Error on success.</p>
+<h4 id="memory_read_buf-buffer_t-buf-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-pcie_error_t"><a href="#memory_read_buf-buffer_t-buf-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-pcie_error_t"><code>memory_read_buf(buffer_t buf, uint64 addr, pcie_at_t at, const pcie_pasid_info_t *pasid) -&gt; (pcie_error_t)</code></a></h4>
+<p>Performs an ATS Translated/Untranslated Memory Read.
+The input argument <code>at</code> specifies which AT type. Input argument <code>pasid</code>
+contains PASID, set to NULL to exclude the <code>pcie_pasid</code> atom in
+the transaction. Returns a pcie_error_t.
+Requires that an <code>upstream_target</code> is defined.
+Should only be used with <code>at</code> set to: PCIE_AT_Untranslated
+or PCIE_AT_Translated.</p>
+<h4 id="memory_read_custom-buffer_t-buf-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-atom_t-extra_atoms-pcie_error_t"><a href="#memory_read_custom-buffer_t-buf-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-atom_t-extra_atoms-pcie_error_t"><code>memory_read_custom(buffer_t buf, uint64 addr, pcie_at_t at, const pcie_pasid_info_t *pasid, atom_t *extra_atoms) -&gt; (pcie_error_t)</code></a></h4>
+<p>A variant of
+<a href="#memory_read_buf-buffer_t-buf-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-pcie_error_t"><code>memory_read_buf()</code></a>
+that allows the user to add custom atoms to the transaction. The
+<code>extra_atoms</code> parameter is a list of atoms to be added to the
+transaction. The list must be terminated with <code>ATOM_list_end(0)</code>.</p>
+<h4 id="memory_write_bytes-bytes_t-bytes-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-pcie_error_t"><a href="#memory_write_bytes-bytes_t-bytes-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-pcie_error_t"><code>memory_write_bytes(bytes_t bytes, uint64 addr, pcie_at_t at, const pcie_pasid_info_t *pasid) -&gt; (pcie_error_t)</code></a></h4>
+<p>Performs an ATS Translated/Untranslated Memory Write.
+The input argument <code>at</code> specifies which AT type. Input argument <code>pasid</code>
+contains PASID, set to NULL to exclude the <code>pcie_pasid</code> atom in
+the transaction. Returns a pcie_error_t.
+Requires that an <code>upstream_target</code> is defined.
+Should only be used with <code>at</code> set to: PCIE_AT_Untranslated
+or PCIE_AT_Translated.</p>
+<h4 id="memory_write_custom-bytes_t-bytes-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-atom_t-extra_atoms-pcie_error_t"><a href="#memory_write_custom-bytes_t-bytes-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-atom_t-extra_atoms-pcie_error_t"><code>memory_write_custom(bytes_t bytes, uint64 addr, pcie_at_t at, const pcie_pasid_info_t *pasid, atom_t *extra_atoms) -&gt; (pcie_error_t)</code></a></h4>
+<p>A variant of
+<a href="#memory_write_bytes-bytes_t-bytes-uint64-addr-pcie_at_t-at-const-pcie_pasid_info_t-pasid-pcie_error_t"><code>memory_write_bytes()</code></a>
+that allows the user to add custom atoms to the transaction. The
+<code>extra_atoms</code> parameter is a list of atoms to be added to the
+transaction. The list must be terminated with <code>ATOM_list_end(0)</code>.</p>
+<h4 id="disabled-bool"><a href="#disabled-bool">disabled() -&gt; (bool)</a></h4>
+<p>Returns true if ATS is disabled.
+It allows the user to replace the condition in case of a custom specification.</p>
+<h2 id="multicast-mc-capability-registers"><a href="#multicast-mc-capability-registers">Multicast (MC) Capability registers</a></h2>
+<ul>
+<li>name: <code>mc_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="page-request-service-prs-capability-registers"><a href="#page-request-service-prs-capability-registers">Page Request Service (PRS) Capability registers</a></h2>
+<ul>
+<li>name: <code>prs_capability</code></li>
+<li>implemented: register definitions and methods to send and receive PRS message.</li>
+<li>model specific: Method <code>page_group_response_received</code> has to be overridden with device logic. Registers <code>status</code> and <code>alloc</code> has to be implemented if required.</li>
+</ul>
+<h4 id="page_request-pcie_prs_page_request_t-request-const-pcie_pasid_info_t-pasid-pcie_error_t"><a href="#page_request-pcie_prs_page_request_t-request-const-pcie_pasid_info_t-pasid-pcie_error_t"><code>page_request(pcie_prs_page_request_t request, const pcie_pasid_info_t *pasid) -&gt; (pcie_error_t)</code></a></h4>
+<p>Sends a Page Request message. Input argument <code>pasid</code>
+contains PASID, set to NULL to exclude the <code>pcie_pasid</code> atom in
+the transaction.</p>
+<h4 id="send_stop_marker-const-pcie_pasid_info_t-pasid-pcie_error_t"><a href="#send_stop_marker-const-pcie_pasid_info_t-pasid-pcie_error_t"><code>send_stop_marker(const pcie_pasid_info_t *pasid) -&gt; (pcie_error_t)</code></a></h4>
+<p>Sends a stop marker message upstream. Input argument <code>pasid</code>
+contains PASID, set to NULL to exclude the <code>pcie_pasid</code> atom from
+the transaction.</p>
+<h4 id="page_response_received-transaction_t-t-uint64-addr-bool"><a href="#page_response_received-transaction_t-t-uint64-addr-bool"><code>page_response_received(transaction_t *t, uint64 addr) -&gt; (bool)</code></a></h4>
+<p>Called by the standard PCIe templates when a Page Response message is
+received. The default implementation logs an <code>unimpl</code> message and
+returns <code>false</code>.</p>
+<h2 id="resizable-bar-rbar-capability-registers"><a href="#resizable-bar-rbar-capability-registers">Resizable BAR (RBAR) Capability registers</a></h2>
+<ul>
+<li>name: <code>rbar_capability</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>The standard PCIe templates for Base Address Registers automatically find
+and use the size configured in instances of this template, when enabled.</p>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>num_bars</code>: Number of resizable bars present in this capability.</li>
+<li><code>bar_indexes</code>: list of integers, setting <code>init_val</code> of <code>control.id</code> field for each RBAR</li>
+</ul>
+<h2 id="vf-resizable-bar-vfrbar-capability-registers"><a href="#vf-resizable-bar-vfrbar-capability-registers">VF Resizable BAR (VFRBAR) Capability registers</a></h2>
+<ul>
+<li>name: <code>vf_rbar_capability</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>This template works just like the Resizable Bar (RBAR) template, but is
+detected and used by the standard PCIe templates for Virtual Function Base
+Address Registers instead.</p>
+<h2 id="dynamic-power-allocation-dpa-capability-registers"><a href="#dynamic-power-allocation-dpa-capability-registers">Dynamic Power Allocation (DPA) Capability registers</a></h2>
+<ul>
+<li>name: <code>dpa_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>num_substates</code>: number of power allocation registers, default 1</li>
+</ul>
+<h2 id="transaction-processing-hints-tph-requester-extended-capability-registers"><a href="#transaction-processing-hints-tph-requester-extended-capability-registers">Transaction Processing Hints (TPH) Requester Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>tph_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>num_tables</code>: number of TPH ST Table registers, default 1</li>
+</ul>
+<h2 id="latency-tolerance-reporting-ltr-capability-registers"><a href="#latency-tolerance-reporting-ltr-capability-registers">Latency Tolerance Reporting (LTR) Capability registers</a></h2>
+<ul>
+<li>name: <code>ltr_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="secondary-pci-express-spe-capability-registers"><a href="#secondary-pci-express-spe-capability-registers">Secondary PCI Express (SPE) Capability registers</a></h2>
+<ul>
+<li>name: <code>spe_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>max_link_width</code>: number of Equalization Control registers, no default</li>
+</ul>
+<h2 id="pasid-extended-capability-structure-registers"><a href="#pasid-extended-capability-structure-registers">PASID Extended Capability Structure registers</a></h2>
+<ul>
+<li>name: <code>pasid_capability</code></li>
+<li>implemented: functional</li>
+</ul>
+<h4 id="verify_pasid-pcie_pasid_info_t-pasid-bool"><a href="#verify_pasid-pcie_pasid_info_t-pasid-bool">verify_pasid(pcie_pasid_info_t pasid) -&gt; (bool)</a></h4>
+<p>Verifies that the <code>PASID</code> capability is configured correctly
+to support the contents of the <code>pasid</code> argument.
+If the check fails it is considered a modelling error.
+Returns true on success.</p>
+<h4 id="verify_pasid_with_at-pcie_pasid_info_t-pasid-pcie_at_t-at-bool"><a href="#verify_pasid_with_at-pcie_pasid_info_t-pasid-pcie_at_t-at-bool">verify_pasid_with_at(pcie_pasid_info_t pasid, pcie_at_t at) -&gt; (bool)</a></h4>
+<p>Verifies that the <code>PASID</code> capability is configured correctly
+to support the contents of the <code>pasid</code> argument and the type of argument <code>at</code>.
+If the check fails is considered a modelling error.
+Returns true on success.</p>
+<h2 id="ln-requester-extended-capability-registers"><a href="#ln-requester-extended-capability-registers">LN Requester Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>lnr_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="downstream-port-containment-dpc-extended-capability-registers"><a href="#downstream-port-containment-dpc-extended-capability-registers">Downstream Port Containment (DPC) Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>dpc_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>root_port</code>: presence of PIO registers, default false</li>
+</ul>
+<h2 id="l1-pm-substates-extended-capability-registers"><a href="#l1-pm-substates-extended-capability-registers">L1 PM Substates Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>l1pms_capability</code></li>
+<li>implemented: PCI-PM L1 Substates functional. Otherwise registers only.</li>
+</ul>
+<h2 id="precision-time-management-ptm-capability-registers"><a href="#precision-time-management-ptm-capability-registers">Precision Time Management (PTM) Capability registers</a></h2>
+<ul>
+<li>name: <code>ptm_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Fields to be added upon request</p>
+<h2 id="m-pcie-extended-capability-registers"><a href="#m-pcie-extended-capability-registers">M-PCIe Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>mpcie_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="frs-queueing-extended-capability-registers"><a href="#frs-queueing-extended-capability-registers">FRS Queueing Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>frsq_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Fields to be added upon request</p>
+<h2 id="readiness-time-reporting-extended-capability-registers"><a href="#readiness-time-reporting-extended-capability-registers">Readiness Time Reporting Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>rtr_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Fields to be added upon request</p>
+<h2 id="data-link-feature-extended-capability-registers"><a href="#data-link-feature-extended-capability-registers">Data Link Feature Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>dlf_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="physical-layer-16-0-gt-s-extended-capability-registers"><a href="#physical-layer-16-0-gt-s-extended-capability-registers">Physical Layer 16.0 GT/s Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>pl16g_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>max_link_width</code>: maximum link width, no default</li>
+<li><code>max_lanes</code>: maximum number of lanes, no default</li>
+</ul>
+<h2 id="lane-margining-at-the-receiver-extended-capability-registers"><a href="#lane-margining-at-the-receiver-extended-capability-registers">Lane Margining at the Receiver Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>lmar_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>max_lanes</code>: number of lane control and status registers, no default</li>
+</ul>
+<h2 id="physical-layer-32-0-gt-s-extended-capability-registers"><a href="#physical-layer-32-0-gt-s-extended-capability-registers">Physical Layer 32.0 GT/s Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>pl32g_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>max_link_width</code>: maximum link width, no default</li>
+<li><code>max_lanes</code>: maximum number of lanes, no default</li>
+</ul>
+<h2 id="physical-layer-64-0-gt-s-extended-capability-registers"><a href="#physical-layer-64-0-gt-s-extended-capability-registers">Physical Layer 64.0 GT/s Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>pl64g_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>max_link_width</code>: maximum link width, no default</li>
+<li><code>max_lanes</code>: maximum number of lanes, no default</li>
+</ul>
+<h2 id="physical-layer-128-0-gt-s-extended-capability-registers"><a href="#physical-layer-128-0-gt-s-extended-capability-registers">Physical Layer 128.0 GT/s Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>pl128g_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>max_lanes</code>: maximum number of lanes, no default</li>
+</ul>
+<h2 id="captured-data-extended-capability-registers"><a href="#captured-data-extended-capability-registers">Captured Data Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>captured_data_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="streamlined-virtual-channel-svc-extended-capability-registers"><a href="#streamlined-virtual-channel-svc-extended-capability-registers">Streamlined Virtual Channel (SVC) Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>svc_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>num_vcs</code>: number of VCs including VC0</li>
+</ul>
+<h2 id="mmio-register-block-locator-mrbl-extended-capability-registers"><a href="#mmio-register-block-locator-mrbl-extended-capability-registers">MMIO Register Block Locator (MRBL) Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>mrbl_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>num_blocks</code>: number of MRBL Locator Registers</li>
+</ul>
+<h2 id="nop-flit-extended-capability-registers"><a href="#nop-flit-extended-capability-registers">NOP Flit Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>nop_flit_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="siov-extended-capability-registers"><a href="#siov-extended-capability-registers">SIOV Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>siov_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="designated-vendor-specific-extended-capability-dvsec-registers"><a href="#designated-vendor-specific-extended-capability-dvsec-registers">Designated Vendor-Specific Extended Capability (DVSEC) registers</a></h2>
+<ul>
+<li>name: <code>dvsec_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="hierarchy-id-extended-capability-registers"><a href="#hierarchy-id-extended-capability-registers">Hierarchy ID Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>hid_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="native-pcie-enclosure-management-npem-extended-capability-registers"><a href="#native-pcie-enclosure-management-npem-extended-capability-registers">Native PCIe Enclosure Management (NPEM) Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>npem_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="alternate-protocol-extended-capability-registers"><a href="#alternate-protocol-extended-capability-registers">Alternate Protocol Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>ap_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Fields to be added upon request</p>
+<h2 id="system-firmware-intermediary-sfi-extended-capability-registers"><a href="#system-firmware-intermediary-sfi-extended-capability-registers">System Firmware Intermediary (SFI) Extended Capability registers</a></h2>
+<div class="register" id="sfi_capability">
+<p>PCIe Base 7.0 § 7.9.22</p>
+<h2 id="single-root-i-o-virtualization-sr-iov-extended-capability-registers"><a href="#single-root-i-o-virtualization-sr-iov-extended-capability-registers">Single Root I/O Virtualization (SR-IOV) Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>sriov_capability</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>This is a partially functional template; users must implement the methods
+<code>get_offset</code> and <code>get_stride</code>, create an array of DML-objects that simulate
+the configuration header for each virtual function, and add instances of the
+<code>vf_base_address</code> template for each VF BAR that is implemented by the
+physical function.</p>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>virtual_functions</code>: A sequence of <code>vf_type_0_bank</code> objects simulating the
+virtual functions.</li>
+</ul>
+<h3 id="methods-2"><a href="#methods-2">Methods</a></h3>
+<ul>
+<li>
+<p><code>get_offset() -&gt; (uint16)</code></p>
+<p>Returns the offset to the first virtual function, must be implemented
+by the user.</p>
+</li>
+<li>
+<p><code>get_stride() -&gt; (uint16)</code></p>
+<p>Returns the stride between virtual functions, must be implemented by
+the user.</p>
+</li>
+<li>
+<p><code>find_vf_bar(id: uint8) -&gt; (vf_base_address)</code></p>
+</li>
+</ul>
+<p>Returns the <code>vf_base_address</code> object corresponding to the given VF BAR
+index, throws if no such object exists.</p>
+<h2 id="device-3-extended-capability-registers"><a href="#device-3-extended-capability-registers">Device 3 Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>dev3_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h4 id="set_initial_link_width-pcie_link_width_t-width"><a href="#set_initial_link_width-pcie_link_width_t-width"><code>set_initial_link_width(pcie_link_width_t width)</code></a></h4>
+<p>Sets the Initial Link Width field in the Device 3 Status register.
+The width is encoded as the bit position (using <code>count_trailing_zeros32</code>) of
+the <code>pcie_link_width_t</code> value. A width of 0 sets the field to 0.</p>
+<h4 id="receiver_l0p_supported-bool"><a href="#receiver_l0p_supported-bool"><code>receiver_l0p_supported() -&gt; (bool)</code></a></h4>
+<p>Returns true if receiver L0p is supported, as indicated by the
+Receiver L0p Supported (rls) field in the Device 3 Capabilities
+register.</p>
+<h4 id="set_l0p_support_status-bool-supported"><a href="#set_l0p_support_status-bool-supported"><code>set_l0p_support_status(bool supported)</code></a></h4>
+<p>Sets the Remote L0p Supported (rls) field in the Device 3 Status
+register to indicate whether the remote side supports L0p.</p>
+<h2 id="flit-logging-extended-capability-registers"><a href="#flit-logging-extended-capability-registers">Flit Logging Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>fl_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="flit-performance-measurement-extended-capability-registers"><a href="#flit-performance-measurement-extended-capability-registers">Flit Performance Measurement Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>fpm_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>n_lpms</code>: Number of LTSSM Performance Measurement Status Registers, no default</li>
+</ul>
+<h2 id="flit-error-injection-extended-capability-registers"><a href="#flit-error-injection-extended-capability-registers">Flit Error Injection Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>fei_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="shadow-functions-extended-capability-registers"><a href="#shadow-functions-extended-capability-registers">Shadow Functions Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>sf_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>n_sfi</code>: Number of Shadow Functions Instance Registers, no default</li>
+</ul>
+<h2 id="data-object-exchange-extended-capability-registers"><a href="#data-object-exchange-extended-capability-registers">Data Object Exchange Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>doe_capability</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>Uses the following parameters:</p>
+<ul>
+<li><code>mailbox_len</code>: Length of request and response mailbox</li>
+<li><code>interrupt_support</code>: Use interrupts for DOE related events</li>
+</ul>
+<h3 id="methods-3"><a href="#methods-3">Methods</a></h3>
+<ul>
+<li>
+<p><code>method response_ready(uint18 res_len)</code></p>
+<p>This method should be called when the incoming DOE request has been
+finnished processing. This means that if the request requires a response,
+that should have been written to the provided response buffer. In the case
+where no response is needed, or silently discarding the request is
+desried, this method should still be called but with \p res_len set to 0.</p>
+<p>@note After this method has been called, neither the request or the
+response buffer should be accessed.</p>
+<p>@note only one of <code>response_error()</code> and <code>response_ready()</code> should be
+called during the processing of a DOE request.</p>
+<p><code>@param[in]  res_len The length of the response</code><br></p>
+</li>
+<li>
+<p><code>method response_error()</code></p>
+<p>This method should be called when an internal error has been encountered
+during processing of the DOE request.</p>
+<p>@note After this method has been called, neither the request or the
+response buffer should be accessed.</p>
+<p>@note only one of <code>response_error()</code> and <code>response_ready()</code> should be
+called during the processing of a DOE request.</p>
+</li>
+<li>
+<p><code>shared method doe_abort()</code>
+This method can optionally be overridden to handle scenarios where doe
+requests are aborted.</p>
+</li>
+<li>
+<p><code>shared method doe_get_dimn() -&gt; (uint11)</code>
+This method can optionally be overridden to control the value of the
+“DOE Interrupt Message Number” (dimn) bits. This provides the flexability
+to check the “Multiple Message Enable” bits in MSI for example, or other
+things might affect what the value of the dimn bits.</p>
+</li>
+</ul>
+<h3 id="doe-templates"><a href="#doe-templates">DOE Templates</a></h3>
+<ul>
+<li><code>template doe_protocol</code></li>
+</ul>
+<p>The doe_protocol template should be used to define user-defined DOE
+protocols. These should be added to a doe_capability instance accordingly.
+The way this is done is by adding them to the protocols group in the
+doe_capability. Example:</p>
+<pre><code>template doe_custom_protocol is doe_protocol {
+    param vendor_id = 0x1234;
+    param data_object_type = 0;
+
+    shared method handle_request(const uint32 *req, uint18 req_len) {
+        return 0;
+    }
+}
+
+bank pcie_config {
+    ...
+    is defining_doe_capability;
+    group doe {
+        group protocols {
+            group custom_protocol is doe_custom_protocol;
+        }
+    }
+    ...
+}
+</code></pre>
+<h4 id="methods-4"><a href="#methods-4">Methods</a></h4>
+<ul>
+<li><code>shared method handle_request(const uint32 *req, uint18 req_len_dw);</code></li>
+</ul>
+<p>The implementation of this abstract method should handle a DOE request for
+the implemented protocol. This method must at some point (or schedule an
+event that at some point) call the method <code>response_ready(res, res_len)</code> (
+or <code>response_error()</code> which is defined in the instantiating template
+doe_capability. This should be done when the response has been written to
+the <code>mailbox</code> fifo. The call should contain the length of the response.</p>
+<p><code>@param[in]  res     The request buffer</code><br>
+<code>@param[in]  req_len The length of the request</code><br></p>
+<h2 id="integrity-and-data-encryption-extended-capability-registers"><a href="#integrity-and-data-encryption-extended-capability-registers">Integrity and Data Encryption Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>ide_capability</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="null-extended-capability-registers"><a href="#null-extended-capability-registers">Null Extended Capability registers</a></h2>
+<ul>
+<li>name: <code>null_capability_ext</code></li>
+<li>implemented: registers only</li>
+</ul>
+<h2 id="virtual-function-type-0-bank"><a href="#virtual-function-type-0-bank">Virtual Function Type 0 Bank</a></h2>
+<ul>
+<li>name: <code>vf_type_0_bank</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>Can be used to implement Virtual Functions, used by SR-IOV capability.
+Inherits the <code>config_bank</code> template. Note that this template must use the
+<code>vf_base_address</code> template to implement its Base Address Registers.</p>
+<h2 id="virtual-function-base-address"><a href="#virtual-function-base-address">Virtual Function Base Address</a></h2>
+<ul>
+<li>name: <code>vf_base_address</code></li>
+<li>implemented: functional</li>
+</ul>
+<p>Can be used to implement Base Address Registers in the SR-IOV capability
+header. Inherits the template <code>memory_base_address</code>.</p>
+<p>Users of this template must implement the method <code>get_vf_bar_map</code>.</p>
+<h4 id="get_vf_bar_map-uint64-vf_number-conf_object_t-throws"><a href="#get_vf_bar_map-uint64-vf_number-conf_object_t-throws"><code>get_vf_bar_map(uint64 vf_number) -&gt; (conf_object_t *) throws</code></a></h4>
+<p>Returns the mapped object corresponding to the specified virtual function
+number. Throws if an invalid vf_number is supplied.</p>
+</div>
+<div class="chain">
+<a href="capabilities.html">Capabilities templates</a>
+<a href="clkreq.html">CLKREQ template</a>
+</div>

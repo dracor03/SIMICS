@@ -1,0 +1,110 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>cf9_handler</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-auto_apic_bus.html">auto_apic_bus</a>
+<a href="rm-class-generic_hpet.html">generic_hpet</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="cf9_handler"><a href="#cf9_handler">cf9_handler</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Device to handle reset and init requests sent from SW to port CF9.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:init_signal-optional"><a href="#dt:init_signal-optional">init_signal (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+<dt id="dt:reset_signal-required"><a href="#dt:reset_signal-required">reset_signal (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-regs"><a href="#dt:bank-regs">bank.regs</a></dt>
+<dd>
+<a href="rm-class-cf9_handler.html#cf9_handler.regs">cf9_handler.regs</a>
+</dd>
+<dt id="dt:port-system_reset"><a href="#dt:port-system_reset">port.system_reset</a></dt>
+<dd>
+<a href="rm-class-cf9_handler.html#cf9_handler.system_reset">cf9_handler.system_reset</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-cf9_handler.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-cf9_handler.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:init_signal"><a href="#dt:init_signal">
+<i>init_signal</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The target to send init signals to. For example, a signal bus.
+<p>
+Required interface: <tt>signal</tt></p></dd>
+<dt id="dt:reset_signal"><a href="#dt:reset_signal">
+<i>reset_signal</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>The target to send resets to. For example, a signal bus.
+<p>
+Required interface: <tt>signal</tt></p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.generic-pc-support.html">generic-pc-support</a>
+</section>
+<h2 id="cf9_handler.regs"><a href="#cf9_handler.regs">cf9_handler.regs</a></h2>
+<h2 id="cf9_handler.system_reset"><a href="#cf9_handler.system_reset">cf9_handler.system_reset</a></h2>
+<div class="chain">
+<a href="rm-class-auto_apic_bus.html">auto_apic_bus</a>
+<a href="rm-class-generic_hpet.html">generic_hpet</a>
+</div>

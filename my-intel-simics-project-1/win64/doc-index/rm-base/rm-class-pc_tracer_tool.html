@@ -1,0 +1,149 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pc_tracer_tool</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-pc-shadow.html">pc-shadow</a>
+<a href="rm-class-pc_tracer_tool_connection.html">pc_tracer_tool_connection</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="pc_tracer_tool"><a href="#pc_tracer_tool">pc_tracer_tool</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The PC tracer tool records the program counter (instruction pointer) address for every executed instruction on connected processors. Each entry is prefixed with the processor number. Output can go to a file, stdout, or a cyclic memory buffer.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_tool
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pc_tracer_tool.add-filter.html">add-filter</a>
+ – add filter to the tool</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.add-instrumentation.html">add-instrumentation</a>
+ – add instrumentation</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.delete.html">delete</a>
+ – deletes instrumentation tool</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.disable-instrumentation.html">disable-instrumentation</a>
+ – disable instrumentation</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.disassemble-trace-buffer.html">disassemble-trace-buffer</a>
+ – disassemble the trace buffer</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.enable-instrumentation.html">enable-instrumentation</a>
+ – enable instrumentation</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.list-providers.html">list-providers</a>
+ – list-provider objects</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.print-trace-buffer.html">print-trace-buffer</a>
+ – print trace buffer</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.remove-filter.html">remove-filter</a>
+ – remove filter from the tool</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.remove-instrumentation.html">remove-instrumentation</a>
+ – remove instrumentation</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.save-trace-buffer.html">save-trace-buffer</a>
+ – save the current trace buffer to a file</li>
+<li>
+<a href="rm-cmd-pc_tracer_tool.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:file"><a href="#dt:file">
+<i>file</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Output file for PC trace</dd>
+<dt id="dt:print_processor"><a href="#dt:print_processor">
+<i>print_processor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, prefix each trace entry with the processor name. Default is false.</dd>
+<dt id="dt:print_engine"><a href="#dt:print_engine">
+<i>print_engine</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, include the execution engine in each trace entry. Default is false.</dd>
+<dt id="dt:thread_safe"><a href="#dt:thread_safe">
+<i>thread_safe</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, use a mutex to protect the trace buffer for safe concurrent access from multiple processors running in parallel. This has a performance cost. Default is false.</dd>
+<dt id="dt:address_type"><a href="#dt:address_type">
+<i>address_type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Type of address to trace: "virtual" (default) or "physical".</dd>
+<dt id="dt:trace_history_size"><a href="#dt:trace_history_size">
+<i>trace_history_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Maximum number of entries in the cyclic trace buffer. When filled, oldest entries are overwritten.</dd>
+<dt id="dt:trace_buffer_entries"><a href="#dt:trace_buffer_entries">
+<i>trace_buffer_entries</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[oii]*]</code>
+<br>Get trace buffer as list of [cpu_object, pc, engine] pairs</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.pc-tracer-tool.html">pc-tracer-tool</a>
+</section>
+<div class="chain">
+<a href="rm-class-pc-shadow.html">pc-shadow</a>
+<a href="rm-class-pc_tracer_tool_connection.html">pc_tracer_tool_connection</a>
+</div>

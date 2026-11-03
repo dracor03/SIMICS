@@ -1,0 +1,214 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>probe_system_perfmeter</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-probe_streamer.html">probe_streamer</a>
+<a href="rm-class-probes.html">probes</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="probe_system_perfmeter"><a href="#probe_system_perfmeter">probe_system_perfmeter</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Probe based system-perfmeter extending on the probe-monitor, but adds some performance related features
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, table
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.add-probe.html">add-probe</a>
+ – add a probe to the system-perfmeter</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.clear-history.html">clear-history</a>
+ – clear the sample history of the probes</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.delete.html">delete</a>
+ – delete system-perfmeter</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.export-json.html">export-json</a>
+ – save probe data in json format</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.export-to-db.html">export-to-db</a>
+ – put probe data results into database</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.force-sample.html">force-sample</a>
+ – manually trigger a sample</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.html-diff-report.html">html-diff-report</a>
+ – produce an HTML diff report comparing two benchmark runs</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.html-report.html">html-report</a>
+ – produce an HTML report with graphs and performance data</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.list-probe-collection.html">list-probe-collection</a>
+ – list defined probe-collections</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.load-probe-collection.html">load-probe-collection</a>
+ – load probe-collection from json file</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.merge-json.html">merge-json</a>
+ – save probe data in json format</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.plot-graph.html">plot-graph</a>
+ – produce a plot of probes</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.print-history.html">print-history</a>
+ – print sample history of the probes</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.profile-probes.html">profile-probes</a>
+ – fake samples and do a python profile of the collection</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.remove-probe.html">remove-probe</a>
+ – remove probe from system-perfmeter</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.reset-session.html">reset-session</a>
+ – reset the probes' session start values</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.sampling-settings.html">sampling-settings</a>
+ – set sampling settings</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.start.html">start</a>
+ – start the system-perfmeter</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.stop.html">stop</a>
+ – stop the system-perfmeter</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.summary.html">summary</a>
+ – show total summary of probes</li>
+<li>
+<a href="rm-cmd-probe_system_perfmeter.table-settings.html">table-settings</a>
+ – set the table settings</li>
+</ul>
+<h2 id="commands-for-interface-table">
+<a href="#commands-for-interface-table">Commands for interface table</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-table.export-table-csv.html">export-table-csv</a>
+ – print table to file in csv format</li>
+<li>
+<a href="rm-cmd-table.print-table.html">print-table</a>
+ – print table</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:mode"><a href="#dt:mode">
+<i>mode</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Sampling mode used.</dd>
+<dt id="dt:interval"><a href="#dt:interval">
+<i>interval</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Sampling interval.</dd>
+<dt id="dt:clock"><a href="#dt:clock">
+<i>clock</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Master clock.</dd>
+<dt id="dt:notifier_type"><a href="#dt:notifier_type">
+<i>notifier_type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Notifier type.</dd>
+<dt id="dt:notifier_obj"><a href="#dt:notifier_obj">
+<i>notifier_obj</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Object where the notifier is installed.</dd>
+<dt id="dt:timestamp_file_name"><a href="#dt:timestamp_file_name">
+<i>timestamp_file_name</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Sampler timestamp file to read/write.</dd>
+<dt id="dt:summary"><a href="#dt:summary">
+<i>summary</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Print a summary when simulation stops.</dd>
+<dt id="dt:window"><a href="#dt:window">
+<i>window</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Open an independent console window.</dd>
+<dt id="dt:print_no_samples"><a href="#dt:print_no_samples">
+<i>print_no_samples</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Disable sample printing.</dd>
+<dt id="dt:output_file_name"><a href="#dt:output_file_name">
+<i>output_file_name</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|s</code>
+<br>Table dump file name.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probe-monitor.html">probe-monitor</a>
+</section>
+<div class="chain">
+<a href="rm-class-probe_streamer.html">probe_streamer</a>
+<a href="rm-class-probes.html">probes</a>
+</div>

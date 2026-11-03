@@ -1,0 +1,38 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Integration with the Breakpoint Manager</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="script-branch.html">4 Integration with Script Branches</a>
+<a href="snoop-refman.html">6 Snoop Module Reference</a>
+</div>
+<div class="path">
+<a href="index.html">Python Coroutines in Simics</a>
+&nbsp;/&nbsp;</div><h1 id="integration-with-the-breakpoint-manager"><a href="#integration-with-the-breakpoint-manager">5 Integration with the Breakpoint Manager</a></h1>
+<p>The breakpoint manager, represented by the <code>bp</code> configuration object, provides
+a number of <em>breakpoint types</em>, which are similar in spirit to snoopers: Like a
+snooper, a breakpoint type represents an observable simulation event, and
+provides various options for awaiting or tracing this event.</p>
+<p>It is usually preferable to use snoopers rather than breakpoint types, but in
+some cases breakpoint types may offer features that snoopers don’t.</p>
+<p>For this reason, the <code>bp-manager</code> module provides a generic wrapper that turns a
+breakpoint type into a snooper: The Python class
+<code>simmod.bp_manager.snooper.BP(obj, *args, **kwargs)</code> is a snooper based on the
+breakpoint type represented by the configuration object <code>obj</code>, where <code>args</code> and
+<code>kwargs</code> are interpreted as CLI arguments to the breakpoint type. For instance,
+the command <code>bp.log.run-until object = sim substr = "a.*b" -regexp</code>, which has a
+direct Python wrapping <code>conf.bp.log.cli_cmds.run_until(object=conf.sim, substr='a.*b', regexp=True)</code>, can be wrapped in a snooper as
+<code>simmod.bp_manager.snooper.BP(conf.bp.log, object=conf.sim, substr='a.*b', regexp=True)</code>;</p>
+<p>A breakpoint manager based snooper can sometimes offer a pragmatic interim
+solution while migrating a script branch to a Sloop coroutine; however, please
+note that there is often more direct approach based on native snoopers. For
+instance, the example above can be expressed using the <code>Filter</code> snooper:
+<code>snoop.Filter(lambda msg: re.search('a.*b', msg.message), snoop.Log(conf.sim))</code></p>
+
+<div class="chain">
+<a href="script-branch.html">4 Integration with Script Branches</a>
+<a href="snoop-refman.html">6 Snoop Module Reference</a>
+</div>

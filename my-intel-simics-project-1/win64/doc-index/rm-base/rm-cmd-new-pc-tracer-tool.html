@@ -1,0 +1,55 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-pc-tracer-tool</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-os-awareness.html">new-os-awareness</a>
+<a href="rm-cmd-new-pci-accel-vga-comp.html">new-pci-accel-vga-comp</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-pc-tracer-tool"></a>
+<h1 id="new-pc-tracer-tool"><a href="#new-pc-tracer-tool">new-pc-tracer-tool</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-pc-tracer-tool</b> [<i>"name"</i>] [<i>file</i>] [<i>trace-history-size</i>] [<i>address-type</i>] [-print-processor] [-print-engine] [-thread-safe] ([ <i>processors</i> ... ] | list of <i>processors</i>) [<i>parent</i>] [-connect-all] [<i>"group"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Creates a new PC tracer tool that records the program counter address for every executed instruction on connected processors. Each trace entry contains the processor number and PC address.
+<p>
+The <i>file</i> argument specifies a file to write the trace to. Without a file, the trace is printed to standard output.
+</p><p>
+If <i>trace-history-size</i> is set, the tool keeps entries in a cyclic memory buffer instead of writing continuously. The buffer can be saved to a file with <tt>save-trace-buffer</tt> or viewed with <tt>print-trace-buffer</tt>.
+</p><p>
+The <i>address-type</i> argument selects the type of address to trace. Use <tt>virtual</tt> (default) for virtual addresses or <tt>physical</tt> for physical addresses.
+</p><p>
+If <tt>-print-processor</tt> is specified, each trace entry is prefixed with the processor name.
+</p><p>
+If <tt>-print-engine</tt> is specified, each trace entry is prefixed with the engine used to execute the instruction.
+</p><p>
+If <tt>-thread-safe</tt> is specified, a mutex is used to protect the trace buffer from concurrent access when multiple processors run in parallel. Without this flag, buffer updates are faster but may produce incorrect results if processors execute simultaneously. <br>
+<br>
+The optional <i>name</i> argument can be used to set a name of the created object. If no name is given, a default name <i>pc_trace</i> followed by a sequence number is generated (<i>pc_trace0</i>, <i>pc_trace1</i>,...).<br>
+<br>
+ The optional <i>processors</i> argument, supports connecting one or several processors directly. With the optional <i>parent</i> argument a hierarchical object can be specified and all processors below this object matching the provider requirements will be connected to the tool. The <tt>-connect-all</tt> flag can be given to add a connection to all supported processors in the configuration.<br>
+<br>
+The optional argument <i>group</i> lets a user specify a named instrumentation group to use for the connection. (See <code>add-instrumentation-group</code> for details on named groups.)
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.pc-tracer-tool.html">pc-tracer-tool</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-os-awareness.html">new-os-awareness</a>
+<a href="rm-cmd-new-pci-accel-vga-comp.html">new-pci-accel-vga-comp</a>
+</div>

@@ -1,0 +1,31 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>31 Create Customer Packages</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="project-packager-introduction.html">30 Introduction</a>
+<a href="examples.html">32 Examples</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-packages-creation.html">V Creating Own Packages</a>
+&nbsp;/&nbsp;</div><h1 id="create-customer-packages"><a href="#create-customer-packages">31 Create Customer Packages</a></h1>
+<p>Customer Packages are created with the <code>bin/project-packager[.bat]</code> as
+documented in the usage text available by running with the <code>--help</code> flag. The
+basic operation is to <code>cd</code> to the <code>[project]</code> directory and run the command. The
+packager will prompt for a package description, name, number, and files to
+include. By default all targets and modules in the <code>[project]</code> will be included.
+On subsequent runs the choices previously made will become the defaults allowing
+successive editing of package contents if simply including all is not quite
+specific enough. Interactivity can be disabled by using the <em>–batch</em> argument
+which simply chooses all the defaults. The resulting <code>.ispm</code> will be located in
+<code>[project]/packageinfo/[package name].ispm</code>.</p>
+
+<div class="chain">
+<a href="project-packager-introduction.html">30 Introduction</a>
+<a href="examples.html">32 Examples</a>
+</div>

@@ -1,0 +1,49 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;benchmark_db&gt;.html-diff-report</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.garbage-collect.html">&lt;benchmark_db&gt;.garbage-collect</a>
+<a href="rm-cmd-benchmark_db.html-report.html">&lt;benchmark_db&gt;.html-report</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="benchmark_db.html-diff-report"></a>
+<h1 id="benchmark_db.html-diff-report"><a href="#benchmark_db.html-diff-report">&lt;benchmark_db&gt;.html-diff-report</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;benchmark_db&gt;.html-diff-report</b> <i>baseline-run-id</i> <i>comparison-run-id</i> [<i>html-dir</i>] [<i>graph-spec-json-file</i>] [-open-browser] [-one-page] [-ai] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Produce a diff performance report in HTML comparing a <i>baseline-run-id</i> against a <i>comparison-run-id</i>.
+<p>
+The report highlights differences between the two runs, showing diff badges on accordion sections, diff flamegraphs, and side-by-side tables.
+</p><p>
+<i>html-dir</i> argument specifies the directory for the HTML report. If not specified, a temporary directory will be created. The file "index.html" is the start page.
+</p><p>
+The <i>graph-spec-json-file</i> argument points out a json file used for selecting which graphs to produce. If not specified, a default file will be used.
+</p><p>
+The <tt>-open-browser</tt> switch starts a web-browser directly on the generated file.
+</p><p>
+The <tt>-one-page</tt> switch puts all graphs on the same page instead of splitting into sub-pages.
+</p><p>
+The <tt>-ai</tt> switch enables AI-powered analysis of the benchmark results. This requires that the Simics <tt>ai-mode</tt> feature is enabled and functional in the current session. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.benchmark-database.html">benchmark-database</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.garbage-collect.html">&lt;benchmark_db&gt;.garbage-collect</a>
+<a href="rm-cmd-benchmark_db.html-report.html">&lt;benchmark_db&gt;.html-report</a>
+</div>

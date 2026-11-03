@@ -1,0 +1,92 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample_core_timing_connection</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-qsp-v2-namespace.html">qsp-v2-namespace</a>
+<a href="rm-class-sample_core_timing_tool.html">sample_core_timing_tool</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample_core_timing_connection"><a href="#sample_core_timing_connection">sample_core_timing_connection</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Sample x86 core timing connection
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_connection, telemetry
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample_core_timing_connection.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample_core_timing_connection.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cpu"><a href="#dt:cpu">
+<i>cpu</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>o</code>
+<br>Returns the connected cpu</dd>
+<dt id="dt:static_events"><a href="#dt:static_events">
+<i>static_events</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[si]*]</code>
+<br>Statistics for static events, like read, write and total number of instructions.</dd>
+<dt id="dt:dynamic_events"><a href="#dt:dynamic_events">
+<i>dynamic_events</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[si]*]</code>
+<br>Statistics for instruction classes.</dd>
+<dt id="dt:telemetry_data"><a href="#dt:telemetry_data">
+<i>telemetry_data</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[sff]*]</code>
+<br>Telemetry for the core together with average values.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-core-timing.html">sample-core-timing</a>
+</section>
+<div class="chain">
+<a href="rm-class-qsp-v2-namespace.html">qsp-v2-namespace</a>
+<a href="rm-class-sample_core_timing_tool.html">sample_core_timing_tool</a>
+</div>

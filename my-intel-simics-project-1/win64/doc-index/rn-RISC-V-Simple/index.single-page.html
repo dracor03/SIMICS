@@ -1,0 +1,96 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>RISC-V Simple (Package Number 2053) Release Notes</title>
+
+<section class="page" id="index.html"><h1 id="index.html:risc-v-simple-package-number-2053-release-notes"><a href="#index.html:risc-v-simple-package-number-2053-release-notes">RISC-V Simple (Package Number 2053) Release Notes</a></h1>
+<p>This document contains release notes for the package <em>RISC-V Simple</em>
+(package number 2053) for Simics 7.
+The release notes describe new features, bug fixes, and other changes.</p>
+<h2 id="index.html:changes-since-version-7-0-0"><a href="#index.html:changes-since-version-7-0-0">Changes Since Version 7.0.0</a></h2>
+<p>The following is a list of changes since the initial 7.0.0 release.</p>
+<h2 id="index.html:7-14-0-build-7150"><a href="#index.html:7-14-0-build-7150">7.14.0 (build 7150)</a></h2>
+<h3 id="index.html:common"><a href="#index.html:common">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h2 id="index.html:7-13-0-build-7125"><a href="#index.html:7-13-0-build-7125">7.13.0 (build 7125)</a></h2>
+<h3 id="index.html:risc-v-simple-target"><a href="#index.html:risc-v-simple-target">RISC-V* Simple Target</a></h3>
+<ul>
+<li>The package now requires Simics-Base version 7.33.0 or later.</li>
+</ul>
+<h2 id="index.html:7-12-0-build-7108"><a href="#index.html:7-12-0-build-7108">7.12.0 (build 7108)</a></h2>
+<h3 id="index.html:risc-v-simple-target-2"><a href="#index.html:risc-v-simple-target-2">RISC-V* Simple Target</a></h3>
+<ul>
+<li>The package now contains the <code>riscv-interrupt-controller</code> model.</li>
+</ul>
+<h2 id="index.html:7-11-0-build-7095"><a href="#index.html:7-11-0-build-7095">7.11.0 (build 7095)</a></h2>
+<h3 id="index.html:risc-v-simple-target-3"><a href="#index.html:risc-v-simple-target-3">RISC-V* Simple Target</a></h3>
+<ul>
+<li>Added bare-metal target together with a simple snake image.</li>
+</ul>
+<h2 id="index.html:7-10-0-build-7075"><a href="#index.html:7-10-0-build-7075">7.10.0 (build 7075)</a></h2>
+<h2 id="index.html:7-9-0-build-7069"><a href="#index.html:7-9-0-build-7069">7.9.0 (build 7069)</a></h2>
+<h3 id="index.html:blueprints-for-a-risc-v-simple-platform"><a href="#index.html:blueprints-for-a-risc-v-simple-platform">Blueprints for a RISC-V simple platform</a></h3>
+<ul>
+<li>The RISC-V-Simple package now requires minimum Simics-Base 7.31.0.</li>
+</ul>
+<h3 id="index.html:risc-v-simple-target-4"><a href="#index.html:risc-v-simple-target-4">RISC-V* Simple Target</a></h3>
+<ul>
+<li>Updated documentation to set fixed OpenSBI version v1.4.
+Later versions sets physical offset to 0x0 in ELF images while earlier
+sets them to 0x80000000. Currently the platform expects the ELF offset
+at 0x80000000 (fixes SIMICS-23006).</li>
+</ul>
+<h2 id="index.html:7-8-0-build-7056"><a href="#index.html:7-8-0-build-7056">7.8.0 (build 7056)</a></h2>
+<h3 id="index.html:risc-v-simple-board-component"><a href="#index.html:risc-v-simple-board-component">RISC-V* Simple Board Component</a></h3>
+<ul>
+<li>No changes.</li>
+</ul>
+<h2 id="index.html:7-7-0-build-7055"><a href="#index.html:7-7-0-build-7055">7.7.0 (build 7055)</a></h2>
+<h3 id="index.html:risc-v-interrupt-controllers"><a href="#index.html:risc-v-interrupt-controllers">RISC-V Interrupt Controllers</a></h3>
+<ul>
+<li>New attribute <code>error_on_incorrect_sized_access</code> is added to CLINT. When set accesses with size not matching the register looked for will get <code>Sim_PE_IO_Error</code> returned.</li>
+</ul>
+<h3 id="index.html:risc-v-simple-target-5"><a href="#index.html:risc-v-simple-target-5">RISC-V* Simple Target</a></h3>
+<ul>
+<li>Added a Goldfish RTC device which can be used to set the target time to the host time (the default) or a fixed time via the hardware:rtc:time target parameter.</li>
+<li>Fixed a problem with target parameter default overrides (fixes SIMINT-1652).</li>
+</ul>
+<h2 id="index.html:7-6-0-build-7035"><a href="#index.html:7-6-0-build-7035">7.6.0 (build 7035)</a></h2>
+<h3 id="index.html:risc-v-simple-target-6"><a href="#index.html:risc-v-simple-target-6">RISC-V* Simple Target</a></h3>
+<ul>
+<li>Make use of new <code>allow_empty</code> target parameter flag. The
+package now requires Simics-Base 7.19.0 or later.</li>
+</ul>
+<h2 id="index.html:7-5-0-build-7027"><a href="#index.html:7-5-0-build-7027">7.5.0 (build 7027)</a></h2>
+<h3 id="index.html:risc-v-simple-target-7"><a href="#index.html:risc-v-simple-target-7">RISC-V* Simple Target</a></h3>
+<ul>
+<li>Fixed a problem when using writable persistent state. The package now requires Simics-Base version 7.14.0 or later.</li>
+</ul>
+<h2 id="index.html:7-4-0-build-7023"><a href="#index.html:7-4-0-build-7023">7.4.0 (build 7023)</a></h2>
+<h3 id="index.html:common-2"><a href="#index.html:common-2">Common</a></h3>
+<ul>
+<li>The signing certificate on Simics packages has been updated.</li>
+</ul>
+<h2 id="index.html:7-3-0-build-7017"><a href="#index.html:7-3-0-build-7017">7.3.0 (build 7017)</a></h2>
+<h3 id="index.html:risc-v-simple-target-8"><a href="#index.html:risc-v-simple-target-8">RISC-V* Simple Target</a></h3>
+<ul>
+<li>Fixed Linux multi target script to set unique default seeding values for the Virtio Entropy devices on the different machines (fixes SIMICS-22307).</li>
+<li>The bootloader used is now the Dynamic Information Firmware from OpenSBI. The dynamic bootloader allows information about the next booting stage to be runtime configurable. Previously the Jump Address Firmware from OpenSBI was used, which instead had this information statically provided during compiliation (fixes SIMINT-1622).</li>
+</ul>
+<h2 id="index.html:7-2-0-build-7016"><a href="#index.html:7-2-0-build-7016">7.2.0 (build 7016)</a></h2>
+<h3 id="index.html:risc-v-simple-target-9"><a href="#index.html:risc-v-simple-target-9">RISC-V* Simple Target</a></h3>
+<ul>
+<li>Fixed wrong status in DTS uart0 (fixes SIMINT-1620).</li>
+<li>Fixed string <code>stdout-path</code> in the provided device tree config, <code>risc-v-simple.dts</code> in package (fixes SIMICS-22069).</li>
+</ul>
+<h2 id="index.html:7-1-0-build-7007"><a href="#index.html:7-1-0-build-7007">7.1.0 (build 7007)</a></h2>
+<h3 id="index.html:common-3"><a href="#index.html:common-3">Common</a></h3>
+<ul>
+<li>Updated the batch (<code>.bat</code>) files in the <code>bin</code> folder so that they do not leak environment variables to the current <code>cmd.exe</code> command shell on Windows (fixes SIMICS-21906).</li>
+</ul>
+<h2 id="index.html:7-0-0-build-7006"><a href="#index.html:7-0-0-build-7006">7.0.0 (build 7006)</a></h2>
+<h2 id="index.html:changes-since-previous-major-in-initial-release"><a href="#index.html:changes-since-previous-major-in-initial-release">Changes Since Previous Major in Initial Release</a></h2>
+<p>The following is a list of changes in 7.0.0 since the previous major.</p>
+</section>

@@ -1,0 +1,160 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>instrumentation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="systempanel.widgets.html">systempanel.widgets</a>
+<a href="stest.html">stest</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="instrumentation"><a href="#instrumentation">instrumentation</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>instrumentation</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import instrumentation
+</code></pre>
+</section>
+<h2 id="instrumentation.delete_filter"><a href="#instrumentation.delete_filter">instrumentation.delete_filter</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>instrumentation.delete_filter(filter_obj)
+</code></pre>
+<h2>Description</h2>
+<p>Python function which removes a filter.</p>
+<p>Used by a filter when a filter object removes itself. Needed to keep the instrumentation framework consistent in regards of which filters that are associated with tools.</p>
+</section>
+<h2 id="instrumentation.get_filter_source"><a href="#instrumentation.get_filter_source">instrumentation.get_filter_source</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>instrumentation.get_filter_source(fname)
+</code></pre>
+<h2>Description</h2>
+<p>Python function to get hold of a unique filter id.</p>
+<p>For a given name, which could be the filter object name, return an unique number which identifies this filter.</p>
+</section>
+<h2 id="instrumentation.make_tool_commands"><a href="#instrumentation.make_tool_commands">instrumentation.make_tool_commands</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>instrumentation.make_tool_commands(
+    simics_class,
+    object_prefix,
+    provider_requirements,
+    tied_to_class=None,
+    provider_names=('provider', 'providers'),
+    cmd_type=None,
+    make_new_cmd=True,
+    make_add_instrumentation_cmd=True,
+    make_remove_instrumentation_cmd=True,
+    make_enable_cmd=True,
+    make_disable_cmd=True,
+    make_info_cmd=True,
+    make_status_cmd=True,
+    make_delete_cmd=True,
+    fast_delete=False,
+    make_filter_cmds=True,
+    new_cmd_name=None,
+    new_cmd_extra_args=([], None),
+    new_cmd_can_connect=True,
+    new_cmd_doc='',
+    connect_extra_args=([], None, ''),
+    connect_all_flag=True,
+    info_cmd_extend_fn=None,
+    status_cmd_extend_fn=None,
+    unsupported=False
+)
+</code></pre>
+<h2>Description</h2>
+<p>Python function which creates commands for instrumentation tools</p>
+<p>This factory function creates several useful commands for an instrumentation tool. Using this function will assert that all instrumentation tools works in an uniform manner. The following commands are created:</p>
+<ul>
+<li><code>new-&lt;tool&gt;</code></li>
+<li><code>&lt;tool&gt;.add-instrumentation</code></li>
+<li><code>&lt;tool&gt;.remove-instrumentation</code></li>
+<li><code>&lt;tool&gt;.enable-instrumentation</code></li>
+<li><code>&lt;tool&gt;.disable-instrumentation</code></li>
+<li><code>&lt;tool&gt;.info</code></li>
+<li><code>&lt;tool&gt;.status</code></li>
+<li><code>&lt;tool&gt;.delete</code></li>
+<li><code>&lt;tool&gt;.add-filter</code></li>
+<li><code>&lt;tool&gt;.remove-filter</code></li>
+</ul>
+<p>The function should be called from the tool’s <code>simics_start.py</code> file (read at Simics start-up time, before the module is loaded). The <code>new-&lt;tool&gt;</code> will be created directly while the other commands will appear once the tool’s module has been loaded.</p>
+<p>For the simplest case, only the <code>simics_class</code>, <code>object_prefix</code> and <code>provider_requirements</code> parameters needs to be specified. The rest of the parameters can be used to make tool specific adaptations for the commands created.</p>
+<p>By default, all commands useful for an instrumentation tool are created. However, if certain commands should be omitted, the corresponding <code>make_*</code> parameters can be set to False.</p>
+<p><code>new-&lt;tool&gt;</code>: This command creates a Simics object for the given class. The command will be called <code>new-&lt;simics_class&gt;</code> where any underscores are replaced with hyphens. The <code>object_prefix</code> is used to create an automatic name for the object, by concatenating the prefix with a serial number. This automatic name can be overridden by supplying the <code>name</code> command argument.</p>
+<p>The <code>provider_requirements</code> specifies what interface(s) the tool depends on from the provider in order to connect, two variants can be used.</p>
+<ul>
+<li>A string with the interface requirement. For example, <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> (when this interface is needed) or more complex such as <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> &amp; <a href="model-to-model-interfaces.html#x86_instrumentation_subscribe_interface_t"><code>x86_instrumentation_subscribe</code></a> when both interfaces must be available.</li>
+<li>A Python function acting as a filter function, which takes an object as argument and returns True if it was accepted or False if it should not be connected.</li>
+</ul>
+<p>By default, the <code>new-&lt;tool&gt;</code> command is created in the Simics global namespace. The optional <code>tied_to_class</code> creates the <code>new-&lt;tool&gt;</code> command in the class’s namespace, i.e. it will be invoked as <code>&lt;class&gt;.new-&lt;tool&gt;</code>.</p>
+<p>The <code>provider_names</code> parameter should be a tuple of two strings, where the first part is the singular name of the provider and the second the plural. This can be used to give a more descriptive name for the provider objects, e.g., (‘processor’, ‘processors’) or (‘mouse’, ‘mice’). This is used in both the argument description and the commands associated help text. If the tool can only be connected to one object, <code>None</code> can be specified as the plural argument.</p>
+<p>By default, the <code>new-&lt;tool&gt;</code> command uses simics_class as the command name. Other name can be used by setting the optional <code>new_cmd_name</code>.</p>
+<p>If the tool needs additional arguments when created, for instance to be able to set required attributes, the <code>new_cmd_extra_args</code> parameter can be used. This parameter is a tuple with two elements; the first specifies additional CLI arguments added to the command and the second element specifies a function that will be called to create the object. The function takes the class of the tool, the name of the object, and then user added parameters corresponding to the CLI arguments. The function should return the created object. The following example illustrates how this can be done:</p>
+<pre><code>import instrumentation
+def create_logger(tool_class, name, filename):
+    return SIM_create_object(tool_class, name, log_file=filename)
+
+instrumentation.make_tool_commands(
+    'logger_tool', 'logger',
+    new_cmd_extra_args = ([(filename_t(), 'log-file', '?', 'default.log')],
+                          create_logger),
+    new_cmd_doc = 'The log-file argument sets the log file to write to')
+</code></pre>
+<p>The optional <code>cmd_type</code> may specify a list of help categories for the created commands. If not specified, all commands will be added to the “Instrumentation” category.</p>
+<p>By default, the <code>new-&lt;tool&gt;</code> command will get the same connection arguments as the <code>&lt;tool&gt;.add-instrumentation</code> command, see below. However, the <code>new_cmd_can_connect</code> can be set to False to remove the connection arguments.  The <code>new_cmd_doc</code> can be set to improve and customize the help text for the command.</p>
+<p><code>&lt;tool&gt;.add-instrumentation</code>: This command connects the tool to one or several providers.</p>
+<p>The <code>connect_all_flag</code> which is set to True by default adds a <code>-connect-all</code> command switch to the <code>add-instrumentation</code> command. This is a convenient way to connect to all compatible providers in the system.</p>
+<p>When using <code>add-instrumentation</code>, each connection to a provider can be configured differently, allowing the tool to instrument different aspects of the system. Tools that supports this, should use the <code>connect_extra_args</code> parameter to add additional arguments to the command. This parameter is a tuple with three elements:</p>
+<ul>
+<li><em>The additional CLI arguments as a list</em>. A pre-connect function (called prior to connecting to the provider), which takes the parameters: (tool_object, provider_object, *additional_cli_args). The function should return a tuple with two elements; the argument list which will be passed to the tool’s <code>connect()</code> method, followed by a textual description of the arguments used, this string is used as a short description of the connection and will for instance be used by the <a href="../rm-base/rm-cmd-list-instrumentation.html">list-instrumentation</a> command. Any errors in the additional arguments can raise a <strong>cli.CliError</strong> exception, causing the connection to be discarded.</li>
+<li>Additional documentation for the arguments added to the <code>add-instrumentation</code> command, found in the help text of the command.</li>
+</ul>
+<p>The provider can be <code>None</code> if the tool is created without any connection(s).  This allows the tool to signal an error if arguments are given which do not have any effect.</p>
+<p>The following code is an example of how to use the <code>connect_extra_args</code>:</p>
+<pre><code>import instrumentation
+def pre_connect(obj, provider, verbose_flag, reg_num):
+    if provider == None and (verbose_flag or reg_num != None):
+        raise cli.CliError("Connect arguments given without a provider")
+
+    args = [["verbose", verbose_flag],
+            ["reg_num", reg_num]]
+    desc = 'Traces reg-%d %s' % (
+        reg_num, '-verbose' if verbose_flag else '')
+    return (args, desc)
+
+instrumentation.make_tool_commands(
+    'reg-trazer', 'traze',
+    connect_extra_args = (
+        [cli.arg(cli.flag_t, '-v'),
+         cli.arg(cli.int_t, 'reg-num', "?", None)],
+        pre_connect,
+        '-v for verbose mode. The reg-num sets which register to trace.'))
+</code></pre>
+<p>The <code>add-instrumentation</code> command also gets a <code>group</code> argument that can be set to add the connection to an instrumentation group. See the <a href="../rm-base/rm-cmd-add-instrumentation-group.html">add-instrumentation-group</a> command for more information.</p>
+<p><code>&lt;tool&gt;.remove-instrumentation</code>: This command removes connections previously established.</p>
+<p><code>&lt;tool&gt;.info</code> and <code>&lt;tool&gt;.status</code>: These commands displays some simple generic instrumentation information. It is also possible to extend the output of the info/status commands by passing a Python function in the <code>info_cmd_extend_fn</code> and <code>status_cmd_extend_fn</code> parameters. These functions takes the tool objects as parameter and should return a list of the following format:</p>
+<p><code>[(heading, [(tag, value), ...]), ...]</code></p>
+<p>This gives the following output to the info/status command:</p>
+<pre><code>heading:
+   tag1 : value1
+   tag2 : value2
+   ...
+...
+</code></pre>
+<p><code>&lt;tool&gt;.disable-instrumentation</code> and <code>&lt;tool&gt;.enable-instrumentation</code>: These commands allows the user to disable and enable the tools connections.</p>
+<p><code>&lt;tool&gt;.add-filter</code> and <code>&lt;tool&gt;.remove-filter</code>: These commands add or remove a filter associated with the tool. A filter can disable and enable the tools connection during execution.</p>
+<p>The <code>&lt;tool&gt;.delete</code> command will remove the tool and the corresponding connections. By default, connections are teared down one by one by the disconnect() method in the instrumentation-tool interface. On large configurations with many objects, and connections this leads to performance problems iterating over SIM_delete_object() many times. The <code>fast_delete</code> switch can be set to true, to change the delete mechanism and only the tool itself is initially removed, and all the children (connections and aggregators) are automatically deleted as a side-effect. This requires that the connection objects are placed under the tool object itself, such as “tool0.conn0”.</p>
+</section>
+<div class="chain">
+<a href="systempanel.widgets.html">systempanel.widgets</a>
+<a href="stest.html">stest</a>
+</div>

@@ -1,0 +1,1260 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.3 Simics Scripting Environment</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="cli.html">2.2 The Command Line Interface</a>
+<a href="configuration.html">2.4 Configuration and Checkpointing</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="feature-overview.html">2 Feature Overview</a>
+&nbsp;/&nbsp;</div><h1 id="simics-scripting-environment"><a href="#simics-scripting-environment">2.3 Simics Scripting Environment</a></h1>
+<p>The Command Line Interface in Simics provides scripting capabilities that can be
+used to write parameterized configurations and scripts that control or inspect
+simulated sessions. For even more advanced scripting, the Python language can be
+used.</p>
+<p>This chapter describes how to write simple scripts in the Simics command line
+interface (CLI), using control flow commands, variables and <em>script branches</em>.
+It also explains how the configuration system can be accessed from scripts, and
+how Python can be used for more advanced script programming.</p>
+<p>All commands can be executed either by typing them at the prompt in the Simics
+console, or by writing them to a file, e.g., <code>example.simics</code>, and executing the
+command <code>run-script example.simics</code>, or for Python examples <code>run-script example.py</code>.</p>
+<blockquote class="markdown-alert-note">
+<p>Scripts should normally not start the simulation. If a script starts the
+simulation, that is a synchronous (blocking) call. Control is not returned to
+CLI until the simulation is stopped. If the script does not stop itself, the
+simulation may be stopped by using the GUI controls or by entering <code>Ctrl-C</code>
+in CLI.</p>
+</blockquote>
+<h2 id="script-support-in-cli"><a href="#script-support-in-cli">2.3.1 Script Support in CLI</a></h2>
+<h3 id="why-use-cli-scripting-instead-of-python"><a href="#why-use-cli-scripting-instead-of-python">2.3.1.1 Why Use CLI Scripting Instead of Python</a></h3>
+<p>There are a number of situations where it may make sense to use the scripting
+support in CLI due to its advantages over Python. Still, if the script starts to
+grow in size and complexity, or if more complete and detail control of the
+simulation is needed, then Python is the obvious choice.</p>
+<dl>
+<dt id="dt:same-environment-as-on-the-command-line"><a href="#dt:same-environment-as-on-the-command-line">Same environment as on the command line</a></dt>
+<dd>CLI is
+suitable for interactive use with its simple syntax and features such as
+context sensitive tab completion. Being able to script using the same set of
+command simplifies script writing.</dd>
+<dt id="dt:cli-hides-simics-api-restrictions"><a href="#dt:cli-hides-simics-api-restrictions">CLI hides Simics API restrictions</a></dt>
+<dd>The Simics API has
+restrictions on when certain API functions may be called. For example, some
+functions cannot be used while an instruction is executing. The CLI script
+environment will only run commands in a context where the full API is
+available, greatly simplifying scripting.</dd>
+<dt id="dt:easy-to-write-sequential-code-that-waits-for-events-to-occur"><a href="#dt:easy-to-write-sequential-code-that-waits-for-events-to-occur">Easy to write sequential code that waits for events to occur</a></dt>
+<dd>By using script branches, it is easy to write sequential code
+that can wait for various events in the system, postponing the rest of the
+script until they occur.</dd>
+</dl>
+<h3 id="variables"><a href="#variables">2.3.1.2 Variables</a></h3>
+<p>The Simics command line has support for string, integer, floating point, list
+and Boolean variables. Variables are always prefixed with the <code>$</code> character. A
+variable has to be created by assigning a value to it, before it can be used.</p>
+<pre><code class="language-simics">simics&gt; <strong>$foo = "some text"</strong>
+simics&gt; <strong>$foo</strong>
+"some text"
+simics&gt; <strong>echo $not_used_before</strong>
+No CLI variable "not_used_before"
+</code></pre>
+<p>The <code>defined</code> expression can be used to test if a variable has been defined.
+Note that this command takes the name of the variable only, i.e. without the
+<code>$</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>$foo = 4711</strong>
+simics&gt; <strong>if defined foo { echo "foo is defined"}</strong>
+foo is defined
+</code></pre>
+<p>List variables can be indexed, something that is useful in loops for example.</p>
+<pre><code class="language-simics">simics&gt; <strong>$foo = []</strong>
+simics&gt; <strong>$foo[0] = 10</strong>
+simics&gt; <strong>$foo[1] = 20</strong>
+simics&gt; <strong>echo $foo[0] + $foo[1]</strong>
+30
+simics&gt; <strong>$foo</strong>
+[10, 20]
+simics&gt; <strong>$foo += ["abc"]</strong>
+[10, 20, "abc"]
+simics&gt; <strong>list-length $foo</strong>
+3
+</code></pre>
+<p>CLI also has support for local variables, described later in this chapter.</p>
+<h3 id="command-return-values"><a href="#command-return-values">2.3.1.3 Command Return Values</a></h3>
+<p>The return value of a command is printed on the console, unless it is used as
+argument to some other command. Parenthesis <code>()</code> are used to group a command
+with arguments together, allowing the return value to be used as argument. The
+return value can also be used as namespace in another command. Variables can be
+used in the same way.</p>
+<pre><code class="language-simics">simics&gt; <strong>$address = 0x7ff00000</strong>
+simics&gt; <strong>set $address 20</strong>
+simics&gt; <strong>echo "The Value at address " + $address + " is " + (get $address)</strong>
+The Value at address 2146435072 is 20
+
+simics&gt; <strong>$id = 0</strong>
+simics&gt; <strong>("board.mb.cpu0.core[" + $id + "][" + $id + "]").print-time</strong>
+processor                   steps  cycles  time [s]
+board.mb.cpu0.core[0][0]        0       0     0.000
+</code></pre>
+<p>Although in this particular case it is simpler to write:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[$id][$id].print-time</strong>
+processor                   steps  cycles  time [s]
+board.mb.cpu0.core[0][0]        0       0     0.000
+simics&gt; <strong>$cpu = board.mb.cpu0.core[0][0]</strong>
+simics&gt; <strong>$cpu.print-time</strong>
+processor                   steps  cycles  time [s]
+board.mb.cpu0.core[0][0]        0       0     0.000
+</code></pre>
+<p>Parenthesis can also be used to break a command with its arguments across
+multiple lines, making it easier to read scripts with expressions and nested
+command invocations.</p>
+<h3 id="control-flow-commands"><a href="#control-flow-commands">2.3.1.4 Control Flow Commands</a></h3>
+<p>The script support in CLI has support for common flow control commands such as
+<code>if</code>, <code>else</code>, <code>while</code> as well as <code>foreach</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>$value = 10</strong>
+simics&gt; <strong>if $value &gt; 5 { echo "Larger than five!" }</strong>
+Larger than five!
+</code></pre>
+<p>The <code>if</code> statement has a return value:</p>
+<pre><code class="language-simics">simics&gt; <strong>$num_cpus = 2</strong>
+simics&gt; <strong>(if $num_cpus &gt; 1 { "multi" } else { "single" }) + "-pro"</strong>
+multi-pro
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Multi-line <code>if-else</code> statements must have <code>} else {</code> on the same line.</p>
+</blockquote>
+<p>It is also possible to have <code>else</code> followed by another <code>if</code> statement.</p>
+<pre><code class="language-simics">simics&gt; <strong>$b = 0</strong>
+simics&gt; <strong>if $b == 1 {</strong>
+.......     echo 10
+....... } else if $b == 0 {
+.......     echo 20
+....... } else {
+.......     echo 30
+....... }
+20
+</code></pre>
+<p>Loops can be written with the <code>while</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>$loop = 3</strong>
+simics&gt; <strong>while $loop {</strong>
+.......     echo $loop
+.......     $loop -= 1
+....... }
+3
+2
+1
+</code></pre>
+<p>They can also be written using the <code>foreach</code> list iteration command. The <code>range</code>
+command in the example returns a list of integers from 0 up to, but not
+including, 3.</p>
+<pre><code class="language-simics">simics&gt; <strong>foreach $loop in (range 3) {</strong>
+.......     echo $loop
+....... }
+0
+1
+2
+</code></pre>
+<p>Here is another example that shows how <code>foreach</code> can be used. The
+<code>get-object-list</code> commands return a list of all objects that implement the
+processor_internal interface in Simics:</p>
+<pre><code class="language-simics">simics&gt; <strong>foreach $cpu in (list-objects -all processor_internal) {</strong>
+.......     echo "Cycles on " + ($cpu-&gt;name) + ": " + ($cpu.print-time -c)
+....... }
+Cycles on board.mb.cpu0.core[0][0]: 0
+</code></pre>
+<p>Lists can also be written directly, for example:</p>
+<pre><code class="language-simics">simics&gt; <strong>foreach $loop in [1, 2, 3] {</strong>
+.......     echo $loop
+....... }
+1
+2
+3
+</code></pre>
+<p>Within command blocks, it can be useful to have variables that are local to the
+scope and thus do not collide with the names of global variables. By adding
+<code>local</code> before the first assignment of a variable, the variable is made local.</p>
+<pre><code class="language-simics">simics&gt; <strong>$global = 10</strong>
+simics&gt; <strong>if TRUE {</strong>
+.......     local $global = 20
+.......     echo $global
+....... }
+20
+simics&gt; <strong>echo $global</strong>
+10
+</code></pre>
+<h3 id="integer-conversion"><a href="#integer-conversion">2.3.1.5 Integer Conversion</a></h3>
+<p>In some cases it is useful to interpret an integer as a signed value of a
+specific bit size, for example when reading four bytes from memory that should
+be interpreted as a signed 32 bit integer. The <code>signed</code>, <code>signed8</code>, …,
+<code>signed64</code> commands can be used to perform the conversion.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.phys_mem.set 0x7fe00000 0xffffffff 4</strong>
+simics&gt; <strong>board.mb.phys_mem.get 0x7fe00000 4</strong>
+4294967295 (LE)
+simics&gt; <strong>signed32 (board.mb.phys_mem.get 0x7fe00000 4)</strong>
+-1
+</code></pre>
+<p>Other useful and related commands are <code>atoi</code>, <code>bits</code>, <code>int-to-*-float</code>, <code>bin</code>,
+<code>dec</code>, <code>hex</code>, and <code>oct</code>.</p>
+<h3 id="accessing-configuration-attributes"><a href="#accessing-configuration-attributes">2.3.1.6 Accessing Configuration Attributes</a></h3>
+<p>Simics configuration attributes that are of string, integer, floating point,
+Boolean, nil, and list types can be accessed directly from CLI using the <code>-&gt;</code>
+operator.</p>
+<pre><code class="language-simics">simics&gt; <strong>echo "Current project: " + (sim-&gt;project)</strong>
+Current project: C:\Users\joe\Desktop\project
+</code></pre>
+<p>An object referenced with this operator returns the object’s name as a string.</p>
+<p>A nil attribute value is represented by <code>NIL</code> in CLI.</p>
+<p>To access attributes that use other data types than the ones listed above, you
+need to use Python:</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.myobject.attr.dictionary_attribute = { 1 : "abc" }</strong>
+</code></pre>
+<p>See chapter <a class="reference" href="#configuration-objects">2.3.4.3.1</a> for more information about accessing
+attributes from Python.</p>
+<h3 id="error-handling-in-scripts"><a href="#error-handling-in-scripts">2.3.1.7 Error Handling in Scripts</a></h3>
+<p>When a Simics command encounters an error, an error message is typically
+printed, and the script execution is interrupted. In some cases the script
+itself want to handle the error, in order to try some alternative approach, or
+to present the error message with more context. The <code>try-except</code> statement can
+be used for this purpose.</p>
+<pre><code class="language-simics">simics&gt; <strong>try {</strong>
+    load-module my-own-components
+} except {
+    echo "Simics failed to import my-own components. Perhaps you forgot to "
+    echo "install the latest modules from the development team? See the "
+    echo "project web-site for more info.\n"
+
+    interrupt-script "Cannot continue"
+}
+</code></pre>
+<p>Without the <code>try-except</code> statement, the example above would print an error
+message like <code>Error loading module</code> and the script execution would be
+interrupted with an error.</p>
+<p>The error message from the failing command can be obtained inside the <code>except</code>
+block by calling the <code>get-error-message</code> CLI command. The <code>get-error-line</code>
+command returns the line of the error in the script file and <code>get-error-file</code>
+the file name. The <code>get-error-command</code> returns the command name if the error
+occurred within a command.</p>
+<h2 id="script-branches"><a href="#script-branches">2.3.2 Script Branches</a></h2>
+<h3 id="introduction-to-script-branches"><a href="#introduction-to-script-branches">2.3.2.1 Introduction to Script Branches</a></h3>
+<p>Script branches allow the user to write sequences of CLI commands that can be
+postponed, waiting for things to happen in the simulator, without breaking the
+sequential flow of commands. This is typically used to avoid breaking a script
+into many small sections, each run as a callback using Python.</p>
+<p>A simple example of a script branch:</p>
+<pre><code class="language-simics">simics&gt; <strong>script-branch "script branch description (optional)" {</strong>
+    echo "This is a script branch test - going to sleep."
+    board.mb.cpu0.core[0][0].wait-for-step 10
+    echo "Processor registers after 10 steps:"
+    board.mb.cpu0.core[0][0].print-processor-registers
+}
+</code></pre>
+<p>The example above will execute the first <code>echo</code> command at once, and then go to
+sleep waiting until the first 10 instructions (steps) have run. When the step
+counter for the processor has reached 10, the branch will wake up and run the
+next two commands, <code>echo</code> and <code>print-processor-registers</code>.</p>
+<p>A big difference between script branches and the main script is that the main
+script (also called main branch) may be interrupted by the user pressing the
+stop button or typing Ctrl-C. The script branches are unaffected by such actions
+and can exist in the background, coexisting with any interactive command line
+use.</p>
+<h3 id="how-script-branches-work"><a href="#how-script-branches-work">2.3.2.2 How Script Branches Work</a></h3>
+<p>When a script branch is started (using <code>script-branch</code>), it begins executing
+immediately, and runs until a <code>wait-for-</code>, command is issued. Execution is then
+resumed in the main script; i.e., there is never any concurrent activity. When
+some activity occurs that a script branch is waiting for, the branch continues
+executing once the currently simulated instruction is ready.</p>
+<blockquote class="markdown-alert-note">
+<p>Since only one branch can be active at once, any callback to Python from
+Simics will execute in the currently active branch, i.e., if a branch installs
+a callback, it is most likely that it will be called when the main branch is
+active.</p>
+</blockquote>
+<h3 id="script-branch-commands"><a href="#script-branch-commands">2.3.2.3 Script Branch Commands</a></h3>
+<p>The following is a list of the commands related to script branches.</p>
+<dl>
+<dt id="dt:script-branch"><a href="#dt:script-branch"><code>script-branch</code></a></dt>
+<dd>Create a new script branch and start it.</dd>
+<dt id="dt:list-script-branches"><a href="#dt:list-script-branches"><code>list-script-branches</code></a></dt>
+<dd>List all existing, but suspended, branches.</dd>
+<dt id="dt:interrupt-script-branch"><a href="#dt:interrupt-script-branch"><code>interrupt-script-branch</code></a></dt>
+<dd>Interrupt a script-branch, causing it to exit.</dd>
+<dt id="dt:create-script-barrier-num_branches"><a href="#dt:create-script-barrier-num_branches"><code>create-script-barrier</code> <em>num_branches</em></a></dt>
+<dd>Create a
+script barrier used to synchronize the execution of several script branches.
+The argument is the number of script branches that must enter the barrier
+before all of them are released.</dd>
+<dt id="dt:wait-for-script-barrier-barrier"><a href="#dt:wait-for-script-barrier-barrier"><code>wait-for-script-barrier</code> <em>barrier</em></a></dt>
+<dd>Suspend branch
+until enough branches have reached the script branch barrier.</dd>
+<dt id="dt:create-script-pipe"><a href="#dt:create-script-pipe"><code>create-script-pipe</code></a></dt>
+<dd>Create a script pipe, used to
+communicate data between script branches and also to synchronize them.</dd>
+<dt id="dt:add-data-to-script-pipe-pipe-data"><a href="#dt:add-data-to-script-pipe-pipe-data"><code>add-data-to-script-pipe</code> <em>pipe</em> <em>data</em></a></dt>
+<dd>Add data
+(integer, string, floating point value or a list of any of those types) to the
+specified script pipe.</dd>
+<dt id="dt:script-pipe-has-data-pipe"><a href="#dt:script-pipe-has-data-pipe"><code>script-pipe-has-data</code> <em>pipe</em></a></dt>
+<dd>Check if there is data to read from a script pipe.</dd>
+<dt id="dt:wait-for-script-pipe-pipe"><a href="#dt:wait-for-script-pipe-pipe"><code>wait-for-script-pipe</code> <em>pipe</em></a></dt>
+<dd>Suspend branch until
+there is data to read on a script pipe. If there already is data in the pipe,
+return immediately. The return value is the first data item added to the pipe.</dd>
+<dt id="dt:wait-for-log-or-conf_object-wait-for-log-object-substring-type-re"><a href="#dt:wait-for-log-or-conf_object-wait-for-log-object-substring-type-re"><code>wait-for-log</code> or <code>&lt;conf_object&gt;.wait-for-log</code> [<code>object</code>] [<code>substring</code>] [<code>type</code>] [<code>-re</code>]</a></dt>
+<dd>Wait until a log message is
+generated by an <code>object</code> or any object if the <code>object</code> variable is omitted.
+The <code>substring</code> and <code>type</code> can specify certain conditions.</dd>
+<dt id="dt:bp-wait-for-breakpoint-breakpoint-id"><a href="#dt:bp-wait-for-breakpoint-breakpoint-id"><code>bp.wait-for-breakpoint</code> <em>breakpoint-id</em></a></dt>
+<dd>Suspend branch until a specified breakpoint is triggered.</dd>
+<dt id="dt:processor-bp-wait-for-cycle-cycle-absolute"><a href="#dt:processor-bp-wait-for-cycle-cycle-absolute"><code>&lt;processor&gt;.bp-wait-for-cycle</code> <em>cycle</em> [<code>-absolute</code>]</a></dt>
+<dd>Suspend branch until the processor has executed <em>cycle</em>
+number of cycles. If <code>-absolute</code> is specified, the branch will instead be
+suspended until the processor reaches the specified cycle in the simulation.</dd>
+<dt id="dt:processor-bp-wait-for-step-step-absolute"><a href="#dt:processor-bp-wait-for-step-step-absolute"><code>&lt;processor&gt;.bp-wait-for-step</code> <em>step</em> [<code>-absolute</code>]</a></dt>
+<dd>Suspend branch until the processor has executed <em>step</em>
+number of steps. If <code>-absolute</code> is specified, the branch will instead be
+suspended until the processor reaches the specified step in the simulation.</dd>
+<dt id="dt:processor-bp-wait-for-time-seconds-absolute"><a href="#dt:processor-bp-wait-for-time-seconds-absolute"><code>&lt;processor&gt;.bp-wait-for-time</code> <em>seconds</em> [<code>-absolute</code>]</a></dt>
+<dd>Suspend branch until the processor has executed
+<em>seconds</em> number of seconds. If <code>-absolute</code> is specified, the branch will
+instead be suspended until the processor reaches the specified time in the
+simulation.</dd>
+<dt id="dt:processor-bp-wait-for-control-register-reg"><a href="#dt:processor-bp-wait-for-control-register-reg"><code>&lt;processor&gt;.bp-wait-for-control-register</code> <em>reg</em></a></dt>
+<dd>Suspend branch until the register <em>reg</em> is read from or written to. Only
+registers that are catchable can be waited on. The break condition can be
+changed to only consider read by specifying <code>-r</code> or only write by specifying
+<code>-w</code>.</dd>
+<dt id="dt:text-console-bp-wait-for-console-string-string"><a href="#dt:text-console-bp-wait-for-console-string-string"><code>&lt;text-console&gt;.bp-wait-for-console-string</code> <em>string</em></a></dt>
+<dd>Suspend branch until <em>string</em> is printed on the text console.</dd>
+</dl>
+<h3 id="variables-in-script-branches"><a href="#variables-in-script-branches">2.3.2.4 Variables in Script Branches</a></h3>
+<p>Variable references in CLI are evaluated when accessed. This is important to
+remember when writing script branches, since some commands are executed when the
+branch has been suspended, and variables may have been changed. To make sure
+that CLI variables in script branches are untouched by other scripts, they
+should be made local.</p>
+<p>The following example</p>
+<pre><code class="language-simics">simics&gt; <strong>script-branch "sample script branch" {</strong>
+    $foo = 20
+    board.mb.cpu0.core[0][0].wait-for-step 10
+    echo "foo is " + $foo
+}
+$foo = 15
+run
+</code></pre>
+<p>will produce the output <code>foo is 15</code> while the following script will print <code>foo is 20</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>script-branch "sample script branch" {</strong>
+    local $foo = 20
+    board.mb.cpu0.core[0][0].wait-for-step 10
+    echo "foo is " + $foo
+}
+$foo = 15
+run
+</code></pre>
+<h3 id="script-branches-and-multi-threaded-simulation"><a href="#script-branches-and-multi-threaded-simulation">2.3.2.5 Script Branches and Multi-Threaded Simulation</a></h3>
+<p>Large system configurations can be split up over several <em>cells</em> where each cell
+runs in its own host thread to speed up simulation. Care must be taken when
+writing scripts in such sessions. If the simulation is stopped or paused, for
+example by a breakpoint, other cells than the one where the breakpoint occurred
+may be ahead or behind in simulated time. The difference in time between cells
+is limited by the minimum latency setting. The time where cells are stopped may
+also differ between runs of the same setup. To ensure deterministic behavior, a
+script stopping a simulation as result of some event should only access the cell
+where the event occurred. If the script needs to access the full configuration,
+i.e. also objects in other cells, then all cells have to be synchronized in
+time. The <code>wait-for-global-time</code> and <code>wait-for-global-sync</code> commands can be used
+to run until a point where all cells have synchronized.</p>
+<h3 id="canceling-script-branches"><a href="#canceling-script-branches">2.3.2.6 Canceling Script Branches</a></h3>
+<p>It is possible to cancel a suspended script branch by interrupting it using the
+<code>interrupt-script-branch</code> command. Each branch has an ID associated that can be
+found using <code>list-script-branches</code>, and that is returned by the <code>script-branch</code>
+command.</p>
+<pre><code class="language-simics">simics&gt; <strong>$id = (script-branch "sample script branch" {</strong>
+    bp.wait-for-breakpoint $bp
+})
+
+...
+
+simics&gt; <strong>interrupt-script-branch $id</strong>
+Command 'wait-for-breakpoint' interrupted.
+Script branch 1 interrupted.
+</code></pre>
+<h3 id="script-branch-restrictions"><a href="#script-branch-restrictions">2.3.2.7 Script Branch Restrictions</a></h3>
+<p>There are a few things related to script branches that are discouraged or not
+allowed:</p>
+<ul>
+<li>
+<p>Starting and stopping the simulation should be avoided from script branches
+that run in sessions with interactive use, such as target start scripts. It
+is only in batch mode that controlling the simulation from script branches is
+acceptable, but then care should be taken to avoid script branches that
+conflict with each other.</p>
+</li>
+<li>
+<p>A script branch may not define a new script branch nested inside itself.</p>
+</li>
+<li>
+<p>The <code>wait-for-</code> command cannot run in the main branch. The reason is that the
+main branch may be interrupted by the user pressing the stop button or
+Ctrl-C, while script branches and the <code>wait-for-</code> commands are unaffected by
+such actions.</p>
+</li>
+<li>
+<p>The <code>write-configuration</code> command cannot be run while Simics is executing.
+This is a limitation that will be removed in a future Simics version, but for
+now the execution has to be stopped first. The following is an example that
+writes a checkpoint when the simulation reaches a login prompt, and then
+continues running. It assumes that a text-console called
+<code>text_console_cmp0.con</code> is used.</p>
+<pre><code class="language-simics">
+simics&gt; <strong>script-branch "create checkpoint" {</strong>
+    board.console.con.bp-wait-for-console-string login
+    stop
+    write-configuration login.conf
+    run
+}
+  
+</code></pre>
+</li>
+</ul>
+<p>This is one of few exceptions to the rule that script branches should not start
+or stop the simulation.</p>
+<h2 id="targets-and-parameters"><a href="#targets-and-parameters">2.3.3 Targets and parameters</a></h2>
+<p>This section describes the Simics <strong>target parameter</strong> framework. For the older
+<strong>script declaration</strong> system, see chapter <a class="reference" href="script-decls.html">5.1</a>. The target
+parameter framework introduces a few concepts:</p>
+<ul>
+<li>A parameter system for Simics scripts (written in either Python or CLI).
+Parameters have types, default values, documentation strings <em>etc</em>, and are
+specified in a <code>YAML</code>-based format. Parameters from other scripts can be
+imported, which results in a tree structure. At run-time, the resulting
+parameter tree has write-once semantics, and individual parameters can be
+accessed from a special singleton Simics object (in CLI), or via a Python
+object acting as a dictionary, <em>i.e.</em> they are unrelated to CLI variables. In
+Python one can also pass around handles to parts of the parameter tree as
+function arguments.</li>
+<li>A high-level target concept. A <em>target</em> is defined by its top-level parameter
+definition file, which refers to any necessary script or preset files. When
+the top-level parameter file name in the package matches
+<code>targets/*/*.target.yml</code> then it is considered a <em>target</em>. Simics scans all
+available packages for targets during startup and keeps track of the target
+list. A target can be run by only specifying the target name, without having
+to know the full path.</li>
+<li>The concept of parameter <em>presets</em>. A preset is a file specifying arguments to
+a target. This is also done in the <code>YAML</code>-based format of the parameter
+system. A preset does not have to specify arguments for all parameters, but
+can just override some of them and point to another preset for more arguments.
+The write-once semantics of the parameter system implies that the arguments in
+the top-level preset takes precedence over any arguments specified in presets
+that it points to, facilitating easy creation of override presets. When
+running a target, preset files can also be provided to specify arguments. A
+preset can also point to a target or script, with the effect that the preset
+itself can be run as if it was a script. Presets facilitates easy sharing of
+individual target configurations.</li>
+</ul>
+<p>The advantages compared with the script declaration system are as follows:</p>
+<ul>
+<li>YAML is a standard format that people, text editors, config tools, and format
+linters already know about.</li>
+<li>It is not tied to CLI scripts, but can be used directly with Python.</li>
+<li>The concept of a <em>target</em> elevates it above ad-hoc scripting.</li>
+<li>Parameters are available in their own Python namespace and not just in the
+global CLI variable namespace.</li>
+<li>The parameters values in a session are known after target launch, and can be
+listed or saved to a file.</li>
+<li>Parameters from different targets do not conflict when loading multiple
+targets into a single session.</li>
+<li>There can be a hierarchy of parameters for large, complex systems with 100s of
+parameters.</li>
+<li>Handling parameters when calling scripts from scripts is much simpler.</li>
+<li>The script-trampoline files in the project directory are not needed anymore.</li>
+<li>The <em>preset</em> concept makes it easy to have different parameter value sets for
+the same target.</li>
+</ul>
+<h3 id="semantics"><a href="#semantics">2.3.3.1 Semantics</a></h3>
+<p>Parameters are write-once, hence the first value provided for a parameter is
+what gets used. I.e. values provided by the user when running a script will take
+precedence over default values provided in the script. Scripts can also provide
+new default values for parameters declared by scripts that they include, and
+those defaults will take precedence over the defaults in the declaring script.
+Scripts can also set defaults from their script code, to facilitate the
+provision of default values that require calculations, potentially using other
+parameters.</p>
+<p>The whole parameter tree is exposed to the user running a script, and via the
+write-once semantics, the user can specify/override arguments for all
+parameters. Arguments can be provided on the command line, but the more powerful
+method is to provide them via <em>preset</em> files.</p>
+<p>The write-once semantics implies that the “earliest setting wins”. Arguments can
+come from</p>
+<ol>
+<li>User specification at command line.</li>
+<li>User specification via preset files.</li>
+<li>(Default) values specified in parameter declarations.</li>
+<li>(Default) values specified in script code.</li>
+</ol>
+<p>and the first argument for a specific parameter sticks, e.g. user input
+overrides values in scripts (hence they are only default values). Note that this
+also implies that script code cannot unilaterally set arguments, not even input
+to another script that it calls, it can only provide default values, which can
+always be overridden by an earlier setting, such as user input.</p>
+<h3 id="file-types"><a href="#file-types">2.3.3.2 File types</a></h3>
+<p>The parameter declarations and the presets are specified in the standard <code>YAML</code>
+format. Usage of a standard format means that one can easily process the files
+outside of Simics, although to resolve file paths using <code>%script%</code> or <code>%simics%</code>
+knowledge of the underlying Simics installation is required.</p>
+<p>We have two types of files: <em>scripts</em> and <em>presets</em>.</p>
+<h4 id="script-files"><a href="#script-files">2.3.3.2.1 Script Files</a></h4>
+<p>Script files consist of</p>
+<ul>
+<li>a parameter declaration section under the <code>params</code> key, which can import
+parameters from other scripts, and/or define individual parameters with names,
+their types, default values, description strings, and flags indicating if the
+parameter is required and if it is an output parameter, and</li>
+<li>a code section, either Simics CLI or Python code (specified using the
+<code>code-type</code> key). The code section can either be below the <code>YAML</code> section,
+inlined using the <code>cmd</code> key, or in a separate file specified by the <code>script</code>
+key.</li>
+</ul>
+<p>See section <a class="reference" href="#example-target">2.3.3.3</a> for an example of a script.</p>
+<h4 id="preset-files"><a href="#preset-files">2.3.3.2.2 Preset Files</a></h4>
+<p>Preset files</p>
+<ul>
+<li>specify arguments of parameters (or equivalently, default values) under the
+<code>args</code> key,</li>
+<li>can include other preset files, which may specify more arguments, and</li>
+<li>have no parameter declarations and no code.</li>
+</ul>
+<p>See section <a class="reference" href="#example-presets">2.3.3.4</a> for an example of a preset.</p>
+<p>The write-once semantics implies that the arguments specified in a preset
+overrides any arguments specified in included presets. This facilitates easily
+creating more specialized presets where only a few arguments are changed.</p>
+<p>Presets can also specify the script where the corresponding parameter
+declarations are given, using the <code>target</code> key. Such a preset is a simple way to
+describe a Simics configuration, and can be used to start Simics, meaning that
+the specified script is run with the arguments from the preset. The script
+corresponding to the preset can also be specified implicitly by including other
+presets using the <code>import</code>.</p>
+<p>For more details about the syntax, see the <a href="../simics-target-params/index.html">Target Parameters
+Reference</a>.</p>
+<h3 id="example-target"><a href="#example-target">2.3.3.3 Example target</a></h3>
+<p>Here is a small example that illustrates how to write a target with parameters:</p>
+<pre><code>%YAML 1.2
+---
+# Declaration section
+params:
+  # A simple parameter
+  sigma:
+    type: str
+    required: true
+    default: sigmoid
+    description: &gt;-
+      A potentially multi-line text
+      describing this parameter.
+  # List parameters can have typed elements
+  resources:
+    type: list[list[int]]
+    default: []
+  # A complex parameter
+  epsilon:
+    mu:
+       type: str
+    nu:
+       type: int
+  tau:
+    # Import parameters from other script
+    import: inner.yml
+    # beta parameter is set by this script, not required
+    provides:
+    - beta
+    # new default value of imported parameter
+    defaults:
+      gamma: true
+# Type of code
+code-type: simics
+# Code inlined in the YAML section
+cmd: |
+  echo `params["sigma"]`
+  echo (params.get "epsilon:mu")
+  echo `params.get("epsilon:nu")`
+  params.setdefault "tau:beta" (params.get "sigma")
+  run-script script = "inner.yml" namespace = "tau"
+...
+</code></pre>
+<p>And the imported file:</p>
+<pre><code>%YAML 1.2
+---  
+params:
+  alpha:
+    type: int
+  beta:
+    type: str
+    required: true
+  gamma:
+    type: bool 
+cmd: |
+  # Use dict syntax to read parameter
+  print(f"beta={params['beta']}")
+...
+</code></pre>
+<p>As can be seen from the example, the target script code can be inlined in the
+YAML section. One can also place the code in a separate file which is referred
+from the parameter section using the <code>script</code> tag. A third option is to place
+the code below the parameter section, but then the file as a whole will
+typically no longer be valid YAML.</p>
+<p>The example also illustrates how to import parameters from other scripts. The
+result is that the parameter tree defined in the imported script becomes a
+sub-tree in the current script, in this case with the root node <code>tau</code>. To refer
+to parameters further down in the tree, the <code>:</code> character is used as separator.
+Note that importing a parameter tree from another script does not mean that the
+imported script has to be run, but all scripts that are run must have been
+imported. When running an imported script, the root node of the imported
+sub-tree must be provided.</p>
+<p>Notice that in the first file we have to declare the code type to be Simics CLI,
+using the <code>code-type</code> key, since Python is the default. The code type defaults
+to Simics CLI if the file (or the file specified by the <code>script</code> key) has
+extension <code>.simics</code> or <code>.include</code> and defaults to Python if the extension is
+<code>.py</code> or <code>.yml</code>.</p>
+<p>Finally, as can be seen, the parameters are accessed via a global object
+<code>params</code>, both in CLI and in Python. In Python the object acts like a regular
+Python dictionary and in CLI it is a Simics object with various commands.</p>
+<p>Notice how we illustrate different ways to read parameters: one can use the CLI
+command <code>params.get</code>, or <code>params.get</code> via inline Python, or Python dictionary
+notation. The latter will throw an exception if the parameter is not assigned.</p>
+<p>For more details about the syntax, available types etc, see the <a href="../simics-target-params/index.html">Target
+Parameters Reference</a>.</p>
+<h3 id="example-presets"><a href="#example-presets">2.3.3.4 Example presets</a></h3>
+<p>Here is an example preset for to the example target. The target is assumed to be
+a file named <code>example.target.yml</code>:</p>
+<pre><code>%YAML 1.2
+---
+args:
+  tau:
+    beta: test
+  epsilon:
+    mu: foo
+  import: include.preset.yml
+...
+</code></pre>
+<p>As can be seen, argument values are specified under the <code>args</code> using the
+parameter names as keys. Also note that presets can include other presets.</p>
+<p>Here is the included preset, <code>include.preset.yml</code>:</p>
+<pre><code>%YAML 1.2
+---
+args:
+  sigma: foo
+  tau:
+    beta: bar
+
+target: example.target.yml
+...
+</code></pre>
+<p>Notice that the first preset overrides the argument <code>beta</code> in the included
+preset. This illustrates how presets can be stacked on top of each other, only
+overriding what is necessary. This facilitates easily creating variants of
+target configurations for runs with different parameters.</p>
+<p>Also note that the second preset specifies the target that it is based on. The
+result is that the preset, and all presets that import it, can be run directly.</p>
+<h3 id="target-definition"><a href="#target-definition">2.3.3.5 Target definition</a></h3>
+<p>As mentioned at the top of this section, a <em>target</em> is a file with name that
+matches <code>targets/*/*.target.yml</code>, located in the Simics project or in a package
+available in the project.</p>
+<p>The intention is that the top level scripts, that should be exposed to the user
+via the <code>load-target</code> command, are turned into targets by naming them
+accordingly.</p>
+<p>Targets can be listed from the Simics CLI or from the shell as mentioned in
+<a class="reference" href="#run-time-usage">2.3.3.6</a>. The idea is to make it easy to find the main entry points
+to a hardware model without looking for a particular script name in the package
+or project.</p>
+<h3 id="run-time-usage"><a href="#run-time-usage">2.3.3.6 Run-time usage</a></h3>
+<p>There are two main CLI commands:</p>
+<ul>
+<li><code>load-target</code>, which can be used to run scripts that have <em>target</em> status, as
+defined in Section <a class="reference" href="#target-definition">2.3.3.5</a>. This command expects a target name
+as parameter. Available targets are returned by the <code>list-targets</code> command, or
+when running Simics with the command line flag <code>-l</code>.</li>
+<li><code>run-script</code>, which can be used to run scripts specified by file name.</li>
+</ul>
+<p>Calling <code>load-target</code> with a target name has the same effect as calling
+<code>run-script</code> on the file that defines the target.</p>
+<p>Target names, script file names can also be provided directly to Simics on the
+command line, in order to run them. Presets for a target can be added using the
+<code>--preset</code> command line flag.</p>
+<p>As mentioned above, the parameters are accessed via a global <code>params</code> object,
+which has a number of CLI commands as well. These can be discovered using tab
+completion or by running <code>help</code> on the object.</p>
+<h3 id="using-parameter-references"><a href="#using-parameter-references">2.3.3.7 Using parameter references</a></h3>
+<p>Consider the situation where there are two scripts, perhaps hardware and
+software setup, that are connected by a main target script. Often the software
+script has parameters that should have the same value as some parameter in the
+hardware script, and the main script has to make sure this happens.</p>
+<p>Here are examples of sub-scripts, <code>alpha.yml</code> and <code>beta.yml</code>.</p>
+<pre><code>%YAML 1.2
+---
+# This is alpha.yml
+params:
+  foo:
+    type: str
+    default: alpha
+cmd: print(params['foo'])
+...
+</code></pre>
+<pre><code>%YAML 1.2
+---
+# This is beta.yml
+params:
+  foo:
+    type: str
+    required: true
+  bar:
+    type: int
+    required: true
+cmd: print(params['foo'])
+...
+</code></pre>
+<p>Without parameter references, the main script can look like this:</p>
+<pre><code>%YAML 1.2
+---
+params:
+  bar:
+    type: int
+    required: true
+  alpha:
+    import: "%script%/alpha.yml"
+  beta:
+    import: "%script%/beta.yml"
+code-type: simics
+cmd: |
+  run-script "%script%/alpha.yml" namespace = alpha
+  params.setdefault "beta:foo" (params.get "alpha:foo")
+  params.setdefault "beta:bar" (params.get "bar")
+  run-script "%script%/beta.yml" namespace = beta
+...
+</code></pre>
+<p>Parameter references facilitate avoiding the explicit copying of parameter
+values, so that the main script can be expressed like this:</p>
+<pre><code>%YAML 1.2
+---
+params:
+  bar:
+    type: int
+    required: true
+  alpha:
+    import: "%script%/alpha.yml"
+  beta:
+    import: "%script%/beta.yml"
+    defaults:
+      foo: ^alpha:foo
+      bar: ^bar
+code-type: simics
+cmd: |
+  run-script "%script%/alpha.yml" namespace = alpha
+  run-script "%script%/beta.yml" namespace = beta
+...
+</code></pre>
+<h2 id="scripting-using-python"><a href="#scripting-using-python">2.3.4 Scripting Using Python</a></h2>
+<p>The Intel® Simics® simulator provides support for the script language Python
+(<a href="http://www.python.org" rel="noopener noreferrer" target="_top">http://www.python.org</a>). By using Python the user can
+extend the simulator, and control it in greater detail. Python code can use
+functions from the simulator’s API.</p>
+<h3 id="python-in-the-intel-simics-simulator"><a href="#python-in-the-intel-simics-simulator">2.3.4.1 Python in the Intel® Simics® Simulator</a></h3>
+<p>The Intel® Simics® simulator always contains a Python environment. The
+simulator’s command line interface (CLI) and all commands are implemented in
+Python. To find the code executed by a command, one can search the Python -
+<code>.py</code> - files of the corresponding module for the calls to the <code>new_command</code>,
+<code>new_info_command</code>, and <code>new_status_command</code> functions.</p>
+<p>To execute Python code directly from the simulator’s CLI, Python code that is to
+be executed should be prefixed with the <strong>@</strong> character:</p>
+<pre><code class="language-simics">simics&gt; <strong>@print("This is a Python line")</strong>
+This is a Python line
+simics&gt;
+</code></pre>
+<p>For code spanning more than one line, the prompt will change to <code>.......</code> and
+more code can be inserted until an empty line is entered. The full code block
+will then be executed (note that whitespace indentation is significant in
+Python):</p>
+<pre><code class="language-simics">simics&gt; <strong>@if SIM_number_processors() &gt; 1:</strong>
+.......     print("Wow, an MP system!")
+....... else:
+.......     print("Only single pro :-(")
+.......
+Wow, an MP system!
+simics&gt;
+</code></pre>
+<p>Entering more than one line is useful for defining Python functions. It is also
+possible to execute Python code from a file, which is done with the <code>run-script</code>
+command.</p>
+<p>If the Python code is an expression that should return a value to the CLI, the
+<code>python</code> command can be used, or the expression can be back-quoted. The
+following example selects a file with Python commands to execute depending on
+the number of processors in the system:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script `"abc-%d.py" % SIM_number_processors()`</strong>
+</code></pre>
+<p>If the system has 2 processors, the file <code>abc-2.py</code> will be executed.</p>
+<p>One can switch the simulator’s CLI to Python mode with the <code>python-mode</code>
+command. In Python mode, indicated by</p>
+<pre><code class="language-simics">simics&gt;&gt;&gt;
+</code></pre>
+<p>prompt, all input is interpreted as Python code, not as simulator’s CLI
+commands. In Python mode, Python code lines should not be prefixed with the
+<strong>@</strong> character, since that is only used in CLI mode to interpret input as
+Python code. Example:</p>
+<pre><code class="language-simics">simics&gt; <strong>python-mode</strong>
+Entering Python mode. Use cli_mode() or Ctrl-D to return to CLI.
+simics&gt;&gt;&gt;
+</code></pre>
+<p>Now Python code can be entered directly:</p>
+<pre><code>simics&gt;&gt;&gt; print(f"Simics base package version: {SIM_version_base()}")
+Simics base package version: Simics ...
+None
+simics&gt;&gt;&gt;
+</code></pre>
+<p>As it was pointed above, to exit Python mode, one can use the <code>cli_mode</code>
+function or simply enter Ctrl-D:</p>
+<pre><code>simics&gt;&gt;&gt; cli_mode()  # we run cli_mode here. Alternatively, enter Ctrl-D
+Command line is now in CLI mode.
+None
+simics&gt;
+</code></pre>
+<h3 id="accessing-cli-variables-from-python"><a href="#accessing-cli-variables-from-python">2.3.4.2 Accessing CLI Variables from Python</a></h3>
+<p>CLI variables can be accessed from Python via the <code>simenv</code> namespace, for
+example:</p>
+<pre><code class="language-simics">simics&gt; <strong>$cpu = "processor"</strong>
+simics&gt; <strong>@simenv.cpu = simenv.cpu.capitalize()</strong>
+simics&gt; <strong>$cpu</strong>
+Processor
+</code></pre>
+<p>As we could see in the example, <code>simenv</code> is imported into global namespace by
+default, but if it is needed elsewhere, it can be imported from the <code>cli</code>
+module.</p>
+<h3 id="accessing-the-configuration-from-python"><a href="#accessing-the-configuration-from-python">2.3.4.3 Accessing the Configuration from Python</a></h3>
+<h4 id="configuration-objects"><a href="#configuration-objects">2.3.4.3.1 Configuration Objects</a></h4>
+<p>All configuration objects are visible as objects in Python. The global Python
+module <code>conf</code> holds the top level namespace, which contains all top level
+objects. The objects contain all their subobjects as attributes.</p>
+<p>The configuration objects also expose their attributes as Python attributes. The
+attributes can be accessed via the <code>attr</code> attribute, or, in a legacy way,
+directly as Python object attributes. Thus the attributes can be both read and
+written as Python attributes. The following example prints the <code>size</code> attribute
+from the <code>board.mb.rom_image</code> object of the <code>image</code> class:</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.board.mb.rom_image.attr.size</strong>
+262144
+</code></pre>
+<p>Here is a legacy way to access the same attribute:</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.board.mb.rom_image.size</strong>
+262144
+</code></pre>
+<p>We recommend to access Simics objects’ attributes via the <code>attr</code> attribute,
+except for a few commonly used attributes like <code>name</code> and <code>classname</code>.</p>
+<p>If an object contains a subobject and an attribute with the same name, the
+subobject takes precedence and hides the attribute.</p>
+<p>To try the previous example in an arbitrary configuration, run <code>list-objects -all image</code> to find available objects of the <code>image</code> class to use instead of the
+<code>board.mb.rom_image</code> object.</p>
+<p>Any ‘<code>-</code>’ (dash) character in the object name, or in an attribute name, is
+replaced by ‘<code>_</code>’ (underscore). This substitution is performed because Python
+always treats the dash character as the minus operator. To avoid confusion the
+recommendation is to always use underscore.</p>
+<p>Indexed attributes can be accessed using <code>[]</code> indexing in Python. It is also
+possible to index other list attributes this way, but it might be inefficient
+since the full list is converted to a Python list before the element is
+extracted. Here are some examples of indexed attributes access (a <code>pcie-bus</code>
+object, and a <code>memory-space</code> object):</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.board.mb.nb.pci_bus.attr.pci_devices[0]</strong>
+[29, 1, &lt;the ich10_usb_uhci 'board.mb.sb.uhci[1]'&gt;, 1]
+
+simics&gt; <strong>@conf.board.mb.phys_mem.attr.memory[0x100:0x10f]</strong>
+(89, 236, 0, 240, 61, 0, 0, 158, 83, 255, 0, 240, 144, 37, 0)
+
+simics&gt; <strong>@conf.board.mb.phys_mem.attr.memory[0x10000:0x10003] = (100, 101, 102)</strong>
+</code></pre>
+<p>If the attribute contains a list, dictionary or data, then an access returns a
+reference instead of the actual value. This is similar to how container objects
+such as lists and dictionaries work in Python and allows constructs such as:</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.board.mb.phys_mem.attr.map[0][0] = 0x1000</strong>
+</code></pre>
+<p>The example modifies the attribute at position [0][0]. To get the copy of
+the attribute value, the following can be used:</p>
+<pre><code class="language-simics">simics&gt; <strong>@memory_map = conf.board.mb.phys_mem.attr.map.copy()</strong>
+</code></pre>
+<p>Note that there is a difference in how references to Simics attributes work
+compared to ordinary Python objects: if the attribute access returns a list,
+dictionary or tuple, then a reference to the full attribute is used and not only
+to the referenced container objects. The reason is that internally in Simics,
+the attribute is treated as a single value.</p>
+<p>Consider a list of lists, such as <code>a = [[1, 2, 3], [4, 5, 6]]</code>. If this was a
+Python list, then the following applies:</p>
+<pre><code>b = a[0]       # b is a reference to the [1, 2, 3] list.
+a[0][1] = 9    # b will now change to [1, 9, 3].
+a[0] = [7, 8]  # b still references the [1, 9, 3] list, only a will change.
+</code></pre>
+<p>If <code>a</code> instead is a Simics attribute:</p>
+<pre><code>b = a[0]       # b is a reference to the first list in a, i.e. [1, 2, 3].
+a[0][1] = 9    # b will now change to [1, 9, 3].
+a[0] = [7, 8]  # b is still a reference to the first list in a, i.e [7, 8].
+</code></pre>
+<p>As we see, only the last line of the examples differs. The most common situation
+where this difference is visible is when doing list duplication. In Python a
+list can be duplicated in whole or part by using slicing to produce a shallow
+copy. In Simics, that would simply produce a reference to the same list if any
+of the items in the list is a container object. In this case the <code>.copy()</code>
+method has to be used.</p>
+<h4 id="interfaces"><a href="#interfaces">2.3.4.3.2 Interfaces</a></h4>
+<p>From Python, the <code>iface</code> attribute of a configuration object can be used to
+access the interfaces it exports. Use <code>obj.iface.name.method</code> to accesses the
+<code>method</code> function in the <code>name</code> interface of the <code>obj</code> object. Example:</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].iface</strong>
+&lt;interfaces of board.mb.cpu0.core[0][0]&gt;
+simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].iface.processor_info</strong>
+&lt;processor_info_interface_t interface of board.mb.cpu0.core[0][0]&gt;
+simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].iface.processor_info.get_program_counter</strong>
+&lt;built-in method logical_address_t (*)([conf_object_t *]) of interface method object at 0x5cb2070&gt;
+simics&gt; <strong>@hex(conf.board.mb.cpu0.core[0][0].iface.processor_info.get_program_counter())</strong>
+'0xfff0'
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>When called from Python, the first <code>conf_object_t *</code> argument for interface
+methods should not be used: it is passed automatically.</p>
+</blockquote>
+<p>The last command corresponds to the following C code (with no error-checking):</p>
+<pre><code class="language-C">conf_object_t *obj = SIM_get_object("board.mb.cpu0.core[0][0]");
+processor_info_interface_t *iface = 
+        SIM_get_interface(obj, PROCESSOR_INFO_INTERFACE);
+logical_address_t pc = iface-&gt;get_program_counter(obj);
+printf("0x%llx", pc);
+</code></pre>
+<h4 id="ports-and-banks"><a href="#ports-and-banks">2.3.4.3.3 Ports and Banks</a></h4>
+<p>Port objects in Simics represent ports and banks. For scripting access to
+objects they work exactly as a sub-object. By convention they are placed in the
+<code>port</code> and <code>bank</code> namespaces under the object.</p>
+<p>Use <code>obj.port.portname.iface.interfacename.method</code> or
+<code>obj.bank.bankname.iface.interfacename.method</code> to access interface methods in a
+port object.</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.board.mb.sb.com[0].port</strong>
+&lt;the namespace 'board.mb.sb.com[0].port'&gt;
+simics&gt; <strong>@conf.board.mb.sb.com[0].port.HRESET</strong>
+&lt;the NS16550.HRESET 'board.mb.sb.com[0].port.HRESET'&gt;
+simics&gt; <strong>@conf.board.mb.sb.com[0].port.HRESET.iface</strong>
+&lt;interfaces of board.mb.sb.com[0].port.HRESET&gt;
+simics&gt; <strong>@conf.board.mb.sb.com[0].port.HRESET.iface.signal</strong>
+&lt;signal_interface_t interface of board.mb.sb.com[0].port.HRESET&gt;
+simics&gt; <strong>@conf.board.mb.sb.com[0].port.HRESET.iface.signal.signal_raise</strong>
+&lt;built-in method void (*)([conf_object_t *NOTNULL]) of interface method object at 0x7f90f32f5310&gt;
+simics&gt; <strong>@conf.board.mb.sb.com[0].port.HRESET.iface.signal.signal_raise()</strong>
+</code></pre>
+<p>The last command corresponds to the following C code (with no error-checking):</p>
+<pre><code class="language-C">conf_object_t *obj = SIM_get_object("board.mb.sb.com[0].port.HRESET");
+signal_interface_t *iface = 
+        SIM_get_interface(obj, SIGNAL_INTERFACE);
+iface-&gt;signal_raise(obj);
+</code></pre>
+<h4 id="port-interfaces"><a href="#port-interfaces">2.3.4.3.4 Port Interfaces</a></h4>
+<p>Simics also has a legacy mechanism for providing named entry points to objects,
+called port interfaces. This mechanism is still used by some models. Named port
+interfaces are referenced from other objects using a list of <code>[object, portname]</code> instead of just a single object reference. Port interfaces are
+accessed from Python in a similar way to interfaces.</p>
+<p>Use <code>obj.ports.portname.interfacename.method</code> to access the <code>interfacename</code>
+interface in port <code>portname</code> of the object <code>obj</code>. Example:</p>
+<pre><code class="language-simics">simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].ports</strong>
+&lt;ports of board.mb.cpu0.core[0][0]&gt;
+simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].ports.RESET</strong>
+&lt;interfaces of port RESET of board.mb.cpu0.core[0][0]&gt;
+simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].ports.RESET.signal</strong>
+&lt;signal_interface_t interface of board.mb.cpu0.core[0][0]&gt;
+simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].ports.RESET.signal.signal_raise</strong>
+&lt;built-in method void (*)([conf_object_t * NOTNULL]) of interface method object at 0x5cb22d0&gt;
+simics&gt; <strong>@conf.board.mb.cpu0.core[0][0].ports.RESET.signal.signal_raise()</strong>
+</code></pre>
+<p>The last command corresponds to the following C code:</p>
+<pre><code class="language-C">conf_object_t *obj = SIM_get_object("board.mb.cpu0.core[0][0]");
+signal_interface_t *iface = 
+        SIM_get_port_interface(obj, SIGNAL_INTERFACE, "RESET");
+iface-&gt;signal_raise(obj);
+</code></pre>
+<h3 id="accessing-command-line-commands-from-python"><a href="#accessing-command-line-commands-from-python">2.3.4.4 Accessing Command Line Commands from Python</a></h3>
+<p>At times, it can be useful to access command line commands from a Python script
+file. This can be done in two ways which are described below.</p>
+<p>The first way to access command-line commands from Python is to use the
+<code>run_command(cli_string)</code> function, which takes a string which is then evaluated
+by the command line front-end. For example, write <code>run_command("list-objects")</code>
+to execute the <code>list-objects</code> command. Any return value from the command is
+returned to Python. There is also the <code>quiet_run_command</code> function, which
+captures any output produced by the command and returns a tuple with the command
+return value as first entry, and the text output as the second. More details
+about both functions can be found in the <a href="../rm-api/cli.html">cli</a> section
+in the <a href="../rm-api/index.html">API Reference Manual</a>.</p>
+<p>The second way to access command line commands from Python is to use
+wrapper functions from two special namespaces. The first namespace is
+<code>global_cmds</code> (provided by the <code>cli</code> module). It allows to run
+commands which are not tied to any Simics object. For example, the
+<code>list-objects</code> command can be executed as
+<code>global_cmds.list_objects()</code>. The commands which are tied to Simics
+objects (namespace commands) can be executed via the <code>cli_cmds</code>
+namespaces which can be accessed through a Python object representing
+a Simics objects. For example, the <code>sim.info</code> command can be executed
+as <code>conf.sim.cli_cmds.info()</code>.</p>
+<ul>
+<li>The wrapper function name is usually the same as the name of the command it
+executes with hyphens replaced with underscores.</li>
+<li>The parameters of the wrapper functions are the same as of the corresponding
+command (again, with hyphens replaced with underscores).</li>
+<li>Command flags (the names of the corresponding function parameters start with
+an underscore) are passed as Python Boolean values.</li>
+<li>In the rare case that a wrapper function name or a wrapper function parameter
+name collides with a Python keyword, the <code>_cmd</code> suffix is appended to the
+wrapper function name, and the function parameter gets the <code>_</code> suffix.</li>
+<li>Wrapper functions return the value returned by the command which they
+execute.</li>
+<li>Wrapper functions have Python docstrings which can be used to get information
+about the function and its parameters, e.g., by running
+<code>@help(conf.sim.cli_cmds.info)</code>. The docstrings complement the CLI command
+documentation (to access the documentation of a command one can run “help
+<em>command-name</em>” command at Simics CLI).</li>
+</ul>
+<p>Please note that Simics command-line commands are defined to only be executed in
+the Simics API execution context known as Global Context. If a command is
+executed while not in Global Context then Simics will stop with an error
+message. Though, this doesn’t happen often in practice; usually only when CLI
+commands are be called directly from user callbacks installed for haps or
+notifiers, or from device models. For more information about Simics execution
+contexts and how to get to Global Context, please see section “API Execution
+Contexts” in the Simics API reference manual.</p>
+<h3 id="the-script-branch-api"><a href="#the-script-branch-api">2.3.4.5 The Script Branch API</a></h3>
+<p>Script branches can be manipulated from Python using the script branch API. A
+script branch can be created using <code>sb_create</code>, passing a Python function that
+defines the script branch.</p>
+<p>From the script branch Python function, one can use <code>sb_wait</code> to suspend the
+script branch. From somewhere else, the branch can be woken up again by calling
+<code>sb_signal_waiting</code>. Thus one can make the script branch wait on arbitrary
+conditions. Example:</p>
+<pre><code>def script_branch(data):
+    print("Branch start")
+    wait_id = cli.sb_get_wait_id()
+    data.append(wait_id)
+    cli.sb_wait("wait", wait_id)
+    print("Branch done")
+
+data = []
+print("Create branch")
+cli.sb_create(lambda: script_branch(data))
+wait_id = data[0]
+time.sleep(1)
+print("Signal branch")
+cli.sb_signal_waiting(wait_id)
+</code></pre>
+<p>One can also access the existing script wait functionality using the ability to
+run any CLI command, described in
+<a class="reference" href="#accessing-command-line-commands-from-python">2.3.4.4</a>. As an example:</p>
+<pre><code># Sample script branch stopping simulation after 5 cycles
+# executed on the clock object.
+def script_branch():
+    clock.cli_cmds.wait_for_cycle(cycle = 5, _relative = True)
+    cli.global_cmds.stop()
+
+cli.sb_create(script_branch)
+</code></pre>
+<h3 id="the-simics-api"><a href="#the-simics-api">2.3.4.6 The Simics API</a></h3>
+<p>The Simics API is a set of functions that provide access to Simics functionality
+from loadable modules (i.e., devices and extensions), and Python scripts. All
+functions in the Simics API have a name that starts with “<code>SIM_</code>”. They are
+described in details in the <a href="../rm-api/index.html">API Reference
+Manual</a>.</p>
+<p>By using the <code>api-help</code> and <code>api-search</code> commands you can get the declarations
+for API functions and data types. <code>api-help identifier</code> will print the
+declaration of <code>identifier</code>. <code>api-search identifier</code> lists all declarations
+where <code>identifier</code> appears.</p>
+<p>Note that while <code>api-help topic</code> does the same thing as <code>help api:topic</code>, the
+<code>help-search</code> command will not search through the API declarations.</p>
+<p>The Simics API functions are available in the <code>simics</code> Python module. This
+module is imported into the Python environment in the frontend when Simics
+starts. However, for user-written <code>.py</code> files, the module must be imported
+explicitly:</p>
+<pre><code>from simics import *
+</code></pre>
+<p>Errors in API functions are reported back to the caller using <em>frontend
+exceptions</em>. The exception is thrown together with a string that describes the
+problem more in detail. Examples of exceptions are <code>SimExc_General</code>,
+<code>SimExc_Memory</code>, <code>SimExc_Index</code>, and <code>SimExc_IOError</code>. In DML, C and C++, these
+exceptions have to be tested for using <code>SIM_clear_exception</code> or
+<code>SIM_get_pending_exception</code>. In Python, such exceptions result in regular Python
+exceptions.</p>
+<p>For the Python environment, Simics defines an exception subclass for each of its
+defined exceptions in the <code>simics</code> module. These are raised to indicate
+exceptions inside the API functions. When errors occur in the interface between
+Python and the underlying C API function, the standard Python exceptions are
+used; e.g., if the C API function requires an <code>int</code> argument, and the Python
+function is called with a <code>tuple</code>, a Python <code>TypeError</code> exception is raised.</p>
+<h3 id="haps"><a href="#haps">2.3.4.7 Haps</a></h3>
+<p>A <em>hap</em> is an event or occurrence in Simics with some specific semantic meaning,
+either related to the target or to the internals of the simulator.</p>
+<p>Examples of simulation haps are:</p>
+<ul>
+<li>Exception or interrupt</li>
+<li>Control register read or write</li>
+<li>Breakpoint on read, write, or execute</li>
+<li>Execution of a magic instruction (see the <a href="debug.html#magic-instructions-and-magic-breakpoints">Magic Instructions and Magic
+Breakpoints</a></li>
+<li>Device access</li>
+</ul>
+<p>There are also haps which are related to the simulator, e.g., (re)starting the
+simulation or stopping it and returning to prompt.</p>
+<blockquote class="markdown-alert-note">
+<p>In the Simics documentation, the word <em>event</em> is used exclusively for events
+that occur at a specific point in simulated time, and <em>hap</em> for those that
+happen in response to other specific conditions (like a state change in the
+simulator or in the simulated machine).</p>
+</blockquote>
+<p>A callback can be invoked for all occurrences of the hap, or for a specified
+range. This range can be a register number, an address, or an exception number,
+depending on the hap.</p>
+<p>A complete reference of the haps available in Simics can be found in the
+<a href="../rm-base/rm-haps.html">Haps</a> chapter in the <a href="../rm-base/index.html">Simics Reference
+Manual</a>.</p>
+<h4 id="example-of-python-callback-on-a-hap"><a href="#example-of-python-callback-on-a-hap">2.3.4.7.1 Example of Python Callback on a Hap</a></h4>
+<p>This example uses functions from the Simics API to install a callback on the hap
+that occurs when a control register is written. It is intended to be part of a
+<code>.simics</code> script, that extends an <code>QSP-x86</code> machine setup. The
+<code>SIM_hap_add_callback_index()</code> function sets the index of the control register
+to listen to, in this case the <code>%ia32_feature_control</code> register in an x86QSP3
+processor.</p>
+<pre><code>@ia32_feature_control_reg_no = conf.board.mb.cpu0.core[0][0].iface.int_register.get_number("ia32_feature_control")
+
+# print the new value when %ia32_feature_control is changed
+@def ctrl_write_ia32_feature_control(user_arg, cpu, reg, val):
+    print("[%s] Write to %%ia32_feature_control: 0x%x" % (cpu.name, val))
+
+# install the callback
+@SIM_hap_add_callback_index("Core_Control_Register_Write",
+                            ctrl_write_ia32_feature_control, None,ia32_feature_control_reg_no)
+</code></pre>
+<p>In CLI, the same example would look like:</p>
+<pre><code class="language-simics">simics&gt; <strong>script-branch {</strong>
+    local $cpu = (pselect)
+    while TRUE {
+        $cpu.bp-wait-for-control-register -w ia32_feature_control
+        echo "[" + $cpu + "] Write to %ia32_feature_control: "+ ((hex ($cpu.read-reg ia32_feature_control)))
+    }
+}
+</code></pre>
+<h4 id="example-of-python-callback-on-core_log_message_extended-hap"><a href="#example-of-python-callback-on-core_log_message_extended-hap">2.3.4.7.2 Example of Python Callback on Core_Log_Message_Extended Hap</a></h4>
+<p>This example shows how to add a callback to the Core_Log_Message_Extended.
+This allows for better control when handling log messages. This example writes
+all log messages to a file that is associated with the <code>cpu</code> object.</p>
+<blockquote class="markdown-alert-note">
+<p>The Core_Log_Message_Extended hap will only be triggered for messages with
+log level less than or equal to the log level setting of the object.</p>
+</blockquote>
+<pre><code>from simics import *
+
+class file_log:
+
+    def __init__(self, fname, obj, level):
+        # setup logging
+        try:
+            self.f = open(fname, 'w')
+        except Exception as msg:
+            raise Exception("Failed to open file %s, %s" % (fname, msg))
+        self.obj = obj
+        self.level = level
+
+        # install the callback
+        SIM_hap_add_callback_obj(
+            "Core_Log_Message_Extended", obj, 0, self.log_callback, None)
+
+    def log_callback(self, not_used, obj, log_type, message, level, group):
+        type_str = conf.sim.log_types[log_type]
+        if level &lt;= self.level:
+            self.f.write("[%s %s] %s,  level=%d, group=%d\n" % (
+                    obj.name, type_str, message, level, group))
+
+file_log('log_cpu.out', conf.board.mb.cpu0.core[0][0], 1)
+</code></pre>
+<h2 id="simics-as-python-module"><a href="#simics-as-python-module">2.3.5 Simics as Python module</a></h2>
+<p>Simics is built and exposed as a Python extension module
+(<a href="https://docs.python.org/3/extending/extending.html" rel="noopener noreferrer" target="_top">https://docs.python.org/3/extending/extending.html</a>).
+This means that the Python module <code>simics</code> can be imported into any Python, and
+hence Simics can be easily integrated into a Python-based software project in a
+similar way as any other Python package.</p>
+<p>As examples of how to use this, we exhibit two ways to boot to an UEFI shell
+using the QSP-x86 package and a user provided Python. The examples use a Linux
+host, but the steps are analogous on Windows. The examples assume that the
+necessary Simics packages have been installed and a Simics project created.</p>
+<p>The first example shows how to run a Python script booting QSP using a host
+Python 3.10. The environment variable <code>PYTHONPATH</code> must be set to make Python
+find the Simics Python module and the <code>site-packages</code> directory that is included
+in Simics-Base.</p>
+<p>Precise paths will naturally not be like in the example when run elsewhere.</p>
+<pre><code>$ ./simics  -v
+Simics Base             1000    7.0.0     (7006) 2023-12-14
+Quick-Start Platform    2096    7.0.0     (7006) 2023-12-14
+
+$ cat qsp.py 
+import simics
+import conf
+import cli
+# Turn off all log messages
+cli.global_cmds.log_level(level=0)
+# Make Simics quit after boot
+conf.sim.batch_mode = True
+simics.SIM_load_target("qsp-x86/uefi-shell", "", [], [])
+conf.bp.console_string.cli_cmds.run_until(
+     object=conf.qsp.serconsole.con, string="Shell&gt; ")
+print("QSP boot done")
+
+$ PYTHONPATH=../install/simics-7.0.0/linux64 python3.10 qsp.py
+QSP boot done
+$ 
+</code></pre>
+<p>Note that if Simics is not run from the created project, the environment
+variable <code>SIMICS_INIT_PROJECT</code> must be set to the project path.</p>
+<p>The previous example is limited in that it uses the <code>site-packages</code> directory,
+containing Python modules needed by Simics, distributed in the Simics-Base
+package. These modules are built for Python 3.10.</p>
+<p>The standard way to integrate external Python modules into a Python
+software project is to install them using <code>pip</code>. Simics and its
+dependent Python modules can be installed in that way by pointing to
+the Simics-Base installation, in this example via the <code>BASE</code>
+environment variable.</p>
+<p>The second example shows how to do that using Python 3.11 and then
+boot QSP like in the previous example. In addition to the assumptions
+in the first example, here we also assume that pip packages can be
+downloaded and installed. The latter may require various libraries to
+be installed on the host, as well as header files for the host Python
+3.11 being used. Note that we have split up the required packages into
+different parts. Installing the packages in <code>gui-requirements.txt</code> is
+only needed if you want to use the Simics GUI. Those packages require
+more libraries on the host, such as <code>libgtk</code>.</p>
+<pre><code>$ python3.11 -m venv venv
+$ source venv/bin/activate
+$ python -m pip install wheel
+$ python -m pip install $BASE/linux64
+$ python -m pip install --requirement gui-requirements.txt
+$ python qsp.py
+QSP boot done
+$ 
+</code></pre>
+<p>Note that there is nothing inherent in this example that prohibits using Python
+3.12 or any other newer Python version. However, difficulties may occur when
+installing the required Python packages if no pre-built wheels are available.</p>
+<h3 id="launching-the-simulator-from-your-virtual-environment"><a href="#launching-the-simulator-from-your-virtual-environment">2.3.5.1 Launching the simulator from your virtual environment</a></h3>
+<p>Above we set up a virtual environment which includes the <em>Simics-Base</em>
+distribution package and its dependencies. A distribution package in Python can
+include several Python packages and modules. Above we saw the use of the
+<code>simics</code> package, but it also includes a Python module to launch the simulator
+called <code>runsimics</code>.</p>
+<p>If you have set up and activated your virtual environment as above, then you can
+launch the simulator from it.</p>
+<pre><code>python -m runsimics --project your-project
+</code></pre>
+<p>This will function the same as the <a href="../rm-base/simics.html"><code>simics</code></a> launcher.
+You can pass extra command line arguments to the simulator etc. As <code>runsimics</code>
+does not go through the trampoline launch scripts in your project you have
+to specify the project manually if you want it.</p>
+
+<div class="chain">
+<a href="cli.html">2.2 The Command Line Interface</a>
+<a href="configuration.html">2.4 Configuration and Checkpointing</a>
+</div>

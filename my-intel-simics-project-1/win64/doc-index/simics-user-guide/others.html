@@ -1,0 +1,32 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3.5 Using Simics with Other IDEs</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="gdb.html">3.4 Using Simics with GDB</a>
+<a href="performance.html">4 Performance</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="low-level-debugging.html">3 Low-Level Debugging</a>
+&nbsp;/&nbsp;</div><h1 id="using-simics-with-other-ides"><a href="#using-simics-with-other-ides">3.5 Using Simics with Other IDEs</a></h1>
+<p>Simics does not explicitly support IDEs other than those listed in this manual.
+If you would like to use Simics with such an IDE, there are a few options you
+could try:</p>
+<ul>
+<li>Use Simics’s own user interface to control the debugging process (see chapter
+<a class="reference" href="debug.html">3.2</a>).</li>
+<li>If your IDE speaks the GDB serial protocol, try connecting it directly to
+Simics with the help of a <code>gdb-remote</code> object (see chapter <a class="reference" href="gdb.html">3.4</a>).</li>
+<li>If your IDE uses GDB as a debugger backend, try to make this GDB instance
+connect to Simics with <code>gdb-remote</code>.</li>
+</ul>
+
+<div class="chain">
+<a href="gdb.html">3.4 Using Simics with GDB</a>
+<a href="performance.html">4 Performance</a>
+</div>

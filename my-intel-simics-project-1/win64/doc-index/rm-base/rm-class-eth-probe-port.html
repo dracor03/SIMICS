@@ -1,0 +1,81 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>eth-probe-port</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-eth-probe.html">eth-probe</a>
+<a href="rm-class-eth-switch-link.html">eth-switch-link</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="eth-probe-port"><a href="#eth-probe-port">eth-probe-port</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Ethernet probe port
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, ethernet_common
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:probe"><a href="#dt:probe">
+<i>probe</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Probe object to which this port belongs</dd>
+<dt id="dt:side"><a href="#dt:side">
+<i>side</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Whether this port is port A (0) or port B (1)</dd>
+<dt id="dt:partner"><a href="#dt:partner">
+<i>partner</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o|[os]</code>
+<br>Object to which the port is connected and talking Ethernet</dd>
+<dt id="dt:partner_attr"><a href="#dt:partner_attr">
+<i>partner_attr</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Attribute of the connected object that points at this probe port, if available</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.eth-probe.html">eth-probe</a>
+</section>
+<div class="chain">
+<a href="rm-class-eth-probe.html">eth-probe</a>
+<a href="rm-class-eth-switch-link.html">eth-switch-link</a>
+</div>

@@ -1,0 +1,46 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;script-params&gt;.save</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-script-params.list.html">&lt;script-params&gt;.list</a>
+<a href="rm-cmd-script-params.setdefault.html">&lt;script-params&gt;.setdefault</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="script-params.save"></a>
+<h1 id="script-params.save"><a href="#script-params.save">&lt;script-params&gt;.save</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;script-params&gt;.save</b> <i>file</i> [-overwrite] [-all] [<i>"namespace"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Save parameter values in YAML format in <i>file</i>. If <tt>-overwrite</tt> is specified, the file is overwritten if it already exists.
+<p>
+The <i>namespace</i> argument can be used to only save the sub-tree defined by that namespace value.
+</p><p>
+Only the non-default parameter values are saved, unless <tt>-all</tt> is specified.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-run-script.html">run-script</a>, 
+<a href="rm-cmd-load-target.html">load-target</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-script-params.list.html">&lt;script-params&gt;.list</a>
+<a href="rm-cmd-script-params.setdefault.html">&lt;script-params&gt;.setdefault</a>
+</div>

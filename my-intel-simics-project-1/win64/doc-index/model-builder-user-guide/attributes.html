@@ -1,0 +1,63 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>33 Attributes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="part-simics-programming.html">VI Simics API</a>
+<a href="object-hierarchy.html">34 Object Hierarchy</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-simics-programming.html">VI Simics API</a>
+&nbsp;/&nbsp;</div><h1 id="attributes"><a href="#attributes">33 Attributes</a></h1>
+<p>A Simics class can register <em>attributes</em> that will act as data members for all
+objects instantiated from this class. For Simics, an attribute is an
+abstraction, defined by its type and a pair of <code>get()/set()</code> functions. When an
+attribute is read (i.e., when the <code>SIM_get_attribute()</code> function is used on the
+object), the corresponding <code>get()</code> function is called. Likewise, when an
+attribute is written to, the <code>set()</code> function is executed. These functions can
+perform any kind of operation provided they return a value (for <code>get()</code>) or
+accept a value to be written (for <code>set()</code>).</p>
+<p>Attributes have different types and properties. Let us here have a closer look
+at their definition.</p>
+<h2 id="definition"><a href="#definition">33.1 Definition</a></h2>
+<p>In C and DML attribute values are represented by <code>attr_value_t</code> values. In
+Python, attributes are automatically converted to or from the corresponding
+Python type, so manipulating attributes is completely transparent:</p>
+<table><thead><tr><th>Attribute Type</th><th>Python Equivalent</th></tr></thead><tbody>
+<tr><td>Invalid</td><td>Raise a <code>SimExc_Attribute</code> exception.</td></tr>
+<tr><td>String</td><td><code>str</code> (a Python string)</td></tr>
+<tr><td>Integer</td><td><code>int</code></td></tr>
+<tr><td>Floating</td><td><code>float</code></td></tr>
+<tr><td>List</td><td><code>list</code></td></tr>
+<tr><td>Data</td><td><code>tuple</code> of integers 0-255</td></tr>
+<tr><td>Nil</td><td><code>None</code></td></tr>
+<tr><td>Object</td><td>Simics <code>conf_object_t</code> reference.</td></tr>
+<tr><td>Dict</td><td><code>dict</code></td></tr>
+<tr><td>Boolean</td><td><code>bool</code></td></tr>
+</tbody></table>
+<p>The <code>attr_value_t</code> values are manipulated with a set of accessor functions from
+C and DML, rather than by accessing its fields directly. For example:</p>
+<pre><code>// create an integer attribute
+attr_value_t a = SIM_make_attr_uint64(4711);
+
+// create a list attribute
+attr_value_t l = SIM_alloc_attr_list(2);
+
+// writing to the first element of l
+SIM_attr_list_set_item(l, 0, SIM_make_attr_uint64(1));
+
+// reading the second element of the list
+int64 other = SIM_attr_integer(SIM_attr_list_item(l, 1));
+</code></pre>
+<p>A complete documentation of attributes related functions is provided in the <em>API
+Reference Manual</em>.</p>
+
+<div class="chain">
+<a href="part-simics-programming.html">VI Simics API</a>
+<a href="object-hierarchy.html">34 Object Hierarchy</a>
+</div>

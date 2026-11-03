@@ -1,0 +1,86 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Concurrency Modes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="multithreading-thread-domains.html">Thread Domains</a>
+<a href="multithreading-standard-device-model.html">Standard Device Model</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="threading-model.html">Threading Model</a>
+&nbsp;/&nbsp;</div><h1 id="concurrency-modes"><a href="#concurrency-modes">Concurrency Modes</a></h1>
+<p>A device model can run in one of three concurrency modes. The modes are as follows:</p>
+<dl>
+<dt id="dt:sim_concurrency_mode_serialized"><a href="#dt:sim_concurrency_mode_serialized"><code>Sim_Concurrency_Mode_Serialized</code></a></dt>
+<dd>
+<p>The model can assume Cell Context.</p>
+<p>The model is put in the cell thread domain.</p>
+<p>The device may interact with all objects in the cell without having to acquire any thread domains or take threading into account.</p>
+<p>Objects in the same cell, including objects belonging to other thread domains, always have a stable state when queried.</p>
+</dd>
+<dt id="dt:sim_concurrency_mode_serialized_memory"><a href="#dt:sim_concurrency_mode_serialized_memory"><code>Sim_Concurrency_Mode_Serialized_Memory</code></a></dt>
+<dd>
+<p>The model runs in Threaded Context.</p>
+<p>The model is put in a separate thread domain.</p>
+<p>The model is required to handle locking explicitly for both incoming and outgoing interface calls.</p>
+<p>Whenever the model crosses a thread domain boundary, or enters Cell Context, all devices in the cell can potentially undergo state transitions.</p>
+<p>Models that share memory must be grouped together (see the section on Thread Domain Groups below).</p>
+</dd>
+<dt id="dt:sim_concurrency_mode_full"><a href="#dt:sim_concurrency_mode_full"><code>Sim_Concurrency_Mode_Full</code></a></dt>
+<dd>
+<p>The model runs in Threaded Context.</p>
+<p>The model is put in a separate thread domain.</p>
+<p>The model is required to handle locking explicitly for both incoming and outgoing interface calls.</p>
+<p>Whenever the model crosses a thread domain boundary, or enters Cell Context, all devices in the cell can potentially undergo state transitions.</p>
+<p>The model cannot assume that pages granted through the direct-memory subsystem are not accessed concurrently from a different thread, unless exclusive access has been requested explicitly.</p>
+</dd>
+</dl>
+<blockquote class="markdown-alert-note">
+<p>The concurrency mode basically only affects whether the model is put in the cell thread domain or not. Simics cannot automatically detect needed grouping of models, therefore it is the responsibility of the platform developer to ensure that models are grouped in a correct way.</p>
+</blockquote>
+<h2 id="mode-selection"><a href="#mode-selection">Mode Selection</a></h2>
+<p>A model advertises its supported concurrency modes through the <code>concurrency_mode</code> interface. If the interface is omitted, and the object is not grouped with an object implementing the <code>concurrency_mode</code> interface (see the next section), then the model is assumed to only support <code>Sim_Concurrency_Mode_Serialized</code>.</p>
+<p>If the model supports multiple modes, the interface is also used by Simics to select the concurrency mode the model should use. The mode is derived from the simulation mode set through the <code>set-threading-mode</code> command.</p>
+<p>Device models normally run in the serialized concurrency mode, whereas CPU models preferably should support all the modes.</p>
+<blockquote class="markdown-alert-note">
+<p>The <code>set-threading-mode</code> command is used by the user to set the threading mode of the simulation.</p>
+<p>The <em>“serialized”</em> mode puts models in the <strong>serialized</strong> concurrency mode.</p>
+<p>The <em>“subsystem”</em> mode configures models to use the <strong>serialized memory</strong> concurrency mode, if supported, and <strong>serialized</strong> mode otherwise.</p>
+<p>The <em>“multicore”</em> mode configures models to use the <strong>full</strong> concurrency mode, if supported, and <strong>serialized memory</strong> or just <strong>serialized</strong> mode otherwise.</p>
+</blockquote>
+<h2 id="thread-domain-groups"><a href="#thread-domain-groups">Thread Domain Groups</a></h2>
+<p>Objects that are part of a thread domain group will be put in the same thread domain. There can be different reasons for models to be part of the same thread domain. To keep memory accesses serialized when subsystem threading is used, all models that share memory should be put in the same group. Even when running in multithreading mode there are objects that should reside in the same thread domain. Examples include:</p>
+<ul>
+<li>a CPU and an object representing its TLB</li>
+<li>a CPU and a CPU-specific timer</li>
+<li>two hyper threads which share a substantial amount of registers and whose implementation is not thread safe</li>
+</ul>
+<p>When forming thread domain groups, Simics queries all objects implementing the <code>concurrency_group</code> interface. The interface returns constraints of the type “these objects should be put in the same thread domain”, and they are of two kinds:</p>
+<ol>
+<li>constraints that are used in <strong>all</strong> concurrency modes</li>
+<li>constraints that are only used in the <strong>serialized memory</strong> mode.</li>
+</ol>
+<p>A <em>port object</em> is always placed in the same thread domain as its parent, unless it implements the <em>concurrency_mode</em> interface or is grouped explicitly with such an object.</p>
+<p>For CPU models, the following is recommended:</p>
+<dl>
+<dt id="dt:sim_concurrency_mode_serialized_memory-2"><a href="#dt:sim_concurrency_mode_serialized_memory-2"><code>Sim_Concurrency_Mode_Serialized_Memory</code></a></dt>
+<dd>
+<p>Tightly connected CPUs are grouped together.</p>
+<p>In this context, tightly connected really means CPUs that run the same OS instance. CPUs which run distinct OS instances, but share memory, or devices, through some fabric, do not need to be placed in the same group.</p>
+</dd>
+<dt id="dt:sim_concurrency_mode_full-2"><a href="#dt:sim_concurrency_mode_full-2"><code>Sim_Concurrency_Mode_Full</code></a></dt>
+<dd>
+<p>All CPU cores are placed in separate thread domains.</p>
+</dd>
+</dl>
+<p>The above allows groups of tightly coupled CPUs to be simulated in parallel when the simulation is configured to use <strong>subsystem</strong> threading, while allowing all the CPUs to run in parallel in <strong>multicore</strong> mode.</p>
+
+<div class="chain">
+<a href="multithreading-thread-domains.html">Thread Domains</a>
+<a href="multithreading-standard-device-model.html">Standard Device Model</a>
+</div>

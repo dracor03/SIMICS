@@ -1,0 +1,149 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Programming Concepts</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction.html">Introduction</a>
+<a href="simics-api-information.html">Simics API Information</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="introduction.html">Introduction</a>
+&nbsp;/&nbsp;</div><h1 id="programming-concepts"><a href="#programming-concepts">Programming Concepts</a></h1>
+<p>This chapter describes the major programming concepts in Simics. It is intended for anyone who wants to write extensions or modules for Simics.</p>
+<p>A Simics module is just some executable code loaded dynamically into the simulator, so it could perform virtually any operation. To be of any practical use, however, a module has to interact with Simics, other modules, or the user. Simics provides a set of functions (the Simics API) for the modules to work within the simulator framework. The API defines a number of concepts like classes, objects, interfaces, haps, and events, which will be presented below.</p>
+<p>Simics modules can be written using different programming languages:</p>
+<dl>
+<dt id="dt:dml"><a href="#dt:dml">DML</a></dt>
+<dd>Device Modeling Language (DML) has been designed to make writing a new device model as simple as possible.
+It integrates in the language many of the concepts defined by the Simics API so that the user can focus on the model rather than on the interaction with Simics.
+<em>This is by far the best language for writing device models</em>.
+Note that although it was designed with device models in mind, DML can be used to develop other types of modules.</dd>
+<dt id="dt:python"><a href="#dt:python">Python</a></dt>
+<dd>Python can be used to quickly write a new Simics module.
+It is well suited for Simics extensions that are not called very often, like some types of statistics gathering, or BIOS emulation.
+It can also be used for fast prototyping of more complex extensions that later on will be rewritten in a compiled language like DML or C.
+Note that in all cases, DML is easier to use than Python to write a device model.</dd>
+<dt id="dt:c-and-c"><a href="#dt:c-and-c">C and C++</a></dt>
+<dd>C and C++ can be used for writing any type of Simics module.
+Writing in C or C++ exposes all interactions with Simics, which can be sometimes cumbersome.
+C or C++ development is only recommended for specialized cases when DML or Python do not provide the functionality needed.
+A few specialized functions in the API are only available to C and C++ modules.</dd>
+<dt id="dt:systemc"><a href="#dt:systemc">SystemC</a></dt>
+<dd>Integrating existing SystemC device models into Simics simulations is supported by the <em>SystemC Library</em>.
+The library provides a set of gaskets that bridge from TLM-2.0 interface to Simics interfaces and from Simics interfaces to TLM-2.0 interface.
+See the <a href="../systemc-library/index.html">SystemC Library Programming Guide</a> for details.
+For new device modeling, DML is recommended since it is more efficient to model in and automatically supports all Simics features.</dd>
+</dl>
+<p>This chapter will cover the concepts that the Simics API defines. It will also present how to use them in DML, Python, C and C++.</p>
+<h2 id="classes-and-objects"><a href="#classes-and-objects">Classes and Objects</a></h2>
+<p>Each device is represented by an object whose attributes correspond to the state of the device.</p>
+<p>Most Simics modules work the same way: they define <em>classes</em> describing the properties of an object. This includes its <em>attributes</em>, <em>interfaces</em> and the class name. The objects are created by <em>instantiating</em> a class and setting the required attributes.</p>
+<p>Note that <em>modules</em> and <em>classes</em> are not the same thing. A module can define two or more classes, or none at all. But many modules define a single class with the same name as the module.</p>
+<h2 id="type"><a href="#type">Type</a></h2>
+<p>When registering an attribute, a type definition should be provided for Simics to check that the attribute is always set properly. This type definition is a string that is defined according to the following rules:</p>
+<ul>
+<li>
+<p>A simple type is represented by a single letter: <code>i</code> (integer), <code>f</code> (floating), <code>s</code> (string), <code>b</code> (boolean), <code>d</code> (data), <code>o</code> (object), <code>D</code> (dictionary), <code>n</code> (nil) or <code>a</code> (all).</p>
+</li>
+<li>
+<p>You can match several types by using the operator <code>|</code> like in <code>s|o</code> (string OR object).</p>
+</li>
+<li>
+<p>Lists are defined by square brackets: <code>[</code> and <code>]</code>. Lists can be specified in three ways:</p>
+<ul>
+<li>Lists with fixed elements: <code>[iffsb]</code> matches a list of five elements; an integer, two floating-point values, a string and a boolean value.</li>
+<li>lists of an arbitrary number of elements: <code>[i*]</code> and <code>[i+]</code> both match any list containing only integers, with the difference that <code>[i*]</code> will match an empty list, while <code>[i+]</code> requires at least one list element.</li>
+<li>lists with a size specifier: <code>[i{1:4}]</code> matches lists of integers with 1 to 4 elements. <code>[i{4}]</code> is the same as <code>[i{4:4}]</code> or <code>[iiii]</code>, i.e., a list of four integers.</li>
+</ul>
+</li>
+<li>
+<p>The <code>|</code> operator has higher precedence than juxtaposition in the list type definitions, which means that <code>[i|si|s]</code> matches any two-element list with integer or string elements. For clarity you can use a comma anywhere in the type definition, it will be ignored. The example could be written as <code>[i|s,i|s]</code></p>
+</li>
+</ul>
+<p>As an example, the <code>"[s*]|s"</code> string defines an attribute that can hold either a string or a (possibly empty) list of strings.</p>
+<p>When writing complex attributes, you may notice that the type description strings do not cover all the possibilities offered by the attribute structure definition. If you need to register attributes that cannot be described in a type string (like complex variable size lists), you will need to use the <code>a</code> type and perform the type checking by yourself in the <code>set()</code> function. You may also want to review your attribute and change its definition to match a possible type description, or divide your attribute into several simpler attributes.</p>
+<p>For example, an attribute accepting a list composed of one object and one or more integers cannot be described in a type string (list definition with variable size can only have one element). You may want to rewrite your attribute to use a sub-list for the integers: <code>[o[i+]]</code>, or you can perform type checking yourself.</p>
+<h2 id="interfaces"><a href="#interfaces">Interfaces</a></h2>
+<p>Interfaces allow objects to interact with each other. An interface defines a number of functions. Every class that implements an interface (by registering it) must define those functions. In some cases, it is sufficient to implement just a subset of the functions. An object A may then ask for an interface registered by an object B, and thus use the interface’s functions to communicate with B. Simics comes with many predefined interfaces but it is also possible to define new interfaces.</p>
+<p>One of the most important interfaces for a device class is probably the <code>io_memory</code> interface. Implementing the <code>io_memory</code> interface enables a class to be mapped into a memory space and be accessed by the simulated machine. In C or DML, it is defined as:</p>
+<pre><code>typedef struct io_memory_interface {
+        int (*_deprecated_map)(conf_object_t *NOTNULL obj,
+                               addr_space_t memory_or_io,
+                               map_info_t map_info);
+        exception_type_t (*operation)(conf_object_t *NOTNULL obj,
+                                      generic_transaction_t *NOTNULL mem_op,
+                                      map_info_t map_info);
+      } io_memory_interface_t;
+</code></pre>
+<p>Other interfaces can be used for things like raising processor interrupts or implementing PCI device functionality.</p>
+<p>Interfaces are either implemented by the device class itself, or by one of its <em>ports</em>. This way, a device can have several ports implementing the same interface, for example interrupt controllers with several sources or memory mapped devices with separate banks of registers.</p>
+<h2 id="logging"><a href="#logging">Logging</a></h2>
+<p>A device model should log its activities so that it is possible to see what happens. It is useful both while developing the model and while developing target software, or to help find problems in the system. Logging should not be used in attribute accessor functions or in CLI commands where there are other ways to report errors. The Simics API provides logging facilities that classify log messages based on the following criteria:</p>
+<dl>
+<dt id="dt:level"><a href="#dt:level"><em>level</em></a></dt>
+<dd>
+<p>The verbosity level ranging from 1 through 4 in decreasing importance order.
+The terms ‘high’ and ‘low’ for log-level are based on priority, thus 1 is the highest log-level.</p>
+</dd>
+<dt id="dt:type"><a href="#dt:type"><em>type</em></a></dt>
+<dd>
+<p>Each log message belongs to a specific category:</p>
+<dl>
+<dt id="dt:info"><a href="#dt:info"><code>info</code></a></dt>
+<dd>Info or debug message without any consequence on the simulation.</dd>
+<dt id="dt:warning"><a href="#dt:warning"><code>warning</code></a></dt>
+<dd>Warning message about a problem in the simulation, which however still allows the simulation to continue.</dd>
+<dt id="dt:error"><a href="#dt:error"><code>error</code></a></dt>
+<dd>An error occurred that prevents the simulation (or part of the simulation) from running properly.
+Note that error messages do not have any logging level and are always printed.
+If the <code>sim-&gt;fail_on_warnings</code> attribute is set to true, for example if Simics was started with the <code>-werror</code> command line flag, then Simics will exit with an error code when a log message of the <em>error</em> type is generated.</dd>
+<dt id="dt:critical"><a href="#dt:critical"><code>critical</code></a></dt>
+<dd>Used to signal serious errors that the model may not be able to resume from.
+Simics will stop the simulation as soon as a critical error is logged.</dd>
+<dt id="dt:unimplemented"><a href="#dt:unimplemented"><code>unimplemented</code></a></dt>
+<dd>A model does not implement a specific functionality, bit or register.</dd>
+<dt id="dt:spec_violation"><a href="#dt:spec_violation"><code>spec_violation</code></a></dt>
+<dd>A model received commands from the target program that violates the device specification.</dd>
+</dl>
+</dd>
+<dt id="dt:group"><a href="#dt:group"><em>group</em></a></dt>
+<dd>
+<p>A bit-field, defined and registered by the module, used to separate different parts of the device, for example to distinguish between the configuration of a device and using the device’s services, or the PCI interface and the Ethernet interface, etc.</p>
+</dd>
+</dl>
+<h2 id="events"><a href="#events">Events</a></h2>
+<p>When a device model wants some action to be taken at a later time, it posts an <em>event</em> and returns control to the simulation engine. This will cause a callback to be called after the requested simulated time has passed.</p>
+<p>For example, a device that wants to raise a timer interrupt every 10 ms would post an event with a callback that raises the interrupt and then reposts the event with a 10 ms delay.</p>
+<p>The events are posted on a clock, which is usually one of the processor cores in the system. Typically, each device is associated with one clock on which it posts all its events, but it is possible to choose which clock to post on, as long as it is in the same simulation cell as the device.</p>
+<blockquote class="markdown-alert-note">
+<p>Some clocks, in particular the processor cores, also allow posting events on a <em>step queue</em> which doesn’t count time, but CPU <em>steps</em>. This is usually not used by device models, but can be used for profiling extensions etc.</p>
+</blockquote>
+<p>You can print out the current event queue by using the <code>print-event-queue</code> command (or <code>peq</code> for short).</p>
+<h2 id="haps"><a href="#haps">Haps</a></h2>
+<p>Another way that models may react to Simics events is to use <em>haps</em>.
+(The term was chosen because happenstance was considered too long.)
+To react to a hap, a module can register a callback function to the hap.
+This callback function will then be called every time the hap occurs.
+The API to register hap callbacks is in the <a href="sim-api-haps.html">simulator API</a>.</p>
+<p>Each package can register new hap types.
+The base package defines <a href="../rm-base/rm-haps.html">several common hap types</a>.</p>
+<p>To register new hap types and to trigger haps use the <a href="dev-api-haps.html">device API</a>.</p>
+<p>In general, haps are slower than notifiers, and therefore less suitable for communication between models.
+However, haps allow sending additional parameters to the callback function.</p>
+<h2 id="commands"><a href="#commands">Commands</a></h2>
+<p>A user interface for a module can be created by adding new commands to the Simics command line interface. Commands can be bound to a specific namespace (i.e., a class or an interface) or to the global namespace.</p>
+<ul>
+<li>Commands that are bound to <em>classes</em> can be used to manipulate individual instances of that class. For example, all devices should have an <code>info</code> command that prints static information about the device and a <code>status</code> command that prints the state of the device.</li>
+<li>Commands that are bound to <em>interfaces</em> can be used on all objects implementing that interface.</li>
+<li>Global commands can be used for actions that do not pertain to a specific object. This is the case of commands like <code>output-radix</code> or <code>print</code>.</li>
+</ul>
+
+<div class="chain">
+<a href="introduction.html">Introduction</a>
+<a href="simics-api-information.html">Simics API Information</a>
+</div>

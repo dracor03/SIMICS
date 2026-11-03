@@ -1,0 +1,82 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-tracer-tool</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-time-server.html">new-time-server</a>
+<a href="rm-cmd-new-transaction-tracer.html">new-transaction-tracer</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-tracer-tool"></a>
+<h1 id="new-tracer-tool"><a href="#new-tracer-tool">new-tracer-tool</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-tracer-tool</b> [<i>"name"</i>] [<i>file</i>] [<i>trace-history-size</i>] ([ <i>processors</i> ... ] | list of <i>processors</i>) [<i>parent</i>] [-connect-all] [<i>"group"</i>] [-trace-data] [-trace-instructions] [-trace-exceptions] [-print-virtual-address] [-print-physical-address] [-print-linear-address] [-print-opcode] [-print-access-type] [-print-memory-type] [-print-register-changes] [-print-old-value] [-print-execution-mode] [-use-cpu-number] [-remove-duplicates] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Creates a new instruction tracer tool object which can be connected to processors which supports instrumentation.
+<p>
+The <i>file</i> argument specifies a file to write the trace to, without any file, the trace will be printed to standard out.
+</p><p>
+If the <i>trace-history-size</i> is set to a size, the tool will instead of constantly writing the output to standard out or a file, keep the output in a cyclic buffer in memory with this number of lines. The buffer can be written to file later with the &lt;instrumentation_tracer_tool&gt;.save-trace-buffer&gt; command. <br>
+<br>
+The optional <i>name</i> argument can be used to set a name of the created object. If no name is given, a default name <i>trace</i> followed by a sequence number is generated (<i>trace0</i>, <i>trace1</i>,...).<br>
+<br>
+ The optional <i>processors</i> argument, supports connecting one or several processors directly. With the optional <i>parent</i> argument a hierarchical object can be specified and all processors below this object matching the provider requirements will be connected to the tool. The <tt>-connect-all</tt> flag can be given to add a connection to all supported processors in the configuration.<br>
+<br>
+The optional argument <i>group</i> lets a user specify a named instrumentation group to use for the connection. (See <code>add-instrumentation-group</code> for details on named groups.)<br>
+<br>
+Each new connection to the tracer tool can be configured with flags. The flags are described below.
+</p><p>
+The following three flags control what type of tracing is done:
+</p><p>
+<tt>-trace-data</tt> : Enabling tracing of data operations. <br>
+<tt>-trace-instructions</tt> : Enabling tracing of instruction. <br>
+<tt>-trace-exceptions</tt> : Enabling tracing of exceptions.
+</p><p>
+The following flags allow controlling the output:
+</p><p>
+<br>
+<tt>-print-register-changes</tt> : Print register changes after traced instruction and/or traced exception. Registers that normally change with every instruction, like program counter or cycles counter, are not listed. <br>
+<tt>-print-old-value</tt> : Print the previous register value together with register changes. <br>
+<tt>-print-virtual-address</tt> : Print the virtual address of an entry. <br>
+<tt>-print-physical-address</tt> : Print the physical address of an entry. <br>
+<tt>-print-linear-address</tt> : Print the linear address of an entry (only x86). <br>
+<tt>-print-opcode</tt> : Print the opcode of an instruction entry. <br>
+<tt>-print-access-type</tt> : Print the access type (only x86). <br>
+<tt>-print-memory-type</tt> : Print the memory type (only x86). <br>
+<tt>-print-execution-mode</tt> : Print the execution mode (only x86). See description of recognized modes below. <br>
+<tt>-use-cpu-number</tt> : Print the CPU number instead of its name. <br>
+<tt>-remove-duplicates</tt> : Remove duplicated lines from the output.
+</p><p>
+If none of the <tt>-print...</tt> or <tt>-trace..</tt> flags are given all of those will be enabled by default except <tt>-print-register-changes</tt>, i.e., trace and print everything except register changes.
+</p><p>
+If only <tt>-print-register-changes</tt> are given everything including register changes will be enabled.
+</p><p>
+The <tt>-print-execution-mode</tt> recognizes the following modes of execution. Note that several modes can be recognized simultaneously. <br>
+<tt>AC</tt> : The processor is executing inside an Authenticated Code Module (ACM). <br>
+<tt>SEAM</tt> : The processor is executing inside Secure Arbitration Mode (SEAM) mode. <br>
+<tt>SGX</tt> : The processor is executing inside an Intel® Software Guard Extensions (Intel® SGX) enclave. <br>
+<tt>SMM</tt> : The processor is executing inside System Management Mode (SMM) mode. <br>
+<tt>VMX root</tt> : The processor is executing inside Virtual Machine Extensions (VMX) root mode. <br>
+<tt>VMX non-root</tt> : The processor is executing inside Virtual Machine Extensions (VMX) non-root mode. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.instrumentation-tracer-tool.html">instrumentation-tracer-tool</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-time-server.html">new-time-server</a>
+<a href="rm-cmd-new-transaction-tracer.html">new-transaction-tracer</a>
+</div>

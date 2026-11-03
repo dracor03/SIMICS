@@ -1,0 +1,465 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>cli</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simics-types-in-python.html">Simics Types in Python</a>
+<a href="simics.html">simics</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="cli"><a href="#cli">cli</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cli</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import cli
+</code></pre>
+<h2>Description</h2>
+<p>The cli module contains the API for interacting with the Simics Command Line Interface.</p>
+</section>
+<h2 id="cli.arg"><a href="#cli.arg">class cli.arg</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.arg(
+    handler,
+    name='',
+    spec='1',
+    default=None,
+    data=None,
+    doc='',
+    expander=None,
+    pars=[]
+)
+</code></pre>
+<h2>Description</h2>
+<p>Class defining a command argument.</p>
+<p>Define a CLI command argument when using <code>new_command</code>. A complete explanation of <code>new_command</code> and <code>arg</code> is available in <code>Simics Model Builder User's Guide</code>, in the <a href="../model-builder-user-guide/new-commands.html">Adding New Commands</a> section.</p>
+</section>
+<h2 id="cli.bool_t"><a href="#cli.bool_t">class cli.bool_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.bool_t(true_str='TRUE', false_str='FALSE')
+</code></pre>
+<h2>Description</h2>
+<p>Generator function for boolean arguments.</p>
+<p>A boolean argument accepts the strings <code>"TRUE"</code> and <code>"FALSE"</code>, as well as boolean integers (that is, the values 0 and 1). In addition, if the optional strings <code>true_str</code> and <code>false_str</code> are given, the boolean argument will accept them as well. The argument passes True or False to the command function depending on which string (or value) was given.</p>
+</section>
+<h2 id="cli.CliError"><a href="#cli.CliError">class cli.CliError</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.CliError
+</code></pre>
+<h2>Description</h2>
+<p>Exception used for errors in CLI commands.</p>
+<p>This exception can be raised whenever a command can not complete successfully.</p>
+</section>
+<h2 id="cli.command_quiet_return"><a href="#cli.command_quiet_return">class cli.command_quiet_return</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.command_quiet_return(value)
+</code></pre>
+<h2>Description</h2>
+<p>Suppresses interactive messages from commands.</p>
+<p>Use this class to return from a command that returns a value but should not print anything when used interactively.</p>
+<p><code>value</code> should either be the value returned, or a function taking no arguments that returns the actual value.</p>
+<p>Note that <code>value</code> can only be of types directly supported by CLI.</p>
+<h2>See Also</h2>
+<p><a href="cli.html#cli.command_return"><code>cli.command_return</code></a></p>
+</section>
+<h2 id="cli.command_quiet_return.is_quiet"><a href="#cli.command_quiet_return.is_quiet">cli.command_quiet_return.is_quiet</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.command_quiet_return.is_quiet()
+</code></pre>
+<h2>Description</h2>
+<p>Should return True if no message or return value should be printed when used interactively.</p>
+</section>
+<h2 id="cli.command_return"><a href="#cli.command_return">class cli.command_return</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.command_return(message=None, value=None)
+</code></pre>
+<h2>Description</h2>
+<p>Returns interactive messages from commands</p>
+<p>Use this class to return from a command that returns one value <code>value</code> but (may) print something else <code>message</code> when run interactive.</p>
+<p><code>message</code> and <code>value</code> may both be functions that take no arguments and return the message (a string) or a value, respectively.</p>
+<p>If it is a function, <code>message</code> is only evaluated if needed.</p>
+<p>Note that <code>value</code> (or, when a function, its return value) can only be of types directly supported by CLI.</p>
+<h2>See Also</h2>
+<p><a href="cli.html#cli.command_quiet_return"><code>cli.command_quiet_return</code></a>, <a href="cli.html#cli.command_verbose_return"><code>cli.command_verbose_return</code></a></p>
+</section>
+<h2 id="cli.command_return.is_quiet"><a href="#cli.command_return.is_quiet">cli.command_return.is_quiet</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.command_return.is_quiet()
+</code></pre>
+<h2>Description</h2>
+<p>Should return True if no message or return value should be printed when used interactively.</p>
+</section>
+<h2 id="cli.command_return.is_verbose"><a href="#cli.command_return.is_verbose">cli.command_return.is_verbose</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.command_return.is_verbose()
+</code></pre>
+<h2>Description</h2>
+<p>Should return True if a no message or return value should be printed even when used non-interactively.</p>
+</section>
+<h2 id="cli.command_verbose_return"><a href="#cli.command_verbose_return">class cli.command_verbose_return</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.command_verbose_return(message=None, value=None)
+</code></pre>
+<h2>Description</h2>
+<p>Always print return messages from commands.</p>
+<p>Use this class to return from a command that returns a value or message that should be printed even when used non-interactively, but not when used in an expression.</p>
+<p>The <code>value</code> and <code>message</code> parameters are identical to the same as for <a href="cli.html#cli.command_return"><code>cli.command_return</code></a>.</p>
+<h2>See Also</h2>
+<p><a href="cli.html#cli.command_return"><code>cli.command_return</code></a></p>
+</section>
+<h2 id="cli.command_verbose_return.is_verbose"><a href="#cli.command_verbose_return.is_verbose">cli.command_verbose_return.is_verbose</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.command_verbose_return.is_verbose()
+</code></pre>
+<h2>Description</h2>
+<p>Should return True if a no message or return value should be printed even when used non-interactively.</p>
+</section>
+<h2 id="cli.filename_t"><a href="#cli.filename_t">class cli.filename_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.filename_t(
+    dirs=False,
+    exist=False,
+    simpath=False,
+    checkpoint=False,
+    keep_simics_ref=False
+)
+</code></pre>
+<h2>Description</h2>
+<p>Generator function for filename arguments.</p>
+<p>If the <code>dirs</code> argument is false (which is default), no directories will be accepted. The <code>exist</code> flag, when set, forces the file to actually exist. If <code>simpath</code> is true, files will be checked for existence using <a href="sim-api-path.html#SIM_lookup_file"><code>SIM_lookup_file()</code></a>, searching the Simics search path. <code>simpath</code> implies <code>exist</code>. On Windows, if Cygwin path conversion is performed (see <a href="sim-api-path.html#SIM_native_path"><code>SIM_native_path()</code></a> for details), the filename will be converted to host native format. The <code>checkpoint</code> flag will constrain the argument to checkpoints, and treat existing checkpoints as opaque entities.</p>
+</section>
+<h2 id="cli.get_available_object_name"><a href="#cli.get_available_object_name">cli.get_available_object_name</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.get_available_object_name(prefix)
+</code></pre>
+<h2>Description</h2>
+<p>Return a non-allocated object name.</p>
+<p>Return an object name suitable for creating a new object (i.e., that has not been used yet) by adding a suffix to <code>prefix</code>.</p>
+</section>
+<h2 id="cli.global_cmds"><a href="#cli.global_cmds">cli.global_cmds</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.global_cmds
+</code></pre>
+<h2>Description</h2>
+<p>Namespace with functions to run global CLI commands</p>
+<p>The namespace provides wrapper Python functions to run global Simics CLI commands. A wrapper function name is usually the same as a name of the command it executes with hyphens replaced with underscores. The parameters of the wrapper functions are the same as of the corresponding command (again, with hyphens replaced with underscores). Command flags (the names of the corresponding function parameters start with an underscore) could be passes as Python Boolean values. In the rare cases that a wrapper function name or a wrapper function parameter name turns out to be a Python keyword, the <code>_cmd</code> suffix is added to the wrapper function name and the function parameter gets the <code>_</code> suffix. Wrapper functions return the value returned by the command which they execute.</p>
+<p>Please consult the docstring of the wrapper function and the respective command documentation for the information about function arguments and the returned value.</p>
+</section>
+<h2 id="cli.int16_t"><a href="#cli.int16_t">cli.int16_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.int16_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 16 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.int32_t"><a href="#cli.int32_t">cli.int32_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.int32_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 32 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.int64_t"><a href="#cli.int64_t">cli.int64_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.int64_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 64 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.int8_t"><a href="#cli.int8_t">cli.int8_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.int8_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 8 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.integer_t"><a href="#cli.integer_t">cli.integer_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.integer_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 64 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.interactive_command"><a href="#cli.interactive_command">cli.interactive_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.interactive_command()
+</code></pre>
+<h2>Description</h2>
+<p>Check if current command is run interactively.</p>
+<p>Returns true if the current command was run interactively by the user and false if run from a script. This function may only be called by CLI commands.</p>
+</section>
+<h2 id="cli.ip_port_t"><a href="#cli.ip_port_t">cli.ip_port_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.ip_port_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts integers that are valid IP port numbers (that is, integers between 0 and 65535 inclusive).</p>
+</section>
+<h2 id="cli.new_command"><a href="#cli.new_command">cli.new_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.new_command(name, fun, args=[], **kwargs)
+</code></pre>
+<h2>Description</h2>
+<p>Define a new CLI command.</p>
+<p>A complete explanation of <code>new_command</code> and its parameters is available in <code>Simics Model Builder User's Guide</code>, in the <a href="../model-builder-user-guide/new-commands.html">Adding New Commands`</a> section.</p>
+</section>
+<h2 id="cli.new_info_command"><a href="#cli.new_info_command">cli.new_info_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.new_info_command(cls, get_info, ctype=None, doc=None)
+</code></pre>
+<h2>Description</h2>
+<p>Define a new info command.</p>
+<p>Define a new <em>info</em> command for a given configuration class. <code>cls</code> is the class for which the infocommand should be registered. <code>get_info</code> is a function returning the information to be printed. <code>get_info()</code> should return a data structure of the following kind:</p>
+<pre><code>[(SectionName1, [(DataName1.1, DataValue1.1),
+                 (DataName1.2, DataValue1.2), ...]),
+ (SectionName2, [(DataName2.1, DataValue2.1),
+                 (DataName2.2, DataValue2.2), ...]),
+ ...]
+</code></pre>
+<p>Each section will be printed separately. Each piece of data will be printed on one line. If no sections are necessary, just provide <code>None</code> as the only section’s name, followed by the list of data.</p>
+</section>
+<h2 id="cli.new_status_command"><a href="#cli.new_status_command">cli.new_status_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.new_status_command(cls, get_status, ctype=None, doc=None)
+</code></pre>
+<h2>Description</h2>
+<p>Define a new status command.</p>
+<p>Define a new <em>status</em> command for a given configuration class. <code>cls</code> is the class for which the status command should be registered. <code>get_status</code> is a function returning the information to be printed. <code>get_status()</code> should return a data structure of the same kind as in <a href="cli.html#cli.new_info_command"><code>cli.new_info_command</code></a>.</p>
+</section>
+<h2 id="cli.nil_t"><a href="#cli.nil_t">cli.nil_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.nil_t
+</code></pre>
+<h2>Description</h2>
+<p>Nil argument.</p>
+<p>Accepts NIL, zero or the empty string, and passes None to the command function. Not so usable by itself, but see e.g. <a href="cli.html#cli.poly_t"><code>cli.poly_t</code></a>.</p>
+</section>
+<h2 id="cli.number_str"><a href="#cli.number_str">cli.number_str</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.number_str(val, radix=None, group=None, use_prefix=True, precision=1)
+</code></pre>
+<h2>Description</h2>
+<p>Return a ready-to-print representation of a number.</p>
+<p>Return a ready-to-print representation of the number <code>val</code> in a given base (<code>radix</code>) or the current base by default, using the current settings for number representation as set by the <a href="../rm-base/rm-cmd-output-radix.html"><code>output-radix</code></a> and <a href="../rm-base/rm-cmd-digit-grouping.html"><code>digit-grouping</code></a> commands.</p>
+<p>The default digit grouping can be overridden with the <code>group</code> parameter, where 0 means no grouping. The radix prefix can be removed by specifying <code>use_prefix</code> as <code>False</code>.</p>
+<p>The minimum number of digits to be printed is specified by <code>precision</code>. If <code>precision</code> is negative, the precision is taken to be zero. Regardless of the radix, a value of zero with zero precision will always return the empty string.</p>
+<p>Negative numbers that fit in a signed 64-bit integer are treated as such. Other negative numbers are prefixed with a minus (<code>"-"</code>).</p>
+</section>
+<h2 id="cli.obj_t"><a href="#cli.obj_t">class cli.obj_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.obj_t(desc, kind=None, want_port=False, cls=None, iface=None)
+</code></pre>
+<h2>Description</h2>
+<p>Returns an argument which accepts any object.</p>
+<p><code>desc</code> is the string returned as a description of the argument. <code>kind</code> can be used to limit the accepted objects to only allow objects of a certain kind.  This parameter can either be a class name that the object should be an instance of, or the name of an interface that the object must implement, or a tuple of kinds. <code>want_port</code> indicates whether it should be allowed to specify an object and a port name, separated with a colon.  If a port is wanted, the argument will be a list <code>[obj, port]</code> instead of only the object.</p>
+</section>
+<h2 id="cli.object_expander"><a href="#cli.object_expander">cli.object_expander</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.object_expander(kind)
+</code></pre>
+<h2>Description</h2>
+<p>A standard expander for an object argument.</p>
+<p>For command writing: standard expander that can be use to provide argument completion on all objects of a given class or matching a given interface (<code>kind</code>).</p>
+<h2>Example</h2>
+<p>For example, to expand a string with the list of processor available in the machine, you would write:</p>
+<pre><code>arg(str_t, "cpu", expander =  object_expander("processor_info"))
+</code></pre>
+<p>To expand a string to all <code>gcache</code> objects:</p>
+<pre><code>arg(str_t, "cache", expander = object_expander("gcache"))
+</code></pre>
+</section>
+<h2 id="cli.poly_t"><a href="#cli.poly_t">class cli.poly_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.poly_t(desc, *types)
+</code></pre>
+<h2>Description</h2>
+<p>Generator function that generates arguments for given types.</p>
+<p>Generates an argument with the given description that will match any of the given types; they will be tried one by one, in the order specified, and the first one that accepts the input will be used.</p>
+</section>
+<h2 id="cli.quiet_run_command"><a href="#cli.quiet_run_command">cli.quiet_run_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.quiet_run_command(text, output_mode=output_modes.formatted_text)
+</code></pre>
+<h2>Description</h2>
+<p>Runs a CLI command and return output.</p>
+<p>Runs a CLI command, or a CLI expression, as if it has been entered at the prompt. Errors are reported using <strong>CliError</strong> exception.</p>
+<p>The <a href="cli.html#cli.quiet_run_command"><code>cli.quiet_run_command</code></a> function is similar to <a href="cli.html#cli.run_command"><code>cli.run_command</code></a> but returns a tuple with the command return value as first entry, and the command output text as the second. Please note that sometimes unrelated output might be included, e.g., for commands that advance the virtual time or in some other way may allow other commands to run in parallel with them.</p>
+<p>Set ‘output_mode’ to one of the output modes:</p>
+<dl>
+<dt id="dt:output_modes-regular"><a href="#dt:output_modes-regular"><code>output_modes.regular</code></a></dt>
+<dd>formatted text with Simics-internal markup</dd>
+<dt id="dt:output_modes-formatted_text"><a href="#dt:output_modes-formatted_text"><code>output_modes.formatted_text</code></a></dt>
+<dd>formatted text without markup</dd>
+<dt id="dt:output_modes-unformatted_text"><a href="#dt:output_modes-unformatted_text"><code>output_modes.unformatted_text</code></a></dt>
+<dd>unformatted text without markup</dd>
+</dl>
+</section>
+<h2 id="cli.range_t"><a href="#cli.range_t">class cli.range_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.range_t(min, max, desc, name=None, modulo=False, positive=False)
+</code></pre>
+<h2>Description</h2>
+<p>Returns an argument which accepts any integer <code>x</code> between <code>min</code> and <code>max</code> inclusively. <code>desc</code> is the string returned as a description of the argument.</p>
+<p>Values outside the interval cause an error to be signalled if <code>modulo</code> is false, and a modulo-reduction to the specified interval otherwise.</p>
+</section>
+<h2 id="cli.register_command_category"><a href="#cli.register_command_category">cli.register_command_category</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.register_command_category(name=None)
+</code></pre>
+<h2>Description</h2>
+<p>Register a command category</p>
+<p>Registers a command category for the ‘type’ argument given to the <a href="cli.html#cli.new_command"><code>new_command</code></a> function. Command categories are optional but may be useful if many commands are defined for a particular use case that is of general interest.</p>
+<p><code>name</code> should be at least 3 characters long and preferably just one capitalized word, a noun.</p>
+<blockquote class="markdown-alert-note">
+<p>Do not register any command category for a class, as those are listed on the class itself.</p>
+</blockquote>
+<p>Invoke this function without any argument to print the standard categories, assuming no modules or targets have been loaded.</p>
+</section>
+<h2 id="cli.run_command"><a href="#cli.run_command">cli.run_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.run_command(text)
+</code></pre>
+<h2>Description</h2>
+<p>Run a CLI command.</p>
+<p>Runs a CLI command, or a CLI expression, as if it has been entered at the prompt. Errors are reported using CliError exception, and any return value from the command is returned by this function to Python.</p>
+<p>Use <a href="cli.html#cli.quiet_run_command"><code>cli.quiet_run_command</code></a> if you need to suppress or catch messages printed.</p>
+</section>
+<h2 id="cli.simenv"><a href="#cli.simenv">cli.simenv</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.simenv
+</code></pre>
+<h2>Description</h2>
+<p>CLI variable namespace.</p>
+<p>The <code>simenv</code> namespace provides access to the CLI variables in the Simics Python interpreter. If the variable <code>$foo</code> was defined in CLI, <code>simenv.foo</code> will represent the same variable in Python.</p>
+<p>Running <code>del simenv.foo</code> will unset that variable. The return value from the <code>dir</code> function will also include defined variables. The <code>repr</code> function will return the dictionary of variable and value pairs as a string.</p>
+</section>
+<h2 id="cli.sint16_t"><a href="#cli.sint16_t">cli.sint16_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.sint16_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any signed integer that fits in 16 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.sint32_t"><a href="#cli.sint32_t">cli.sint32_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.sint32_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any signed integer that fits in 32 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.sint64_t"><a href="#cli.sint64_t">cli.sint64_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.sint64_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any signed integer that fits in 64 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.sint8_t"><a href="#cli.sint8_t">cli.sint8_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.sint8_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any signed integer that fits in 8 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.str_number"><a href="#cli.str_number">cli.str_number</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.str_number(text)
+</code></pre>
+<h2>Description</h2>
+<p>convert a string to a number.</p>
+<p>Converts a string returned from <a href="cli.html#cli.number_str"><code>cli.number_str</code></a> back to an integer.</p>
+<h2>Return Value</h2>
+<p>A number representing the string.</p>
+<h2>EXCEPTIONS</h2>
+<p><strong>ValueError</strong> is raised for invalid arguments.</p>
+</section>
+<h2 id="cli.string_set_t"><a href="#cli.string_set_t">class cli.string_set_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class cli.string_set_t(strings, visible=None)
+</code></pre>
+<h2>Description</h2>
+<p>Accepts only strings from the given set.</p>
+<p><code>strings</code> can be any iterable, such as a tuple, list, or set, in which case the return value is the exact string the user gave; or a dictionary mapping acceptable user input strings to return values. The optional parameter <code>visible</code> is a list of strings. If given, only strings in this list will be suggested by the expander.</p>
+</section>
+<h2 id="cli.uint16_t"><a href="#cli.uint16_t">cli.uint16_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.uint16_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 16 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.uint32_t"><a href="#cli.uint32_t">cli.uint32_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.uint32_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 32 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.uint64_t"><a href="#cli.uint64_t">cli.uint64_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.uint64_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 64 bits, modulo-reducing values outside into that range.</p>
+</section>
+<h2 id="cli.uint8_t"><a href="#cli.uint8_t">cli.uint8_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>cli.uint8_t
+</code></pre>
+<h2>Description</h2>
+<p>Accepts any unsigned integer that fits in 8 bits, modulo-reducing values outside into that range.</p>
+</section>
+<div class="chain">
+<a href="simics-types-in-python.html">Simics Types in Python</a>
+<a href="simics.html">simics</a>
+</div>

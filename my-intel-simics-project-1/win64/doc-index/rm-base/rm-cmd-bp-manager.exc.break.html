@@ -1,0 +1,45 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.exc.break</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.eth_link.wait-for.html">bp.eth_link.wait-for</a>
+<a href="rm-cmd-bp-manager.exc.run-until.html">bp.exc.run-until</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.exc.break"></a>
+<h1 id="bp-manager.exc.break"><a href="#bp-manager.exc.break">bp.exc.break</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.exc&gt;.break</b> [<i>object</i>] (<i>"name"</i>|<i>number</i>|-all) [-recursive] [-once] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Enables breaking simulation on exceptions.
+<p>
+The <i>name</i> or <i>number</i> parameter specify which exception should break the simulation. The available exceptions depend on the simulated target. Instead of an exception, the <tt>-all</tt> flag may be given. This will enable break on all exceptions.
+</p><p>
+If no processor object is specified, the currently selected processor is used.
+</p><p>
+The <tt>-once</tt> flag causes the breakpoint to automatically be removed after it has triggered.
+</p><p>
+If <tt>-recursive</tt> is used, not only the object, but the objects hierarchically below the object will be considered when adding the breakpoint. If <i>object</i> is provided, then the breakpoint functionality is added on that object.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.eth_link.wait-for.html">bp.eth_link.wait-for</a>
+<a href="rm-cmd-bp-manager.exc.run-until.html">bp.exc.run-until</a>
+</div>

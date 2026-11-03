@@ -1,0 +1,280 @@
+{
+  "is_book": false,
+  "anchor": "reference_manuals",
+  "style": "unstyled",
+  "file": "README.html",
+  "name": "Simics CMake Reference Manual",
+  "headings": [
+    {
+      "level": 1,
+      "anchor": "basic-usage",
+      "text": "1 Basic Usage"
+    },
+    {
+      "level": 1,
+      "anchor": "functions",
+      "text": "2 Functions"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_global_cmake_properties",
+      "text": "2.1 simics_global_cmake_properties()"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_project_setup",
+      "text": "2.2 simics_project_setup()"
+    },
+    {
+      "level": 2,
+      "anchor": "generate_dml_compile_commands_json",
+      "text": "2.3 generate_dml_compile_commands_json()"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_add_module",
+      "text": "2.4 simics_add_module()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage",
+      "text": "2.4.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments",
+      "text": "2.4.2 Arguments"
+    },
+    {
+      "level": 3,
+      "anchor": "example-usages-from-our-sample-modules",
+      "text": "2.4.3 Example usages (from our sample modules)"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_add_systemc_module",
+      "text": "2.5 simics_add_systemc_module()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-2",
+      "text": "2.5.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-2",
+      "text": "2.5.2 Arguments"
+    },
+    {
+      "level": 3,
+      "anchor": "example-usages-from-our-sample-modules-2",
+      "text": "2.5.3 Example usages (from our sample modules)"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_add_sanitizers",
+      "text": "2.6 simics_add_sanitizers()"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_add_test",
+      "text": "2.7 simics_add_test()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-3",
+      "text": "2.7.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-3",
+      "text": "2.7.2 Arguments"
+    },
+    {
+      "level": 3,
+      "anchor": "example-usages",
+      "text": "2.7.3 Example usages"
+    },
+    {
+      "level": 3,
+      "anchor": "example-invocations-of-ctest",
+      "text": "2.7.4 Example invocations of CTest"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_test_suite_begin-and-simics_test_suite_end",
+      "text": "2.8 simics_test_suite_begin() and simics_test_suite_end()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-4",
+      "text": "2.8.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-4",
+      "text": "2.8.2 Arguments"
+    },
+    {
+      "level": 3,
+      "anchor": "example-usages-2",
+      "text": "2.8.3 Example usages"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_copy_python_files",
+      "text": "2.9 simics_copy_python_files()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-5",
+      "text": "2.9.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-5",
+      "text": "2.9.2 Arguments"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_find_and_add_modules",
+      "text": "2.10 simics_find_and_add_modules()"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_package",
+      "text": "2.11 simics_package()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-6",
+      "text": "2.11.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-6",
+      "text": "2.11.2 Arguments"
+    },
+    {
+      "level": 3,
+      "anchor": "example-usage",
+      "text": "2.11.3 Example usage"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_add_dead_methods_check",
+      "text": "2.12 simics_add_dead_methods_check()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-7",
+      "text": "2.12.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-7",
+      "text": "2.12.2 Arguments"
+    },
+    {
+      "level": 3,
+      "anchor": "example-usage-2",
+      "text": "2.12.3 Example usage"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_add_documentation",
+      "text": "2.13 simics_add_documentation()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-8",
+      "text": "2.13.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-8",
+      "text": "2.13.2 Arguments"
+    },
+    {
+      "level": 2,
+      "anchor": "simics_copy_file",
+      "text": "2.14 simics_copy_file()"
+    },
+    {
+      "level": 3,
+      "anchor": "usage-9",
+      "text": "2.14.1 Usage"
+    },
+    {
+      "level": 3,
+      "anchor": "arguments-9",
+      "text": "2.14.2 Arguments"
+    },
+    {
+      "level": 1,
+      "anchor": "targets",
+      "text": "3 Targets"
+    },
+    {
+      "level": 1,
+      "anchor": "variables",
+      "text": "4 Variables"
+    },
+    {
+      "level": 2,
+      "anchor": "cached-can-be-set-by-user-after-configuration",
+      "text": "4.1 Cached (can be set by user after configuration)"
+    },
+    {
+      "level": 2,
+      "anchor": "special-case",
+      "text": "4.2 Special case"
+    },
+    {
+      "level": 2,
+      "anchor": "read-only-should-not-be-set-by-user-but-can-be-used-read",
+      "text": "4.3 Read-only (should not be set by user, but can be used/read)"
+    },
+    {
+      "level": 2,
+      "anchor": "internal-should-not-be-used-by-user",
+      "text": "4.4 Internal (should not be used by user)"
+    },
+    {
+      "level": 1,
+      "anchor": "tips-and-tricks",
+      "text": "5 Tips and tricks"
+    },
+    {
+      "level": 2,
+      "anchor": "c-c-modules",
+      "text": "5.1 C/C++ modules"
+    },
+    {
+      "level": 2,
+      "anchor": "dml-modules",
+      "text": "5.2 DML modules"
+    },
+    {
+      "level": 2,
+      "anchor": "simics-api",
+      "text": "5.3 Simics API"
+    },
+    {
+      "level": 2,
+      "anchor": "initialization-order-dependency",
+      "text": "5.4 Initialization order dependency"
+    },
+    {
+      "level": 2,
+      "anchor": "thread_safe",
+      "text": "5.5 THREAD_SAFE"
+    },
+    {
+      "level": 2,
+      "anchor": "simics-tests",
+      "text": "5.6 Simics tests"
+    }
+  ],
+  "children": []
+}

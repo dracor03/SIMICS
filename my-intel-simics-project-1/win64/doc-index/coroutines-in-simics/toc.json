@@ -1,0 +1,492 @@
+{
+  "is_book": false,
+  "anchor": "users_guides",
+  "style": "unstyled",
+  "file": "index.html",
+  "name": "Python Coroutines in Simics",
+  "headings": [],
+  "children": [
+    {
+      "file": "introduction.html",
+      "name": "1 Introduction",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "the-snoop-library",
+          "text": "1.1 The Snoop Library"
+        },
+        {
+          "level": 1,
+          "anchor": "the-sloop-library",
+          "text": "1.2 The Sloop Library"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "basic-usage.html",
+      "name": "2 Basic Usage Example",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "time-and-timeouts",
+          "text": "2.1 Time and Timeouts"
+        },
+        {
+          "level": 1,
+          "anchor": "simulation-control",
+          "text": "2.2 Simulation Control"
+        },
+        {
+          "level": 1,
+          "anchor": "handling-system-resets",
+          "text": "2.3 Handling System Resets"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "advanced-usage.html",
+      "name": "3 Advanced Usage Example",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "problem-statement",
+          "text": "3.1 Problem Statement"
+        },
+        {
+          "level": 1,
+          "anchor": "repeated-sloop-wait",
+          "text": "3.2 Repeated sloop.wait"
+        },
+        {
+          "level": 1,
+          "anchor": "sloop-tracer",
+          "text": "3.3 sloop.Tracer"
+        },
+        {
+          "level": 1,
+          "anchor": "compound-snoopers",
+          "text": "3.4 Compound Snoopers"
+        },
+        {
+          "level": 1,
+          "anchor": "sloop-callbackscope",
+          "text": "3.5 sloop.CallbackScope"
+        },
+        {
+          "level": 1,
+          "anchor": "custom-snooper",
+          "text": "3.6 Custom Snooper"
+        },
+        {
+          "level": 1,
+          "anchor": "summary",
+          "text": "3.7 Summary"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "script-branch.html",
+      "name": "4 Integration with Script Branches",
+      "headings": [],
+      "children": []
+    },
+    {
+      "file": "bp-manager.html",
+      "name": "5 Integration with the Breakpoint Manager",
+      "headings": [],
+      "children": []
+    },
+    {
+      "file": "snoop-refman.html",
+      "name": "6 Snoop Module Reference",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "core-library",
+          "text": "6.1 Core library"
+        },
+        {
+          "level": 2,
+          "anchor": "snooper",
+          "text": "6.1.1 Snooper"
+        },
+        {
+          "level": 3,
+          "anchor": "snooper-add_callback",
+          "text": "6.1.1.1 Snooper.add_callback"
+        },
+        {
+          "level": 3,
+          "anchor": "snooper-exec_context",
+          "text": "6.1.1.2 Snooper.exec_context"
+        },
+        {
+          "level": 2,
+          "anchor": "handle",
+          "text": "6.1.2 Handle"
+        },
+        {
+          "level": 3,
+          "anchor": "handle-cancel",
+          "text": "6.1.2.1 Handle.cancel"
+        },
+        {
+          "level": 3,
+          "anchor": "handle-state",
+          "text": "6.1.2.2 Handle.state"
+        },
+        {
+          "level": 2,
+          "anchor": "execcontext",
+          "text": "6.1.3 ExecContext"
+        },
+        {
+          "level": 2,
+          "anchor": "globalcontext",
+          "text": "6.1.4 GlobalContext"
+        },
+        {
+          "level": 2,
+          "anchor": "cellcontext",
+          "text": "6.1.5 CellContext"
+        },
+        {
+          "level": 3,
+          "anchor": "cellcontext-__init__",
+          "text": "6.1.5.1 CellContext.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "threadedcontext",
+          "text": "6.1.6 ThreadedContext"
+        },
+        {
+          "level": 2,
+          "anchor": "object_handle",
+          "text": "6.1.7 object_handle"
+        },
+        {
+          "level": 2,
+          "anchor": "error",
+          "text": "6.1.8 Error"
+        },
+        {
+          "level": 2,
+          "anchor": "invalidobjerror",
+          "text": "6.1.9 InvalidObjError"
+        },
+        {
+          "level": 2,
+          "anchor": "notcheckpointableerror",
+          "text": "6.1.10 NotCheckpointableError"
+        },
+        {
+          "level": 2,
+          "anchor": "malformedstateerror",
+          "text": "6.1.11 MalformedStateError"
+        },
+        {
+          "level": 2,
+          "anchor": "add_callback_simple",
+          "text": "6.1.12 add_callback_simple"
+        },
+        {
+          "level": 2,
+          "anchor": "catch_exceptions",
+          "text": "6.1.13 catch_exceptions"
+        },
+        {
+          "level": 2,
+          "anchor": "session",
+          "text": "6.1.14 SESSION"
+        },
+        {
+          "level": 1,
+          "anchor": "standard-snooper-classes",
+          "text": "6.2 Standard snooper classes"
+        },
+        {
+          "level": 2,
+          "anchor": "hap",
+          "text": "6.2.1 Hap"
+        },
+        {
+          "level": 3,
+          "anchor": "hap-__init__",
+          "text": "6.2.1.1 Hap.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "log",
+          "text": "6.2.2 Log"
+        },
+        {
+          "level": 3,
+          "anchor": "log-__init__",
+          "text": "6.2.2.1 Log.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "notifier",
+          "text": "6.2.3 Notifier"
+        },
+        {
+          "level": 3,
+          "anchor": "notifier-__init__",
+          "text": "6.2.3.1 Notifier.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "deviceattribute",
+          "text": "6.2.4 DeviceAttribute"
+        },
+        {
+          "level": 3,
+          "anchor": "deviceattribute-__init__",
+          "text": "6.2.4.1 DeviceAttribute.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "registervalue",
+          "text": "6.2.5 RegisterValue"
+        },
+        {
+          "level": 3,
+          "anchor": "registervalue-__init__",
+          "text": "6.2.5.1 RegisterValue.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "seconds",
+          "text": "6.2.6 Seconds"
+        },
+        {
+          "level": 3,
+          "anchor": "seconds-__init__",
+          "text": "6.2.6.1 Seconds.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "cycles",
+          "text": "6.2.7 Cycles"
+        },
+        {
+          "level": 3,
+          "anchor": "cycles-__init__",
+          "text": "6.2.7.1 Cycles.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "steps",
+          "text": "6.2.8 Steps"
+        },
+        {
+          "level": 3,
+          "anchor": "steps-__init__",
+          "text": "6.2.8.1 Steps.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "consolestring",
+          "text": "6.2.9 ConsoleString"
+        },
+        {
+          "level": 3,
+          "anchor": "consolestring-__init__",
+          "text": "6.2.9.1 ConsoleString.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "memoryread",
+          "text": "6.2.10 MemoryRead"
+        },
+        {
+          "level": 3,
+          "anchor": "memoryread-__init__",
+          "text": "6.2.10.1 MemoryRead.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "memorywrite",
+          "text": "6.2.11 MemoryWrite"
+        },
+        {
+          "level": 3,
+          "anchor": "memorywrite-__init__",
+          "text": "6.2.11.1 MemoryWrite.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "memoryexecute",
+          "text": "6.2.12 MemoryExecute"
+        },
+        {
+          "level": 3,
+          "anchor": "memoryexecute-__init__",
+          "text": "6.2.12.1 MemoryExecute.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "filter",
+          "text": "6.2.13 Filter"
+        },
+        {
+          "level": 3,
+          "anchor": "filter-__init__",
+          "text": "6.2.13.1 Filter.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "poll",
+          "text": "6.2.14 Poll"
+        },
+        {
+          "level": 2,
+          "anchor": "compoundsnooper",
+          "text": "6.2.15 CompoundSnooper"
+        },
+        {
+          "level": 3,
+          "anchor": "compoundsnooper-__init__",
+          "text": "6.2.15.1 CompoundSnooper.__init__"
+        },
+        {
+          "level": 3,
+          "anchor": "compoundsnooper-add_callbacks",
+          "text": "6.2.15.2 CompoundSnooper.add_callbacks"
+        },
+        {
+          "level": 2,
+          "anchor": "latest",
+          "text": "6.2.16 Latest"
+        },
+        {
+          "level": 3,
+          "anchor": "latest-__init__",
+          "text": "6.2.16.1 Latest.__init__"
+        },
+        {
+          "level": 2,
+          "anchor": "any",
+          "text": "6.2.17 Any"
+        },
+        {
+          "level": 2,
+          "anchor": "anyobject",
+          "text": "6.2.18 AnyObject"
+        },
+        {
+          "level": 3,
+          "anchor": "anyobject-__init__",
+          "text": "6.2.18.1 AnyObject.__init__"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "sloop-refman.html",
+      "name": "7 Sloop Module Reference",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "break",
+          "text": "7.1 Break"
+        },
+        {
+          "level": 1,
+          "anchor": "error",
+          "text": "7.2 Error"
+        },
+        {
+          "level": 1,
+          "anchor": "get_running_loop",
+          "text": "7.3 get_running_loop"
+        },
+        {
+          "level": 1,
+          "anchor": "global_event_loop",
+          "text": "7.4 global_event_loop"
+        },
+        {
+          "level": 1,
+          "anchor": "run_until_complete",
+          "text": "7.5 run_until_complete"
+        },
+        {
+          "level": 1,
+          "anchor": "create_task",
+          "text": "7.6 create_task"
+        },
+        {
+          "level": 1,
+          "anchor": "call_soon",
+          "text": "7.7 call_soon"
+        },
+        {
+          "level": 1,
+          "anchor": "wrap_future",
+          "text": "7.8 wrap_future"
+        },
+        {
+          "level": 1,
+          "anchor": "wait_call",
+          "text": "7.9 wait_call"
+        },
+        {
+          "level": 1,
+          "anchor": "wait",
+          "text": "7.10 wait"
+        },
+        {
+          "level": 1,
+          "anchor": "trace",
+          "text": "7.11 trace"
+        },
+        {
+          "level": 1,
+          "anchor": "tracer",
+          "text": "7.12 Tracer"
+        },
+        {
+          "level": 2,
+          "anchor": "tracer-__init__",
+          "text": "7.12.1 Tracer.__init__"
+        },
+        {
+          "level": 1,
+          "anchor": "callbackscope",
+          "text": "7.13 CallbackScope"
+        },
+        {
+          "level": 2,
+          "anchor": "callbackscope-__init__",
+          "text": "7.13.1 CallbackScope.__init__"
+        },
+        {
+          "level": 1,
+          "anchor": "timeout",
+          "text": "7.14 timeout"
+        },
+        {
+          "level": 1,
+          "anchor": "taskgroup",
+          "text": "7.15 TaskGroup"
+        },
+        {
+          "level": 1,
+          "anchor": "baseexceptiongroup",
+          "text": "7.16 BaseExceptionGroup"
+        },
+        {
+          "level": 1,
+          "anchor": "exceptiongroup",
+          "text": "7.17 ExceptionGroup"
+        }
+      ],
+      "children": []
+    }
+  ]
+}

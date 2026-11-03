@@ -1,0 +1,36 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simics API Syntax</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="api-usage-rules.html">API usage rules</a>
+<a href="threading-model.html">Threading Model</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="introduction.html">Introduction</a>
+&nbsp;/&nbsp;</div><h1 id="simics-api-syntax"><a href="#simics-api-syntax">Simics API Syntax</a></h1>
+<p>Most of the information in this chapter uses C syntax, extended with two additional keywords:</p>
+<dl>
+<dt id="dt:notnull"><a href="#dt:notnull"><code>NOTNULL</code></a></dt>
+<dd>
+<p>The <code>NOTNULL</code> keyword means that this function argument must not be a null pointer.
+In Python, where <code>None</code> is used as the null pointer value, there will be an exception thrown if such a function is called with a <code>None</code> value.</p>
+</dd>
+<dt id="dt:python_method"><a href="#dt:python_method"><code>PYTHON_METHOD</code></a></dt>
+<dd>
+<p>Most interfaces are in <em>canonical</em> form; i.e., they only contain function pointers, and the first argument is always the object whose interface is called.</p>
+<p>For non-canonical interfaces, the keyword <code>PYTHON_METHOD</code> is used to mark regular methods.
+These should be called <em>without</em> their first argument when used from Python.</p>
+<p>Note that there is no special mark-up for canonical interfaces.</p>
+</dd>
+</dl>
+
+<div class="chain">
+<a href="api-usage-rules.html">API usage rules</a>
+<a href="threading-model.html">Threading Model</a>
+</div>

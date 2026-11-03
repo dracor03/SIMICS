@@ -1,0 +1,1377 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>19 Modeling Direct Memory Access (DMA)</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="modeling-interrupt-controllers.html">18 Modeling Interrupt Controllers</a>
+<a href="modeling-i2c-devices.html">20 Modeling I2C Devices</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-common-hardware-components.html">III Modeling Common Hardware Components</a>
+&nbsp;/&nbsp;</div><h1 id="modeling-direct-memory-access-dma"><a href="#modeling-direct-memory-access-dma">19 Modeling Direct Memory Access (DMA)</a></h1>
+<p>It is not uncommon for a device to be able to act as bus-master, reading and
+writing memory as it pleases. There may be several reasons why direct memory
+access (DMA) is supported by a device. One reason could be that the device’s DMA
+capability may offload the CPU core by transferring large chunks of memory on
+the behalf of software. Another scenario is when a device has to be programmed.
+If the device supports many options, writing to its registers may be slow, since
+they usually exist in cache-inhibited space. Using DMA all required information
+can be written to a <em>descriptor</em> in memory and the address to that descriptor
+can then be written to a register in the device, using a single (slow) register
+write. The device is then able to fetch the required information from main
+memory on its own, offloading the CPU cores. This section will demonstrate how
+to write device models that support DMA.</p>
+<p>In this section it will be described how to create a model of a DMA device that
+can be used to autonomously copy data from one area of the memory to another. By
+reading this section you will learn how to:</p>
+<ul>
+<li>Create a device with registers and fields.</li>
+<li>Instantiate devices and map them into the physical memory address space.</li>
+<li>Handle endian issues.</li>
+<li>Access physical memory from the device (DMA).</li>
+<li>Perform simple testing and debugging by manually interacting with the device
+from the command line and using Simics logging facilities.</li>
+<li>Simulate time using <em>events</em>.</li>
+<li>Use interrupts to signal important events in the device.</li>
+<li>Use layouts to handle descriptors in memory using target byte-order.</li>
+</ul>
+<p>As always when starting out to develop a new device model, it is necessary to
+prepare your project for the new device. To do this, issue the following
+command:</p>
+<pre><code class="language-simics">project$ <strong>./bin/project-setup --device=my-dma-device</strong>
+</code></pre>
+<p>This will create skeleton files for a new device, <code>my_dma_device</code>. The relevant
+files will show up in <code>[project]/modules/my-dma-device/</code>. At this point it
+should be possible to type <code>make</code> in the project directory to build the skeleton
+device. The bulk of the device’s code will go in the file <code>my-dma-device.dml</code>.
+Examine this file, it should look something like this.</p>
+<pre><code>dml 1.4;
+
+device my_dma_device;
+</code></pre>
+<pre><code>param desc = "name of device";
+
+param documentation = "Longer description that will appear in the help";
+
+import "utility.dml";
+
+bank regs {
+    param register_size = 4;
+
+    register counter @ 0x00 "A simple counter.";
+}
+
+bank regs {
+    register counter {
+
+    }
+}
+</code></pre>
+<p>The skeleton code implements a simple counter. Since the DMA device does not
+have this functionality it can be removed. The <code>post_init</code> method is not going
+to be used either, so get rid of that as well. The description <code>param desc</code> and
+short documentation <code>param documentation</code> should be written. The device code
+should now look something like:</p>
+<pre><code>dml 1.4;
+
+device my_dma_device;
+</code></pre>
+<pre><code>param desc = "example DMA device";
+
+param documentation =
+    "Example of a DMA device supporting contiguous memory or scatter-gather "
+    + "lists. The device has a controllable throughput (words per second) "
+    + "and supports either polling mode or interrupt based signalling upon "
+    + "DMA completion.";
+
+import "utility.dml";
+
+
+bank regs {
+    param register_size = 4;
+
+}
+</code></pre>
+<p>This device now has a single (empty) register bank with 4-byte registers. The
+DMA device modeled in this section has three registers, <code>DMA_control, DMA_source</code> and <code>DMA_dest</code>. The <code>DMA_source</code> and <code>DMA_dest</code> registers will hold
+the source and destination address of the DMA transfer. The <code>DMA_control</code>
+register is used to issue control commands to the DMA engine and to receive the
+device’s status. Add the three registers to the bank.</p>
+<pre><code>bank regs {
+    param register_size = 4;
+    register DMA_control @ 0x00 "Control register";
+    register DMA_source  @ 0x04 is (unimpl) "Source address";
+    register DMA_dest    @ 0x08 is (unimpl) "Destination address";
+}
+</code></pre>
+<p>Compile the device again and start a new Simics session. It should now be
+possible to instantiate the DMA device.</p>
+<pre><code class="language-simics">project$ <strong>./simics</strong>
+simics&gt; <strong>@SIM_create_object ("my_dma_device", "mydma") </strong>
+simics&gt; <strong>help mydma</strong>
+Class my_dma_device
+
+  Provided by
+    my-dma-device
+
+  Interfaces Implemented
+    conf_object, log_object
+
+  Ports
+    regs (io_memory), regs (int_register)
+
+  Description
+    Example of a DMA device supporting contiguous memory or scatter-gather
+    lists. The device has a controllable throughput (words per second) and
+    supports either polling mode or interrupt based signalling upon DMA
+    completion.
+
+
+Command List
+
+  Commands defined by interface conf_object
+    get-attribute-list, get-interface-list, get-interface-port-list,
+    list-attributes, list-interfaces, log, log-group, log-level, log-size,
+    log-type
+
+  Commands
+    info                print information about the device
+    status              print status of the device
+
+
+Attributes
+
+  regs_DMA_control, regs_DMA_dest, regs_DMA_source
+
+simics&gt;
+</code></pre>
+<p>Note that attributes for the registers are created automatically.</p>
+<p>The <code>DMA_control</code> register is divided into a number of fields. Add a bank
+definition with the <code>DMA_control</code> register and explicitly include those fields.</p>
+<pre><code>bank regs {
+    register DMA_control {
+        field EN   @ [31]  is (unimpl) "Enable DMA";
+        field SWT  @ [30]  is (unimpl) "Software Transfer Trigger";
+        field ECI  @ [29]  is (unimpl) "Enable Completion Interrupt";
+        field TC   @ [28]  is (read_only)     "Transfer complete";
+        field SG   @ [27]  is (unimpl) "Scatter-gather list input";
+        field ERR  @ [26] "DMA transfer error";
+        field TS   @ [15:0] "Transfer size (32-bit words)";
+    }
+}
+</code></pre>
+<p>Now that the device’s register map has been defined it is time to start
+implementing its behavior. A DMA transfer of <code>TS</code> words from <code>DMA_source</code> to
+<code>DMA_dest</code> is triggered when writing a 1 to the <code>SWT</code> field of <code>DMA_control</code>, if
+DMA is enabled by setting the <code>EN</code> bit. Once transfer is completed the DMA
+device will notify software by setting the <code>TC</code> bit and, if interrupts are
+enabled (<code>ECI</code> bit set), the DMA device will trigger an interrupt. Using
+interrupts alleviates software from the burden of polling the DMA device’s
+control register. The <code>SG</code> field will be described in section
+<a class="reference" href="#supporting-scatter-gather-lists-using-layouts">19.3</a> when dealing with
+descriptors and the <code>SG</code> field can be ignored for now.</p>
+<p>Since the DMA transfer is initiated as a consequence of writing the <code>SWT</code> bit of
+the control register one way of initiating the transaction is to overload the
+<code>write_register</code> method of the <code>DMA_control</code> register.</p>
+<pre><code>bank regs {
+    register DMA_control {
+        field EN   @ [31]  "Enable DMA";
+        field SWT  @ [30]  "Software Transfer Trigger";
+        field ECI  @ [29]  is (unimpl) "Enable Completion Interrupt";
+        field TC   @ [28]  is (read_only)     "Transfer complete";
+        field SG   @ [27]  is (unimpl) "Scatter-gather list input";
+        field ERR  @ [26] "DMA transfer error";
+        field TS   @ [15:0] "Transfer size (32-bit words)";
+
+        method write_register(uint64 value, uint64 enabled_bytes, void *aux) {
+            default(value, enabled_bytes, aux);
+            do_dma_transfer();
+        }
+    }
+    method do_dma_transfer() {
+        if (DMA_control.SWT.val == 0)
+            return; // No need to do anything if we are not asked by software
+
+        // Software asked us to initiate a DMA transfer
+        if(DMA_control.EN.val == 0) {
+            // enable bit not set, so we cannot transfer
+            log info, 2: "EN bit not set, SWT = 1 has no effect";
+            return;
+        }
+
+        log info, 3: "EN bit set, SWT written, initiating DMA";
+        log info, 3: "Transferring %d 32-bit words from 0x%x to 0x%x",
+            DMA_control.TS.val, DMA_source.val, DMA_dest.val;
+
+        complete_dma();
+    }
+
+    method complete_dma() {
+        log unimpl, 1: "DMA transfer completion not implemented.";
+    }
+}
+</code></pre>
+<p>Now that the basic logic is in place the only thing left is to actually transfer
+the data. In order to do this the DMA device must have a connection to <code>memory</code>
+through a <code>map_target</code> <code>connect</code> to operate in. Add this connection.</p>
+<pre><code>import "utility.dml";
+
+// Memory connection for DMA work
+connect target_mem is map_target {
+    param documentation =
+        "The memory on which the DMA engine operates. Data will be "
+        + "read from and copied to the memory associated with this memory.";
+    param configuration = "required";
+}
+
+</code></pre>
+<p>To make DMA operation more convenient two utility methods are also added,
+<code>read_mem</code> and <code>write_mem</code>. These methods read or write an array of bytes from
+or to target memory. Think of them as a <code>memcpy</code> between host and target.</p>
+<pre><code>// Read len bytes of target memory from the address src in the memory
+// target_mem. The result is put in memory pointed to by dst,
+// which must be large enough to hold at least len bytes. If a memory
+// access error occurs this method will print an error message and
+// throw an exception.
+method read_mem(void *dst,
+                physical_address_t src,
+                physical_address_t len) throws {
+    local exception_type_t exc;
+    local buffer_t buf = { .data = dst, .len = len };
+    exc = SIM_issue_read_transaction(target_mem.map_target,
+                                     src,
+                                     buf,
+                                     false,
+                                     dev.obj);
+
+    if (exc != Sim_PE_No_Exception) {
+        log error: "an error occurred when reading target memory";
+        throw;
+    }
+}
+
+// Write len bytes to target memory from the memory pointed to by
+// src. The data is written to the memory target_mem at
+// address dst. If a memory access error occurs this method will
+// print an error message and throw an exception.
+method write_mem(physical_address_t dst,
+                 const void *src,
+                 physical_address_t len) throws {
+    local exception_type_t exc;
+    local bytes_t buf = { .data = src, .len = len };
+    exc = SIM_issue_write_transaction(target_mem.map_target,
+                                     dst,
+                                     buf,
+                                     false,
+                                     dev.obj);
+    if (exc != Sim_PE_No_Exception) {
+        log error: "an error occurred when writing to target memory";
+        throw;
+    }
+}
+
+
+bank regs {
+</code></pre>
+<p>Now the time has come to implement the actual transferring of bytes, the main
+purpose of the DMA device.</p>
+<pre><code>    method do_dma_transfer() {
+        if (DMA_control.SWT.val == 0)
+            return; // No need to do anything if we are not asked by software
+
+        // Software asked us to initiate a DMA transfer
+        if(DMA_control.EN.val == 0) {
+            // enable bit not set, so we cannot transfer
+            log info, 2: "EN bit not set, SWT = 1 has no effect";
+            return;
+        }
+
+        log info, 3: "EN bit set, SWT written, initiating DMA";
+        log info, 3: "Transferring %d 32-bit words from 0x%x to 0x%x",
+            DMA_control.TS.val, DMA_source.val, DMA_dest.val;
+
+        local uint18 count = DMA_control.TS.val * 4;
+        try {
+            // Copy the memory block
+            local uint8 buf[count];
+            read_mem(buf, DMA_source.val, count);
+            write_mem(DMA_dest.val, buf, count);
+        } catch {
+            log error: "DMA memory access failed";
+            return;
+        }
+
+        complete_dma();
+    }
+
+    method complete_dma() {
+        // Log that completion is done
+        log info, 2: "DMA transfer completed";
+
+        // clear SWT bit, update TS
+        DMA_control.SWT.val = 0;
+        DMA_control.TS.val = 0;
+        DMA_control.TC.val = 1;
+    }
+}
+
+</code></pre>
+<p>Since DMA transfer should now be operational it is no longer appropriate to mark
+the source and destination registers as unimplemented.</p>
+<pre><code>    register DMA_source  @ 0x04 "Source address";
+    register DMA_dest    @ 0x08 "Destination address";
+</code></pre>
+<p>After adding the <code>target_mem</code> connector the device model can no longer be
+instantiated on its own. To test the device start the sample machine in
+<code>[project]/targets/qsp-x86/firststeps.simics</code>.</p>
+<p>The object of the <code>memory-space</code> class corresponding to the main memory of this
+machine is called <code>board.mb.phys_mem</code>. One can get insight into the machine’s
+memory map with the <code>info</code> command of the CPU object and the
+<code>&lt;memory-space&gt;.map</code> command of the memory objects. To get the DMA device
+working it is necessary to map it into the <code>memory-space</code>.</p>
+<pre><code class="language-simics">project$ <strong>./simics ./targets/qsp-x86/firststeps.simics</strong>
+
+simics&gt; <strong>board.mb.cpu0.core[0][0].info</strong>
+Information about board.mb.cpu0.core[0][0] [class x86QSP3]
+==========================================================
+
+                                        VMP status : Enabled
+                                   JIT compilation : Enabled
+                                   Clock frequency : 2000 MHz
+                      Cycles per instruction (CPI) : 1.00
+    Instructions per cycle (IPC; equals '1 / CPI') : 1.00
+                                   Physical memory : board.mb.cpu0.mem[0][0]
+                                              Cell : board.cell
+</code></pre>
+<p>To get the system to initialize the DDR memory the simulation has to run for a
+short while.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 2 s</strong>
+
+simics&gt; <strong>board.mb.phys_mem.map</strong>
+┌───────────┬────────────────────────────┬──┬───────────┬───────────┬──────┬────┬─────┬────┐
+│       Base│Object                      │Fn│     Offset│     Length│Target│Prio│Align│Swap│
+├───────────┼────────────────────────────┼──┼───────────┼───────────┼──────┼────┼─────┼────┤
+│        0x0│board.mb.dram_space         │  │        0x0│    0xa0000│      │   0│     │    │
+│   0x100000│board.mb.dram_space         │  │   0x100000│ 0xdff00000│      │   0│     │    │
+│0x100000000│board.mb.dram_space         │  │0x100000000│0x100000000│      │   0│     │    │
+│  -default-│board.mb.nb.pci_bus.port.mem│  │        0x0│           │      │    │     │    │
+└───────────┴────────────────────────────┴──┴───────────┴───────────┴──────┴────┴─────┴────┘
+
+simics&gt; <strong>@SIM_create_object("my_dma_device", "mydma", target_mem=
+conf.board.mb.phys_mem)</strong>
+
+simics&gt; <strong>board.mb.phys_mem.add-map mydma.bank.regs  0x250000000 0xc</strong>
+Mapped 'mydma.bank.regs' in 'board.mb.phys_mem' at address 0x250000000.
+</code></pre>
+<p>Make sure the device was correctly mapped by examining the memory map of the
+<code>board.mb.phys_mem</code> <code>memory-space</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.phys_mem.map</strong>
+┌───────────┬────────────────────────────┬──┬───────────┬───────────┬──────┬────┬─────┬────┐
+│       Base│Object                      │Fn│     Offset│     Length│Target│Prio│Align│Swap│
+├───────────┼────────────────────────────┼──┼───────────┼───────────┼──────┼────┼─────┼────┤
+│        0x0│board.mb.dram_space         │  │        0x0│    0xa0000│      │   0│     │    │
+│   0x100000│board.mb.dram_space         │  │   0x100000│ 0xdff00000│      │   0│     │    │
+│0x100000000│board.mb.dram_space         │  │0x100000000│0x100000000│      │   0│     │    │
+│0x250000000│mydma.bank.regs             │  │        0x0│        0xc│      │   0│     │    │
+│  -default-│board.mb.nb.pci_bus.port.mem│  │        0x0│           │      │    │     │    │
+└───────────┴────────────────────────────┴──┴───────────┴───────────┴──────┴────┴─────┴────┘
+</code></pre>
+<p>To test the device it is possible to trigger a DMA transfer from within Simics
+by manually writing to the appropriate registers.</p>
+<blockquote class="markdown-alert-note">
+<p>You must access the device’s registers through its memory mapped interface and
+not through the attributes, since attribute accesses are free from
+side-effects.</p>
+</blockquote>
+<p>Set the source register to 0x20000 by writing to the physical memory at address
+0x250000004. Remember that the DMA device was previously mapped at offset
+0x250000000 in the physical memory and that the source register is at offset 4
+in the regs bank of the device.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.phys_mem.write 0x250000004 0x20000</strong>
+</code></pre>
+<p>Now examine the register’s value with print-device-regs:</p>
+<pre><code class="language-simics">simics&gt; <strong>print-device-reg-info mydma.bank.regs.DMA_source</strong>
+
+Source address [mydma.bank.regs.DMA_source]
+
+               Bits  :  0x20                              
+             Offset  :  0x4                               
+              Value  :  0x20000                           
+         ----------                                       
+         Bit Fields                                       
+DMA_source @ [31:0]  :  00000000000000100000000000000000  
+</code></pre>
+<p>Note that the write and read commands by default use the current processor
+endianness. In our case the device and the sample machine use <em>little endian</em>
+byte ordering so that matches. But little endian devices can (and do) exist on
+big endian machines, and vice versa. So if endianness between processor and
+device does not match you can use the <code>-l</code> (little) and <code>-b</code> (big) flags to
+select the endianness of the access. For example, the below access would use big
+endian byte order and hence the value - as understood by the little endian
+device - does not match what was written.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.phys_mem.write 0x250000004 0x20000 -b</strong>
+simics&gt; <strong>print-device-reg-info mydma.bank.regs.DMA_source</strong>
+
+Source address [mydma.bank.regs.DMA_source]
+
+               Bits  :  0x20                              
+             Offset  :  0x4                               
+              Value  :  0x200                             
+         ----------                                       
+         Bit Fields                                       
+DMA_source @ [31:0]  :  00000000000000000000001000000000  
+</code></pre>
+<p>Assuming the device should actually be big endian it is a simple matter to
+convert it. All that is required is to tell DML to use big endian byte order.</p>
+<pre><code>import "utility.dml";
+
+param byte_order = "big-endian";
+
+// Memory connection for DMA work
+connect target_mem is map_target {
+    param documentation =
+        "The memory on which the DMA engine operates. Data will be "
+        + "read from and copied to the memory associated with this memory.";
+    param configuration = "required";
+}
+
+</code></pre>
+<p>Recompile the device and repeat the above steps for big endian accesses. You
+will notice that the device now interprets the data in its registers in big
+endian byte order.</p>
+<pre><code class="language-simics">project$ <strong>make</strong>
+=== Building module "my_dma_device" ===
+[…]
+
+project$ <strong>./simics ./targets/qsp-x86/firststeps.simics</strong>
+
+simics&gt; <strong>c 2_000_000</strong>
+
+simics&gt; <strong>@SIM_create_object("my_dma_device", "mydma", 
+	        [["target_mem", conf.board.mb.phys_mem]])</strong>
+
+simics&gt; <strong>board.mb.phys_mem.add-map mydma.bank.regs  0x250000000 0xc</strong>
+simics&gt; <strong>board.mb.phys_mem.write 0x250000004 0x20000 -b</strong>
+simics&gt; <strong>print-device-reg-info mydma.bank.regs.DMA_source</strong>
+
+Source address [mydma.bank.regs.DMA_source]
+
+               Bits  :  32                                
+             Offset  :  4                                 
+              Value  :  131072                            
+         ----------                                       
+         Bit Fields                                       
+DMA_source @ [31:0]  :  00000000000000100000000000000000  
+simics&gt; <strong>board.mb.phys_mem.write 0x250000008 0x30000 -b</strong>
+simics&gt; <strong>print-device-reg-info mydma.bank.regs.DMA_dest</strong>
+
+Destination address [mydma.bank.regs.DMA_dest]
+
+             Bits  :  32                                
+           Offset  :  8                                 
+            Value  :  196608                            
+       ----------                                       
+       Bit Fields                                       
+DMA_dest @ [31:0]  :  00000000000000110000000000000000  
+</code></pre>
+<p>Now transfer 16 words of data by writing a control word to the DMA device.</p>
+<pre><code class="language-simics">simics&gt; <strong>mydma.log-level 4</strong>
+[mydma] Changing log level: 1 -&gt; 4
+
+simics&gt; <strong>$cw = 0xc0000010</strong>
+simics&gt; <strong>board.mb.phys_mem.write 0x250000000 $cw -b</strong>
+[mydma.bank.regs info] Write to register regs.DMA_control &lt;- 0xc0000010
+[mydma.bank.regs info] EN bit set, SWT written, initiating DMA
+[mydma.bank.regs info] Transferring 16 32-bit words from 0x20000 to 0x30000
+[mydma.bank.regs info] DMA transfer completed
+simics&gt;
+</code></pre>
+<p>Note that the first thing done is to raise the log-level of the DMA device to 4
+so that it is possible to track the execution path. Now the basic DMA device is
+completed. The following sections will demonstrate how to make the DMA transfer
+appear to take (virtual) time, how to generate interrupts on completion and how
+to use <em>layouts</em> to transfer data from a scatter-gather list. The full source
+for the DMA device used throughout this section is listed below.</p>
+<pre><code>dml 1.4;
+
+device my_dma_device;
+</code></pre>
+<pre><code>param desc = "example DMA device";
+
+param documentation =
+    "Example of a DMA device supporting contiguous memory or scatter-gather "
+    + "lists. The device has a controllable throughput (words per second) "
+    + "and supports either polling mode or interrupt based signalling upon "
+    + "DMA completion.";
+
+import "utility.dml";
+
+param byte_order = "big-endian";
+
+// Memory connection for DMA work
+connect target_mem is map_target {
+    param documentation =
+        "The memory on which the DMA engine operates. Data will be "
+        + "read from and copied to the memory associated with this memory.";
+    param configuration = "required";
+}
+
+bank regs {
+    param register_size = 4;
+    register DMA_control @ 0x00 "Control register";
+    register DMA_source  @ 0x04 "Source address";
+    register DMA_dest    @ 0x08 "Destination address";
+}
+
+// Read len bytes of target memory from the address src in the memory
+// target_mem. The result is put in memory pointed to by dst,
+// which must be large enough to hold at least len bytes. If a memory
+// access error occurs this method will print an error message and
+// throw an exception.
+method read_mem(void *dst,
+                physical_address_t src,
+                physical_address_t len) throws {
+    local exception_type_t exc;
+    local buffer_t buf = { .data = dst, .len = len };
+    exc = SIM_issue_read_transaction(target_mem.map_target,
+                                     src,
+                                     buf,
+                                     false,
+                                     dev.obj);
+
+    if (exc != Sim_PE_No_Exception) {
+        log error: "an error occurred when reading target memory";
+        throw;
+    }
+}
+
+// Write len bytes to target memory from the memory pointed to by
+// src. The data is written to the memory target_mem at
+// address dst. If a memory access error occurs this method will
+// print an error message and throw an exception.
+method write_mem(physical_address_t dst,
+                 const void *src,
+                 physical_address_t len) throws {
+    local exception_type_t exc;
+    local bytes_t buf = { .data = src, .len = len };
+    exc = SIM_issue_write_transaction(target_mem.map_target,
+                                     dst,
+                                     buf,
+                                     false,
+                                     dev.obj);
+    if (exc != Sim_PE_No_Exception) {
+        log error: "an error occurred when writing to target memory";
+        throw;
+    }
+}
+
+bank regs {
+    register DMA_control {
+        field EN   @ [31]  "Enable DMA";
+        field SWT  @ [30]  "Software Transfer Trigger";
+        field ECI  @ [29]  is (unimpl) "Enable Completion Interrupt";
+        field TC   @ [28]  is (read_only)     "Transfer complete";
+        field SG   @ [27]  is (unimpl) "Scatter-gather list input";
+        field ERR  @ [26] "DMA transfer error";
+        field TS   @ [15:0] "Transfer size (32-bit words)";
+
+        method write_register(uint64 value, uint64 enabled_bytes, void *aux) {
+            default(value, enabled_bytes, aux);
+            do_dma_transfer();
+        }
+    }
+
+    method do_dma_transfer() {
+        if (DMA_control.SWT.val == 0)
+            return; // No need to do anything if we are not asked by software
+
+        // Software asked us to initiate a DMA transfer
+        if(DMA_control.EN.val == 0) {
+            // enable bit not set, so we cannot transfer
+            log info, 2: "EN bit not set, SWT = 1 has no effect";
+            return;
+        }
+
+        log info, 3: "EN bit set, SWT written, initiating DMA";
+        log info, 3: "Transferring %d 32-bit words from 0x%x to 0x%x",
+            DMA_control.TS.val, DMA_source.val, DMA_dest.val;
+
+        local uint18 count = DMA_control.TS.val * 4;
+        try {
+            // Copy the memory block
+            local uint8 buf[count];
+            read_mem(buf, DMA_source.val, count);
+            write_mem(DMA_dest.val, buf, count);
+        } catch {
+            log error: "DMA memory access failed";
+            return;
+        }
+
+        complete_dma();
+    }
+
+    method complete_dma() {
+        // Log that completion is done
+        log info, 2: "DMA transfer completed";
+
+        // clear SWT bit, update TS
+        DMA_control.SWT.val = 0;
+        DMA_control.TS.val = 0;
+        DMA_control.TC.val = 1;
+    }
+}
+</code></pre>
+<h2 id="simulating-time"><a href="#simulating-time">19.1 Simulating Time</a></h2>
+<p>Software often expects operations such as DMA transfers to take some amount of
+time. Some device drivers even rely on this in order to work properly. In order
+to simulate the passage of time in a device it is necessary to estimate how long
+an operation should take and to delay the effects by that amount. The DMA device
+will use a simple algorithm to compute the time a DMA transfer should take. The
+time will be proportional to the number of words copied. The <code>after</code> statement
+in DML is the easiest way to delay the call to <code>complete_dma</code>. In this example
+the DMA device will appear to transfer one million words per second since the
+delay is set to 1 ms per word. The <code>after</code> statement posts an <code>event</code>, which
+when executed calls the method <code>complete_dma</code>.</p>
+<pre><code>    method do_dma_transfer() {
+        if (DMA_control.SWT.val == 0)
+            return; // No need to do anything if we are not asked by software
+
+        // Software asked us to initiate a DMA transfer
+        if(DMA_control.EN.val == 0) {
+            // enable bit not set, so we cannot transfer
+            log info, 2: "EN bit not set, SWT = 1 has no effect";
+            return;
+        }
+
+        log info, 3: "EN bit set, SWT written, initiating DMA";
+        log info, 3: "Transferring %d 32-bit words from 0x%x to 0x%x",
+            DMA_control.TS.val, DMA_source.val, DMA_dest.val;
+
+        local uint18 count = DMA_control.TS.val * 4;
+        try {
+            // Copy the memory block
+            local uint8 buf[count];
+            read_mem(buf, DMA_source.val, count);
+            write_mem(DMA_dest.val, buf, count);
+        } catch {
+            log error: "DMA memory access failed";
+            return;
+        }
+        after 1.0e-6 * count / 4.0 s: complete_dma();
+    }
+</code></pre>
+<p>Test the device again</p>
+<pre><code class="language-simics">simics&gt; <strong>c 2_000_000</strong>
+
+simics&gt; <strong>@SIM_create_object("my_dma_device", "mydma",
+	  [["target_mem", conf.board.mb.phys_mem],
+	  ["queue", conf.board.mb.soc.cpu[0]]])</strong>
+
+simics&gt; <strong>board.mb.phys_mem.add-map mydma.bank.regs  0x250000000 0xc</strong>
+Mapped 'mydma.bank.regs' in 'board.mb.phys_mem' at address 0x250000000.
+simics&gt; <strong>board.mb.phys_mem.write 0x250000004 0x20000 -b</strong>
+simics&gt; <strong>board.mb.phys_mem.write 0x250000008 0x30000 -b</strong>
+simics&gt; <strong>$cw = 0xc0000010</strong>
+
+simics&gt; <strong>mydma.log-level 4</strong>
+[mydma] Changing log level: 1 -&gt; 4
+
+simics&gt; <strong>board.mb.phys_mem.write 0x250000000 $cw -b</strong>
+[mydma.bank.regs info] Write to register regs.DMA_control &lt;- 0xc0000010
+[mydma.bank.regs info] EN bit set, SWT written, initiating DMA
+[mydma.bank.regs info] Transferring 16 32-bit words from 0x20000 to 0x30000
+</code></pre>
+<p>There are a few differences compared to the previous time the device model was
+tested. First the <code>queue</code> attribute of the device is set to the CPU. A <em>time
+queue</em> is required for a device that post events. If the <code>queue</code> attribute had
+not been set it had been forced to the CPU anyway but an error message would
+have been generated. The other difference is that the “DMA transfer completed”
+message no longer appears. This is because the simulation is currently not
+running and the DMA transfer is supposed to take some time.</p>
+<p>It is possible to examine the event queue using the <code>peq</code> command. It is
+possible to see that there is an event <em>complete_dma</em> pending for the <code>mydma</code>
+object.</p>
+<pre><code class="language-simics">simics&gt; <strong>peq</strong>
+┌──────────┬───────────────────┬─────────────────┐
+│  Cycle   │      Object       │   Description   │
+├──────────┼───────────────────┼─────────────────┤
+│     32000│mydma              │regs.complete_dma│
+│   1600000│board.mb.sb.uhci[0]│frame_update     │
+│   1600000│board.mb.sb.uhci[1]│frame_update     │
+│   1600000│board.mb.sb.uhci[2]│frame_update     │
+│   1600000│board.mb.sb.uhci[3]│frame_update     │
+│   1600000│board.mb.sb.uhci[4]│frame_update     │
+│   1600000│board.mb.sb.uhci[5]│frame_update     │
+│9371537749│board.mb.sb.lpc    │pm1_ovf          │
+└──────────┴───────────────────┴─────────────────┘
+</code></pre>
+<p>Continue the simulation for a few steps and the DMA transfer will complete.</p>
+<pre><code class="language-simics">simics&gt; <strong>c 220000</strong>
+[mydma.bank.regs info] DMA transfer completed
+simics&gt;
+</code></pre>
+<p>It is probably better to allow the user to determine the transfer rate of the
+DMA device. This is easily accomplished by adding an attribute for the transfer
+rate.</p>
+<pre><code>// Timing parameter
+attribute throttle is double_attr {
+    is init;
+    method init() {
+        val = 1e-6; // a really slow DMA device
+    }
+
+    param documentation =
+        "Delay in seconds per 32-bit word of memory copied, default is 1μs.";
+    param configuration = "optional";
+}
+</code></pre>
+<p>Then update the <code>after</code> line in <code>do_dma_transfer</code> method to use this attribute
+to calculate the transfer delay.</p>
+<pre><code>        after throttle.val * count / 4.0 s: complete_dma();
+</code></pre>
+<p>It is also a good idea to supply a reasonable default value for the transfer
+rate. This can be done by instantiating the <code>init</code> template and providing the
+<code>init</code> method, which is called before all attributes are initialized by loading
+a checkpoint or configuration.</p>
+<p>Since DMA transfers now take some time, software will have to poll the <code>TC</code> bit
+of the <code>DMA_control</code> register in order to determine when the DMA transfer is
+done. This is inefficient and it would be better if the DMA device could notify
+software that it is done through some mechanism that does not require polling.
+The next section will demonstrate how to improve the DMA device so that it will
+interrupt the processor when the transfer is completed.</p>
+<h2 id="interrupting-on-completion"><a href="#interrupting-on-completion">19.2 Interrupting on Completion</a></h2>
+<p>To avoid the situation where software has to poll hardware during lengthy
+operation interrupts can be used to notify software that an interesting event
+has taken place. This section demonstrates how to deliver an interrupt to a CPU
+core when DMA transfer is completed.</p>
+<p>To be able to interrupt the CPU the device must have a connection to it. The
+CPUs in Simics support the <code>signal</code> interface that can be used to signal an
+interrupt. Add a new connection to the device that should receive interrupts
+(this is not necessarily the CPU core).</p>
+<pre><code>// CPU connection for interrupting
+connect intr_target {
+    param documentation =
+        "Interrupt target port to signal on DMA interrupts.";
+    param configuration = "required";
+    interface signal;
+}
+</code></pre>
+<p>Once again it will be necessary to supply additional parameters when
+instantiating the <code>mydma</code> object. This time the device’s <code>intr_target</code> attribute
+is set to [conf.board.mb.cpu0.core[0][0], “NMI”], connecting the
+<code>intr_target</code> connection to the external interrupt port on the CPU.</p>
+<pre><code class="language-simics">simics&gt; <strong>@SIM_create_object("my_dma_device", "mydma",
+          [["target_mem", conf.board.mb.phys_mem],
+          ["queue", conf.board.mb.cpu0.core[0][0]],
+          ["intr_target", [conf.board.mb.cpu0.core[0][0], "NMI"]]]</strong>
+</code></pre>
+<p>Add a saved variable to keep track if an interrupt has been raised or not.</p>
+<pre><code>// Tracks if interrupts are posted.
+saved bool DMA_interrupt_posted;
+</code></pre>
+<p>Next, add the code that will raise the interrupt once the transfer is completed
+to the end of <code>complete_dma</code>.</p>
+<pre><code>
+        DMA_control.TS.val = 0;
+        DMA_control.TC.val = 1;
+
+        // raise interrupt towards CPU
+        if(DMA_control.ECI.val == 0) {
+            log info, 3: "ECI is zero, no interrupt raised";
+            return;
+        }
+
+        log info, 3: "raising interrupt signal";
+        intr_target.signal.signal_raise();
+
+        // remember that we raised it
+        DMA_interrupt_posted = true;
+</code></pre>
+<p>Now the device can interrupt the CPU to inform it that DMA transfer has
+completed. However, once raised the signal will stay asserted forever. The
+software needs a mechanism for acknowledging receipt of the interrupt. This
+mechanism is implemented using the <code>TC</code> (transfer complete) bit in this
+particular DMA device. First change the <code>TC</code> field from read-only to read-write
+and then implement its semantics in the <code>write</code> method. Since interrupt
+functionality is now implemented also change the <code>ECI</code> field from unimplemented.</p>
+<blockquote class="markdown-alert-note">
+<p>In order to make sure the update happens after all field writes,
+<code>do_dma_transfer</code> is called in an override of the <code>write_register</code> method. In
+order to retain the regular write semantics of the register, <code>default</code> is also
+called.</p>
+</blockquote>
+<pre><code>    register DMA_control {
+        field EN   @ [31] "Enable DMA";
+        field SWT  @ [30] "Software Transfer Trigger";
+        field ECI  @ [29]  "Enable Completion Interrupt";
+        field TC   @ [28] "Transfer complete" {
+            // Set to 1 when transfer completed by device itself.
+            // Clear by writing a zero.
+            // If interrupts are enabled and interrupt status is one
+            // also clear the interrupt in the processor.
+            is write;
+            method write(uint64 value) {
+                if (value != 0) {
+                    log spec_viol: "write one to TC - ignored";
+                    return;
+                }
+
+                if (this.val == 0) // Already cleared
+                    return;
+
+                log info, 3: "write zero to TC - clearing TC";
+                this.val = 0;
+
+                if (!DMA_interrupt_posted)
+                    return;
+
+                log info, 3: "also clearing interrupt on CPU";
+                DMA_interrupt_posted = false; // remember cleared
+                intr_target.signal.signal_lower();
+            }
+        }
+        field SG   @ [27]  is (unimpl) "Scatter-gather list input";
+        field ERR  @ [26] "DMA transfer error";
+        field TS   @ [15:0] "Transfer size (32-bit words)";
+        method write_register(uint64 value, uint64 enabled_bytes, void *aux) {
+            default(value, enabled_bytes, aux);
+            do_dma_transfer();
+        }
+</code></pre>
+<p>Now the DMA device is completed, except for the field <code>SG</code> which is still marked
+as unimplemented. The next section will finalize the DMA device by adding
+support for reading data from a scatter-gather list when performing the copy
+operation.</p>
+<h2 id="supporting-scatter-gather-lists-using-layouts"><a href="#supporting-scatter-gather-lists-using-layouts">19.3 Supporting Scatter Gather Lists Using Layouts</a></h2>
+<p>This section will show how <em>layouts</em> can be used to help with parsing
+descriptors that reside in target memory. A data structure known as
+<em>scatter-gather</em> list will be traversed during DMA copy operation. In a
+scatter-gather list data is spread out over several <em>blocks</em>. These blocks can
+be of two types, data blocks and extension blocks. A data block is simply a
+chunk of application specific data while the extension blocks contains
+references to other blocks. Extension blocks are always referenced from the last
+row in another extension block. An example of a scatter-gather data structure is
+shown in Figure <a class="reference" href="#fig-sg-list">8</a>.</p>
+<div style="text-align:center">
+<figure id="fig-sg-list">
+<p><img alt="" src="sg-list.png"> </p><figcaption>Figure 8. Scatter-gather list data structure.</figcaption><p></p>
+</figure>
+</div>
+<p>The layout of an extension block is shown in Figure <a class="reference" href="#fig-sg-list-block">9</a>. The
+individual fields are described below:</p>
+<dl>
+<dt id="dt:address"><a href="#dt:address">Address</a></dt>
+<dd>Pointer to a block.</dd>
+<dt id="dt:length"><a href="#dt:length">Length</a></dt>
+<dd>The length of valid data at address + offset.</dd>
+<dt id="dt:offset"><a href="#dt:offset">Offset</a></dt>
+<dd>Data begins at address + offset</dd>
+<dt id="dt:flags"><a href="#dt:flags">Flags</a></dt>
+<dd>Bit 0: If set address points to an extension
+block. If not set address points to a data block.</dd>
+</dl>
+<div style="text-align:center">
+<figure id="fig-sg-list-block">
+<p><img alt="" src="sg-list-block.png"> </p><figcaption>Figure 9. Scatter-gather list block
+descriptor.</figcaption><p></p>
+</figure>
+</div>
+<p>When using scatter-gather mode the <code>DMA_source</code> register contains the address of
+a scatter-gather <em>head block</em>. The head block is illustrated in Figure
+<a class="reference" href="#fig-sg-list-head">10</a>. The head block points to the first scatter gather block,
+which is always an extension block. The length field is the length of valid data
+in the first extension block.</p>
+<div style="text-align:center">
+<figure id="fig-sg-list-head">
+<p><img alt="" src="sg-list-head.png"> </p><figcaption>Figure 10. Scatter-gather list head
+descriptor.</figcaption><p></p>
+</figure>
+</div>
+<p>The first step towards supporting scatter-gather lists is to break out the part
+of the code in <code>do_dma_transfer</code> that actually does the copying and put that in
+a method of its own.</p>
+<pre><code>    method copy_contiguous(physical_address_t dst,
+                          physical_address_t src,
+                          uint18 count) throws {
+        local uint8 buf[count];
+        read_mem(buf, src, count);
+        write_mem(dst, buf, count);
+    }
+
+</code></pre>
+<p>Next define two new layout types corresponding to the descriptors. Note that
+“big-endian” byte order is used since the target machine is big endian. Layouts
+makes it possible to conveniently access target memory regardless of the host’s
+and target’s byte order. Refer to the <em>DML 1.4 Reference Manual</em> for more
+details on layouts.</p>
+<pre><code>typedef layout "big-endian" {
+    uint32 addr;
+    uint16 len;
+    uint16 reserved;
+} sg_list_head_t;
+
+typedef layout "big-endian" {
+    uint32 addr;
+    uint16 len;
+    uint8 offset;
+    bitfields 8 {
+        uint1 ext @ [0:0];
+    } flags;
+} sg_list_block_row_t;
+</code></pre>
+<p>Add a method that steps one step forward in the scatter-gather list, either
+going to the next row of the current block or following an extension block to
+the next block.</p>
+<pre><code>    // next_row - Returns the address to next row to be processed.
+    // end_addr is the address after the end of the block, if this address
+    // is reached the transaction should have finished
+    method next_row(physical_address_t addr, physical_address_t end_addr)
+        -&gt; (physical_address_t, physical_address_t,
+            bool) throws /* next_addr, next_end_addr, finished */ {
+        local physical_address_t next_addr;
+        local physical_address_t next_end_addr;
+        local bool finished;
+        local sg_list_block_row_t block_row;
+        read_mem(&amp;block_row, addr, sizeof block_row);
+        if (block_row.flags.ext) {
+            next_addr = block_row.addr + block_row.offset;
+            next_end_addr = next_addr + block_row.len;
+        } else {
+            next_addr = addr + sizeof block_row;
+            next_end_addr = end_addr;
+        }
+        finished = next_addr == end_addr;
+        return (next_addr, next_end_addr, finished);
+    }
+</code></pre>
+<p>Now implement a new copy-method that copies data contained in a scatter-gather
+list. This method should use the <code>next_row</code> method to advance in the
+scatter-gather list. The method should return the number of bytes copied so
+these can be used to set the delay.</p>
+<pre><code>    method copy_scatter_gather(physical_address_t dst, physical_address_t src)
+        -&gt; (uint18) throws {
+        local uint18 copied_bytes;
+        // Get the header data
+        local sg_list_head_t head;
+        read_mem(&amp;head, src, sizeof head);
+        copied_bytes = 0;
+
+        local physical_address_t addr = head.addr;
+        local physical_address_t end_addr = head.addr + head.len;
+
+        // Continue running through the lists until the end is reached
+        // or an error has been detected
+        local sg_list_block_row_t row;
+        local bool finished = false;
+        while (!finished) {
+            read_mem(&amp;row, addr, sizeof row);
+
+            if (!row.flags.ext) { // Data block
+                log info, 4: "Data block of length %d at 0x%x with offset %d",
+                    row.len, row.addr, row.offset;
+                // Copy a block of data
+                copy_contiguous(dst, row.addr + row.offset, row.len);
+                dst += row.len;
+                copied_bytes += row.len;
+            } else
+                log info, 4:
+                "Extension block of length %d at 0x%x with offset %d",
+                    row.len, row.addr, row.offset;
+
+            (addr, end_addr, finished) = next_row(addr, end_addr);
+
+        }
+        return copied_bytes;
+    }
+
+</code></pre>
+<p>Now it is a simple matter of calling <code>copy_scatter_gather</code> or <code>copy_contiguous</code>
+depending on if the <code>SG</code> bit is set in the control register. At the same time
+remove the unimplemented template from the <code>SG</code> field.</p>
+<pre><code>        field SG   @ [27]  "Scatter-gather list input";
+</code></pre>
+<pre><code>    method do_dma_transfer() {
+        if (DMA_control.SWT.val == 0)
+            return; // No need to do anything if we are not asked by software
+
+        // Software asked us to initiate a DMA transfer
+        if(DMA_control.EN.val == 0) {
+            // enable bit not set, so we cannot transfer
+            log info, 2: "EN bit not set, SWT = 1 has no effect";
+            return;
+        }
+
+        log info, 3: "EN bit set, SWT written, initiating DMA";
+        log info, 3: "Transferring %d 32-bit words from 0x%x to 0x%x",
+            DMA_control.TS.val, DMA_source.val, DMA_dest.val;
+
+        local uint18 count = DMA_control.TS.val * 4;
+        try {
+            if (DMA_control.SG.val != 0) {
+                log info, 4: "Scatter Gather Transfer";
+                count = copy_scatter_gather(DMA_dest.val, DMA_source.val);
+            } else {
+                log info, 4: "Contiguous Transfer";
+                copy_contiguous(DMA_dest.val, DMA_source.val, count);
+            }
+        } catch {
+            log error: "DMA memory access failed";
+            return;
+        }
+
+        after throttle.val * count / 4.0 s: complete_dma();
+    }
+</code></pre>
+<p>In the <code>copy_scatter_gather</code> method it is also a good idea to implement checking
+for improperly set up lists that would make the method end up in a loop, causing
+the simulation to get stuck in this loop. In this case a good algorithm to use
+is one called the tortoise and the hare algorithm that uses two pointers that
+move through the list at different speeds, the first moving twice as fast as the
+slower one. If at any time the two pointers end up at the same address a loop
+has been found. If the faster moving pointer reaches the end this means that
+there is no loop.</p>
+<p>Set up some variables and change so that the stepping through the list ends if
+an error has occurred.</p>
+<pre><code>        local physical_address_t addr = head.addr;
+        local physical_address_t end_addr = head.addr + head.len;
+        local physical_address_t hare_addr = addr;
+        local physical_address_t hare_end_addr = end_addr;
+
+        // Continue running through the lists until the end is reached
+        // or an error has been detected
+        local sg_list_block_row_t row;
+        local bool finished = false;
+        local bool hare_finished = false;
+        while (!finished &amp;&amp; DMA_control.ERR.val == 0) {
+            read_mem(&amp;row, addr, sizeof row);
+</code></pre>
+<p>
+Check for loops and set the <code>ERR</code> flag if a loop is detected causing the
+transfer to end.</p>
+<pre><code>            (addr, end_addr, finished) = next_row(addr, end_addr);
+
+            // Check for loops.
+            if (!hare_finished) {
+                local int8 i;
+                // Hare moves through lists at double the speed of addr.
+                // If the hare ends up at the same address as addr, a loop has
+                // been detected, if the hare reaches the end there is no loop.
+                for (i = 0; i &lt; 2; i++) {
+                    (hare_addr, hare_end_addr, hare_finished) = next_row(hare_addr, hare_end_addr);
+                    if (hare_finished) {
+                        log info, 4: "Loop checker finished, no loops";
+                        break;
+                    }
+                }
+                if (hare_addr == addr) {
+                    log spec_viol: "Stuck in a loop.";
+                    DMA_control.ERR.val = 1;
+                }
+            }
+</code></pre>
+<p>The DMA device is now completed and the full source is listed below.</p>
+<pre><code>dml 1.4;
+
+device my_dma_device;
+</code></pre>
+<pre><code>param desc = "example DMA device";
+
+param documentation =
+    "Example of a DMA device supporting contiguous memory or scatter-gather "
+    + "lists. The device has a controllable throughput (words per second) "
+    + "and supports either polling mode or interrupt based signalling upon "
+    + "DMA completion.";
+
+import "utility.dml";
+import "simics/devs/signal.dml";
+
+typedef layout "big-endian" {
+    uint32 addr;
+    uint16 len;
+    uint16 reserved;
+} sg_list_head_t;
+
+typedef layout "big-endian" {
+    uint32 addr;
+    uint16 len;
+    uint8 offset;
+    bitfields 8 {
+        uint1 ext @ [0:0];
+    } flags;
+} sg_list_block_row_t;
+
+param byte_order = "big-endian";
+
+// Memory connection for DMA work
+connect target_mem is map_target {
+    param documentation =
+        "The memory on which the DMA engine operates. Data will be "
+        + "read from and copied to the memory associated with this memory.";
+    param configuration = "required";
+}
+
+// CPU connection for interrupting
+connect intr_target {
+    param documentation =
+        "Interrupt target port to signal on DMA interrupts.";
+    param configuration = "required";
+    interface signal;
+}
+
+// Timing parameter
+attribute throttle is double_attr {
+    is init;
+    method init() {
+        val = 1e-6;
+    }
+    param documentation =
+        "Delay in seconds per 32-bit word of memory copied, default is 1μs.";
+    param configuration = "optional";
+}
+
+bank regs {
+    param register_size = 4;
+    register DMA_control @ 0x00 "Control register";
+    register DMA_source  @ 0x04 "Source address";
+    register DMA_dest    @ 0x08 "Destination address";
+}
+
+// Tracks if interrupts are posted
+saved bool DMA_interrupt_posted;
+
+// Read len bytes of target memory from the address src in the memory
+// target_mem. The result is put in memory pointed to by dst,
+// which must be large enough to hold at least len bytes. If a memory
+// access error occurs, this method will print an error message and
+// throw an exception.
+method read_mem(void *dst,
+                physical_address_t src,
+                physical_address_t len) throws {
+    local exception_type_t exc;
+    local buffer_t buf = { .data = dst, .len = len };
+    exc = SIM_issue_read_transaction(target_mem.map_target,
+                                     src,
+                                     buf,
+                                     false,
+                                     dev.obj);
+
+    if (exc != Sim_PE_No_Exception) {
+        log error: "an error occurred when reading target memory";
+        throw;
+    }
+}
+
+// Write len bytes to target memory from the memory pointed to by
+// src. The data is written to the memory space target_mem at
+// address dst. If a memory access error occurs this method will
+// print an error message and throw an exception.
+method write_mem(physical_address_t dst,
+                 const void *src,
+                 physical_address_t len) throws {
+    local exception_type_t exc;
+    local bytes_t buf = { .data = src, .len = len };
+    exc = SIM_issue_write_transaction(target_mem.map_target,
+                                     dst,
+                                     buf,
+                                     false,
+                                     dev.obj);
+    if (exc != Sim_PE_No_Exception) {
+        log error: "an error occurred when writing to target memory";
+        throw;
+    }
+}
+
+bank regs {
+    register DMA_control {
+        field EN   @ [31] "Enable DMA";
+        field SWT  @ [30] "Software Transfer Trigger";
+        field ECI  @ [29] "Enable Completion Interrupt";
+        field TC   @ [28] "Transfer complete" {
+            // Set to 1 when transfer completed by device itself.
+            // Clear by writing a zero.
+            // If interrupts are enabled and interrupt status is one
+            // also clear the interrupt in the processor.
+            is write;
+            method write(uint64 value) {
+                if (value != 0) {
+                    log spec_viol: "write one to TC - ignored";
+                    return;
+                }
+
+                if (this.val == 0) // Already cleared
+                    return;
+
+                log info, 3: "write zero to TC - clearing TC";
+                this.val = 0;
+
+                if (!DMA_interrupt_posted)
+                    return;
+
+                log info, 3: "also clearing interrupt on CPU";
+                DMA_interrupt_posted = false; // remember cleared
+                intr_target.signal.signal_lower();
+            }
+        }
+        field SG   @ [27]   "Scatter-gather list input";
+        field ERR  @ [26]   "DMA transfer error";
+        field TS   @ [15:0] "Transfer size (32-bit words)";
+
+        method write_register(uint64 value, uint64 enabled_bytes, void *aux) {
+            default(value, enabled_bytes, aux);
+            do_dma_transfer();
+        }
+    }
+
+    method do_dma_transfer() {
+        if (DMA_control.SWT.val == 0)
+            return; // No need to do anything if we are not asked by software
+
+        // Software asked us to initiate a DMA transfer
+        if(DMA_control.EN.val == 0) {
+            // enable bit not set, so we cannot transfer
+            log info, 2: "EN bit not set, SWT = 1 has no effect";
+            return;
+        }
+
+        log info, 3: "EN bit set, SWT written, initiating DMA";
+        log info, 3: "Transferring %d 32-bit words from 0x%x to 0x%x",
+            DMA_control.TS.val, DMA_source.val, DMA_dest.val;
+
+        local uint18 count = DMA_control.TS.val * 4;
+        try {
+            if (DMA_control.SG.val != 0) {
+                log info, 4: "Scatter Gather Transfer";
+                count = copy_scatter_gather(DMA_dest.val, DMA_source.val);
+            } else {
+                log info, 4: "Contiguous Transfer";
+                copy_contiguous(DMA_dest.val, DMA_source.val, count);
+            }
+        } catch {
+            log error: "DMA memory access failed";
+            return;
+        }
+
+        after throttle.val * count / 4.0 s: complete_dma();
+    }
+
+    method copy_contiguous(physical_address_t dst,
+                          physical_address_t src,
+                          uint18 count) throws {
+        local uint8 buf[count];
+        read_mem(buf, src, count);
+        write_mem(dst, buf, count);
+    }
+
+    // next_row - Returns the address to next row to be processed.
+    // end_addr is the address after the end of the block, if this address
+    // is reached the transaction should have finished
+    method next_row(physical_address_t addr, physical_address_t end_addr)
+        -&gt; (physical_address_t, physical_address_t,
+            bool) throws /* next_addr, next_end_addr, finished */ {
+        local physical_address_t next_addr;
+        local physical_address_t next_end_addr;
+        local bool finished;
+        local sg_list_block_row_t block_row;
+        read_mem(&amp;block_row, addr, sizeof block_row);
+        if (block_row.flags.ext) {
+            next_addr = block_row.addr + block_row.offset;
+            next_end_addr = next_addr + block_row.len;
+        } else {
+            next_addr = addr + sizeof block_row;
+            next_end_addr = end_addr;
+        }
+        finished = next_addr == end_addr;
+        return (next_addr, next_end_addr, finished);
+    }
+
+    // Copy Scatter Gathered data.
+    method copy_scatter_gather(physical_address_t dst, physical_address_t src)
+        -&gt; (uint18) throws {
+        local uint18 copied_bytes;
+        // Get the header data
+        local sg_list_head_t head;
+        read_mem(&amp;head, src, sizeof head);
+        copied_bytes = 0;
+
+        local physical_address_t addr = head.addr;
+        local physical_address_t end_addr = head.addr + head.len;
+        local physical_address_t hare_addr = addr;
+        local physical_address_t hare_end_addr = end_addr;
+
+        // Continue running through the lists until the end is reached
+        // or an error has been detected
+        local sg_list_block_row_t row;
+        local bool finished = false;
+        local bool hare_finished = false;
+        while (!finished &amp;&amp; DMA_control.ERR.val == 0) {
+            read_mem(&amp;row, addr, sizeof row);
+
+            if (!row.flags.ext) { // Data block
+                log info, 4: "Data block of length %d at 0x%x with offset %d",
+                    row.len, row.addr, row.offset;
+                // Copy a block of data
+                copy_contiguous(dst, row.addr + row.offset, row.len);
+                dst += row.len;
+                copied_bytes += row.len;
+            } else
+                log info, 4:
+                "Extension block of length %d at 0x%x with offset %d",
+                    row.len, row.addr, row.offset;
+
+            (addr, end_addr, finished) = next_row(addr, end_addr);
+
+            // Check for loops.
+            if (!hare_finished) {
+                local int8 i;
+                // Hare moves through lists at double the speed of addr.
+                // If the hare ends up at the same address as addr, a loop has
+                // been detected, if the hare reaches the end there is no loop.
+                for (i = 0; i &lt; 2; i++) {
+                    (hare_addr, hare_end_addr, hare_finished) = next_row(hare_addr, hare_end_addr);
+                    if (hare_finished) {
+                        log info, 4: "Loop checker finished, no loops";
+                        break;
+                    }
+                }
+                if (hare_addr == addr) {
+                    log spec_viol: "Stuck in a loop.";
+                    DMA_control.ERR.val = 1;
+                }
+            }
+        }
+        return copied_bytes;
+    }
+
+    method complete_dma() {
+        // Log that completion is done
+        log info, 2: "DMA transfer completed";
+
+        // clear SWT bit, update TS
+        DMA_control.SWT.val = 0;
+        DMA_control.TS.val = 0;
+        DMA_control.TC.val = 1;
+
+        // raise interrupt towards CPU
+        if(DMA_control.ECI.val == 0) {
+            log info, 3: "ECI is zero, no interrupt raised";
+            return;
+        }
+
+        log info, 3: "raising interrupt signal";
+        intr_target.signal.signal_raise();
+
+        // remember that we raised it
+        DMA_interrupt_posted = true;
+    }
+}
+</code></pre>
+
+<div class="chain">
+<a href="modeling-interrupt-controllers.html">18 Modeling Interrupt Controllers</a>
+<a href="modeling-i2c-devices.html">20 Modeling I2C Devices</a>
+</div>

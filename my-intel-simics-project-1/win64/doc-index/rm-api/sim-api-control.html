@@ -1,0 +1,148 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simulation Control</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-profiling.html">Profiling</a>
+<a href="sim-api-services.html">Simulation Independent Services</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Simulation Control</h1>
+<h2 id="SIM_break_message"><a href="#SIM_break_message">SIM_break_message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_break_message — stop the simulation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_break_message(const char *msg);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_break_message(...)
+</code></pre>
+<h2>Description</h2>
+<p>Display the reason why Simics will stop simulation.</p>
+<p>This is similar to <a href="sim-api-control.html#SIM_break_simulation"><code>SIM_break_simulation</code></a>, with the difference that it doesn’t actually break the simulation. It can be used by code that wants to display a break message and stop the simulation by some other means.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-control.html#SIM_break_simulation"><code>SIM_break_simulation</code></a></p>
+</section>
+<h2 id="SIM_break_simulation"><a href="#SIM_break_simulation">SIM_break_simulation</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_break_simulation — stop the simulation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_break_simulation(const char *msg);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_break_simulation(...)
+</code></pre>
+<h2>Description</h2>
+<p>Ask Simics to stop the simulation as soon as possible, displaying the supplied message.</p>
+<p>Simics will normally stop before the next instruction is executed. If this function is called when an instruction has started executing, and the instruction can be aborted, it will rewind to before the instruction.  This might leave the simulation in a state where some repeatable part of the instruction is already executed.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-control.html#SIM_break_message"><code>SIM_break_message</code></a></p>
+</section>
+<h2 id="SIM_continue"><a href="#SIM_continue">SIM_continue</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_continue — run the simulation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+pc_step_t
+SIM_continue(int64 steps);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_continue(...)
+</code></pre>
+<h2>Description</h2>
+<p>Run the simulation. In typical usage with <code>steps</code> being 0, the simulation will run forward until it is stopped, either by a breakpoint, internal event, or through the user interface.</p>
+<p>With a non-zero <code>steps</code>, Simics will make sure that at least one processor runs <code>steps</code> steps and then stop the simulation. As with <code>steps</code> being 0, the function can also return early if other break criteria are met.</p>
+<p>In order to properly control when simulation stops in time, it is advisable to use step or cycle breakpoints on one or more objects.</p>
+<p>The function returns non-zero if the simulation was started, and 0 otherwise.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the simulation could not be started. Check the exception message for more information.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_current_clock"><a href="#SIM_current_clock">SIM_current_clock</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_current_clock — return current clock</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+conf_object_t *
+SIM_current_clock();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_current_clock(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the clock (an object implementing the <a href="model-to-simulator-interfaces.html#cycle_interface_t"><code>cycle</code></a> interface) that is driving the simulation in the current cell and current thread. In Global Context, <code>NULL</code> is returned.</p>
+<p>Please note that typically model code would use <a href="dev-api-configuration.html#SIM_object_clock"><code>SIM_object_clock</code></a> to obtain the clock used for posting events. Another alternative for models is to get the initiator of a memory transaction from the memory transaction itself with the functions like <a href="dev-api-transactions.html#SIM_transaction_initiator"><code>SIM_transaction_initiator</code></a> and <a href="dev-api-memory-transactions.html#SIM_set_mem_op_initiator"><code>SIM_get_mem_op_initiator</code></a> and use that for event posting.</p>
+<p>The currently running clock returned by this function can be used, for example, to post events right after the current instruction finishes. But, as it is pointed out above, there are other alternatives for getting a clock for posting events. The use of this function is generally discouraged.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_object_clock"><code>SIM_object_clock</code></a>, <a href="dev-api-transactions.html#SIM_transaction_initiator"><code>SIM_transaction_initiator</code></a>, <a href="dev-api-memory-transactions.html#SIM_set_mem_op_initiator"><code>SIM_get_mem_op_initiator</code></a></p>
+</section>
+<h2 id="SIM_simics_is_running"><a href="#SIM_simics_is_running">SIM_simics_is_running</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_simics_is_running — check if simulation is running</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+bool
+SIM_simics_is_running();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_simics_is_running(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns true if the simulation is running, e.g. if it has been started using <a href="sim-api-control.html#SIM_continue"><code>SIM_continue</code></a>, or false otherwise. It also returns true when the simulation is reversing.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-profiling.html">Profiling</a>
+<a href="sim-api-services.html">Simulation Independent Services</a>
+</div>

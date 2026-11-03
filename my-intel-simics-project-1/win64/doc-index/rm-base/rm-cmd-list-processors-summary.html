@@ -1,0 +1,47 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-processors-summary</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-processors.html">list-processors</a>
+<a href="rm-cmd-list-script-branches.html">list-script-branches</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-processors-summary"></a>
+<h1 id="list-processors-summary"><a href="#list-processors-summary">list-processors-summary</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-processors-summary</b> [<i>cell</i>] [<i>parent</i>] [<i>"class"</i>] [<i>"substr"</i>] [-all] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Produces a short summary list of all processors being simulated in the system. Each row lists: the processor class with description, how many processor found of this class, the frequencies used, and the cells the processors are found in.
+<p>
+The <tt>-all</tt> flag includes all "execute" objects, even those objects which do not execute instructions (processors).
+</p><p>
+Without any argument, all processors in the system are considered, giving an overview of what is currently being simulated.
+</p><p>
+Similarly to the <code>list-processors</code> command, you can examine fewer processors using the <i>cell</i>, <i>parent</i>, <i>class</i> and <i>substr</i> filter arguments.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-list-processors.html">list-processors</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-processors.html">list-processors</a>
+<a href="rm-cmd-list-script-branches.html">list-script-branches</a>
+</div>

@@ -1,0 +1,65 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.3 Link Object Timing</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="ethernet-vlan-switch.html">2.2 Ethernet VLAN Switch</a>
+<a href="ip-services.html">2.4 IP Services</a>
+</div>
+<div class="path">
+<a href="index.html">Ethernet Networking Technology Guide</a>
+&nbsp;/&nbsp;
+<a href="simicsnet.html">2 Network Simulation</a>
+&nbsp;/&nbsp;</div><h1 id="link-object-timing"><a href="#link-object-timing">2.3 Link Object Timing</a></h1>
+<p>All frames that are sent over a link are delivered to the receiving devices
+after a small delay. The delay is the same for every frame, and is called the
+<em>latency</em> of the link. Each link object has a <em>goal_latency</em> configuration
+parameter that controls the ideal latency the link wants to obtain.</p>
+<p>Link objects are most often used to communicate between network devices using
+separate clocks. Due to the way Simics handles simulated time, different clocks
+are not always completely synchronized. In order to avoid nondeterministic
+simulation, the link latency must be high enough that any data sent over the
+link will never reach the recipient at a point in time it has already passed.
+This imposes a lower boundary on the latency, called the <em>minimum latency</em> of
+the link. The value of the minimum latency depends on the simulation setup, in
+particular whether the simulation is multithreaded or distributed across several
+Simics processes. See chapter <a href="../simics-user-guide/scaling-simics.html">Scaling
+Simics</a> of the <em>Simics User’s Guide</em>
+for more information about links and latencies.</p>
+<p>The latency of a link can be specified in the <code>create-ethernet-cable/hub/switch</code>
+command as a time in seconds. If the latency of a link is set too low, it will
+be automatically adjusted to the lowest value allowed by the setup when the
+component is instantiated. For example, when creating two instances of the
+<code>QSP-x86</code> machine and connecting them to an Ethernet link with a too low
+latency, Simics will adjust the latency automatically. Let us look at an example
+with the <code>firststeps-multi.simics</code> script. It uses the <code>new-</code> command to create
+instantiated components instead of the <code>create-</code> variant:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module eth-links</strong>
+simics&gt; <strong>new-ethernet-hub goal_latency = 0.000001</strong>
+Created instantiated 'ethernet_hub' component 'ethernet_hub0'
+simics&gt; <strong>connect board0.mb.sb.eth_slot ethernet_hub0.device0</strong>
+simics&gt; <strong>connect board1.mb.sb.eth_slot ethernet_hub0.device1</strong>
+</code></pre>
+<p>The <em>effective latency</em> of a link can be displayed by the <code>status</code> command
+provided by the link object. The actual Ethernet links are not created until the
+components are instantiated. To get access to the Ethernet link implementation,
+just request the <code>link</code> object in the component:</p>
+<pre><code class="language-simics">simics&gt; <strong>ethernet_hub0.link.status</strong>
+Status of ethernet_hub0.link [class eth-hub-link]
+=================================================
+
+    Effective latency : 10.0 ms
+
+    Connected devices : ('board0.mb.sb.phy', 'board0.cell')
+                        ('board1.mb.sb.phy', 'board1.cell')
+</code></pre>
+<p>Note the higher effective latency the link obtained, despite a goal latency of
+1us. The default latency can be adjusted using the <code>set-min-latency</code> command.</p>
+
+<div class="chain">
+<a href="ethernet-vlan-switch.html">2.2 Ethernet VLAN Switch</a>
+<a href="ip-services.html">2.4 IP Services</a>
+</div>

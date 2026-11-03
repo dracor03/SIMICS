@@ -1,0 +1,418 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 Hardware Inspection</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="running-simics-cli.html">5 Running the Simulator</a>
+<a href="documentation-and-help.html">7 Documentation and Help</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;</div><h1 id="hardware-inspection"><a href="#hardware-inspection">6 Hardware Inspection</a></h1>
+<p>This section contains some examples of how to inspect processors and devices,
+when running the <code>qsp-x86/firststeps</code> target machine.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>To inspect the target machine, use the <code>list-objects</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects -local</strong>
+┌───────────────┬───────────────────┐
+│    Object     │  Component Class  │
+├───────────────┼───────────────────┤
+│board          │&lt;chassis_qsp_x86&gt;  │
+│ethernet_switch│&lt;ethernet_switch&gt;  │
+│service_node   │&lt;service_node_comp&gt;│
+└───────────────┴───────────────────┘
+┌───────────────────┬───────────────┐
+│      Object       │     Class     │
+├───────────────────┼───────────────┤
+│bp                 │&lt;bp-manager&gt;   │
+│default_sync_domain│&lt;sync_domain&gt;  │
+│params             │&lt;script-params&gt;│
+│prefs              │&lt;preferences&gt;  │
+│sim                │&lt;sim&gt;          │
+└───────────────────┴───────────────┘
+</code></pre>
+</li>
+<li>
+<p>Here we see that we have a few special objects, like the breakpoint manager
+and the <code>sim</code> object, we have the network related objects, and at the top we
+have the actual machine. We can look at the objects inside it:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects namespace = board -local</strong>
+┌────────────────┬───────────────────────┐
+│     Object     │    Component Class    │
+├────────────────┼───────────────────────┤
+│board.console   │&lt;gfx_console_comp&gt;     │
+│board.disk0     │&lt;sata_disk_comp&gt;       │
+│board.disk1     │&lt;sata_disk_comp&gt;       │
+│board.mb        │&lt;motherboard_x58_ich10&gt;│
+│board.serconsole│&lt;txt_console_comp&gt;     │
+│board.usb_disk  │&lt;usb_disk_comp&gt;        │
+└────────────────┴───────────────────────┘
+┌──────────────────┬──────────────┐
+│      Object      │    Class     │
+├──────────────────┼──────────────┤
+│board.cell        │&lt;cell&gt;        │
+│board.cell_context│&lt;context&gt;     │
+│board.cell_rec0   │&lt;recorder&gt;    │
+│board.software    │&lt;os_awareness&gt;│
+└──────────────────┴──────────────┘
+</code></pre>
+</li>
+<li>
+<p>To see the objects associated with the processor, we can again use the
+<code>list-objects</code> command. The <code>-tree</code> option displays the objects in a
+hierarchical fashion. The <code>max-depth</code> argument can restrict the depths of the
+tree.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects -show-port-objects namespace = board.mb.cpu0 -tree max-depth = 4</strong>
+┐
+├ acram[0] ┐
+│          └ [0] ┐
+│                └ port ┐
+│                       └ tags 
+├ acram_image[0] ┐
+│                └ [0] 
+├ aes_engine ┐
+│            └ port ┐
+│                   ├ ccm 
+│                   ├ cmac 
+│                   ├ ctr 
+│                   ├ gcm 
+│                   ├ gcm_ext 
+│                   ├ xcbc 
+│                   ├ xts 
+│                   └ xts_ext 
+├ apic[0] ┐
+│         └ [0] ┐
+│               ├ bank ┐
+│               │      └ apic_regs 
+│               └ port ┐
+│                      └ freq_listener 
+├ car[0] ┐
+│        └ [0] ┐
+│              └ port ┐
+│                     └ tags 
+├ car_img[0] ┐
+│            └ [0] 
+├ core[0] ┐
+│         └ [0] ┐
+│               ├ cstate_probe 
+│               ├ ctr ┐
+│               │     └ port 
+│               ├ port ┐
+│               │      ├ logical_memory_inspection 
+│               │      └ physical_memory_inspection 
+│               ├ probes ┐
+│               │        ├ uncore 
+│               │        ├ vmp_backoff 
+│               │        └ vmp_backoff_ud 
+│               ├ rsa ┐
+│               │     └ port 
+│               ├ sha ┐
+│               │     └ port 
+│               ├ tpm ┐
+│               │     └ port 
+│               ├ vmp_probes 
+│               └ vtime ┐
+│                       ├ cycles 
+│                       └ ps 
+├ crypto_sha256 ┐
+│               └ port ┐
+│                      ├ hmac 
+│                      └ smac 
+├ crypto_sha384 ┐
+│               └ port ┐
+│                      ├ hmac 
+│                      └ smac 
+├ io_default 
+├ io_image 
+├ io_ram ┐
+│        └ port ┐
+│               └ tags 
+├ mem[0] ┐
+│        └ [0] 
+├ msr[0] ┐
+│        └ [0] 
+├ ports_proxy[0] ┐
+│                └ [0] 
+├ snare[0] ┐
+│          └ [0] ┐
+│                └ port ┐
+│                       └ cache 
+├ socket 
+├ tlb[0] ┐
+│        └ [0] 
+├ tx_store[0] ┐
+│             └ [0] ┐
+│                   └ port ┐
+│                          └ tags 
+└ tx_store_img[0] ┐
+                  └ [0] 
+</code></pre>
+</li>
+<li>
+<p>To list all processors, use the <code>list-processors</code> command.
+<a id="current-processor"></a>
+Note the <code>*</code> to the right of <code>board.mb.cpu0.core[0][0]</code> and the last line <code>* = selected CPU</code>. In this system, there is only one processor, but in systems with
+multiple processors, the command <code>pselect</code> can be used to get the current
+processor or select another processor. More on this <a href="#pselect-and-cpu">here</a>.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors</strong>
+┌────────────────────────┬─┬─────────┬────────┐
+│        CPU Name        │ │CPU Class│  Freq  │
+├────────────────────────┼─┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│
+└────────────────────────┴─┴─────────┴────────┘
+* = selected CPU
+</code></pre>
+</li>
+<li>
+<p>The <code>list-processors</code> command can show information about the state of each
+processor core, to help diagnose the current state of the system. There are
+multiple switches available, use help or tab-completion to see the available
+options. The <code>-disassemble</code> option is particularly interesting, as it often
+indicates processor modes like wait states.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors -disassemble</strong>
+┌────────────────────────┬─┬─────────┬────────┬────────────────────────┐
+│        CPU Name        │ │CPU Class│  Freq  │      Disassembly       │
+├────────────────────────┼─┼─────────┼────────┼────────────────────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│cs:0x000000000000fff0 p:│
+│                        │ │         │        │0x00000fffffff0 nop     │
+└────────────────────────┴─┴─────────┴────────┴────────────────────────┘
+</code></pre>
+</li>
+<li>
+<p><a id="pselect-and-cpu"></a> The <strong>current processor</strong> (marked with a <code>*</code> in
+<code>list-processors</code>) is used by some global commands, for example in
+<a href="#pregs">print-processor-registers</a>, as the processor the command operates on.</p>
+<p>To access the current processor, use the <code>cpu</code> object alias.
+The <code>cpu</code> object alias can be used both to get the current processor, and
+to tab-expand commands, child objects and attributes of the current processor.</p>
+<pre><code class="language-simics">simics&gt; <strong>cpu</strong>
+"board.mb.cpu0.core[0][0]"
+
+simics&gt; <strong>cpu # press tab twice to expand everything starting with cpu</strong>
+cpu-&gt;  cpu-pages-dump  cpu-switch-time  cpu.  cpu.vtime.
+
+simics&gt; <strong>cpu. # press tab twice to expand child objects and commands</strong>
+cpu.aprof-views                    cpu.instruction-fetch-mode
+cpu.bp-break-control-register      cpu.instrumentation-move
+cpu.bp-break-cycle                 cpu.instrumentation-order
+...
+
+simics&gt; <strong>cpu-&gt; # press tab twice to expand attributes</strong>
+cpu-&gt;a20_inhibited
+cpu-&gt;a20mask
+cpu-&gt;access_count
+cpu-&gt;access_type_name
+cpu-&gt;activity_state
+...
+</code></pre>
+</li>
+<li>
+<p>To change the <strong>current processor</strong>, use the command <code>pselect</code>. Without
+argument this shows the current processor, just like <code>cpu</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>pselect "board.mb.cpu0.core[0][0]"</strong>
+simics&gt; <strong>pselect</strong>
+"board.mb.cpu0.core[0][0]"
+</code></pre>
+</li>
+<li>
+<p><a id="pregs"></a>We can inspect the registers and current execution mode of a
+processor by using the <code>print-processor-registers</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[0][0].print-processor-registers</strong>
+16-bit legacy real mode
+rax = 0x0000000000000000             r8  = 0x0000000000000000
+rcx = 0x0000000000000000             r9  = 0x0000000000000000
+rdx = 0x0000000000060670             r10 = 0x0000000000000000
+rbx = 0x0000000000000000             r11 = 0x0000000000000000
+rsp = 0x0000000000000000             r12 = 0x0000000000000000
+rbp = 0x0000000000000000             r13 = 0x0000000000000000
+rsi = 0x0000000000000000             r14 = 0x0000000000000000
+rdi = 0x0000000000000000             r15 = 0x0000000000000000
+
+rip = 0x000000000000fff0
+
+eflags = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 = 0x00000002
+         │ │ │ │ │ │   │ └─┤ │ │ │ │ │ │   │   │   └── CF
+         │ │ │ │ │ │   │   │ │ │ │ │ │ │   │   └────── PF
+         │ │ │ │ │ │   │   │ │ │ │ │ │ │   └────────── AF
+         │ │ │ │ │ │   │   │ │ │ │ │ │ └────────────── ZF
+         │ │ │ │ │ │   │   │ │ │ │ │ └──────────────── SF
+         │ │ │ │ │ │   │   │ │ │ │ └────────────────── TF
+         │ │ │ │ │ │   │   │ │ │ └──────────────────── IF
+         │ │ │ │ │ │   │   │ │ └────────────────────── DF
+         │ │ │ │ │ │   │   │ └──────────────────────── OF
+         │ │ │ │ │ │   │   └────────────────────────── IOPL
+         │ │ │ │ │ │   └────────────────────────────── NT
+         │ │ │ │ │ └────────────────────────────────── RF
+         │ │ │ │ └──────────────────────────────────── VM
+         │ │ │ └────────────────────────────────────── AC
+         │ │ └──────────────────────────────────────── VIF
+         │ └────────────────────────────────────────── VIP
+         └──────────────────────────────────────────── ID
+
+uif = 0
+</code></pre>
+</li>
+<li>
+<p>Another way to read registers of the <strong>current processor</strong> (see
+<a href="#current-processor">here</a>) would be to run the global command
+<code>print-processor-registers</code>.</p>
+<pre><code>simics&gt; print-processor-registers
+</code></pre>
+</li>
+<li>
+<p>Individual registers are also typically accessible. Here we also use the
+<code>output-radix</code> command that specifies the base when numbers are displayed.</p>
+<pre><code class="language-simics">simics&gt; <strong>output-radix 16</strong>
+simics&gt; <strong>%rdx</strong>
+0x60670
+</code></pre>
+</li>
+<li>
+<p>We can also inspect devices, their register banks, and individual registers.
+Information about their registers can be displayed using the
+<code>print-device-regs</code> command. For example, we can look at the DMI device.
+First, we locate it in the system.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-classes -l substr = dmi -show-port-classes</strong>
+The following classes have been registered:
+┌──────────────────────────────────────────┬──────────────────────────────────────────────────┐
+│                  Class                   │                Short description                 │
+├──────────────────────────────────────────┼──────────────────────────────────────────────────┤
+│x58-dmi                                   │Intel® X58 DMI unit                               │
+│x58-dmi.HRESET                            │                                                  │
+│x58-dmi._upstream_egress                  │                                                  │
+│x58-dmi._upstream_egress_dead_end         │                                                  │
+│x58-dmi.io_regs                           │                                                  │
+│x58-dmi.msg                               │legacy PCI INTx message to pci_interrupt converter│
+│x58-dmi.pcie_config                       │                                                  │
+│x58-dmi.phy                               │                                                  │
+│x58-dmi.upstream_ingress                  │                                                  │
+│x58-dmi.upstream_ingress_targets          │                                                  │
+│x58-dmi.upstream_ingress_targets._dead_end│                                                  │
+│x58-dmi.upstream_ingress_targets.broadcast│                                                  │
+└──────────────────────────────────────────┴──────────────────────────────────────────────────┘
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>list-objects class = x58-dmi -all</strong>
+┌──────────────────┬─────────┐
+│      Object      │  Class  │
+├──────────────────┼─────────┤
+│board.mb.nb.bridge│&lt;x58-dmi&gt;│
+└──────────────────┴─────────┘
+</code></pre>
+</li>
+<li>
+<p>Now we can inspect the banks and device registers.</p>
+<pre><code class="language-simics">simics&gt; <strong>print-device-regs bank = board.mb.nb.bridge</strong>
+ Bank: io_regs
+┌──────┬──────────────┬────┬─────┐
+│Offset│     Name     │Size│Value│
+├──────┼──────────────┼────┼─────┤
+│ 0xcf8│config_address│ 0x4│  0x0│
+│ 0xcfc│config_data   │ 0x4│  0x0│
+└──────┴──────────────┴────┴─────┘
+
+ Bank: pcie_config
+┌──────┬───────────────────┬────┬───────┐
+│Offset│       Name        │Size│ Value │
+├──────┼───────────────────┼────┼───────┤
+│   0x0│vendor_id          │ 0x2│ 0x8086│
+│   0x2│device_id          │ 0x2│ 0x3400│
+│   0x4│command            │ 0x2│    0x0│
+│   0x6│status             │ 0x2│   0x10│
+│   0x8│revision_id        │ 0x1│   0x13│
+│   0x9│class_code         │ 0x3│0x80000│
+│   0xc│cache_line_size    │ 0x1│    0x0│
+│   0xd│latency_timer      │ 0x1│    0x0│
+│   0xe│header_type        │ 0x1│    0x0│
+│   0xf│bist               │ 0x1│    0x0│
+│  0x2c│subsystem_vendor_id│ 0x2│ 0x8086│
+│  0x2e│subsystem_id       │ 0x2│    0x0│
+│  0x34│capabilities_ptr   │ 0x1│    0x0│
+│  0x3c│interrupt_line     │ 0x1│    0x0│
+│  0x3d│interrupt_pin      │ 0x1│    0x0│
+└──────┴───────────────────┴────┴───────┘
+</code></pre>
+</li>
+<li>
+<p>We can specify a pattern to only display certain registers.</p>
+<pre><code class="language-simics">simics&gt; <strong>print-device-regs bank = board.mb.nb.bridge pattern = vendor_id</strong>
+ Bank: pcie_config
+┌──────┬─────────┬────┬──────┐
+│Offset│  Name   │Size│Value │
+├──────┼─────────┼────┼──────┤
+│   0x0│vendor_id│ 0x2│0x8086│
+└──────┴─────────┴────┴──────┘
+</code></pre>
+</li>
+<li>
+<p>To obtain more information about a particular register, we can use the
+<code>print-device-reg-info</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>print-device-reg-info register = board.mb.nb.bridge.bank.pcie_config.vendor_id</strong>
+
+Vendor ID [board.mb.nb.bridge.bank.pcie_config.vendor_id]
+
+              Bits  :  0x10              
+            Offset  :  0x0               
+             Value  :  0x8086            
+        ----------                       
+        Bit Fields                       
+vendor_id @ [15:0]  :  1000000010000110  
+</code></pre>
+</li>
+</ul>
+<p>When retrieving a register value for inspection or use in further code, it is
+better to use one of the commands designed for that purpose:</p>
+<ul>
+<li><code>get-device-reg</code></li>
+<li><code>get-device-offset</code></li>
+<li><code>read-device-reg</code></li>
+<li><code>read-device-offset</code></li>
+<li><code>set-device-reg</code></li>
+<li><code>set-device-offset</code></li>
+<li><code>write-device-reg</code></li>
+<li><code>write-device-offset</code></li>
+</ul>
+<p>The command names have the following meanings:</p>
+<ul>
+<li>
+<p>Operation type:</p>
+<ul>
+<li><strong>get</strong> = do inquiry reads and should not have side-effects on the state
+of the register</li>
+<li><strong>set</strong> = do inquiry writes, change the register contents but do not
+trigger side effects</li>
+<li><strong>read</strong> and <strong>write</strong> = do normal memory operations that have side
+effects</li>
+</ul>
+</li>
+<li>
+<p>Target specification:</p>
+<ul>
+<li><strong>reg</strong> = specify the register by name
+(<strong>name.of.device.bank.registername</strong>).</li>
+<li><strong>offset</strong> = specify <strong>name.of.device.bank</strong>, and <strong>offset</strong>, and
+<strong>size</strong>.</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-simics">simics&gt; <strong>get-device-reg board.mb.nb.bridge.bank.pcie_config.device_id</strong>
+0x3400
+simics&gt; <strong>get-device-offset board.mb.nb.bridge.bank.pcie_config offset = 2 size = 2</strong>
+0x3400
+</code></pre>
+<p>To sum up, we have shown a few simple ways in which the hardware can be
+inspected. One important point is that the inspection is non-intrusive, any
+software running on the target machine cannot notice anything of our inspection.</p>
+
+<div class="chain">
+<a href="running-simics-cli.html">5 Running the Simulator</a>
+<a href="documentation-and-help.html">7 Documentation and Help</a>
+</div>

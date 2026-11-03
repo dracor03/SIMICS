@@ -1,0 +1,47 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.memory.unbreak</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.memory.trace.html">bp.memory.trace</a>
+<a href="rm-cmd-bp-manager.memory.wait-for.html">bp.memory.wait-for</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.memory.unbreak"></a>
+<h1 id="bp-manager.memory.unbreak"><a href="#bp-manager.memory.unbreak">bp.memory.unbreak</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.memory&gt;.unbreak</b> <i>id</i> <i>address</i> <i>length</i> [-r] [-w] [-x] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Removes an address range from a breakpoint, splitting the breakpoint if necessary.
+<p>
+The address range is specified by the <i>address</i> and <i>length</i> arguments.
+</p><p>
+<tt>-r</tt> (read), <tt>-w</tt> (write) and <tt>-x</tt> (execute) specify the type of breakpoint that should be removed in the given address range. Default is <em>execute</em>.
+</p><p>
+<i>id</i> is the ID number of the breakpoint to remove. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-bp-manager.memory.break.html">bp.memory.break</a>, bp.delete
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.memory.trace.html">bp.memory.trace</a>
+<a href="rm-cmd-bp-manager.memory.wait-for.html">bp.memory.wait-for</a>
+</div>

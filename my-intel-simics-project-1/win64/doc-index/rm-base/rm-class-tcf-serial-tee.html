@@ -1,0 +1,65 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>tcf-serial-tee</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-tcf-context-proxy.html">tcf-context-proxy</a>
+<a href="rm-class-tcf_exec_tracer.html">tcf_exec_tracer</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="tcf-serial-tee"><a href="#tcf-serial-tee">tcf-serial-tee</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This class forwards data written to the 'serial_device' interface to the 'tcf_tap_iface' interface if TCF exists, and to the 'serial_device' interface of the 'out' attribute if this set to an object.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, serial_device
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:in"><a href="#dt:in">
+<i>in</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The serial device this object forwards from.</dd>
+<dt id="dt:out"><a href="#dt:out">
+<i>out</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>The serial device this object forwards to.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+</section>
+<div class="chain">
+<a href="rm-class-tcf-context-proxy.html">tcf-context-proxy</a>
+<a href="rm-class-tcf_exec_tracer.html">tcf_exec_tracer</a>
+</div>

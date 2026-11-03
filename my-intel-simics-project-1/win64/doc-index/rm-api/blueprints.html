@@ -1,0 +1,624 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>blueprints</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simics.html">simics</a>
+<a href="pyobj.html">pyobj</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="blueprints"><a href="#blueprints">blueprints</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>blueprints</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import blueprints
+</code></pre>
+</section>
+<h2 id="blueprints.Alias"><a href="#blueprints.Alias">blueprints.Alias</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Alias(iface: ~StateT) -&gt; ~StateT
+</code></pre>
+<h2>Description</h2>
+<p>Return state which will provide aliases to the original state rather than actual values when its attributes are dereferenced.</p>
+</section>
+<h2 id="blueprints.expand"><a href="#blueprints.expand">blueprints.expand</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.expand(
+    *args,
+    params=None,
+    logger=&lt;RootLogger root (WARNING)&gt;,
+    **kwd
+) -&gt; blueprints.impl.BlueprintBuilder
+</code></pre>
+<h2>Description</h2>
+<p>Expand a blueprint and return the resulting Builder object, for inspection or instantiation. Either a single blueprint function is given, which is then expanded at the empty namespace (i.e. the object hierarchy root), or a top namespace name and blueprint function is given.</p>
+<p>Blueprint parameters can be provided using the ‘params’ argument, as a (nested) dict, name -&gt; value.</p>
+</section>
+<h2 id="blueprints.Builder"><a href="#blueprints.Builder">class blueprints.Builder</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.Builder(builder: 'BlueprintBuilder')
+</code></pre>
+<h2>Description</h2>
+<p>Interface used by blueprint functions to add objects and handle state.</p>
+<p>A Builder instance is passed as the first argument to a blueprint function. Its methods are primarily used to add objects and sub-blueprints and to handle state.</p>
+</section>
+<h2 id="blueprints.Builder.alias_state"><a href="#blueprints.Builder.alias_state">blueprints.Builder.alias_state</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.alias_state(
+    src: blueprints.types.Namespace,
+    type: type[~StateT],
+    dst: blueprints.types.Namespace
+) -&gt; ~StateT
+</code></pre>
+<h2>Description</h2>
+<p>Re-binds the state structure of type ‘type’ bound at ‘src’ to the node at ‘dst’. This is typically done when connecting sub-systems. The transferred state is returned.</p>
+</section>
+<h2 id="blueprints.Builder.at_post_instantiate"><a href="#blueprints.Builder.at_post_instantiate">blueprints.Builder.at_post_instantiate</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.at_post_instantiate(
+    name: blueprints.types.Namespace,
+    cb: Callable,
+    **kwds
+)
+</code></pre>
+<h2>Description</h2>
+<p>Register a post-instantiate callback at the node ‘ns’. The callbacks will be called in registration order after the configuration has been instantiated, and the ‘kwds’ parameters will be provided. If any callback throws an exception, a warning is printed, but all post-instantiate callbacks will run.</p>
+</section>
+<h2 id="blueprints.Builder.create_config"><a href="#blueprints.Builder.create_config">blueprints.Builder.create_config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.create_config(
+    name: blueprints.types.Namespace,
+    config: type[~ConfigT]
+) -&gt; ~ConfigT
+</code></pre>
+<h2>Description</h2>
+<p>This method is analogous to expose_state, but for Config sub-types.</p>
+</section>
+<h2 id="blueprints.Builder.error"><a href="#blueprints.Builder.error">blueprints.Builder.error</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.error(*args)
+</code></pre>
+<h2>Description</h2>
+<p>Report an error.</p>
+</section>
+<h2 id="blueprints.Builder.establish_binding"><a href="#blueprints.Builder.establish_binding">blueprints.Builder.establish_binding</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.establish_binding(
+    type: type[~BindingT],
+    src: blueprints.types.Namespace,
+    dst: blueprints.types.Namespace
+) -&gt; ~StateT
+</code></pre>
+<h2>Description</h2>
+<p>Reads the Binding of type ‘type’, which must have been exposed at node ‘src’ and re-exposes it at node `dst“.</p>
+<p>This facilitates “connecting” blueprints expanded at these nodes.</p>
+<p>Note that a Binding is a 1-1 channel and hence can only be read once.</p>
+</section>
+<h2 id="blueprints.Builder.expand"><a href="#blueprints.Builder.expand">blueprints.Builder.expand</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.expand(
+    parent: blueprints.types.Namespace,
+    name: str,
+    kind: Union[Callable, ForwardRef('BlueprintFun')],
+    **kwd
+)
+</code></pre>
+<h2>Description</h2>
+<p>Expand a blueprint at the node ‘name’ under the ‘parent’ namespace. Any supplied keyword parameters represent blueprint arguments.</p>
+</section>
+<h2 id="blueprints.Builder.expose_state"><a href="#blueprints.Builder.expose_state">blueprints.Builder.expose_state</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.expose_state(
+    name: blueprints.types.Namespace,
+    state: Union[~StateT, type[~StateT]]
+) -&gt; ~StateT
+</code></pre>
+<h2>Description</h2>
+<p>Binds a state structure to the namespace node ‘ns’ and returns it.</p>
+<p>If ‘state’ is a state type, then an instance of this state is created and bound to the node.</p>
+<p>If ‘state’ is a state instance, then that instance is bound to the specified node. Note that a specific state instance can be bound to multiple nodes.</p>
+</section>
+<h2 id="blueprints.Builder.get_config"><a href="#blueprints.Builder.get_config">blueprints.Builder.get_config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.get_config(
+    name: blueprints.types.Namespace,
+    config: type[~ConfigT]
+) -&gt; ~ConfigT
+</code></pre>
+<h2>Description</h2>
+<p>This method is analogous to read_state, but for Config sub-types.</p>
+</section>
+<h2 id="blueprints.Builder.obj"><a href="#blueprints.Builder.obj">blueprints.Builder.obj</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.obj(
+    name: blueprints.types.Namespace,
+    conf_class: str,
+    **kwd
+) -&gt; blueprints.simtypes.ConfObject | None
+</code></pre>
+<h2>Description</h2>
+<p>Add an object to the blueprint, with a name derived from the ‘ns’ namespace object. Any supplied keyword parameters represent object attributes.</p>
+</section>
+<h2 id="blueprints.Builder.read_state"><a href="#blueprints.Builder.read_state">blueprints.Builder.read_state</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.read_state(
+    name: blueprints.types.Namespace,
+    state: type[~StateT],
+    *,
+    private=False,
+    allow_local=False
+) -&gt; ~StateT
+</code></pre>
+<h2>Description</h2>
+<p>Returns a state instance of type ‘state’ obtained from the node ‘ns’. If the node ‘ns’ does not provide the state, then the state is obtained from the first hierarchical ancestor which provides it.</p>
+<p>If no ancestor provides the state, or if ‘private’ is set to True, then a local state instance is created and returned instead. The same state instance will always be returned for a specific value of ‘ns’. A local state is not accepted if ‘allow_local’ is set to True.</p>
+<p>State instances are bound to a specific node with the ‘expose_state’ method.</p>
+</section>
+<h2 id="blueprints.Builder.set"><a href="#blueprints.Builder.set">blueprints.Builder.set</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Builder.set(
+    name: blueprints.types.Namespace,
+    **kwd
+) -&gt; blueprints.simtypes.ConfObject | None
+</code></pre>
+<h2>Description</h2>
+<p>Set attributes on an object. This must be a descendant of an object already registered using obj(). Any supplied keyword parameters represent object attributes.</p>
+</section>
+<h2 id="blueprints.blueprint"><a href="#blueprints.blueprint">blueprints.blueprint</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.blueprint(
+    params: list[blueprints.data.ParamBase] | None = None,
+    name: str | None = None
+) -&gt; Callable
+</code></pre>
+<h2>Description</h2>
+<p>Decorator for adding blueprint parameters.</p>
+</section>
+<h2 id="blueprints.BlueprintFun"><a href="#blueprints.BlueprintFun">class blueprints.BlueprintFun</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.BlueprintFun(
+    comp: Optional[Callable[[blueprints.api.Builder, blueprints.types.Namespace], NoneType]] = None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Container type which holds a blueprint function</p>
+</section>
+<h2 id="blueprints.BlueprintFun.comp"><a href="#blueprints.BlueprintFun.comp">blueprints.BlueprintFun.comp</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.BlueprintFun.comp
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 0</p>
+</section>
+<h2 id="blueprints.BlueprintError"><a href="#blueprints.BlueprintError">class blueprints.BlueprintError</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.BlueprintError
+</code></pre>
+<h2>Description</h2>
+<p>Exception raised by the blueprint framework on errors.</p>
+<p>Examples are invalid blueprint parameters or illegal state usage.</p>
+</section>
+<h2 id="blueprints.ConfObject"><a href="#blueprints.ConfObject">class blueprints.ConfObject</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.ConfObject(obj: blueprints.types.Namespace | None = None)
+</code></pre>
+<h2>Description</h2>
+<p>Python representation of a Simics object.</p>
+</section>
+<h2 id="blueprints.ConfObject.obj"><a href="#blueprints.ConfObject.obj">blueprints.ConfObject.obj</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.ConfObject.obj
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 0</p>
+</section>
+<h2 id="blueprints.Default"><a href="#blueprints.Default">blueprints.Default</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Default(val: ~T) -&gt; ~T
+</code></pre>
+<h2>Description</h2>
+<p>Function used to attach DEFAULT priority to the value ‘val’.</p>
+</section>
+<h2 id="blueprints.DefaultTarget"><a href="#blueprints.DefaultTarget">class blueprints.DefaultTarget</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.DefaultTarget(
+    port: blueprints.simtypes.Port | blueprints.types.Namespace | blueprints.simtypes.ConfObject,
+    function: int = 0,
+    offset: int = 0,
+    target: blueprints.simtypes.Port | blueprints.types.Namespace | blueprints.simtypes.ConfObject | None = None,
+    align_size: int = 0,
+    byte_swap: int = 0
+)
+</code></pre>
+<h2>Description</h2>
+<p>Tuple representing a memory-space default target</p>
+</section>
+<h2 id="blueprints.DefaultTarget.align_size"><a href="#blueprints.DefaultTarget.align_size">blueprints.DefaultTarget.align_size</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.DefaultTarget.align_size
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 4</p>
+</section>
+<h2 id="blueprints.DefaultTarget.byte_swap"><a href="#blueprints.DefaultTarget.byte_swap">blueprints.DefaultTarget.byte_swap</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.DefaultTarget.byte_swap
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 5</p>
+</section>
+<h2 id="blueprints.DefaultTarget.function"><a href="#blueprints.DefaultTarget.function">blueprints.DefaultTarget.function</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.DefaultTarget.function
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 1</p>
+</section>
+<h2 id="blueprints.DefaultTarget.offset"><a href="#blueprints.DefaultTarget.offset">blueprints.DefaultTarget.offset</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.DefaultTarget.offset
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 2</p>
+</section>
+<h2 id="blueprints.DefaultTarget.port"><a href="#blueprints.DefaultTarget.port">blueprints.DefaultTarget.port</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.DefaultTarget.port
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 0</p>
+</section>
+<h2 id="blueprints.DefaultTarget.target"><a href="#blueprints.DefaultTarget.target">blueprints.DefaultTarget.target</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.DefaultTarget.target
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 3</p>
+</section>
+<h2 id="blueprints.instantiate"><a href="#blueprints.instantiate">blueprints.instantiate</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.instantiate(
+    *args,
+    prefix='',
+    **kwd
+) -&gt; blueprints.impl.BlueprintBuilder
+</code></pre>
+<h2>Description</h2>
+<p>Expand blueprint and instantiate the result. The arguments are the same as for expand(), except that a prefix string can be specified, which is added to all object names, hence facilitating instantiating the blueprint system inside a given object hierarchy.</p>
+</section>
+<h2 id="blueprints.State"><a href="#blueprints.State">class blueprints.State</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.State()
+</code></pre>
+<h2>Description</h2>
+<p>Base class for all blueprint state classes. Each state class is a fixed collection of fields, a shared data structure. It can also carry configurational information.</p>
+</section>
+<h2 id="blueprints.StateMap"><a href="#blueprints.StateMap">class blueprints.StateMap</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.StateMap(iface_type: type[~StateT])
+</code></pre>
+<h2>Description</h2>
+<p>Map type, to be used in state definitions.</p>
+<p>Maps arbitrary keys to state instances of the type given to the constructor. State instances are created on demand when a key is accessed, and the same instance is returned for the same key.</p>
+</section>
+<h2 id="blueprints.List"><a href="#blueprints.List">class blueprints.List</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.List()
+</code></pre>
+<h2>Description</h2>
+<p>List type, to be used in state definitions. Multiple blueprints can contribute elements to the same list. Created automatically for state values which has an empty list as default value.</p>
+</section>
+<h2 id="blueprints.MemMap"><a href="#blueprints.MemMap">class blueprints.MemMap</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.MemMap(
+    base: int,
+    port: blueprints.simtypes.Port | blueprints.types.Namespace | blueprints.simtypes.ConfObject,
+    function: int,
+    offset: int,
+    length: int,
+    target: blueprints.simtypes.Port | blueprints.types.Namespace | blueprints.simtypes.ConfObject | None = None,
+    priority: int = 0,
+    align_size: int = 0,
+    byteswap: int = 0
+)
+</code></pre>
+<h2>Description</h2>
+<p>Tuple representing a memory-space mapping</p>
+</section>
+<h2 id="blueprints.MemMap.align_size"><a href="#blueprints.MemMap.align_size">blueprints.MemMap.align_size</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.align_size
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 7</p>
+</section>
+<h2 id="blueprints.MemMap.base"><a href="#blueprints.MemMap.base">blueprints.MemMap.base</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.base
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 0</p>
+</section>
+<h2 id="blueprints.MemMap.byteswap"><a href="#blueprints.MemMap.byteswap">blueprints.MemMap.byteswap</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.byteswap
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 8</p>
+</section>
+<h2 id="blueprints.MemMap.function"><a href="#blueprints.MemMap.function">blueprints.MemMap.function</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.function
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 2</p>
+</section>
+<h2 id="blueprints.MemMap.length"><a href="#blueprints.MemMap.length">blueprints.MemMap.length</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.length
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 4</p>
+</section>
+<h2 id="blueprints.MemMap.offset"><a href="#blueprints.MemMap.offset">blueprints.MemMap.offset</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.offset
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 3</p>
+</section>
+<h2 id="blueprints.MemMap.port"><a href="#blueprints.MemMap.port">blueprints.MemMap.port</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.port
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 1</p>
+</section>
+<h2 id="blueprints.MemMap.priority"><a href="#blueprints.MemMap.priority">blueprints.MemMap.priority</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.priority
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 6</p>
+</section>
+<h2 id="blueprints.MemMap.target"><a href="#blueprints.MemMap.target">blueprints.MemMap.target</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.MemMap.target
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 5</p>
+</section>
+<h2 id="blueprints.Namespace"><a href="#blueprints.Namespace">class blueprints.Namespace</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.Namespace(_name: str) -&gt; None
+</code></pre>
+<h2>Description</h2>
+<p>The Namespace class represents a hierarchical name where Simics objects and blueprints can be added. Basically a string.</p>
+</section>
+<h2 id="blueprints.Namespace.is_descendant_of"><a href="#blueprints.Namespace.is_descendant_of">blueprints.Namespace.is_descendant_of</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Namespace.is_descendant_of(ns: 'Namespace')
+</code></pre>
+<h2>Description</h2>
+<p>Is ns an ancestor of self?</p>
+</section>
+<h2 id="blueprints.Override"><a href="#blueprints.Override">blueprints.Override</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Override(val: ~T) -&gt; ~T
+</code></pre>
+<h2>Description</h2>
+<p>Function used to attach OVERRIDE priority to the value ‘val’.</p>
+</section>
+<h2 id="blueprints.Port"><a href="#blueprints.Port">class blueprints.Port</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.Port(
+    obj: blueprints.types.Namespace | blueprints.simtypes.ConfObject | None = None,
+    port: str | None = None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Python representation of a Simics interconnect on a conf object.</p>
+</section>
+<h2 id="blueprints.Port.obj"><a href="#blueprints.Port.obj">blueprints.Port.obj</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Port.obj
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 0</p>
+</section>
+<h2 id="blueprints.Port.port"><a href="#blueprints.Port.port">blueprints.Port.port</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.Port.port
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 1</p>
+</section>
+<h2 id="blueprints.Priority"><a href="#blueprints.Priority">class blueprints.Priority</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.Priority(
+    value,
+    names=None,
+    *,
+    module=None,
+    qualname=None,
+    type=None,
+    start=1
+)
+</code></pre>
+<h2>Description</h2>
+<p>Priority of a value written to a state field.</p>
+<p>When multiple blueprints write to the same field, the value with the highest priority is used. Writing different values with the same priority is an error. Values are written with NORMAL priority unless wrapped using Default() or Override().</p>
+</section>
+<h2 id="blueprints.PriorityValue"><a href="#blueprints.PriorityValue">class blueprints.PriorityValue</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.PriorityValue(
+    val: Any,
+    priority: blueprints.types.Priority = &lt;Priority.NORMAL: 0&gt;
+)
+</code></pre>
+<h2>Description</h2>
+<p>A value together with its Priority.</p>
+<p>Assigning a PriorityValue to a state field writes the value with the given priority. Normally created using Default() or Override() rather than directly.</p>
+</section>
+<h2 id="blueprints.PriorityValue.priority"><a href="#blueprints.PriorityValue.priority">blueprints.PriorityValue.priority</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.PriorityValue.priority
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 1</p>
+</section>
+<h2 id="blueprints.PriorityValue.val"><a href="#blueprints.PriorityValue.val">blueprints.PriorityValue.val</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>blueprints.PriorityValue.val
+</code></pre>
+<h2>Description</h2>
+<p>Alias for field number 0</p>
+</section>
+<h2 id="blueprints.SignalPort"><a href="#blueprints.SignalPort">class blueprints.SignalPort</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.SignalPort(
+    obj: blueprints.types.Namespace | blueprints.simtypes.ConfObject | None = None,
+    port: str | None = None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Python representation of a Simics signal interconnect on a conf object.</p>
+</section>
+<h2 id="blueprints.Param"><a href="#blueprints.Param">class blueprints.Param</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.Param(
+    name: str,
+    desc: str,
+    config: type[blueprints.types.Config],
+    ptype=None,
+    default=None,
+    member_name=None,
+    allow_empty=True,
+    advanced=0,
+    telemetry=False
+)
+</code></pre>
+<h2>Description</h2>
+<p>Blueprint parameter definition.</p>
+<p>Each parameter is tied to a data member of a Config class, from which its default value and type are obtained.</p>
+<ul>
+<li><code>name</code>: user-facing parameter name, and the name of the Config member unless <code>member_name</code> is given.</li>
+<li><code>desc</code>: user-facing description.</li>
+<li><code>config</code>: the Config class the parameter is bound to.</li>
+<li><code>ptype</code>: parameter type. Required if the default value is None, otherwise obtained from the Config member.</li>
+<li><code>default</code>: default value, overriding the Config member default.</li>
+<li><code>member_name</code>: name of the Config member, if different from <code>name</code>.</li>
+<li><code>allow_empty</code>: whether an empty value is accepted.</li>
+<li><code>advanced</code>: advanced level used by the target parameter framework.</li>
+<li><code>telemetry</code>: whether the parameter is included in telemetry.</li>
+</ul>
+</section>
+<h2 id="blueprints.ParamGroup"><a href="#blueprints.ParamGroup">class blueprints.ParamGroup</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.ParamGroup(*args, **kwargs)
+</code></pre>
+<h2>Description</h2>
+<p>Blueprint parameter group declaration.</p>
+<p>Imports the parameters of another blueprint as a sub-tree.</p>
+<ul>
+<li><code>name</code>: name of the sub-tree. The importing blueprint must expand <code>import_bp</code> at a namespace matching this name (or the value of the <code>ns</code> parameter, if set).</li>
+<li><code>desc</code>: user-facing description.</li>
+<li><code>import_bp</code>: name of the blueprint whose parameters are imported.</li>
+<li><code>ns</code>: name of a parameter whose value gives the namespace where <code>import_bp</code> is expanded, if different from <code>name</code>.</li>
+<li><code>count</code>: name of an integer parameter giving the number of copies of the imported blueprint, for dynamic parameters.</li>
+<li><code>enable</code>: name of a boolean parameter controlling whether the imported blueprint is added at all, for dynamic parameters.</li>
+</ul>
+<p>ParamGroup(name, members) with a list of parameter definitions can also be used to group parameters explicitly.</p>
+</section>
+<h2 id="blueprints.Config"><a href="#blueprints.Config">class blueprints.Config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.Config()
+</code></pre>
+<h2>Description</h2>
+<p>Blueprint configuration state.</p>
+</section>
+<h2 id="blueprints.Binding"><a href="#blueprints.Binding">class blueprints.Binding</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.Binding()
+</code></pre>
+<h2>Description</h2>
+<p>1-1 connection between two blueprints.</p>
+</section>
+<h2 id="blueprints.DataAttr"><a href="#blueprints.DataAttr">class blueprints.DataAttr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class blueprints.DataAttr(v: Any)
+</code></pre>
+<h2>Description</h2>
+<p>Wrapper for an attribute value that is passed to the object verbatim.</p>
+<p>No resolution of object references is done on the wrapped value. Useful for data attribute values such as tuples of bytes.</p>
+</section>
+<div class="chain">
+<a href="simics.html">simics</a>
+<a href="pyobj.html">pyobj</a>
+</div>

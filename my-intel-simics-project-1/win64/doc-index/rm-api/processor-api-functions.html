@@ -1,0 +1,152 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Functions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="processor-api.html">Processor API</a>
+<a href="python-api.html">Python API</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="processor-api.html">Processor API</a>
+&nbsp;/&nbsp;</div>
+<h1>Functions</h1>
+<h2 id="VT_check_async_events"><a href="#VT_check_async_events">VT_check_async_events</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>VT_check_async_events — check for asynchronous events</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+bool
+VT_check_async_events();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.VT_check_async_events(...)
+</code></pre>
+<h2>Description</h2>
+<p>Check if any async events are pending and if so, make the current executing object exit in order for them to be handled. Return nonzero if there are pending events.</p>
+<p>The Simics platform will check for asynchronous events between invocations of the <code>run</code> method in the <a href="model-to-simulator-interfaces.html#execute_interface_t"><code>execute</code></a>. If significant time passes between such invocations, which will typically be the case unless there are multiple simulated CPUs that are switched between, then the implementor of <a href="model-to-simulator-interfaces.html#execute_interface_t"><code>execute</code></a> needs to either call this method or exit pre-maturely from <code>run</code> to allow asynchronous events to be handled. If neither is performed, then interactive performance will suffer as user input would be waiting significant time before being processed.</p>
+<p>If only the async event state is requested, the faster <code>VT_async_events_pending</code> should be used instead.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="VT_clock_frequency_about_to_change"><a href="#VT_clock_frequency_about_to_change">VT_clock_frequency_about_to_change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>VT_clock_frequency_about_to_change — inform before clock frequency change</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+void
+VT_clock_frequency_about_to_change(conf_object_t *obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.VT_clock_frequency_about_to_change(...)
+</code></pre>
+<h2>Description</h2>
+<p>To be called by a clock prior to a clock frequency change, with events and cycles reflecting the frequency before the change.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="VT_clock_frequency_change"><a href="#VT_clock_frequency_change">VT_clock_frequency_change</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>VT_clock_frequency_change — inform after clock frequency change</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+void
+VT_clock_frequency_change(conf_object_t *obj, uint64 cycles_per_second);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.VT_clock_frequency_change(...)
+</code></pre>
+<h2>Description</h2>
+<p>To be called by a clock when the clock frequency has changed, with events and cycles reflecting the frequency after the change.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="VT_new_code_block"><a href="#VT_new_code_block">VT_new_code_block</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>VT_new_code_block — inform platform of new code block</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+void
+VT_new_code_block(void *start, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>This function informs the Simics platform that there is a <code>len</code> bytes block at <code>start</code> that can be executed from. The call should be made before the passed code area is executed from. This information is used by Simics to communicate with systems like Pin or Valgrind that do not automatically detect run-time generated code. If modifications are done to a block, then a new call to this function is needed to inform the platform of that.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="VT_set_object_clock"><a href="#VT_set_object_clock">VT_set_object_clock</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>VT_set_object_clock — set clock association for object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+VT_set_object_clock(conf_object_t *NOTNULL obj, conf_object_t *clock);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.VT_set_object_clock(...)
+</code></pre>
+<h2>Description</h2>
+<p>The simulation infrastructure keeps track of clock associations for every object. For most objects, this is initialized through the queue attribute.</p>
+<p>An object that is itself a clock needs to call this function to initialize the clock coupling to itself. The call to initialize the coupling should be made from the <code>init</code> method registered for the class in its <a href="dev-api-types-generic.html#class_info_t"><code>class_info_t</code></a> (or <code>init_object</code> if registered using <a href="dev-api-types-generic.html#class_data_t"><code>class_data_t</code></a>).</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="VT_stop_event_processing"><a href="#VT_stop_event_processing">VT_stop_event_processing</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>VT_stop_event_processing — stop event processing</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+void
+VT_stop_event_processing(conf_object_t *clock);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.VT_stop_event_processing(...)
+</code></pre>
+<h2>Description</h2>
+<p>This method is to be called by a clock when it has received a stop request through the execute interface and the clock is about to return from the run method in the execute interface.</p>
+<p>In the future, the simulation framework may keep track of this thus relieving the clock from the duty of having to call this method.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="processor-api.html">Processor API</a>
+<a href="python-api.html">Python API</a>
+</div>

@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;interface_log_tool&gt;.control-logged-interfaces</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-interface_log_tool.control-blocked-interfaces.html">&lt;interface_log_tool&gt;.control-blocked-interfaces</a>
+<a href="rm-cmd-interface_log_tool.delete.html">&lt;interface_log_tool&gt;.delete</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="interface_log_tool.control-logged-interfaces"></a>
+<h1 id="interface_log_tool.control-logged-interfaces"><a href="#interface_log_tool.control-logged-interfaces">&lt;interface_log_tool&gt;.control-logged-interfaces</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;interface_log_tool&gt;.control-logged-interfaces</b> ([ <i>"ifaces"</i> ... ] | list of <i>"ifaces"</i>) [-remove] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command can be used to control the logging of the interfaces when the tool has been created. <i>ifaces</i> sets the interfaces to log. Each string can be a name of an individual interface to consider, or one Python regular expressions that can match several interfaces. All interfaces mentioned are added to the currently logged interfaces. If <tt>-remove</tt> is given already enabled interfaces that match the ifaces list will be removed from the logging. If no flag is used, the current setting is printed.
+<p>
+The command can be given several times, enabling (or disabling) more interfaces each time. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.interface-log-tool.html">interface-log-tool</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-interface_log_tool.control-blocked-interfaces.html">&lt;interface_log_tool&gt;.control-blocked-interfaces</a>
+<a href="rm-cmd-interface_log_tool.delete.html">&lt;interface_log_tool&gt;.delete</a>
+</div>

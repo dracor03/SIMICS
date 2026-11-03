@@ -1,0 +1,126 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1 Processor Scheduling Examples</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="index.html">Processor Model Integration Guide</a>
+<a href="simulation-scheduling.html">2 Simulation Scheduling</a>
+</div>
+<div class="path">
+<a href="index.html">Processor Model Integration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="processor-scheduling-examples"><a href="#processor-scheduling-examples">1 Processor Scheduling Examples</a></h1>
+<p>This chapter describes how to interface processors to Simics depending on the requirements on the simulation.</p>
+<p>A processor model defines one or more classes to integrate with the Simics environment.
+Simics classes have attributes and implement interfaces.
+Even though Simics classes can be written in <em>DML</em>, <em>C</em>, <em>C++</em>, or <em>Python</em>, only <em>C</em> and <em>C++</em> is currently supported for writing processor models.
+See the <a href="../simics-user-guide/configuration.html">Configuration and Checkpointing</a> chapter in the <em>Simics User’s Guide</em> for more information about classes in Simics and how to instantiate them into Simics objects.</p>
+<p>A key issue for fast simulation is how it is scheduled.
+A <em>scheduler</em> is an object that implements the <code>execute</code> interface.
+Such an object advances virtual time for itself and for the objects associated with it.
+A processor that also is a scheduler can thus simulate a sequence of instructions that occur at different points in virtual time without having to return back to the framework.</p>
+<p>Processors can be scheduled in any of the following ways:</p>
+<dl>
+<dt id="dt:processors-without-custom-scheduling"><a href="#dt:processors-without-custom-scheduling">Processors without custom scheduling</a></dt>
+<dd>Processors models do not have any customized scheduling, but rather use event callbacks to perform simulation.
+This setup is suitable for clock cycle driven simulation as it performs simulation in strict virtual time order.
+See figure <a class="reference" href="cosimulator-examples.html#exact_time_model">1</a>.</dd>
+<dt id="dt:scheduling-a-set-of-processors"><a href="#dt:scheduling-a-set-of-processors">Scheduling a set of processors</a></dt>
+<dd>The processors are scheduled together, and a single object implements the <code>execute</code> and <code>cycle</code> interfaces used by the framework to schedule the set of processors.
+See figure <a class="reference" href="cosimulator-examples.html#cosim_queue_in_blobb">2</a>.
+This type of scheduling allows the simulation to run faster since it requires less synchronization and fewer context switches.
+The drawback is that both the <code>cycle</code> interface and the optional <code>step</code> interface are hard to implement.</dd>
+<dt id="dt:scheduling-each-processor"><a href="#dt:scheduling-each-processor">Scheduling each processor</a></dt>
+<dd>The <code>execute</code> and <code>cycle</code> interfaces are here implemented in each thread/core objects instead of in a central scheduler object.
+See figure <a class="reference" href="cosimulator-examples.html#execute_per_thread">3</a>.
+This is the model used by all standard Simics processors models.
+The multiple clocks in this type of setup are kept by Simics within a defined window of virtual time.
+As the clocks are driven individually, this leads to temporal decoupling between the processors.</dd>
+</dl>
+<p>The documentation for the <a href="../rm-api/model-to-simulator-interfaces.html#execute_interface_t"><code>execute</code></a> interface describes how the Simics core controls the simulation.</p>
+<h2 id="processor-models-without-custom-scheduling"><a href="#processor-models-without-custom-scheduling">1.1 Processor Models without Custom Scheduling</a></h2>
+<p>Cycle driven models are typically slow because all objects run in lock-step mode, advancing one cycle at a time.
+The setup has a single clock object that handles timing for all objects.</p>
+<p>Figure <a class="reference" href="#exact_time_model">1</a> shows an example setup of event driven processors.
+This type of setup is suitable for clock-cycle-accurate HDL simulator models.</p>
+<figure id="exact_time_model">
+<p><img alt="" src="exact_time_model.png"> </p><figcaption>Figure 1. Event driven processors in Simics.</figcaption><p></p>
+</figure>
+<p>The objects in figure <a class="reference" href="#exact_time_model">1</a> are:</p>
+<dl>
+<dt id="dt:simics-core"><a href="#dt:simics-core">Simics core</a></dt>
+<dd>The Simics core providing simulation services through the Simics API.</dd>
+<dt id="dt:clock"><a href="#dt:clock">clock</a></dt>
+<dd>The Simics clock object implementing the <code>execute</code> interface and the <code>cycle</code> interface.
+The clock handles all timing in the system.</dd>
+<dt id="dt:thread-core"><a href="#dt:thread-core">thread/core</a></dt>
+<dd>The thread/core objects are placeholders for each simulated thread/core.
+They implement standard processor interfaces such as the <code>processor_info_v2</code>, <code>int_register</code>, and <code>exception</code> interfaces.
+These interfaces are used by standard Simics commands for showing time, events, register contents, instruction disassemble, etc.</dd>
+<dt id="dt:memory-space"><a href="#dt:memory-space">memory-space</a></dt>
+<dd>Generic Simics memory-space objects handling memory accesses.</dd>
+<dt id="dt:device"><a href="#dt:device">device</a></dt>
+<dd>Device models for the system.</dd>
+</dl>
+<h2 id="scheduling-a-set-of-processors"><a href="#scheduling-a-set-of-processors">1.2 Scheduling a Set of Processors</a></h2>
+<p>In the setup shown in figure <a class="reference" href="#cosim_queue_in_blobb">2</a>, the processors export one implementation of the time event queue instead of having a Simics object do that.
+The result is that the processor model has better control of when new events are added, and the processor model itself triggers the events.
+The Simics core instructs the scheduler to run the simulation forward through the <code>execute</code> interface.
+All objects in a cell implementing the <code>execute</code> interface will be kept within a time window defined by the <code>time_quantum</code> attribute of the cell.
+Having a quantum that is significantly larger than a single cycle (as in a cycle driven model) allows for faster simulation since optimizations such as binary translation and hypersimulation can then be employed.</p>
+<figure id="cosim_queue_in_blobb">
+<p><img alt="" src="cosim_queue_in_blobb.png"> </p><figcaption>Figure 2. Scheduling a set of processors.</figcaption><p></p>
+</figure>
+<p>The objects in figure <a class="reference" href="#cosim_queue_in_blobb">2</a> are:</p>
+<dl>
+<dt id="dt:simics-core-2"><a href="#dt:simics-core-2">Simics core</a></dt>
+<dd>The Simics core providing simulation services through the Simics API.</dd>
+<dt id="dt:scheduler"><a href="#dt:scheduler">scheduler</a></dt>
+<dd>Implements the <code>execute</code> and <code>cycle</code> interfaces.
+Simics core and devices will use this object for posting events and for driving the simulation.
+The scheduler object may correspond to something particular in hardware, such as a processor with multiple cores.</dd>
+<dt id="dt:thread-core-2"><a href="#dt:thread-core-2">thread/core</a></dt>
+<dd>The thread/core objects are placeholders for each simulated thread/core.
+They implement standard processor interfaces for example the <code>processor_info_v2</code> interface.
+These interfaces are used by standard Simics commands for showing time, events, register contents, instruction disassemble, etc.</dd>
+<dt id="dt:memory-space-2"><a href="#dt:memory-space-2">memory-space</a></dt>
+<dd>Generic Simics memory-space objects handling memory accesses.</dd>
+<dt id="dt:device-2"><a href="#dt:device-2">device</a></dt>
+<dd>Device models for the system.</dd>
+</dl>
+<p>The processor model has control of time and can optimize for running long quanta.
+The Simics core notifies the execute object that it can start to execute and it is up to the implementation to control how everything is scheduled.
+The threads/cores may be simulated in parallel with multiple threads.
+Note that care must be taken if for example deterministic execution should be supported.</p>
+<p>An example system with this setup can be found in <code>[simics]/targets/cosim/queues-in-cosimulator.simics</code>.
+The source code for the example can be found in <code>[simics]/src/extensions/sample-risc</code>.</p>
+<h2 id="scheduling-each-processor"><a href="#scheduling-each-processor">1.3 Scheduling Each Processor</a></h2>
+<p>In the setup shown in figure <a class="reference" href="#execute_per_thread">3</a>, each processor implements the scheduling interfaces.
+This is a special case of the previous mechanism where each set of processors only include a single processor.
+The Simics core instructs the scheduler to run the simulation forward through the <code>execute</code> interface.
+All objects in a cell implementing the <code>execute</code> interface will be kept within a time window defined by the <code>time_quantum</code> attribute of the cell.
+Having a quantum that is significantly larger than a single cycle (as in a cycle driven model) allows for faster simulation since optimizations such as binary translation and hypersimulation can then be employed.</p>
+<figure id="execute_per_thread">
+<p><img alt="" src="execute_per_thread.png"> </p><figcaption>Figure 3. Scheduling Each Processor.</figcaption><p></p>
+</figure>
+<p>The objects in figure <a class="reference" href="#execute_per_thread">3</a> are:</p>
+<dl>
+<dt id="dt:simics-core-3"><a href="#dt:simics-core-3">Simics core</a></dt>
+<dd>The Simics core providing simulation services through the Simics API.</dd>
+<dt id="dt:thread-core-3"><a href="#dt:thread-core-3">thread/core</a></dt>
+<dd>The thread/core objects implement both the execution related interfaces (<code>execute</code> and <code>cycle</code>), and the interfaces used to control and inspect the individual cores (<code>processor_info_v2</code>, <code>step</code>, <code>int_register</code>, etc).</dd>
+<dt id="dt:memory-space-3"><a href="#dt:memory-space-3">memory-space</a></dt>
+<dd>Generic Simics memory-space objects handling memory accesses.</dd>
+<dt id="dt:device-3"><a href="#dt:device-3">device</a></dt>
+<dd>Device models for the system.</dd>
+</dl>
+<p>This model is similar to the previous model with the difference that each thread/core defines its own time domain.
+This also means that each object will be driven individually by the Simics core.
+This is the type of model used by all standard processor models in Simics.</p>
+
+<div class="chain">
+<a href="index.html">Processor Model Integration Guide</a>
+<a href="simulation-scheduling.html">2 Simulation Scheduling</a>
+</div>

@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;telemetry_manager&gt;.list</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-telemetry_manager.info.html">&lt;telemetry_manager&gt;.info</a>
+<a href="rm-cmd-telemetry_manager.status.html">&lt;telemetry_manager&gt;.status</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="telemetry_manager.list"></a>
+<h1 id="telemetry_manager.list"><a href="#telemetry_manager.list">&lt;telemetry_manager&gt;.list</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;telemetry_manager&gt;.list</b> ([ <i>"groups"</i> ... ] | list of <i>"groups"</i>) ([ <i>"keys"</i> ... ] | list of <i>"keys"</i>) [<i>"value-regexp"</i>] [<i>num-entries</i>] [-clear] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+List the latest collected entries. Telemetry entries are only collected if the environment variable SIMICS_TELEMETRY_COLLECT_ENTRIES has been set before Simics is launched. The collected entries are the arguments used when calling &lt;telemetry_manager&gt;.add_data, and does not include any postprocessing according to the Simics telemetry syntax (in <em>key</em>).
+<p>
+By default, the 10 latest entries are shown. To show more entries, set <i>num-entries</i>. To see all entries, set <i>num-entries</i> to -1. Filter telemetry entries by setting <i>groups</i> or <i>keys</i>. The <i>groups</i> and <i>keys</i> have a completion based on current entries. To filter on values, set the <i>value-regexp</i> to a regular expression. To clear the entries listed by the command (not the actual telemetry entries), use <tt>-clear</tt>.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics-telemetry.html">simics-telemetry</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-telemetry_manager.info.html">&lt;telemetry_manager&gt;.info</a>
+<a href="rm-cmd-telemetry_manager.status.html">&lt;telemetry_manager&gt;.status</a>
+</div>

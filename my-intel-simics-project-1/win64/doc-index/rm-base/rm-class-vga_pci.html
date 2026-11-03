@@ -1,0 +1,373 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>vga_pci</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-vga.html">vga</a>
+<a href="rm-class-virtio-mmio-entropy.html">virtio-mmio-entropy</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="vga_pci"><a href="#vga_pci">vga_pci</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The VGA-PCI device is identical to the VGA device except it connects to a PCII bus instead of the ISA bus. This functionality of this device can also be inherited by more advanced graphic devices such as the accel-vga device. Limitations: Not all possible video modes are tested. The CGA Compatibility modes are not yet supported. Different character maps are not yet supported. Read Mode 1 is not yet implemented. Panning is not supported. Split Screen is not supported. Blinking text is not supported. Blinking color in video mode 0xf is not supported. Underlining in MDA compatibility mode is not supported. Extend ninth bit in text mode is not implemented.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, video, pci_device, io_memory, vga_text, vga_update, vga_text_info
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-vga_pci.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-vga_pci.redraw.html">redraw</a>
+ – redraw display</li>
+<li>
+<a href="rm-cmd-vga_pci.refresh-rate.html">refresh-rate</a>
+ – set refresh rate for the display</li>
+<li>
+<a href="rm-cmd-vga_pci.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-vga_pci.text-dump.html">text-dump</a>
+ – print text contents of display</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>The PCI bus this device is connected to, implementing the <tt>pci-bus</tt> interface.</dd>
+<dt id="dt:interrupt_pin"><a href="#dt:interrupt_pin">
+<i>interrupt_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiii]</code>
+<br>State of the interrupt pin.</dd>
+<dt id="dt:config_registers"><a href="#dt:config_registers">
+<i>config_registers</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{64}]</code>
+<br>The 64 PCI configuration registers, each 32 bits in size.</dd>
+<dt id="dt:write_masks"><a href="#dt:write_masks">
+<i>write_masks</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[ii]*]</code>
+<br>Write masks for all registered configuration registers. The format for each entry is (offset, mask).</dd>
+<dt id="dt:mappings"><a href="#dt:mappings">
+<i>mappings</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[i{5:8}]|[iiiiiiiio|nii]*]</code>
+<br>List of all current PCI IO and memory mappings.</dd>
+<dt id="dt:expansion_rom"><a href="#dt:expansion_rom">
+<i>expansion_rom</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|[oii]</code>
+<br>ROM object, map size, and map function number for the Expansion ROM.</dd>
+<dt id="dt:config_register_info"><a href="#dt:config_register_info">
+<i>config_register_info</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[isii]*]</code>
+<br>Register info for all registered configuration registers. The format for each entry is (offset, name, size, write-mask).</dd>
+<dt id="dt:memory_space"><a href="#dt:memory_space">
+<i>memory_space</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Memory space to which the device is mapped. Needed for dynamic remapping.</dd>
+<dt id="dt:console"><a href="#dt:console">
+<i>console</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Console object that must implement either gfx_con or both the serial_device and extended_serial interfaces.</dd>
+<dt id="dt:crtc_regs"><a href="#dt:crtc_regs">
+<i>crtc_regs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>(<i>Register-0</i> ... <i>Register-24</i>) is a list of CRTC registers.</dd>
+<dt id="dt:crtc_next"><a href="#dt:crtc_next">
+<i>crtc_next</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Integer register representing the next CRTC address.</dd>
+<dt id="dt:attrib_regs"><a href="#dt:attrib_regs">
+<i>attrib_regs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>(<i>Register-0</i> ... <i>Register-20</i>) is a list of attribute registers.</dd>
+<dt id="dt:attrib_next_index"><a href="#dt:attrib_next_index">
+<i>attrib_next_index</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Decides whether the next access to an attribute controller register (through port 0x3C0) will contain an address or data.</dd>
+<dt id="dt:attrib_next_reg"><a href="#dt:attrib_next_reg">
+<i>attrib_next_reg</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The address of the attribute controller register designated for the next access.</dd>
+<dt id="dt:attrib_video_enable"><a href="#dt:attrib_video_enable">
+<i>attrib_video_enable</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Decides whether video is enabled or not.</dd>
+<dt id="dt:seq_regs"><a href="#dt:seq_regs">
+<i>seq_regs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>(<i>Register-0</i> ... <i>Register-4</i>) is a list of sequence registers found in the VGA adapter.</dd>
+<dt id="dt:seq_next"><a href="#dt:seq_next">
+<i>seq_next</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Represents the address of the sequence register designated for the next read/write access.</dd>
+<dt id="dt:gfx_regs"><a href="#dt:gfx_regs">
+<i>gfx_regs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>(<i>Register-0</i> ... <i>Register-8</i>) is a list of the nine graphics controller registers found in an VGA adapter.</dd>
+<dt id="dt:gfx_next"><a href="#dt:gfx_next">
+<i>gfx_next</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Represents the address of the graphics controller register designated for the next read/write access.</dd>
+<dt id="dt:gfx_latch"><a href="#dt:gfx_latch">
+<i>gfx_latch</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiii]</code>
+<br>(<i>Latch-0</i> ... <i>Latch-4</i>) List of four graphics data controller latches.</dd>
+<dt id="dt:pel_mask"><a href="#dt:pel_mask">
+<i>pel_mask</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>PEL mask register.</dd>
+<dt id="dt:ramdac_rw_state"><a href="#dt:ramdac_rw_state">
+<i>ramdac_rw_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>RAMDAC read/write state.</dd>
+<dt id="dt:pel_addr"><a href="#dt:pel_addr">
+<i>pel_addr</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>PEL address register.</dd>
+<dt id="dt:pel_next_color"><a href="#dt:pel_next_color">
+<i>pel_next_color</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Next color in access to PEL data register (read, green, or blue).</dd>
+<dt id="dt:pel_pal"><a href="#dt:pel_pal">
+<i>pel_pal</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[iii]{256}]</code>
+<br>((<i>red</i>, <i>green</i>, <i>blue</i>) ... (<i>red</i>, <i>green</i>, <i>blue</i>)) List of 256 colors, each a tuple of red, green, and blue.</dd>
+<dt id="dt:misc_reg"><a href="#dt:misc_reg">
+<i>misc_reg</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Miscellaneous output register.</dd>
+<dt id="dt:h_cnt"><a href="#dt:h_cnt">
+<i>h_cnt</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Horizontal counter (used for generating retrace signals).</dd>
+<dt id="dt:v_cnt"><a href="#dt:v_cnt">
+<i>v_cnt</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Vertical counter (used for generating retrace signals).</dd>
+<dt id="dt:refresh_rate"><a href="#dt:refresh_rate">
+<i>refresh_rate</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Refresh rate (in hertz). Set to 0 to disable screen refresh</dd>
+<dt id="dt:text_refresh_rate"><a href="#dt:text_refresh_rate">
+<i>text_refresh_rate</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Rate (in hertz) of virtual time that VGA text data is sent to the console. Set to 0 to disable text refresh</dd>
+<dt id="dt:refresh_based_on_virtual_time"><a href="#dt:refresh_based_on_virtual_time">
+<i>refresh_based_on_virtual_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, then the refresh rate will refresh the screen based on virtual time, otherwise the refresh will be based on real time. Real time is the default.</dd>
+<dt id="dt:image"><a href="#dt:image">
+<i>image</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Image object containing the VRAM.</dd>
+<dt id="dt:redraw"><a href="#dt:redraw">
+<i>redraw</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>a</code>
+<br>Forces a complete update when set.</dd>
+<dt id="dt:text_page"><a href="#dt:text_page">
+<i>text_page</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>n|[s*]</code>
+<br>A list representation (one line per element) of the text mode contents.</dd>
+<dt id="dt:view_size_x"><a href="#dt:view_size_x">
+<i>view_size_x</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>With of the internal cache.</dd>
+<dt id="dt:view_size_y"><a href="#dt:view_size_y">
+<i>view_size_y</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>Height of the internal cache.</dd>
+<dt id="dt:dump_charset"><a href="#dt:dump_charset">
+<i>dump_charset</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Write-only pseudo attribute. A write operation will print the current character map to the console if the vga device is in alpha-numeric mode.</dd>
+<dt id="dt:vga_memory"><a href="#dt:vga_memory">
+<i>vga_memory</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>d</code>
+<br>Contains the VGA memory (256 KB of data).</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.vga-pci.html">vga-pci</a>
+</section>
+<div class="chain">
+<a href="rm-class-vga.html">vga</a>
+<a href="rm-class-virtio-mmio-entropy.html">virtio-mmio-entropy</a>
+</div>

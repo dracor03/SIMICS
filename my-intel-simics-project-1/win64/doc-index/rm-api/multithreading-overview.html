@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Overview</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="threading-model.html">Threading Model</a>
+<a href="basic-module-requirements.html">Basic Module Requirements</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="threading-model.html">Threading Model</a>
+&nbsp;/&nbsp;</div><h1 id="overview"><a href="#overview">Overview</a></h1>
+<p>At the highest level, a Simics configuration is partitioned into one or multiple <em>simulation cells</em>. Each cell can be simulated in parallel with the other cells, with maintained determinism.</p>
+<figure id="cell_partitioning-1">
+<p><img alt="" src="cell.png"> </p><figcaption>Figure 2. Configuration is partitioned into cells. Cell membership is determined<br>
+by following <code>queue</code> and <code>cell</code> attributes to an actual cell object.</figcaption><p></p>
+</figure>
+<p>Distinct cells are <em>loosely coupled</em>. A typical example is a multi-machine configuration, where each machine consists of a single cell, and where the machines are connected with a simulated Ethernet network. Communication between cells occurs through special objects called <em>links</em> that forward messages between cells.</p>
+<p>A device model should not access objects belonging to a different cell directly.</p>
+<p>Each cell is partitioned into one or more <em>thread domains</em>. Models belonging to different thread domains can be simulated in parallel. However, objects within a single thread domain can only be accessed by a single thread at a time, namely by the <em>thread currently holding the domain</em>. A thread domain should be thought of as a high-level locking construct ensuring single-threaded access to the objects it contains.</p>
+<figure id="td_partitioning">
+<p><img alt="" src="thread-domains.png"> </p><figcaption>Figure 3. Each cell is partitioned into thread domains.</figcaption><p></p>
+</figure>
+<p>Unlike the cell partitioning, which is static and given by the configuration, the partitioning of a cell into thread domains is performed by Simics as a function of the selected simulation mode, model capabilities, and any declared thread domain constraints.</p>
+<p>The thread domains in a cell are not all equal.
+The thread domain which contains the cell object itself is special and is called the <strong>cell thread domain</strong> (cell TD).
+Objects residing in this domain use a very permissive device model, the <a href="multithreading-standard-device-model.html"><strong>Standard Device Model</strong></a>.
+Among other things, such models do not need to worry about thread domain boundary crossings or threading issues.
+Most models use this device model.</p>
+<p>Models located in thread domains other than the cell TD are called thread-aware, and use the more restrictive <a href="multithreading-threaded-cpu.html"><strong>Threaded Device Model</strong></a>.</p>
+<p>The threads used to actually simulate the models are usually created by Simics, but models can also create their own threads.
+The Simics scheduler is briefly discussed in the <a href="multithreading-scheduler.html">Simics Scheduler</a> section.</p>
+
+<div class="chain">
+<a href="threading-model.html">Threading Model</a>
+<a href="basic-module-requirements.html">Basic Module Requirements</a>
+</div>

@@ -1,0 +1,341 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.9 Using Breakpoints</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="target-software-debugging.html">8.8 Debugging Target Software</a>
+<a href="code-coverage-of-target-software.html">8.10 Code Coverage of Target Software</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="using-breakpoints"><a href="#using-breakpoints">8.9 Using Breakpoints</a></h1>
+<p>Besides the <em>source code</em> or <em>address</em> breakpoints demonstrated in the
+<a href="target-software-debugging.html">debugging</a> section, the Intel Simics simulator
+provides several other types of breakpoints:</p>
+<h2 id="overview-of-breakpoints"><a href="#overview-of-breakpoints">8.9.1 Overview of Breakpoints</a></h2>
+<p>These are some examples of breakpoints:</p>
+<ul>
+<li><em>Hardware events</em>
+<ul>
+<li><em>memory access</em> - break when an address range is accessed</li>
+<li><em>register access</em> - break when a device, bank, or special purpose register
+is accessed</li>
+<li><em>target serial console</em> - break when a string is output</li>
+<li><em>target graphics console</em> - break when a bitmap is shown</li>
+<li><em>exceptions/interrupt</em> - break when there is an exception or interrupt</li>
+</ul>
+</li>
+<li><em>Simulation</em>
+<ul>
+<li><em>time</em> - break after a specified number of seconds, cycles, or steps</li>
+<li><em>logs</em> - break on a specific log message</li>
+</ul>
+</li>
+<li><em>Target software</em>
+<ul>
+<li><em>processes/threads</em> - break when a process or thread becomes active or
+inactive</li>
+<li><em>magic instruction</em> - break when a magic instruction is executed</li>
+</ul>
+</li>
+</ul>
+<h2 id="finding-breakpoint-commands"><a href="#finding-breakpoint-commands">8.9.2 Finding Breakpoint Commands</a></h2>
+<p>To list breakpoint related commands, use the <code>help</code> command the <code>Breakpoints</code>
+category:</p>
+<pre><code class="language-simics">simics&gt; <strong>help category:Breakpoints</strong>
+...
+&lt;bp-manager.time&gt;.break           set time breakpoint
+&lt;bp-manager.time&gt;.run-until       run until specified time
+&lt;bp-manager.time&gt;.trace           enable tracing of time points
+&lt;bp-manager.time&gt;.wait-for        wait for specified time
+...
+</code></pre>
+<p>In the shortened list of break commands above, note that there are different
+command types:</p>
+<ul>
+<li><code>break</code> - create a breakpoint</li>
+<li><code>run-until</code> - set a temporary breakpoint and run until this (or some other
+reason to stop) triggers</li>
+<li><code>trace</code> - trace when the break condition is true</li>
+<li><code>wait-for</code> - command specific to <code>script-branches</code> not described in this
+manual (see <a href="../simics-user-guide/script-support-in-simics.html#script-branches"><em>Simics User’s
+Guide</em></a>)</li>
+</ul>
+<h2 id="the-breakpoint-manager"><a href="#the-breakpoint-manager">8.9.3 The Breakpoint Manager</a></h2>
+<p>Most breakpoint commands are implemented by the <a href="../simics-user-guide/debug.html#the-breakpoint-manager">breakpoint
+manager</a>, which is an
+object named <code>bp</code>. To list the different breakpoint types that the <em>breakpoint
+manager</em> implements, use <code>bp.list-types</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list-types</strong>
+┌───────────────────┬────────────────────────────────────────┐
+│     Provider      │            Breakpoint type             │
+├───────────────────┼────────────────────────────────────────┤
+│bp.bank            │device access                           │
+│bp.console_string  │target console string output breakpoints│
+│bp.control_register│control register access breakpoints     │
+│bp.cycle           │cycle queue breakpoints                 │
+│bp.cycle_event     │cycle event breakpoints                 │
+│bp.exception       │exception breakpoints                   │
+│bp.gfx             │graphics console output breakpoints     │
+│bp.hap             │hap occurrence breakpoints              │
+│bp.log             │log message breakpoints                 │
+│bp.magic           │magic breakpoints                       │
+│bp.memory          │memory access breakpoints               │
+│bp.notifier        │notifier trigger breakpoints            │
+│bp.os_awareness    │OS Awareness breakpoints                │
+│bp.source_line     │source code line breakpoints            │
+│bp.source_location │source code location breakpoints        │
+│bp.step            │step queue breakpoints                  │
+│bp.step_event      │step event breakpoints                  │
+│bp.time            │virtual time breakpoints                │
+└───────────────────┴────────────────────────────────────────┘
+</code></pre>
+<p>A breakpoint created with <code>bp.&lt;type&gt;.break</code> is assigned a <em>breakpoint identity</em>,
+and this identity can be used to inspect or manipulate that specific breakpoint.
+These are some common commands:</p>
+<ul>
+<li><code>bp.delete</code>
+delete a specific or all breakpoints</li>
+<li><code>bp.disable</code> / <code>bp.enable</code>
+disable or enable a specific or all breakpoints</li>
+<li><code>bp.ignore-count</code>
+ignore first <code>x</code> number of breakpoint triggers</li>
+<li><code>bp.show</code>
+show all information about a breakpoint</li>
+<li><code>bp.list</code>
+show brief information about all breakpoints</li>
+<li><code>bp.test-trigger</code>
+manually trigger a breakpoint</li>
+</ul>
+<h2 id="breakpoint-examples"><a href="#breakpoint-examples">8.9.4 Breakpoint Examples</a></h2>
+<p>Here follow a few examples of how to use breakpoints.</p>
+<h3 id="execution-breakpoint"><a href="#execution-breakpoint">8.9.4.1 Execution Breakpoint</a></h3>
+<p>In this example, we set an execution breakpoint on a memory address.</p>
+<ul>
+<li>
+<p>Launch of the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-shell">./simics qsp-x86/firststeps
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>Disassemble a couple of addresses:</p>
+<pre><code class="language-simics">simics&gt; <strong>disassemble count = 2</strong>
+cs:0x000000000000fff0 p:0x00000fffffff0  nop
+cs:0x000000000000fff1 p:0x00000fffffff1  nop
+</code></pre>
+<p>Apparently, we will reach the address <code>p:0xfffffff1</code>.
+Let’s set an execution breakpoint on this address.</p>
+</li>
+<li>
+<p>Set an execution breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.memory.break -x address = p:0xfffffff1</strong>
+Breakpoint 3: break on 'x' access to 0xfffffff1 in board.mb.cpu0.mem[0][0]
+</code></pre>
+</li>
+</ul>
+<p>The breakpoint got the breakpoint identifier 3, probably since the target itself
+has created breakpoints.</p>
+<ul>
+<li>
+<p>Check the status of the breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.show 3</strong>
+Breakpoint 3 (board.mb.cpu0.mem[0][0] break matching (addr=0xfffffff1, len=1, access=x))
+========================================================================================
+
+            Enabled : True
+       Ignore Count : 0
+             Object : board.mb.cpu0.mem[0][0]
+            Planted : True
+    Provider/Action : bp.memory/break
+           Region-0 : phys-x   0x00000000fffffff1 0x00000000fffffff1
+            Oneshot : False
+</code></pre>
+</li>
+</ul>
+<p>From this, we can see that the breakpoint is planted on the memory object
+<code>board.mb.cpu0.mem[0][0]</code>, has a length of <code>1</code>, is <em>enabled</em> and has been
+<em>planted</em>.</p>
+<ul>
+<li>
+<p>Run the simulation and observe that the breakpoint triggers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+[board.mb.cpu0.mem[0][0]] Breakpoint 3: board.mb.cpu0.mem[0][0] 'x' access to p:0xfffffff1
+simics&gt; <strong>disassemble</strong>
+cs:0x000000000000fff1 p:0x00000fffffff1  nop
+</code></pre>
+</li>
+</ul>
+<p>The breakpoint text and <code>disassemble</code> reveals that we have reached the
+0xfffffff1 address.</p>
+<ul>
+<li>
+<p>We can also list information about all breakpoints, and can see that the
+breakpoint has triggered once (<code>Hit count</code>):</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list</strong>
+┌──┬─────────────────────────────────────┬───────┬───────┬────────────┬─────────┐
+│ID│            Description              │Enabled│Oneshot│Ignore count│Hit count│
+├──┼─────────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 1│Clock board.mb.cpu0.core[0][0] break │ true  │ false │           0│        0│
+│  │at time 5.0                          │       │       │            │         │
+├──┼─────────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 2│Console 'board.serconsole.con' break │ true  │ false │           0│        0│
+│  │on "root.*@grml.*#.* " (regexp)      │       │       │            │         │
+├──┼─────────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 3│board.mb.cpu0.mem[0][0] break        │ true  │ false │           0│        1│
+│  │matching (addr=0xfffffff1, len=1,    │       │       │            │         │
+│  │access=x)                            │       │       │            │         │
+└──┴─────────────────────────────────────┴───────┴───────┴────────────┴─────────┘
+</code></pre>
+</li>
+<li>
+<p>Delete the breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.delete id = 3</strong>
+</code></pre>
+</li>
+</ul>
+<h3 id="exception-breakpoint"><a href="#exception-breakpoint">8.9.4.2 Exception Breakpoint</a></h3>
+<p>In this example, we will write an illegal instruction, and break on the
+exception that is raised when executing the illegal instruction.</p>
+<ul>
+<li>
+<p>Launch of the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-shell">./simics qsp-x86/firststeps
+simics&gt;
+</code></pre>
+<p>From the earlier <a href="#execution-breakpoint">example</a>, we know that the address
+p:0x0fffffff1 will be executed.</p>
+</li>
+<li>
+<p>Write an illegal instruction <code>UD2</code> (<code>0F 0B</code>) to the physical address
+<code>0xfffffff1</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>set address=0xfffffff1 value=0x0b0f size=2 -l</strong>
+</code></pre>
+<p>We can now check the written instruction:</p>
+<pre><code class="language-simics">simics&gt; <strong>da address = p:0xfffffff1</strong>
+p:0x00000fffffff1  ud2
+</code></pre>
+</li>
+<li>
+<p>Plant an exception breakpoint:</p>
+<p>We will now use <code>bp.exception.break</code> to add an exception breakpoint on all
+(<code>-all</code>) exceptions.</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.exception.break -all</strong>
+Breakpoint 3: Break on any exception for the following objects:
+board.mb.cpu0.core[0][0]
+</code></pre>
+</li>
+</ul>
+<p>We got breakpoint identity <code>3</code> and the breakpoint was planted on
+<code>board.mb.cpu0.core[0][0]</code></p>
+<ul>
+<li>
+<p>Run the simulation until the breakpoint triggers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+[board.mb.cpu0.core[0][0]] Breakpoint 3: board.mb.cpu0.core[0][0] Invalid_Opcode_Exception(6) exception triggered
+</code></pre>
+</li>
+</ul>
+<p>The exception that triggered the breakpoint was <code>Invalid_Opcode_Exception(6)</code>.</p>
+<ul>
+<li>
+<p>Verify that the breakpoint has triggered by observing the <code>Hit count</code> value:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.show 3</strong>
+Breakpoint 3 (Break on any exception on the following objects:
+board.mb.cpu0.core[0][0])
+==============================================================
+
+            Enabled : True
+       Ignore Count : 0
+             Object : board.mb.cpu0.core[0][0]
+            Planted : True
+    Provider/Action : bp.exception/break
+            Oneshot : False
+
+Hit Counts:
+    hits : 1
+</code></pre>
+</li>
+</ul>
+<h3 id="log-breakpoint"><a href="#log-breakpoint">8.9.4.3 Log Breakpoint</a></h3>
+<p>In this example, we will plant a temporary (<code>-once</code>) log breakpoint that
+triggers when the object <code>board.mb.sb</code>, or one of its child objects, logs an
+<code>info</code> log that contains the string <code>lower</code>. The selection of child objects is
+achieved with the <code>-recursive</code> flag.</p>
+<ul>
+<li>
+<p>Launch of the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-shell">./simics qsp-x86/firststeps
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>Plant the breakpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.log.break type = info object = board.mb.sb -recursive substr = "lower" -once</strong>
+Breakpoint 3: Break on 'info' log messages matching 'lower' from board.mb.sb hierarchy
+</code></pre>
+</li>
+<li>
+<p>Observe the breakpoint properties:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.show 3</strong>
+Breakpoint 3 (Break on info log messages matching 'lower' from board.mb.sb hierarchy)
+=====================================================================================
+
+            Enabled : True
+       Ignore Count : 0
+             Object : board.mb.sb
+            Planted : True
+    Provider/Action : bp.log/break
+            Oneshot : True
+
+Hit Counts:
+    hits : 0
+</code></pre>
+</li>
+<li>
+<p>To make sure that the <code>info</code> log is produced (so that our breakpoint is
+triggered), raise the log level to 3 on our <code>board.mb.sb</code> object and all of
+its child objects:</p>
+<pre><code class="language-simics">simics&gt; <strong>log-level object = board.mb.sb -r level = 3</strong>
+[board.mb.sb] Changing log level recursively: 1 -&gt; 3
+</code></pre>
+</li>
+<li>
+<p>Run the simulation until the breakpoint triggers:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+[board.mb.sb.lpc info] pin smi_pin lowered
+[board.mb.sb.lpc] Breakpoint 3: board.mb.sb.lpc log message of type info matching 'lower'
+@assert conf.board.mb.sb.lpc.log_buffer[-1][-1][-1][0] == "pin smi_pin lowered:"
+</code></pre>
+</li>
+</ul>
+<p>The breakpoint was triggered by the object <code>board.mb.sb.lpc</code> with the log
+message <code>[board.mb.sb.lpc info] pin smi_pin lowered</code>.</p>
+<ul>
+<li>
+<p>Since the breakpoint was temporary (<code>-once</code>), the breakpoint should now have
+been automatically deleted:</p>
+<pre><code class="language-simics">simics&gt; <strong>bp.list</strong>
+┌──┬────────────────────────────────┬───────┬───────┬────────────┬─────────┐
+│ID│          Description           │Enabled│Oneshot│Ignore count│Hit count│
+├──┼────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 1│Clock board.mb.cpu0.core[0][0]  │ true  │ false │           0│        0│
+│  │break at time 5.0               │       │       │            │         │
+├──┼────────────────────────────────┼───────┼───────┼────────────┼─────────┤
+│ 2│Console 'board.serconsole.con'  │ true  │ false │           0│        0│
+│  │break on "root.*@grml.*#.* "    │       │       │            │         │
+│  │(regexp)                        │       │       │            │         │
+└──┴────────────────────────────────┴───────┴───────┴────────────┴─────────┘
+</code></pre>
+</li>
+</ul>
+
+<div class="chain">
+<a href="target-software-debugging.html">8.8 Debugging Target Software</a>
+<a href="code-coverage-of-target-software.html">8.10 Code Coverage of Target Software</a>
+</div>

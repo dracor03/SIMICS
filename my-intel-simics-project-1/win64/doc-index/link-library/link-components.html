@@ -1,0 +1,92 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 Link Components</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="communication-interfaces.html">6 Communication Interfaces</a>
+</div>
+<div class="path">
+<a href="index.html">Link Library Programming Guide</a>
+&nbsp;/&nbsp;</div><h1 id="link-components"><a href="#link-components">7 Link Components</a></h1>
+<p>To be part of a standard, component-based configuration, new links have to provide a component that will wrap the link implementation and handle connections.
+An important role of the link component is to create and destroy endpoint objects as the connections are being made.</p>
+<p>Links tend to share a lot of common functionality, and link components are no exceptions.
+The link library provides two interfaces to easily create link components.</p>
+<h2 id="simple-component"><a href="#simple-component">7.1 Simple Component</a></h2>
+<p>The simplest way to create a link component is to use the <code>link_components.create_simple()</code> function. Here is the component definition for <code>datagram_link</code>:</p>
+<pre><code>from link_components import create_simple
+
+class datagram_link(
+    create_simple(link_class = 'datagram_link_impl',
+                  endpoint_class = 'datagram_link_endpoint',
+                  connector_type = 'datagram-link',
+                  class_desc = "datagram link",
+                  basename = 'datagram_link')):
+    """The datagram link component creates a datagram-link, which is a simple
+    broadcast bus forwarding messages (as sequences of bytes) from a sender
+    device to all other devices present of the link. The datagram-link is both
+    an example of how to build a link with the Simics Link Library, and a
+    simple broadcast link that can be reused when multi-cell communication
+    between devices is necessary. Refer to the &lt;cite&gt;Link Library Programming
+    Guide&lt;/cite&gt; for more information."""
+</code></pre>
+<p>Using this simplified method assumes that the link fulfills a number of requirements:</p>
+<ul>
+<li>The link object can be created without additional configuration.</li>
+<li>There is no restriction on the number of connections to the link, beyond the connector type check that is done at the component level.
+The link connector takes either an object or an [object, port] two-element list as argument.
+Device connectors should accept an endpoint object as argument.</li>
+<li>The link has only one endpoint class. An endpoint can be created without additional configuration.</li>
+</ul>
+<p>Further information is available in the <code>link_components.create_simple()</code> API description, in the <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+<p>If the new link type does not comply with the limitations above, a slightly more complex interface is available.</p>
+<h2 id="custom-component"><a href="#custom-component">7.2 Custom Component</a></h2>
+<p>When more flexibility is required, it is possible to create a new component class inheriting from <code>link_components.link_component</code>.
+Two functions should be overridden to control how the component handles connections:</p>
+<pre><code>class ethernet_switch(link_components.link_component):
+    """Ethernet switch: this component represents a switched Ethernet network,
+    allowing any number of devices to connect and optimizing the packet routing
+    according to what is learned about the MAC addresses talking on the link."""
+
+    _class_desc = 'an Ethernet switch component'
+    _help_categories = ['Networking']
+
+    class basename(link_components.link_component.basename):
+        val = 'ethernet_switch'
+
+    def create_unconnected_endpoint(self, cnt):
+        return create_vlan_switch_endpoint(self.get_slot('link'), None,
+                                           None, True)
+
+    def register_connector_templates(self):
+        self.eth_tmpl = self.add_link_connector_template(
+            name = 'ethernet-link-connector',
+            type = 'ethernet-link',
+            growing = True,
+            create_unconnected_endpoint = self.create_unconnected_endpoint)
+
+    def add_objects(self):
+        self.add_pre_obj_with_name('link', 'eth-switch-link',
+                                   self.get_link_object_name(),
+                                   goal_latency = self.goal_latency.val,
+                                   global_id = self.global_id.val)
+        self.add_link_connector('device', self.eth_tmpl)
+
+    def get_free_connector_cmd(self):
+        c = self.get_unconnected_connector_object('device')
+        if not c:
+            raise cli.CliError('Internal error: no connectors found')
+        return c.name
+</code></pre>
+<p><code>register_connector_templates()</code> is responsible for registering the description—called <em>template</em> here—of the connectors that will be allowed in the link.
+Each connector template can be associated with a number of functions that will be called when a connection is attempted, is successful, or is destroyed.
+Each connector template can also be defined as growing, meaning that new connectors will be added dynamically to make sure there is always one connector free.</p>
+<p><code>add_objects()</code> is responsible for creating the necessary link object and the initial connectors.</p>
+<p>A more complete explanation of these functions is available in the component API in the  <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+
+<div class="chain">
+<a href="communication-interfaces.html">6 Communication Interfaces</a>
+</div>

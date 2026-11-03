@@ -1,0 +1,324 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Obsolete Device API Functions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-types-obsolete.html">Obsolete Device API Data Types</a>
+<a href="model-to-model-interfaces.html">Model to Model Interfaces</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="obsolete-device-api-types-and-functions.html">Obsolete Device API Types and Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Obsolete Device API Functions</h1>
+<h2 id="SIM_is_loading_micro_checkpoint"><a href="#SIM_is_loading_micro_checkpoint">SIM_is_loading_micro_checkpoint</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_is_loading_micro_checkpoint — obsolete API function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+// only supported with SIMICS_API = 6
+bool
+SIM_is_loading_micro_checkpoint(conf_object_t *obj);
+</code></pre>
+<h2>Description</h2>
+<p>Don’t use. There is no longer a concept of micro-checkpoints after removal of reverse execution.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="dbuffer_append"><a href="#dbuffer_append">dbuffer_append, dbuffer_prepend, dbuffer_insert</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_append, dbuffer_prepend, dbuffer_insert — Add data to a dbuffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+uint8 *
+dbuffer_append(dbuffer_t *dbuffer, size_t len);
+
+uint8 *
+dbuffer_prepend(dbuffer_t *dbuffer, size_t len);
+
+uint8 *
+dbuffer_insert(dbuffer_t *dbuffer, size_t offset, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>These functions will extend the dbuffer with <code>len</code> bytes and return a pointer to the added bytes.  The <code>dbuffer_insert</code> function adds the new data at <code>offset</code> in the buffer, while the <code>dbuffer_prepend</code> and <code>dbuffer_append</code> functions add it at the beginning and end, respectively.</p>
+<p>The returned pointer points to a memory area that is only guaranteed to contain valid data for the newly added bytes, and it is illegal to reference data before it or more than <code>len-1</code> bytes ahead. The new memory area is not guaranteed to be initialized.</p>
+<p>The returned pointer is also only valid until the next operation on the dbuffer function, except for calling <a href="dev-api-obsolete.html#dbuffer_len"><code>dbuffer_len</code></a>.</p>
+</section>
+<h2 id="dbuffer_append_external_data"><a href="#dbuffer_append_external_data">dbuffer_append_external_data, dbuffer_prepend_external_data</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_append_external_data, dbuffer_prepend_external_data — Add static data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+uint8 *
+dbuffer_append_external_data(dbuffer_t *dbuffer, void *data,
+                             size_t len, bool adopt);
+
+uint8 *
+dbuffer_prepend_external_data(dbuffer_t *dbuffer, void *data,
+                              size_t len, bool adopt);
+</code></pre>
+<h2>Description</h2>
+<p>These functions work similar to <a href="dev-api-obsolete.html#dbuffer_append"><code>dbuffer_append</code></a> and <a href="dev-api-obsolete.html#dbuffer_append"><code>dbuffer_prepend</code></a>, but with the difference that the data isn’t copied.  Instead, the buffer will reference the data pointed to directly.</p>
+<p>If the <code>adopt</code> flag is true, the control of the data block is transferred to the dbuffer.  It is assumed to be a block allocated with <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC</code></a>, and will be freed with <a href="dev-api-alloc.html#MM_FREE"><code>MM_FREE</code></a> when the dbuffer is released.</p>
+<p>If the <code>adopt</code> flag is false, the dbuffer will not free the memory. Since there is no way to control the lifetime of the external reference if the dbuffer reference has been passed to another function, this option should never be used to point to memory on the stack or to memory that will eventually deallocated. Pointing to static memory is usually safe. This should also only be used for buffers that will only be read from, since there is no way to know when the external pointer is used, and when a copy is used.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#dbuffer_append"><code>dbuffer_append</code></a></p>
+</section>
+<h2 id="dbuffer_append_value"><a href="#dbuffer_append_value">dbuffer_append_value, dbuffer_prepend_value</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_append_value, dbuffer_prepend_value — Add data with uniform content</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+uint8 *
+dbuffer_append_value(dbuffer_t *dbuffer, int value, size_t len);
+
+uint8 *
+dbuffer_prepend_value(dbuffer_t *dbuffer, int value, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>This adds data to a dbuffer and sets all the added bytes to <code>value</code>.  It has the same effect as using <a href="dev-api-obsolete.html#dbuffer_append"><code>dbuffer_append</code></a> or <a href="dev-api-obsolete.html#dbuffer_append"><code>dbuffer_prepend</code></a> and calling <code>memset</code> to set the contents.</p>
+<p>The return value is a pointer to the data just added.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#dbuffer_append"><code>dbuffer_append</code></a></p>
+</section>
+<h2 id="dbuffer_clone"><a href="#dbuffer_clone">dbuffer_clone</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_clone — Make a full copy of another buffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+dbuffer_t *
+dbuffer_clone(dbuffer_t *dbuffer);
+</code></pre>
+<h2>Description</h2>
+<p>This function returns a new dbuffer that contains the same data as the buffer given in the <code>dbuffer</code> parameter.  This doesn’t involve copying any memory, since they can share the same storage initially.  However, they are still completely independent, and operations on one buffer has no effect on the other.</p>
+<p>The returned dbuffer should be released with <a href="dev-api-obsolete.html#dbuffer_free"><code>dbuffer_free</code></a> when it is no longer needed.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#new_dbuffer"><code>new_dbuffer</code></a>, <a href="dev-api-obsolete.html#dbuffer_free"><code>dbuffer_free</code></a></p>
+</section>
+<h2 id="dbuffer_copy_append"><a href="#dbuffer_copy_append">dbuffer_copy_append, dbuffer_copy_prepend</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_copy_append, dbuffer_copy_prepend — Copy data from a dbuffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+dbuffer_copy_append(dbuffer_t *dst, dbuffer_t *src, size_t offset, size_t len);
+
+void
+dbuffer_copy_prepend(dbuffer_t *dst, dbuffer_t *src, size_t offset, size_t len);
+</code></pre>
+<h2>Description</h2>
+<p>These functions copies <code>len</code> bytes from the dbuffer <code>src</code>, at offset <code>offset</code>, and adds it to the beginning or end of the dbuffer <code>dst</code>.</p>
+<p>This can often be done without actually copying any memory, so it is usually very efficient.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#dbuffer_append"><code>dbuffer_append</code></a></p>
+</section>
+<h2 id="dbuffer_free"><a href="#dbuffer_free">dbuffer_free</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_free — Release a dbuffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+dbuffer_free(dbuffer_t *dbuffer);
+</code></pre>
+<h2>Description</h2>
+<p>Release a dbuffer that will not be used anymore.  This will also free any data in the buffer that isn’t also used by other buffers. After calling this function, the dbuffer must not be used anymore.</p>
+<p>See also <code>src/include/simics/util/dbuffer.h</code></p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#new_dbuffer"><code>new_dbuffer</code></a></p>
+</section>
+<h2 id="dbuffer_len"><a href="#dbuffer_len">dbuffer_len</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_len — Get the size of a dbuffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+size_t
+dbuffer_len(const dbuffer_t *dbuffer);
+</code></pre>
+<h2>Description</h2>
+<p>This function returns the amount of data stored in a dbuffer.  This is the number of bytes that will be returned by <a href="dev-api-obsolete.html#dbuffer_read"><code>dbuffer_read_all</code></a>.</p>
+</section>
+<h2 id="dbuffer_read"><a href="#dbuffer_read">dbuffer_read_some, dbuffer_read, dbuffer_read_all</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_read_some, dbuffer_read, dbuffer_read_all — Extract data for reading</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+const uint8 *
+dbuffer_read_some(dbuffer_t *dbuffer, size_t offset, size_t len,
+                  size_t *actual_len);
+
+const uint8 *
+dbuffer_read(dbuffer_t *dbuffer, size_t offset, size_t len);
+
+const uint8 *
+dbuffer_read_all(dbuffer_t *dbuffer);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>offset</code> and <code>len</code> parameters specify a region of the buffer to read from.  The returned pointer is guaranteed to point to a contiguous block of memory of size <code>len</code>.  It is illegal to write to the block return by these functions, since they may be shared by other dbuffers.  Use the <a href="dev-api-obsolete.html#dbuffer_update"><code>dbuffer_update</code></a> functions if you need to both read and write to the dbuffer.</p>
+<p>The returned pointer is only valid until the next operation on the dbuffer, except for calling <a href="dev-api-obsolete.html#dbuffer_len"><code>dbuffer_len</code></a>.</p>
+<p>The <code>offset</code> and <code>len</code> must specify a valid region, so that the end of the region is not past the end of the dbuffer.</p>
+<p>The <code>dbuffer_read_some</code> function takes an <code>actual_len</code> parameter, and may return a smaller buffer than requested.  The actual number of valid bytes in the returned buffer is stored in <code>*actual_len</code>.  It will return a smaller buffer if it would have had to copy memory to return a pointer to the whole region.  This means that you can use this function repeatedly to extract all the requested data in the most efficient way.  If <code>NULL</code> is passed for <code>actual_len</code>, it will return the full region.</p>
+<p>The <code>dbuffer_read_all</code> function assumes 0 for <code>offset</code>, and <code>buffer_len(dbuffer)</code> for <code>len</code>.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#dbuffer_update"><code>dbuffer_update</code></a>, <a href="dev-api-obsolete.html#dbuffer_replace"><code>dbuffer_replace</code></a></p>
+</section>
+<h2 id="dbuffer_remove"><a href="#dbuffer_remove">dbuffer_remove, dbuffer_remove_head, dbuffer_remove_tail</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_remove, dbuffer_remove_head, dbuffer_remove_tail — Remove data from a dbuffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+dbuffer_remove(dbuffer_t *dbuffer, size_t offset, size_t remove_len);
+
+void
+dbuffer_remove_head(dbuffer_t *dbuffer, size_t remove_len);
+
+void
+dbuffer_remove_tail(dbuffer_t *dbuffer, size_t remove_len);
+</code></pre>
+<h2>Description</h2>
+<p>These functions will remove <code>remove_len</code> bytes from <code>dbuffer</code>.  The <code>dbuffer_remove</code> function will remove data starting at <code>offset</code>, while the other functions will remove data from the beginning or end of the buffer.</p>
+<p>This usually doesn’t involve moving any memory contents, and should be very efficient even if the buffer is large.</p>
+<p>The size of data to remove must be available in the buffer. For example <code>offset + remove_len</code> must not be greater than the buffers length. Similarly for the <code>dbuffer_truncate</code> function there must be at least <code>new_size</code> bytes in the current buffer.</p>
+</section>
+<h2 id="dbuffer_replace"><a href="#dbuffer_replace">dbuffer_replace_some, dbuffer_replace, dbuffer_replace_all</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_replace_some, dbuffer_replace, dbuffer_replace_all — Replace data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+uint8 *
+dbuffer_replace_some(dbuffer_t *dbuffer, size_t offset, size_t len,
+                     size_t *actual_len);
+
+uint8 *
+dbuffer_replace(dbuffer_t *dbuffer, size_t offset, size_t len);
+
+uint8 *
+dbuffer_replace_all(dbuffer_t *dbuffer);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>offset</code> and <code>len</code> parameters specify a region of the buffer to write to.  The returned pointer is guaranteed to point to a contiguous block of memory of size <code>len</code>, but is not guaranteed to contain the existing data in the buffer.  Use these functions when completely replacing a region of the buffer with new data.</p>
+<p>The returned pointer is only valid until the next operation on the dbuffer, except for calling <a href="dev-api-obsolete.html#dbuffer_len"><code>dbuffer_len</code></a>.</p>
+<p>The <code>offset</code> and <code>len</code> must specify a valid region, so that the end of the region is not past the end of the dbuffer.</p>
+<p>The <code>dbuffer_replace_some</code> function takes an <code>actual_len</code> parameter, and may return a smaller buffer than requested.  The actual number of valid bytes in the returned buffer is stored in <code>*actual_len</code>.  It will return a smaller buffer if it would have had to copy memory to return a pointer to the whole region.  This means that you can use this function repeatedly to write all the requested data in the most efficient way.  If <code>NULL</code> is passed for <code>actual_len</code>, it will return the full region.</p>
+<p>The <code>dbuffer_replace_all</code> function assumes 0 for <code>offset</code>, and <code>buffer_len(dbuffer)</code> for <code>len</code>.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#dbuffer_read"><code>dbuffer_read</code></a>, <a href="dev-api-obsolete.html#dbuffer_update"><code>dbuffer_update</code></a></p>
+</section>
+<h2 id="dbuffer_split"><a href="#dbuffer_split">dbuffer_split</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_split — Split a dbuffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+dbuffer_t *
+dbuffer_split(dbuffer_t *dbuffer, size_t offset);
+</code></pre>
+<h2>Description</h2>
+<p>This function returns a new dbuffer that contains the <code>offset</code> first bytes from <code>dbuffer</code>, and removes those bytes from <code>dbuffer</code>  The effect is that the dbuffer is split in two halves, leaving the second half in the original dbuffer and returning the first half as a new dbuffer.</p>
+<p>The returned dbuffer should be released with <a href="dev-api-obsolete.html#dbuffer_free"><code>dbuffer_free</code></a> when it is no longer needed.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#new_dbuffer"><code>new_dbuffer</code></a>, <a href="dev-api-obsolete.html#dbuffer_free"><code>dbuffer_free</code></a></p>
+</section>
+<h2 id="dbuffer_update"><a href="#dbuffer_update">dbuffer_update_some, dbuffer_update, dbuffer_update_all</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_update_some, dbuffer_update, dbuffer_update_all — Extract data for updating</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+uint8 *
+dbuffer_update_some(dbuffer_t *dbuffer, size_t offset, size_t len,
+                    size_t *actual_len);
+
+uint8 *
+dbuffer_update(dbuffer_t *dbuffer, size_t offset, size_t len);
+
+uint8 *
+dbuffer_update_all(dbuffer_t *dbuffer);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>offset</code> and <code>len</code> parameters specify a region of the buffer to access.  The returned pointer is guaranteed to point to a contiguous block of memory of size <code>len</code>.  The block can be used for reading and writing data to the dbuffer.</p>
+<p>The returned pointer is only valid until the next operation on the dbuffer, except for calling <a href="dev-api-obsolete.html#dbuffer_len"><code>dbuffer_len</code></a>.</p>
+<p>The <code>offset</code> and <code>len</code> must specify a valid region, so that the end of the region is not past the end of the dbuffer.</p>
+<p>The <code>dbuffer_update_some</code> function takes an <code>actual_len</code> parameter, and may return a smaller buffer than requested.  The actual number of valid bytes in the returned buffer is stored in <code>*actual_len</code>.  It will return a smaller buffer if it would have had to copy memory to return a pointer to the whole region.  This means that you can use this function repeatedly to access all the requested data in the most efficient way.  If <code>NULL</code> is passed for <code>actual_len</code>, it will return the full region.</p>
+<p>The <code>dbuffer_update_all</code> function assumes 0 for <code>offset</code>, and <code>buffer_len(dbuffer)</code> for <code>len</code>.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#dbuffer_read"><code>dbuffer_read</code></a>, <a href="dev-api-obsolete.html#dbuffer_replace"><code>dbuffer_replace</code></a></p>
+</section>
+<h2 id="new_dbuffer"><a href="#new_dbuffer">new_dbuffer</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>new_dbuffer — Create a new dbuffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+dbuffer_t *
+new_dbuffer();
+</code></pre>
+<h2>Description</h2>
+<p>This function returns an empty dbuffer. Use it when you need a new dbuffer, and call <a href="dev-api-obsolete.html#dbuffer_free"><code>dbuffer_free</code></a> when it isn’t needed anymore.</p>
+<p>See also <code>src/include/simics/util/dbuffer.h</code></p>
+<h2>See Also</h2>
+<p><a href="dev-api-obsolete.html#dbuffer_free"><code>dbuffer_free</code></a>, <a href="dev-api-obsolete.html#dbuffer_clone"><code>dbuffer_clone</code></a></p>
+</section>
+<div class="chain">
+<a href="dev-api-types-obsolete.html">Obsolete Device API Data Types</a>
+<a href="model-to-model-interfaces.html">Model to Model Interfaces</a>
+</div>

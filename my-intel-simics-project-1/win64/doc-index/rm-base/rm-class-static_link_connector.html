@@ -1,0 +1,148 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>static_link_connector</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-state-assertion.html">state-assertion</a>
+<a href="rm-class-step-counter-extension.html">step-counter-extension</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="static_link_connector"><a href="#static_link_connector">static_link_connector</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Static link connector representing one connection to the link. This connector does not grow dynamically and can be reused several times. It is useful for links that have specific ports to which only one device can connect (for example, a serial link with two devices).
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, connector
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-static_link_connector.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-static_link_connector.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:connector_name"><a href="#dt:connector_name">
+<i>connector_name</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Name of the connector</dd>
+<dt id="dt:connector_template"><a href="#dt:connector_template">
+<i>connector_template</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Name of the link connector template used to create this connector</dd>
+<dt id="dt:connector_type"><a href="#dt:connector_type">
+<i>connector_type</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Type used to match which other connector objects this connector can connect to.</dd>
+<dt id="dt:destination"><a href="#dt:destination">
+<i>destination</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>List of connections to this connector object. The connections listed here are not yet valid if the connecting component or the component itself are not instantiated yet.</dd>
+<dt id="dt:direction"><a href="#dt:direction">
+<i>direction</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Direction of the connector: up, down or any</dd>
+<dt id="dt:endpoint"><a href="#dt:endpoint">
+<i>endpoint</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o</code>
+<br>Link endpoint object associated to this connector</dd>
+<dt id="dt:hotpluggable"><a href="#dt:hotpluggable">
+<i>hotpluggable</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, this connector can be connected or disconnected after instantiation. If false, the connection must be made before the component is instantiated.</dd>
+<dt id="dt:multi"><a href="#dt:multi">
+<i>multi</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, more than one connector object can be connected to this connector at the same time.</dd>
+<dt id="dt:old_destination"><a href="#dt:old_destination">
+<i>old_destination</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>List of valid connections as of the last instantiation that concerned this component.</dd>
+<dt id="dt:owner"><a href="#dt:owner">
+<i>owner</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Component to which this connector applies</dd>
+<dt id="dt:required"><a href="#dt:required">
+<i>required</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, this connector should be connected before its component can be instantiated. If false, it can be left empty.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-class-state-assertion.html">state-assertion</a>
+<a href="rm-class-step-counter-extension.html">step-counter-extension</a>
+</div>

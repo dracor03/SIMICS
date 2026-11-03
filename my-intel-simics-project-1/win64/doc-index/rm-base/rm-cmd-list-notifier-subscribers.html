@@ -1,0 +1,52 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-notifier-subscribers</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-modules.html">list-modules</a>
+<a href="rm-cmd-list-notifiers.html">list-notifiers</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-notifier-subscribers"></a>
+<h1 id="list-notifier-subscribers"><a href="#list-notifier-subscribers">list-notifier-subscribers</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-notifier-subscribers</b> [-global|<i>object</i>] [<i>"name"</i>] [<i>"subscriber"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Print a list of notifier subscribers and related info.
+<p>
+Filter by specifying a specific notifier <i>name</i>, or <i>subscriber</i> object to show only lines where this object is a subscriber.
+</p><p>
+If the <tt>-global</tt> flag is specified, print a list of added global notifier subscribers.
+</p><p>
+In this case each entry in the output contains: notifier name, subscriber object (or <tt>NIL</tt> if no subscriber) and one-shot status (<tt>TRUE</tt> if and only if the notifier was added with <tt>SIM_add_global_notifier_once</tt>).
+</p><p>
+If the <tt>-global</tt> flag is not specified, print a list of added notifier subscribers on <i>object</i>, or subscribers on all objects, if the <i>object</i> parameter is omitted.
+</p><p>
+In this case each entry in the output contains: notifier object, notifier name, notifier description, and the subscriber object (or <tt>NIL</tt> if no subscriber). 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-list-notifiers.html">list-notifiers</a>, 
+<a href="rm-cmd-list-hap-callbacks.html">list-hap-callbacks</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-modules.html">list-modules</a>
+<a href="rm-cmd-list-notifiers.html">list-notifiers</a>
+</div>

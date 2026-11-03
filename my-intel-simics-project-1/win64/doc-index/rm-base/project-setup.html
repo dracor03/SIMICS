@@ -1,0 +1,82 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.4 project-setup</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="craff.html">2.3 craff</a>
+<a href="setup-venv.html">2.5 setup-venv</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="command-line-tools-and-programs.html">2 Command-Line Tools and Programs</a>
+&nbsp;/&nbsp;</div><h1 id="project-setup"><a href="#project-setup">2.4 project-setup</a></h1>
+<article class="not-numbered not-in-toc doc-item">
+<h2 id="synopsis"><a href="#synopsis">SYNOPSIS</a></h2>
+<pre><code>project-setup [options] [project]
+</code></pre>
+<h2 id="description"><a href="#description">DESCRIPTION</a></h2>
+<p>Creates or updates a Simics project for user scripts and modules. If project
+directory is omitted, the current working directory is used.</p>
+<p>The host Python path to be used in the project can be set via the
+<code>--python</code> command line parameter or via the <code>SIMICS_PYTHON</code> environment
+variable. If any of these are set, a Python virtual environment is also
+created and all necessary Python packages are installed into it, unless
+<code>--no-venv</code> is specified. The generated project scripts will use the Python
+in the virtual environment, or the specified Python directly if <code>--no-venv</code>
+is specified and the project has no virtual environment already. To make
+sure Python packages required by the legacy Simics GUI are
+also installed, use the <code>--with-gui</code> command line parameter.</p>
+<h2 id="options"><a href="#options">OPTIONS</a></h2>
+<dl>
+<dt id="dt:h-help"><a href="#dt:h-help"><code>-h, --help</code></a></dt>
+<dd>Show help message and exit.</dd>
+<dt id="dt:v-version"><a href="#dt:v-version"><code>-v, --version</code></a></dt>
+<dd>Prints information about Simics (version, installation directory).</dd>
+<dt id="dt:v-verbose"><a href="#dt:v-verbose"><code>-V, --verbose</code></a></dt>
+<dd>Print more information about the actions taken by the script.</dd>
+<dt id="dt:n-dry-run"><a href="#dt:n-dry-run"><code>-n, --dry-run</code></a></dt>
+<dd>Execute normally, but do not change or create any files.</dd>
+<dt id="dt:ignore-existing-files"><a href="#dt:ignore-existing-files"><code>--ignore-existing-files</code></a></dt>
+<dd>Suppress warnings when creating a new project using a directory that is
+not empty.</dd>
+<dt id="dt:package-list"><a href="#dt:package-list"><code>--package-list</code></a></dt>
+<dd>Provide an explicit list of add-on packages for the project. Each line
+must be an absolute path for an add-on package. A project-local
+<code>.package-list</code> file will be created.</dd>
+<dt id="dt:python"><a href="#dt:python"><code>--python</code></a></dt>
+<dd>Path to the host Python binary to be used by all Simics executions in the
+project. If not set, the SIMICS_PYTHON environment variable is read to
+obtain the host Python path. If neither is set, no host Python is used and
+package 1033 must be available.</dd>
+<dt id="dt:no-venv"><a href="#dt:no-venv"><code>--no-venv</code></a></dt>
+<dd>Do not create or update a Python virtual environment in the project.
+An existing virtual environment is still used, also if <code>--python</code> is
+specified, unless <code>--force</code> is also specified.</dd>
+<dt id="dt:ignore-cygwin-warning"><a href="#dt:ignore-cygwin-warning"><code>--ignore-cygwin-warning</code></a></dt>
+<dd>(Windows-only) Prevent the script from checking whether the project
+directory looks like a Cygwin path or not.</dd>
+<dt id="dt:force"><a href="#dt:force"><code>--force</code></a></dt>
+<dd>Force the project-setup script to create or update a project. Files that
+would be overwritten will be backed up automatically.</dd>
+<dt id="dt:check-project-version"><a href="#dt:check-project-version"><code>--check-project-version</code></a></dt>
+<dd>Check the version of the project, and return 1 if it needs to be created
+or updated, 0 otherwise.</dd>
+<dt id="dt:with-cmake"><a href="#dt:with-cmake"><code>--with-cmake</code></a></dt>
+<dd>Create a project with CMake support.</dd>
+<dt id="dt:without-cmake"><a href="#dt:without-cmake"><code>--without-cmake</code></a></dt>
+<dd>Create a project without CMake support (Default).</dd>
+<dt id="dt:with-gmake"><a href="#dt:with-gmake"><code>--with-gmake</code></a></dt>
+<dd>Create a project with GNU Make support (Default).</dd>
+<dt id="dt:without-gmake"><a href="#dt:without-gmake"><code>--without-gmake</code></a></dt>
+<dd>Create a project without GNU Make support.</dd>
+</dl>
+</article>
+
+<div class="chain">
+<a href="craff.html">2.3 craff</a>
+<a href="setup-venv.html">2.5 setup-venv</a>
+</div>

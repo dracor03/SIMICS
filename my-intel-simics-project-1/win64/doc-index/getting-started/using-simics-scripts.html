@@ -1,0 +1,84 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>A Using Legacy Scripts to Create Configurations</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="next-steps.html">9 Next Steps</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;</div><h1 id="using-legacy-scripts-to-create-configurations"><a href="#using-legacy-scripts-to-create-configurations">A Using Legacy Scripts to Create Configurations</a></h1>
+<p>This section describes a legacy method of creating configurations by using Intel
+Simics scripts, referred to as <em>scripts</em> in this section for brevity.</p>
+<p>Modern configurations are created with <a href="running-simics-cli.html">targets</a> and are
+customized using <strong>target parameters</strong>, but since all models have not been
+converted, it may be good to know how scripts are used.</p>
+<p>To distinguish between legacy scripts and modern targets:</p>
+<ul>
+<li><em>modern targets</em>:
+<ul>
+<li>can be listed with the <code>list-targets</code> command</li>
+<li>are implemented in <code>targets/*/*.target.yml</code> files</li>
+<li>have parameter in <em>YAML</em> format</li>
+<li>are loaded with the <code>load-target</code> command</li>
+</ul>
+</li>
+<li><em>legacy scripts</em>:
+<ul>
+<li>are not listed by the <code>list-targets</code> command</li>
+<li>are typically implemented in <code>targets/*/*.simics</code> files which
+contain a <code>decl</code> list of parameters.</li>
+<li>are loaded with the <code>run-command-file</code> command.</li>
+</ul>
+</li>
+</ul>
+<p>The following tasks are explained:</p>
+<ul>
+<li>how to pass arguments to scripts</li>
+<li>how to discover which parameters are accepted by scripts</li>
+</ul>
+<p>Intel Simics scripts can accept parameters. There are a few ways to discover
+which parameters, if any, are accepted by the script:</p>
+<ul>
+<li>via command line completion</li>
+<li>via the help system</li>
+</ul>
+<p>To discover available parameters via command line completion, press the <strong>tab
+key</strong> twice after entering the string:  <em>run-command-file
+targets\qsp-x86\firststeps.simics</em></p>
+<pre><code class="language-simics">simics&gt; <strong>run-script targets\qsp-x86\firststeps.simics &lt;TAB&gt;&lt;TAB&gt;</strong>
+</code></pre>
+<p>As a result, command line completion should show available parameters for the
+script:</p>
+<p><img alt="" src="using-simics-scripts-1.png"></p>
+<p>The <code>help</code> command also allows finding out which parameters are accepted by a
+script as well as to see documentation for the parameters. To discover available
+parameters for the <code>targets\qsp-x86\firststeps.simics</code> script just run this
+command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help targets\qsp-x86\firststeps.simics</strong>
+</code></pre>
+<p>As a result, script description will be printed together with a long list of
+accepted parameters. Here is the beginning of the output:</p>
+<p><img alt="" src="using-simics-scripts-2.png"></p>
+<p>Let’s create a target machine with 4 cores per physical processor by setting the
+<code>num_cores</code> parameter to 4. To do that please run the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script targets\qsp-x86\firststeps.simics num_cores = 4</strong>
+</code></pre>
+<p>To verify that the target indeed has 4 cores, run the <code>list-processors</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors</strong>
+┌────────────────────────┬─┬─────────┬────────┐
+│        CPU Name        │ │CPU Class│  Freq  │
+├────────────────────────┼─┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[1][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[2][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[3][0]│ │x86QSP3  │2.00 GHz│
+└────────────────────────┴─┴─────────┴────────┘
+</code></pre>
+
+<div class="chain">
+<a href="next-steps.html">9 Next Steps</a>
+</div>

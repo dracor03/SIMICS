@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.time.trace</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.time.run-until.html">bp.time.run-until</a>
+<a href="rm-cmd-bp-manager.time.wait-for.html">bp.time.wait-for</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.time.trace"></a>
+<h1 id="bp-manager.time.trace"><a href="#bp-manager.time.trace">bp.time.trace</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.time&gt;.trace</b> [<i>object</i>] (<i>seconds</i>|<i>count</i>) [<i>unit</i>] [-absolute] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Enable tracing for when the processor reaches the point in time that is the amount of time given by <i>count</i> and <i>unit</i> ahead of the time when the command is issued. If <tt>-absolute</tt> is specified, the time that is traced is instead the specified time from the start of the simulation.
+<p>
+The default time <i>unit</i> is seconds (<tt>s</tt>), but can be specified as one of: <tt>s</tt> (seconds), <tt>ms</tt> (milli-seconds), <tt>us</tt> (micro-seconds), <tt>ns</tt> (nano-seconds), <tt>ps</tt> (pico-seconds), <tt>m</tt> (minutes), or <tt>h</tt> (hours).
+</p><p>
+The <i>seconds</i> argument is retained for compatibility as an alternative for <i>count</i> and is interpreted the same way with regards to the value of <i>unit</i>.
+</p><p>
+If no processor is specified, the currently selected frontend processor is used. If <i>object</i> is provided, then the breakpoint functionality is added on that object.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.time.run-until.html">bp.time.run-until</a>
+<a href="rm-cmd-bp-manager.time.wait-for.html">bp.time.wait-for</a>
+</div>

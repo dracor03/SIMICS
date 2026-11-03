@@ -1,0 +1,159 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 Sloop Module Reference</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="snoop-refman.html">6 Snoop Module Reference</a>
+</div>
+<div class="path">
+<a href="index.html">Python Coroutines in Simics</a>
+&nbsp;/&nbsp;</div><h1 id="sloop-module-reference"><a href="#sloop-module-reference">7 Sloop Module Reference</a></h1>
+<p>This section contains reference documentation for the
+<code>sloop</code> Python module.</p>
+<h2 id="break"><a href="#break">7.1 <strong>Break</strong></a></h2>
+<pre><code>class Break(Exception)
+</code></pre>
+<p>Raised by <code>run_until_complete</code> when simulation was interrupted, e.g.
+when the end-user issued the <code>break</code> CLI command.</p>
+<h2 id="error"><a href="#error">7.2 <strong>Error</strong></a></h2>
+<pre><code>class Error(Exception)
+</code></pre>
+<p>Raised for incorrect usage of <code>sloop</code></p>
+<h2 id="get_running_loop"><a href="#get_running_loop">7.3 <strong>get_running_loop</strong></a></h2>
+<pre><code>def get_running_loop()
+</code></pre>
+<p>Like <code>asyncio.get_running_loop</code>, but must be run from a task
+created by Sloop’s <code>create_task</code>.</p>
+<h2 id="global_event_loop"><a href="#global_event_loop">7.4 <strong>global_event_loop</strong></a></h2>
+<pre><code>def global_event_loop()
+</code></pre>
+<p>The default <code>sloop</code> event loop</p>
+<h2 id="run_until_complete"><a href="#run_until_complete">7.5 <strong>run_until_complete</strong></a></h2>
+<pre><code>def run_until_complete(fut)
+</code></pre>
+<p>Similar to <code>asyncio.EventLoop.run_until_complete</code>, but runs
+simulation until a coroutine, future or task is done. If the
+argument is a coroutine, then the coroutine is scheduled as a task
+within the <code>global_event_loop</code> Sloop event loop. May only be called
+while simulation is stopped, from Global Context.</p>
+<h2 id="create_task"><a href="#create_task">7.6 <strong>create_task</strong></a></h2>
+<pre><code>def create_task(coro, *, name=None)
+</code></pre>
+<p>Like <code>asyncio.create_task</code>, create a task in the currently
+running <code>sloop</code> event loop. Raises <code>RuntimeError</code> if not called
+from a <code>sloop</code> corotuine.</p>
+<h2 id="call_soon"><a href="#call_soon">7.7 <strong>call_soon</strong></a></h2>
+<pre><code>def call_soon(fun, *args)
+</code></pre>
+<p>Like <code>asyncio.call_soon</code>, but must be run from a Sloop task</p>
+<h2 id="wrap_future"><a href="#wrap_future">7.8 <strong>wrap_future</strong></a></h2>
+<pre><code>def wrap_future(fut)
+</code></pre>
+<p>Similar to <code>asyncio.wrap_future</code>, wrap a future-like object
+so it can be awaited within a Sloop loop.</p>
+<p>Mainly useful to wrap the results of higher-order <code>asyncio</code> coroutines,
+e.g. <code>sloop.wrap_future(asyncio.gather(...))</code> or <code>map(sloop.wrap_future, asyncio.as_completed(...))</code>.</p>
+<p>Raises <code>RuntimeError</code> if not called
+from a <code>sloop</code> corotuine.</p>
+<h2 id="wait_call"><a href="#wait_call">7.9 <strong>wait_call</strong></a></h2>
+<pre><code>async def wait_call(fun, *args)
+</code></pre>
+<p>Similar to <code>asyncio.to_thread</code>, run a slow function
+outside the Sloop event loop and await the result.</p>
+<p>Like <code>asyncio</code>, <code>sloop</code> emits a warning if a coroutine takes too
+long between waits; wrapping a call in <code>wait_call</code> silences
+this. However, unlike <code>asyncio.to_thread</code>, <code>wait_call</code> schedules
+the function to run in Global Context rather than in a separate
+thread, so it will still block the progress of simulation. Thus, the
+motivation for the function is to allow preservation of asyncio’s
+convention that expensive code should not be run within coroutines.</p>
+<p>Raises <code>RuntimeError</code> if not called from a <code>sloop</code> corotuine.</p>
+<h2 id="wait"><a href="#wait">7.10 <strong>wait</strong></a></h2>
+<pre><code>async def wait(s: snoop.Snooper)
+</code></pre>
+<p>Wait for the next time a snooper yields.</p>
+<h2 id="trace"><a href="#trace">7.11 <strong>trace</strong></a></h2>
+<pre><code>async def trace(snooper, until)
+</code></pre>
+<p>Collect all values yielded by <code>snooper</code> until the first time
+<code>until</code> yields, and return a list of these values.</p>
+<h2 id="tracer"><a href="#tracer">7.12 <strong>Tracer</strong></a></h2>
+<pre><code>class Tracer
+</code></pre>
+<p>Asynchronous context manager that converts a snooper into an
+asynchronous iterator of yielded values. The asynchronous iterator is
+returned by <code>__aenter__</code>, so typical usage looks like this:</p>
+<pre><code>async with Tracer(SomeSnooper(...)) as t:
+    async for value in t:
+        ...
+</code></pre>
+<h3 id="tracer-__init__"><a href="#tracer-__init__">7.12.1 Tracer.<strong>__init__</strong></a></h3>
+<pre><code>def __init__(self, snooper: snoop.Snooper, until: snoop.Snooper=None)
+</code></pre>
+<p><code>snooper</code> is the snooper whose values to collect. <code>until</code>
+specifies when to stop iteration; the default is to continue
+indefinitely.</p>
+<h2 id="callbackscope"><a href="#callbackscope">7.13 <strong>CallbackScope</strong></a></h2>
+<pre><code>class CallbackScope(contextlib.AbstractAsyncContextManager)
+</code></pre>
+<p>Reusable asynchronous context manager that subscribes a
+callback to a snooper while entered.</p>
+<h3 id="callbackscope-__init__"><a href="#callbackscope-__init__">7.13.1 CallbackScope.<strong>__init__</strong></a></h3>
+<pre><code>def __init__(self, snp: snoop.Snooper[T, StateT], cb: Callable[[T], None])
+</code></pre>
+<p>The callback <code>cb</code> is subscribed to <code>snp</code> while entered.</p>
+<h2 id="timeout"><a href="#timeout">7.14 <strong>timeout</strong></a></h2>
+<pre><code>def timeout(snooper)
+</code></pre>
+<p>Similar to <code>asyncio.timeout</code> in Python 3.11, returns an
+asynchronous context manager that interrupts the block by raising a
+<code>TimeoutError</code> exception if it does not finish in time. Unlike
+<code>asyncio.timeout</code>, the timeout is specified by a snooper object,
+typically an instance of <code>sloop.Seconds</code>.</p>
+<h2 id="taskgroup"><a href="#taskgroup">7.15 <strong>TaskGroup</strong></a></h2>
+<pre><code>class TaskGroup(contextlib.AbstractAsyncContextManager)
+</code></pre>
+<p>Provides a <code>sloop</code> compatible implementation of the
+<code>asyncio.TaskGroup</code> class available in Python 3.11 and newer; see
+<code>asyncio</code> documentation for details. In cases where
+<code>asyncio.TaskGroup</code> would raise an <code>ExceptionGroup</code> or
+<code>BaseExceptionGroup</code> exception, and <code>sloop</code> is used from Python
+3.10, the <code>sloop.TaskGroup</code> class instead raises a
+<code>sloop.ExceptionGroup</code> or <code>sloop.BaseExceptionGroup</code> exception,
+respectively.</p>
+<p>When <code>sloop</code> is used with Python 3.11 or newer, <code>sloop.TaskGroup</code>
+evaluates to <code>asyncio.TaskGroup</code>.</p>
+<p>In rare cases, it can happen in a task with an active
+<code>sloop.TaskGroup</code> that cancellation of that task has no effect.
+This limitation comes from deficiencies in the Python 3.10 API;
+to overcome these, please switch to Python 3.11 and Simics 7.</p>
+<h2 id="baseexceptiongroup"><a href="#baseexceptiongroup">7.16 <strong>BaseExceptionGroup</strong></a></h2>
+<pre><code>class BaseExceptionGroup(BaseException)
+</code></pre>
+<p>Limited back-port of the built-in <code>BaseExceptionGroup</code>
+class from Python 3.11. Provides the <code>exceptions</code> attribute
+but no methods.</p>
+<p>Python’s traceback printer is not aware of the tracebacks of
+the sub-exceptions, so these are printed as part of <code>__str__</code>
+in order to yield comprehensive tracebacks.</p>
+<p>When <code>sloop</code> is used with Python 3.11 or newer,
+<code>sloop.BaseExceptionGroup</code> evaluates to the built-in
+<code>BaseExceptionGroup</code> class.</p>
+<h2 id="exceptiongroup"><a href="#exceptiongroup">7.17 <strong>ExceptionGroup</strong></a></h2>
+<pre><code>class ExceptionGroup(Exception)
+</code></pre>
+<p>Limited back-port of the built-in <code>ExceptionGroup</code> class from Python
+3.11. Provides the <code>exceptions</code> attribute but no methods.</p>
+<p>Python’s traceback printer is not aware of the tracebacks of
+the sub-exceptions, so these are printed as part of <code>__str__</code>
+in order to yield comprehensive tracebacks.</p>
+<p>When <code>sloop</code> is used with Python 3.11 or newer,
+<code>sloop.ExceptionGroup</code> evaluates to the built-in
+<code>ExceptionGroup</code> class.</p>
+
+<div class="chain">
+<a href="snoop-refman.html">6 Snoop Module Reference</a>
+</div>

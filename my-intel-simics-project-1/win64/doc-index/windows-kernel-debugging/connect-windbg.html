@@ -1,0 +1,72 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.4 Connect Windows Kernel Debugger to the Target</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="setup-windows-debug.html">2.3 Setting up Windows Target for Debug</a>
+</div>
+<div class="path">
+<a href="index.html">Windows Kernel Debugging</a>
+&nbsp;/&nbsp;
+<a href="network-debugging.html">2 Windows Kernel Debugging Over a Network</a>
+&nbsp;/&nbsp;</div><h1 id="connect-windows-kernel-debugger-to-the-target"><a href="#connect-windows-kernel-debugger-to-the-target">2.4 Connect Windows Kernel Debugger to the Target</a></h1>
+<p>With a Windows image configured as shown in section <a class="reference" href="setup-windows-debug.html">2.3</a>, you are ready to set up the network connections to allow WinDbg on the host to connect to the target system. This requires setting up an <strong>outbound port translation</strong> in Simics. The reason is that WinDbg connections are initiated from the target system, and not from the debugger. When kernel or boot debug is enabled, Windows will periodically reach out to the IP and port you configured above, and see if there is a WinDbg running there and listening to connections from the target.</p>
+<h2 id="configure-port-forwarding"><a href="#configure-port-forwarding">2.4.1 Configure Port Forwarding</a></h2>
+<p>Locate the Ethernet network connected to your target system. It is usually called <code>ethernet_switch0</code>, but check that using <code>list-objects</code> command:</p>
+<pre><code>simics&gt; list-objects type = ethernet_switch -all
+Component Class    Object
+-----------------------------------
+&lt;ethernet_switch&gt;  ethernet_switch0
+  
+</code></pre>
+<p>In a start-up script that uses the common Simics Ethernet setup scripts, you can also use the script variable <code>$eth_link</code> to locate the Ethernet network.</p>
+<p>On the Simics command-line, issue one command to set up outbound port forwarding:</p>
+<pre><code>simics&gt; connect-real-network-port-out service-node-port=&lt;port-in-target&gt;ethernet-link=&lt;ethlink&gt; target-ip=&lt;debug-host-ip&gt;target-port=&lt;port-on-host&gt; -udp
+  
+</code></pre>
+<p>where:</p>
+<ul>
+<li><strong>&lt;ethlink&gt;</strong> is the name of the Ethernet link as discussed above.</li>
+<li><strong>&lt;port-on-host&gt;</strong> is the port to use to connect on the host side. It can be the same as the target-side port specified above, such as 50010.</li>
+<li><strong>&lt;simics-target-ip&gt;</strong> is the IP address of the Simics target, such as 10.10.0.100 for the <code>QSP-x86</code> example.</li>
+<li><strong>&lt;port-in-target&gt;</strong> is the port configured on the target above, such as 50010.</li>
+<li><strong>&lt;debug-host-ip&gt;</strong> is the IP address of the real-world machine running WinDbg. To run WinDbg on the host running Simics, use 127.0.0.1. For another machine on the local network, use its network address. You would use the IP of another machine for the case where you are simulating a Windows target on a Linux host, and need to call into a Windows host that actually runs WinDbg.</li>
+</ul>
+<p>For example in the <code>QSP-x86</code> example, with WinDbg on the host running Simics:</p>
+<pre><code>simics&gt; $eth_link
+'ethernet_switch0'
+simics&gt; connect-real-network-port-out ethernet-link = $eth_linkservice-node-port = 50010 target-port = 50010 target-ip = '127.0.0.1'
+10.10.0.1 UDP port 50010 on link ethernet_switch0.link -&gt; host 127.0.0.1:50010
+10.10.0.1 TCP port 50010 on link ethernet_switch0.link -&gt; host 127.0.0.1:50010
+ff02::1:2 UDP port 50010 on link ethernet_switch0.link -&gt; host 127.0.0.1:50010
+ff02::1:2 TCP port 50010 on link ethernet_switch0.link -&gt; host 127.0.0.1:50010
+  
+</code></pre>
+<h2 id="start-windbg"><a href="#start-windbg">2.4.2 Start WinDbg</a></h2>
+<p>To start debugging, run WinDbg on the host system. To debug the early boot, start WinDbg before you tell Simics to start running the simulation. To debug once Windows has booted, start WinDbg once the Simics target shows the Windows desktop. In either case:</p>
+<ol>
+<li>Set up outbound port-forwarding in Simics.</li>
+<li>Start WinDbg, listening for a connection from Simics.</li>
+<li>Run the simulation forward.</li>
+</ol>
+<p>To run WinDbg, go to a CMD shell, and start WinDbg from the command line like the following:</p>
+<pre><code>&gt; windbg -k net:port=&lt;port-on-host&gt;,key=&lt;key&gt;
+  
+</code></pre>
+<p>where:</p>
+<ul>
+<li><strong><code>&lt;port-on-host&gt;</code></strong> is the port to use to connect on the host side, as determined in section <a class="reference" href="#configure-port-forwarding">2.4.1</a>.</li>
+<li><strong><code>&lt;key&gt;</code></strong> is a value used to secure the connection, as discussed in section <a class="reference" href="setup-windows-debug.html#configure-communications">2.3.1</a>.</li>
+</ul>
+<p>For example:</p>
+<pre><code>C:\WINDOWS\system32&gt;cd C:\Program Files (x86)\Windows Kits\10\Debuggers\x64
+C:\Program Files (x86)\Windows Kits\10\Debuggers\x64&gt;windbg -knet:port=50010,key=1.2.3.4
+  
+</code></pre>
+
+<div class="chain">
+<a href="setup-windows-debug.html">2.3 Setting up Windows Target for Debug</a>
+</div>

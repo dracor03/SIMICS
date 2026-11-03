@@ -1,0 +1,134 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>PCF8582C</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-NS16550.html">NS16550</a>
+<a href="rm-class-TSB12LV26.html">TSB12LV26</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="PCF8582C"><a href="#PCF8582C">PCF8582C</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>PCF8582C</tt> class implements the functionality of a Philips 256 x 8 bit CMOS EEPROM with an I2C interface.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, i2c_device, i2c_slave_v2
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:i2c_bus-optional"><a href="#dt:i2c_bus-optional">i2c_bus (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_bus
+</dd>
+<dt id="dt:i2c_link_v2-optional"><a href="#dt:i2c_link_v2-optional">i2c_link_v2 (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_master_v2
+</dd>
+<dt id="dt:image-required"><a href="#dt:image-required">image (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: image
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:address"><a href="#dt:address">
+<i>address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>7-bit address to be used on the I2C bus.</dd>
+<dt id="dt:address_bits"><a href="#dt:address_bits">
+<i>address_bits</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of address bits (8 or 16) in the eeprom.</dd>
+<dt id="dt:address_mask"><a href="#dt:address_mask">
+<i>address_mask</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address mask to be used (together with the <i>address</i> attribute) when the device registers with the bus.</dd>
+<dt id="dt:i2c_bus"><a href="#dt:i2c_bus">
+<i>i2c_bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The I2C bus to which this device is connected.
+<p>
+Required interfaces: <tt>i2c_bus</tt>.</p></dd>
+<dt id="dt:i2c_state"><a href="#dt:i2c_state">
+<i>i2c_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Current I2C state.</dd>
+<dt id="dt:image"><a href="#dt:image">
+<i>image</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Image that will hold the memory contents.
+<p>
+Required interfaces: <tt>image</tt>.</p></dd>
+<dt id="dt:memory_address"><a href="#dt:memory_address">
+<i>memory_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current memory address.</dd>
+<dt id="dt:operation"><a href="#dt:operation">
+<i>operation</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Current operation performed.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.PCF8582C.html">PCF8582C</a>
+</section>
+<div class="chain">
+<a href="rm-class-NS16550.html">NS16550</a>
+<a href="rm-class-TSB12LV26.html">TSB12LV26</a>
+</div>

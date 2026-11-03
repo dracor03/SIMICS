@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.eth_link.break</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.cycle_event.wait-for.html">bp.cycle_event.wait-for</a>
+<a href="rm-cmd-bp-manager.eth_link.run-until.html">bp.eth_link.run-until</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.eth_link.break"></a>
+<h1 id="bp-manager.eth_link.break"><a href="#bp-manager.eth_link.break">bp.eth_link.break</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.eth_link&gt;.break</b> <i>object</i> [<i>"src_mac"</i>] [<i>"dst_mac"</i>] [<i>eth_type</i>] [-once] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command uses breakpoint functionality on <i>object</i>, with the following description:
+<p>
+Set Simics to break simulation when <i>src_mac</i>, <i>dst_mac</i> or <i>eth_type</i> is discovered in the network stream by the link.
+</p><p>
+The <tt>-once</tt> flag causes the breakpoint to automatically be removed after it has triggered. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.cycle_event.wait-for.html">bp.cycle_event.wait-for</a>
+<a href="rm-cmd-bp-manager.eth_link.run-until.html">bp.eth_link.run-until</a>
+</div>

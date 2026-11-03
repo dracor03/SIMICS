@@ -1,0 +1,152 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Object Lifetime</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="object-hierarchy.html">34 Object Hierarchy</a>
+<a href="port-objects.html">35 Port Objects</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-simics-programming.html">VI Simics API</a>
+&nbsp;/&nbsp;</div><h1 id="object-lifetime"><a href="#object-lifetime">Object Lifetime</a></h1>
+<p>For an object to participate in Simics checkpointing and snapshotting while keeping determinism, it must handle state properly.
+This chapter explains what rules an object must follow and gives some guidelines for handling state.
+It assumes that you already know the basics about modeling in Simics and know what the terms <em>attribute</em>, <em>checkpoint</em>, <em>configuration</em> and <em>configuration object</em> mean.</p>
+<p>Both checkpointing and snapshots deal with saving and restoring state. The state
+of an object is a chunk of data which fully describes the object as it exists at
+a particular point in time. In Simics terms, the state of an object is the
+values of its checkpointable attributes. Ideally the attributes should be
+linearly independent: changing any one attribute should leave the rest
+unaffected. This is called <strong>object state</strong>. The state of all the objects in the
+simulation is called the <strong>system state</strong>.</p>
+<p><em>Derived state</em> is data about the system which is not saved in checkpoints, but
+calculated from the system state. Derived state must only depend on the current
+system state, not on the history of the system. If a value has any dependency on
+the history of the system, then it must be included in the system state.</p>
+<p>The rules for handling state mostly deal with how an object’s state is saved and
+restored and how objects are created.</p>
+<p>When an object is first constructed it goes through several distinct phases.
+These phases are the same whether the object is loaded from a checkpoint or newly created.
+Most phases map directly to callbacks registered when calling <a href="../rm-api/dev-api-configuration.html#SIM_create_class"><code>SIM_create_class</code></a>.
+The only exception is the attribute setting phase.</p>
+<p>First the object’s <code>alloc</code> method is called to allocate memory for the
+<code>conf_object_t</code> struct. If this optional method is not provided by the class,
+then Simics will allocate the memory. A reason for the class to implement
+<code>alloc</code> is to co-allocate the configuration object with the class-specific
+payload for the object. This method receives the <code>conf_class_t</code> as a parameter,
+which is useful in implementations of generated classes, where
+<a href="../rm-api/dev-api-configuration.html#SIM_get_class_data"><code>SIM_get_class_data</code></a> is used.</p>
+<p>Next the <code>init</code> method is called to do class-specific initialisation and to set
+default values for the object’s attributes, or for attributes of the object’s
+hierarchical descendants. This method may allocate separate memory for
+class-specific object data if co-allocation was not used.</p>
+<p>Then the object’s attribute setters are called to set the initial values for its
+attributes.</p>
+<p>Finally the object’s <code>finalize</code> method is called, where the object can do any
+initialization that requires the attribute values, but should avoid calling any
+interface methods on other objects.</p>
+<p>Once the object has gone through these phases it is fully constructed and can
+participate in the simulation. At this point the <code>objects_finalized</code> method is
+called, where the object can call interface methods on other objects as part of
+the initialization process.</p>
+<blockquote class="markdown-alert-note">
+<p>In DML use the <code>post_init</code> instead of <code>finalize</code>.</p>
+</blockquote>
+<p>If several objects are created at the same time, they go through the phases
+together:</p>
+<ol>
+<li>All objects’ <code>alloc</code> methods are called.</li>
+<li>The Simics internal aspects of the objects are initialized and the objects are
+added to the object hierarchy.</li>
+<li>All <code>init</code> methods are called.</li>
+<li>All the attributes of all the objects are set.
+<ol>
+<li>Attributes of kind <code>Sim_Init_Phase_Pre1</code> are set for all objects.
+Attributes of this kind should only be registered by classes provided by Simics Core.</li>
+<li>Normal attributes are set for all objects.</li>
+<li>Object attributes marked with <code>Sim_Init_Phase_1</code> are set for all objects.</li>
+</ol>
+</li>
+<li>All the <code>finalize</code> methods are called.</li>
+<li>All the <code>objects_finalized</code> methods are called.</li>
+</ol>
+<p>An object cannot assume that the rest of the objects in the system are fully created until its <code>objects_finalized</code> method is called.
+However, the object ordering for each step is defined by the object hierarchy, with parents being initialized before any descendants. Siblings are ordered alphanumerically.
+In each method callback, the object can assume that the method has already been called for all its ancestors.</p>
+<p>In the <code>init</code> phase you must not access any object state or derived state in this object or any other object since this state is not valid yet.
+This means that all you can do in the <code>init</code> method is to obtain pointers to other objects using <a href="../rm-api/sim-api-configuration.html#SIM_get_object"><code>SIM_get_object</code></a>, <a href="../rm-api/sim-api-configuration.html#SIM_object_descendant"><code>SIM_object_descendant</code></a>, <a href="../rm-api/sim-api-configuration.html#SIM_object_parent"><code>SIM_object_parent</code></a> and <a href="../rm-api/sim-api-configuration.html#SIM_port_object_parent"><code>SIM_port_object_parent</code></a>, and to set default values for the object’s attributes, or the attributes of its descendants with <a href="../rm-api/dev-api-configuration.html#SIM_set_attribute_default"><code>SIM_set_attribute_default</code></a>.
+The purpose of the <code>init</code> method is to give the object a known initial state.
+This state will then be changed by the attribute setters during the second phase.</p>
+<blockquote class="markdown-alert-note">
+<p>There is currently no way to control the order a DML device’s attributes are registered, so in this case you cannot depend on any other attribute’s value.</p>
+</blockquote>
+<p>In <code>finalize</code> method phase, the object’s state is fully set and the method can access it freely. However, this method should avoid accessing state in other objects, which can instead be done in <code>objects_finalized</code>.
+For backwards compatibility, we currently also allow this from <code>finalize</code> provided the calling object has invoked <a href="../rm-api/dev-api-configuration.html#SIM_require_object"><code>SIM_require_object</code></a> on the target object first.</p>
+<p>In <code>objects_finalized</code>, you can freely call interface methods in other objects,
+but avoid methods which change state, since the state should be the same as the
+state which was configured to keep the same behavior when simulating from a
+checkpoint as was exhibited when the checkpoint was saved.</p>
+<blockquote class="markdown-alert-note">
+<p>Setting attribute values directly during object construction, rather than setting attribute defaults, will invariably break checkpointing or not have the intended effect.</p>
+</blockquote>
+<p>Snapshots work by saving something akin to checkpoints and using these
+checkpoints to restore the simulation state. Restoring snapshots updates the
+state of the already existing objects to reflect the state stored in the
+snapshot. Non-existing objects are created and superfluous objects are removed.
+Restoring the object state is done by setting the checkpointable attributes of
+the objects. This means that once the object is constructed it must be prepared
+to have all its checkpointable attributes set, but only to values the attributes
+have had during the simulation.</p>
+<h2 id="getting-and-setting-attributes"><a href="#getting-and-setting-attributes">Getting and Setting Attributes</a></h2>
+<p>Once an object is configured it must be prepared for calls to its attribute
+setters and getters. For attributes which are not saved as part of a checkpoint,
+there are no rules for what the getters and setters can do, and these attributes
+will not be discussed further in this document. For checkpointable attributes,
+the following rules apply.</p>
+<p>Getters can be called at any time. The getter function should return the
+attribute’s current value without changing any state in the system.</p>
+<p>To keep determinism when, for example, restoring a snapshot, it is important
+that a setter only sets the value of its attribute and does not affect any other
+state in the system.</p>
+<p>A setter can check to see if it is called as part of an initial configuration or
+when the object is already configured by calling the <a href="../rm-api/dev-api-configuration.html#SIM_object_is_configured"><code>SIM_object_is_configured</code></a>
+function.
+This can be used to implement attributes which cannot be changed after the
+initial configuration or to delay calculation of derived state to the <code>finalize</code>
+method.</p>
+<h2 id="common-patterns"><a href="#common-patterns">Common Patterns</a></h2>
+<p>It can be hard to know how to handle state in complex systems, where several
+objects communicate with each other and there is a lot of derived state. This
+section presents some common patterns for how to handle this.</p>
+<h3 id="delay-final-initialization"><a href="#delay-final-initialization">Delay Final Initialization</a></h3>
+<p>Sometimes an object may need to calculate some derived state every time some
+attribute changes. This can be hard to get right during the initial
+configuration before all the attributes are set to their configured values.
+Instead, delay this calculation to the <code>finalize</code> method, where you are sure
+that all the attributes have been set.</p>
+<p>But only delay like this if the object is configured as indicated by <a href="../rm-api/dev-api-configuration.html#SIM_object_is_configured"><code>SIM_object_is_configured</code></a>.
+The <code>finalize</code> method is not called when an object’s state is restored from a snapshot.</p>
+<h3 id="constant-state"><a href="#constant-state">Constant State</a></h3>
+<p>Since each attribute setter is called by itself, it is hard to know when and how
+to calculate derived state that depends on more than one attribute. If the
+attributes that the derived state is calculated from cannot change during
+runtime in the real system, you do not need to make it possible to change them
+after the initial configuration of your object. This makes it much easier to
+calculate the derived state, since it can be done in the <code>finalize</code> method, as
+described in the Delay Final Initialization pattern above.</p>
+<p>To avoid accidental changes of the attributes after the initial configuration,
+you can add checks in the attribute checker to look for such changes and report
+errors. To check if the attribute is set as part of the initial configuration or
+not, use the <a href="../rm-api/dev-api-configuration.html#SIM_object_is_configured"><code>SIM_object_is_configured</code></a> function. To allow the object to work
+with snapshots, you should only report errors when the value of the attribute
+actually changes, not when it is set to the same value it already has.</p>
+
+<div class="chain">
+<a href="object-hierarchy.html">34 Object Hierarchy</a>
+<a href="port-objects.html">35 Port Objects</a>
+</div>

@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;ide-disk&gt;.add-partial-diff-file</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-ide-disk.add-diff-file.html">&lt;ide-disk&gt;.add-diff-file</a>
+<a href="rm-cmd-ide-disk.default-translation.html">&lt;ide-disk&gt;.default-translation</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="ide-disk.add-partial-diff-file"></a>
+<a name="ide-disk.add-diff-partial-file"></a>
+<h1 id="ide-disk.add-partial-diff-file"><a href="#ide-disk.add-partial-diff-file">&lt;ide-disk&gt;.add-partial-diff-file</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;ide-disk&gt;.add-partial-diff-file</b> <i>filename</i> <i>start</i> [<i>size</i>] [-force] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Adds a partial diff file, <i>filename</i>, to the list of files for a disk. This is basically the same command as <code>add-partial-diff-file</code>.
+<p>
+The diff file was typically created with the <code>save-diff-file</code> command, or by a saved configuration. The <i>start</i> and <i>size</i> arguments specify the location within the image. If <i>size</i> is left out, the (virtual) size of the file is used.
+</p><p>
+If any unsaved changes are found in the image object, the command will fail. Such changes can be discarded by using the <tt>-force</tt> flag, or first saved using the <code>&lt;image&gt;.save-diff-file</code> command. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ide.html">ide</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-ide-disk.save-diff-file.html">&lt;ide-disk&gt;.save-diff-file</a>, 
+<a href="rm-cmd-image.add-diff-file.html">&lt;image&gt;.add-diff-file</a>, 
+<a href="rm-cmd-image.add-partial-diff-file.html">&lt;image&gt;.add-partial-diff-file</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-ide-disk.add-diff-file.html">&lt;ide-disk&gt;.add-diff-file</a>
+<a href="rm-cmd-ide-disk.default-translation.html">&lt;ide-disk&gt;.default-translation</a>
+</div>

@@ -1,0 +1,82 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.12 Using a cache model</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="instrumentation.html">8.11 Instrumentation</a>
+<a href="next-steps.html">9 Next Steps</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="using-a-cache-model"><a href="#using-a-cache-model">8.12 Using a cache model</a></h1>
+<p>Let us now show a simple example of how to use a simple cache model. By default,
+the Intel Simics simulator does not model any cache system. It uses its own
+memory system to achieve high speed simulation and modelling a hardware cache
+model would only slow it down. However, via the instrumentation framework, the
+flow of memory operations coming from the processor can be captured, and this
+allows modelling caches.</p>
+<p>Here is an example of using instrumentation to connect a simple cache model.</p>
+<ul>
+<li>
+<p>Start with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>Create the cache tool and connect it to all processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-simple-cache-tool name = cachetool -connect-all</strong>
+Created cachetool (connected to 1 provider)
+</code></pre>
+</li>
+<li>
+<p>Create caches on the processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>(cachetool.add-l1d-cache name = l1d line-size = 64 sets = 64 ways = 12 -ip-read-prefetcher prefetch-additional = 1)</strong>
+Created cache board.mb.cpu0.cache[0].l1d
+simics&gt; <strong>(cachetool.add-l1i-cache name = l1i line-size = 64 sets = 64 ways = 8)</strong>
+Created cache board.mb.cpu0.cache[0].l1i
+simics&gt; <strong>(cachetool.add-l2-cache name = l2 line-size = 64 sets = 1024 ways = 20 -prefetch-adjacent prefetch-additional = 4)</strong>
+Created cache board.mb.cpu0.cache[0].l2
+simics&gt; <strong>(cachetool.add-l3-cache name = l3 line-size = 64 sets = 8192 ways = 12)</strong>
+Created cache board.mb.cpu0.l3
+</code></pre>
+</li>
+<li>
+<p>Run the simulation.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 55 s</strong>
+</code></pre>
+</li>
+<li>
+<p>Display one of the cache statistics.</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.cache[0].l1d.print-statistics</strong>
+┌─────┬───────────────────────────────────┬──────────┬─────┐
+│Row #│              Counter              │  Value   │  %  │
+├─────┼───────────────────────────────────┼──────────┼─────┤
+│    1│read accesses                      │3008859511│     │
+│    2│read misses                        │  36862357│ 1.23│
+│    3│write accesses                     │1459380293│     │
+│    4│write misses                       │  16132103│ 1.11│
+│    5│prefetch accesses                  │  66601575│     │
+│    6│prefetch misses                    │  40928644│61.45│
+│    7│prefetched lines used              │  17449124│26.20│
+│    8│prefetch instructions              │   6317961│     │
+│    9│evicted lines (total)              │  93922336│     │
+│   10│evicted modified lines             │  31215791│33.24│
+│   11│entire cache flushes (invd, wbinvd)│        12│     │
+│   12│uncachable read accesses           │ 112466598│     │
+│   13│uncachable write accesses          │  73099098│     │
+└─────┴───────────────────────────────────┴──────────┴─────┘
+</code></pre>
+</li>
+</ul>
+<p>Source code for cache model is in the base package under:
+<code>src/extensions/simple-cache-tool</code>.</p>
+
+<div class="chain">
+<a href="instrumentation.html">8.11 Instrumentation</a>
+<a href="next-steps.html">9 Next Steps</a>
+</div>

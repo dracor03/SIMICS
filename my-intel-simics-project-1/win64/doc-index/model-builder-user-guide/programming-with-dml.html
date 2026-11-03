@@ -1,0 +1,989 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Programming with DML</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="device-modeling-overview.html">4 Overview</a>
+<a href="building-well-behaved-models.html">6 Building Well-Behaved Models</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;</div><h1 id="programming-with-dml"><a href="#programming-with-dml">5 Programming with DML</a></h1>
+<p>This chapter describes the basic concepts of Device Modeling Language (DML).
+This is not a complete guide, see the <em>DML 1.4 Reference Manual</em> for more
+details. The intention of this chapter is to describe the basic concepts of DML
+to understand how to model devices which will be discussed in more detail in
+later sections.</p>
+<h2 id="modules-classes-and-objects"><a href="#modules-classes-and-objects">5.1 Modules, Classes, and Objects</a></h2>
+<p>DML hides many of the mechanics of interacting with Simics to make the
+development of device models easier. For example, DML takes care of all module
+initialization, so nothing needs to be performed when a DML module is loaded in
+Simics.</p>
+<p>Each DML file mentioned in the module’s <code>Makefile</code> defines a Simics class
+automatically. The class name is provided by the <code>device</code> statement at the
+beginning of the DML file:</p>
+<pre><code>device my_device;
+</code></pre>
+<p>DML models devices as a set of nested parts called <em>objects</em>. Each attribute,
+bank, register, etc is a separate object. The objects can contain other objects
+as well as methods, session or saved variables, and parameters. Many types of
+objects only make sense in particular contexts. A complete list of object types
+and the restrictions on how they can be nested is provided in the <em>DML 1.4
+Reference Manual</em>. The set of object types is fixed and you cannot extend it.</p>
+<p>To refer to objects you give the names of all objects from the device to the
+sought object separated by <code>.</code>, ending with the name of the sought object.
+Example:</p>
+<pre><code>the_device.my_attr.my_data = 4;
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Do not confuse this concept of object with configuration objects in Simics.
+They are not the same.</p>
+</blockquote>
+<p>All variables declared in the DML file are automatically defined as object-scope
+data, which means that DML automatically defines the class structure from which
+objects will be instantiated. For example:</p>
+<pre><code>session int link_id;
+</code></pre>
+<p>defines a <code>link_id</code> variable in the object structure.</p>
+<p>Additionally, <code>local</code> variables can be declared within method bodies. These
+variables are not part of the object structure.</p>
+<h2 id="parameters"><a href="#parameters">5.2 Parameters</a></h2>
+<p>Parameters are mostly compile-time constant-valued object members. You can only
+set their value once. A parameter can be set to a value of any of the types
+<code>integer</code>, <code>float</code>, <code>string</code>, <code>bool</code>, <code>list</code>, <code>reference</code> or <code>undefined</code>. The
+type is automatically set from the value. To declare a parameter use the <code>param</code>
+keyword:</p>
+<pre><code>param some_parameter = "the value of the parameter";
+</code></pre>
+<p>In addition, in some cases a parameter can be given an explicit type. This
+will make it part of the type of whatever template it is declared within.</p>
+<pre><code>param some_parameter : uint64;
+</code></pre>
+<p>Each object also declares some parameters automatically. Read the <em>DML 1.4
+Reference Manual</em> for a complete list.</p>
+<p>In code you refer to parameters directly by using their name.</p>
+<pre><code>method some_method {
+    log info: "some_parameter: %s", some_parameter;
+}
+</code></pre>
+<p>In section <a class="reference" href="#templates">5.6</a> you can read more about how parameters interact with
+templates.</p>
+<h2 id="attributes"><a href="#attributes">5.3 Attributes</a></h2>
+<p>Registers defined in the DML files are automatically registered as both object
+structure variables and attributes. The line:</p>
+<pre><code>register aprom_0 size 1 @ 0x00 "Address PROM (MAC address)";
+</code></pre>
+<p>will define a variable in the object structure that contains the value of the
+register <code>aprom_0</code>. It will also define a corresponding attribute so that the
+state of the register can be saved and restored during checkpointing.</p>
+<p>You can also manually add attributes in DML. All that is required is an
+attribute declaration, including name and type. If the type of the attribute is
+simple then using a built-in template is advised, this will set up the storage
+for the attribute and provide default <code>set</code> and <code>get</code> methods.</p>
+<p>To understand attributes in DML, please first refer to section
+<a class="reference" href="device-modeling-overview.html#configuration-attributes">4.2.7</a> which gives an
+overview of attributes. When programming in DML it is especially important to
+make sure that the attribute initialization order is correct. If this is not the
+case some Simics features such as checkpointing and snapshotting may not work;
+this is covered in detail in section
+<a class="reference" href="device-modeling-overview.html#attribute-initialization">4.2.7.3</a>.</p>
+<h3 id="a-simple-example"><a href="#a-simple-example">5.3.1 A Simple Example</a></h3>
+<p>The simplest possible attribute holds the value of a simple data type and allows
+the attribute to be read and written without any side effects. Let us take the
+example of a counter attribute:</p>
+<pre><code>attribute counter is int64_attr {
+    param documentation = "A sample counter attribute";
+}
+</code></pre>
+<p>The <code>int64_attr</code> template provides the necessary semantics
+for a simple <code>int64</code> type attribute. It tells Simics type
+system to check the value in set and get operations
+for an integer type, and sets the internal representation of the
+attribute value. There are a few other built-in templates that provides
+similar functionality for some basic types. See the
+<em>DML 1.4 Reference Manual</em> for details.</p>
+<h3 id="a-pseudo-attribute"><a href="#a-pseudo-attribute">5.3.2 A Pseudo Attribute</a></h3>
+<p>When the data type of an attribute is more complex, the <code>type</code> parameter
+must be set, and the <code>set</code> and <code>get</code> methods must be
+provided. Here is an example of this:</p>
+<pre><code>    param type = "n";
+
+    method set(attr_value_t val) throws {
+        // [...]
+    }
+    method get() -&gt; (attr_value_t) {
+        // [...]
+        return SIM_make_attr_nil();
+    }
+</code></pre>
+<p>The <code>n</code> type simply means a “null” type that cannot be assigned a
+value.</p>
+<p>A slightly more complicated example is a pseudo attribute which, when setting
+values, will add to the value of the counter, and for which getting is an error.</p>
+<pre><code>attribute add_counter is write_only_attr {
+    param documentation = "A sample pseudo attribute";
+    param type = "i";
+
+    method set(attr_value_t val) throws {
+        counter.val += SIM_attr_integer(val);
+    }
+}
+</code></pre>
+<p>Here, the <code>write_only_attr</code> template informs Simics that the attribute
+cannot be read, and will provide the necessary <code>get</code> method for you.
+We cannot use both the <code>write_only_attr</code> and the <code>int64_attr</code> templates
+since they have conflicting definitions of <code>get</code>, so we must provide
+the <code>type</code> param and a custom <code>set</code> method.</p>
+<p>Note that no type check is required in the <code>set</code> method, since the type <code>i</code> is
+unambiguously checked by Simics before calling the <code>set</code> method such that only
+integer values can be assigned.</p>
+<h3 id="attribute-errors"><a href="#attribute-errors">5.3.3 Attribute Errors</a></h3>
+<p>DML provides generic error handling for attributes whose types are simple
+enough to use one of the built-in templates. The default behaviour of these
+templates is for the <code>get</code> to be equivalent to a C/Python attribute
+getter function that returns an <code>attr_value_t</code> of the appropriate
+value kind, and for the <code>set</code> method to verify that the value is
+in-bounds for the type, and setting an appropriate attribute error if the
+value is incorrect. For most attributes it is recommended to use one of
+the built-in templates.</p>
+<p>For more complex attributes as described in section <a class="reference" href="#a-pseudo-attribute">5.3.2</a>,
+where the implementer provides custom <code>get</code> and <code>set</code> methods, these methods are
+responsible for handling and returning any error that may result from the
+attribute access. They become strikingly similar to how an attribute access
+function written in C, and most attribute error handling concepts from C can
+indeed be directly translated to DML. Section
+<a class="reference" href="writing-module-with-c.html#attribute-errors">15.4.3</a> contains the details about
+attribute errors in C and Python.</p>
+<p>The difference between DML and C is the return value of the methods. To signal
+that a DML attribute <fun>set</fun> +method encountered an error, the <code>throw</code>
+statement is used. The effect is that the method is stopped immediately at the
+point of the throw. The implementer has the option to specify a message to
+provide details about the error using <code>SIM_attribute_error</code> before throwing.</p>
+<h2 id="banks-and-registers"><a href="#banks-and-registers">5.4 Banks and Registers</a></h2>
+<p>DML uses registers and banks to model hardware registers. Banks represent
+continuous address ranges containing registers. The registers are mapped in
+their banks with an offset and size. A bank can also contain registers without
+an offset. These registers are not accessible with memory operations.</p>
+<p>A register can be further split into fields. Each field is a range of bits in
+the register. The value remains stored in the register, the field merely
+contains a reference to it.</p>
+<h3 id="register-banks"><a href="#register-banks">5.4.1 Register Banks</a></h3>
+<p>A <em>register bank</em> (or simply <em>bank</em>) is an abstraction that is used to group
+registers in DML. A bank is defined by using the keyword <code>bank</code>. A device can
+have one or more banks. Each bank can be individually mapped in a memory space
+by specifying the name of the bank as the function to map. This is described in
+chapter <a class="reference" href="memory-space.html">25</a>.</p>
+<p>The same bank can be defined several times. Doing this often helps when looking
+at the code for a large device with many registers. For example, the first
+definition at the top of the file only list all registers and their offsets.
+Later the bank is defined again, but this time with the register functionality.
+Try splitting up your bank like this:</p>
+<pre><code>bank regs {
+    register r size 4 @ 0x0000;
+}
+
+//[...]
+bank regs {
+    register r is read {
+        method read() -&gt; (uint64) {
+            log info: "read from r";
+            return 42;
+        }
+    }
+}
+</code></pre>
+<p>Note that you can only set register size and offset once.</p>
+<h3 id="registers"><a href="#registers">5.4.2 Registers</a></h3>
+<p>Registers in DML contain integer values, which are unsigned. The most important
+parameters for registers are their <code>size</code> and <code>offset</code>. You can specify these
+parameters as any other, but it is easier to use the shorthand notation:</p>
+<pre><code>    register r size 4 @ 0x1000;
+</code></pre>
+<p>This defines a register <code>r</code> of size 4 which is mapped at offset <code>0x1000</code> in the
+register’s bank. Memory accesses to this location will access the register. The
+default behavior of registers is to return the register’s value when read and
+set the register’s value when written. This behavior can be changed by
+overriding the <code>write_register</code> or <code>read_register</code> methods. For details on these
+methods, see the <em>DML 1.4 Reference Manual</em>.</p>
+<pre><code>    register r size 4 @ 0x1000 {
+        method read_register(uint64 enabled_bytes, void *aux)-&gt; (uint64) {
+            log info: "Reading register r returns a constant";
+            return 42;
+        }
+
+        method write_register(uint64 value, uint64 enabled_bytes, void *aux){
+            log info: "Wrote register r";
+            this.val = value;
+        }
+    }
+</code></pre>
+<p>A more simple way of modifying the behavior is to use the
+<code>read</code> or <code>write</code> templates, and then overriding
+the corresponding <code>read</code> or <code>write</code> methods.</p>
+<pre><code>    register r size 4 @ 0x1000 is (read, write) {
+        method read () -&gt; (uint64) {
+            log info: "Reading register r returns a constant";
+            return 42;
+        }
+
+        method write (uint64 value) {
+            log info: "Wrote register r";
+            this.val = value;
+        }
+    }
+</code></pre>
+<h3 id="register-fields"><a href="#register-fields">5.4.3 Register Fields</a></h3>
+<p>Real hardware registers often have a number of <code>fields</code> with separate meaning.
+Registers in Simics also support fields. Let us assume bit <code>0</code> in register <code>r</code>
+is a status bit and bits <code>1-4</code> are a counter. It would look something like this:</p>
+<pre><code>bank regs {
+    register r size 4 @ 0x0000 {
+        field status @ [0];
+        field counter @ [4:1] is read {
+            method read() -&gt; (uint64) {
+                log info: "read from counter";
+                return default() + 1;
+            }
+        }
+    }
+}
+
+method init() {
+    // [...]
+    if (regs.r.status.val == ENABLED) {
+        // [...]
+    }
+}
+</code></pre>
+<p>Using field names instead of doing bit-slicing on the register helps to
+understand what is happening in the device when reading the code. It is also
+possible to write special methods for the fields.</p>
+<p>Fields support some of the same methods and templates as a register.
+The most common methods are <code>get</code>, <code>set</code>. While secondarily
+the <code>read</code> and <code>write</code> methods provided by the similarly named
+templates are also common. These methods behave the same for fields as for
+registers.</p>
+<h3 id="the-get-and-set-methods-of-registers"><a href="#the-get-and-set-methods-of-registers">5.4.4 The get and set methods of registers</a></h3>
+<p>The <code>get</code> and <code>set</code> methods of a register are used when you access the register
+as an attribute. Implementations of these methods should not have any side
+effects apart from getting and setting the register’s value. The default
+behavior of the methods depends on whether the register has any fields or not.
+For registers without fields the methods work the same way as the corresponding
+methods for attributes. For a register with fields the methods take care of
+calling the corresponding methods of the register’s fields. The <code>get</code> method
+merges the results from the calls to the fields’ <code>get</code> methods and the <code>set</code>
+method splits the value into one part for each field and sends the parts on to
+the fields’ <code>set</code> methods. Note that for fields where the <code>set</code> or <code>get</code>
+templates are not instantiated, the register will not call into their
+corresponding methods as a matter of optimization.</p>
+<h3 id="bank-and-register-arrays"><a href="#bank-and-register-arrays">5.4.5 Bank and Register Arrays</a></h3>
+<p>In DML it is possible to define rows of registers or banks as register and bank
+arrays. The sample code below defines a bank array of size two, where each bank
+contains two registers in a single array.</p>
+<pre><code>bank func[i &lt; 2] {
+    register ctrl[j &lt; 2] size 4 @ 4 * j is read {
+        method read() -&gt; (uint64) {
+            log info: "read from %s -&gt; %#x", qname, this.val;
+            return this.val;
+        }
+    }
+}
+</code></pre>
+<p>This creates four registers in total, each of which has its own state (value)
+but shares the same behavior (methods).</p>
+<p>Each bank in a bank array is mapped individually in memory spaces, normally in a
+component file, with the same name but different indexes. The following code
+maps the banks defined above into the memory space <code>mem\_space</code> at offsets
+<code>0x100</code> and <code>0x200</code>, respectively.</p>
+<pre><code>mem_space.map = [[0x100, obj.bank.func[0], 0, 0, 0x100],
+                 [0x200, obj.bank.func[1], 0, 0, 0x100]]
+</code></pre>
+<p>Register <code>func[0].ctrl[0]</code> will then be mapped at address <code>0x100</code>,
+<code>func[0].ctrl[1]</code> at <code>0x104</code>, <code>func[1].ctrl[0]</code> at <code>0x200</code> and <code>func[1].ctrl[1]</code>
+at <code>0x204</code>, respectively.</p>
+<p>Bank and register arrays are apt for modeling devices containing several
+identical units where each of the units performs the same functionality but
+operates independently of each other. An example of this is the virtual
+functions in PCIe SR-IOV devices.</p>
+<h2 id="interfaces"><a href="#interfaces">5.5 Interfaces</a></h2>
+<p>Interfaces are the mechanism used in Simics when Simics objects, such as device
+models, need to communicate with each other. A DML device can both implement
+interfaces to provide additional services which other devices and objects can
+call, and call methods in interfaces implemented by other objects. This section
+describes how to do this in DML.</p>
+<h3 id="using-interfaces"><a href="#using-interfaces">5.5.1 Using Interfaces</a></h3>
+<p>Using an interface in a module implemented in DML, is done by <em>connecting</em> an
+object to the device model you are developing, specifying which interfaces you
+are planning to use.</p>
+<p>The <code>connect</code> section performs two things at the same time: it defines an
+attribute that can take an object or an object and a port name as its value, and
+it tells the DML compiler that a number of interfaces belonging to this object
+or port can be used in the current device model.</p>
+<p>The following code will create an <code>irq_dev</code> attribute that accepts as a value
+only objects or ports implementing the <code>signal</code> interface.</p>
+<pre><code>connect irq_dev {
+    param documentation = "The device that interrupts are sent to.";
+    param configuration = "required";
+
+    interface signal;
+}
+</code></pre>
+<p>Once an object has been connected, using the interfaces that were specified is
+simple:</p>
+<pre><code>// [...]
+if (!irq_raised.val &amp;&amp; irq_dev.obj) {
+    log info, 3: "Raising interrupt.";
+    irq_dev.signal.signal_raise();
+}
+// [...]
+</code></pre>
+<p>To connect the created attribute set it to either a configuration object
+implementing the correct interfaces or a configuration object and the name of a
+port in that object which implements the interfaces.</p>
+<p>Here is a Python example how to do the connection to an object:</p>
+<pre><code>dev.irq_dev = intc
+</code></pre>
+<p>And here is an example showing how to connect to a port:</p>
+<pre><code>dev.irq_dev = [intc, "input_levels"]
+</code></pre>
+<p>In both examples dev is the object implementing the connect, and intc is an
+object implementing the <code>signal</code> interface. In the second example input_levels
+is the name of the port in intc implementing the interface.</p>
+<h3 id="implementing-an-interface"><a href="#implementing-an-interface">5.5.2 Implementing an Interface</a></h3>
+<p>Implementing an interface in DML is done with the <code>implement</code> declaration, which
+contains the implementation of all the functions listed in the interface. The
+interface is automatically registered by the DML compiler so that other objects
+can use it on the current device model:</p>
+<pre><code>implement ethernet_common {
+    // Called when a frame is received from the network.
+    method frame(const frags_t *frame, eth_frame_crc_status_t crc_status) {
+        if (crc_status == Eth_Frame_CRC_Mismatch) {
+            log info, 2: "Bad CRC for received frame";
+        }
+        receive_packet(frame);
+    }
+}
+</code></pre>
+<h3 id="ports"><a href="#ports">5.5.3 Ports</a></h3>
+<p>A device can use interface <code>ports</code> to have several implementations of the same
+interface. The ports have names that can be used to select the implementation
+when connecting to the device. Use a <code>port</code> declaration in DML to define a new
+port. See example:</p>
+<pre><code>port pin0 {
+    implement signal {
+        method signal_raise() {
+            log info: "pin0 raised";
+        }
+        method signal_lower() {
+            log info: "pin0 lowered";
+        }
+    }
+}
+port pin1 {
+    implement signal {
+        method signal_raise() {
+            log info: "pin1 raised";
+        }
+        method signal_lower() {
+            log info: "pin1 lowered";
+        }
+    }
+}
+</code></pre>
+<p>Every bank declaration also acts as a port, which means that interfaces
+implemented inside a bank belong to the port defined by the bank. This allows to
+map each register bank separately.</p>
+<p>The DML compiler will create a port object for each DML port and bank. These are
+automatically created sub objects of the device object that are specified when
+connecting other devices to the port or bank. See <a class="reference" href="port-objects.html">35</a> for more
+information about port objects.</p>
+<p>Port objects for DML ports are created in a <code>port</code> namespace under the device
+object. For example, if there is a DML port named <code>irq</code> in a device object named
+<code>pic</code> the full name of the port object will be <code>pic.port.irq</code>.</p>
+<p>These port objects are specified when connecting other objects to the port. For
+example, connecting the irq output of a UART object (perhaps implemented as a
+DML connect in that device) to the irq port of our <code>pic</code> object may look like
+this in the component code:</p>
+<pre><code>uart.irq = pic.port.irq
+</code></pre>
+<p>Port objects for DML banks are created in a corresponding <code>bank</code> namespace under
+the device object.</p>
+<h3 id="defining-a-new-interface-type"><a href="#defining-a-new-interface-type">5.5.4 Defining a New Interface Type</a></h3>
+<p>The Simics API defines a number of useful interface types, but sometimes they
+are not enough, for example if you are using a bus type that is not supported by
+the predefined interface types.</p>
+<p>To define new interfaces you should create a new interface module. This is
+described in chapter <a class="reference" href="define-new-interface-type.html">11</a>.</p>
+<h2 id="templates"><a href="#templates">5.6 Templates</a></h2>
+<p>Templates are a powerful tool when programming in DML. The code in a template
+can be used multiple times. A template can also implement other templates.
+Templates are commonly used on registers, but they can be used on all DML object
+types. Here is a simple template:</p>
+<pre><code>template spam is write {
+    method write(uint64 value) {
+        log error: "spam, spam, spam, ...";
+    }
+}
+
+bank regs {
+    // [...]
+    register A size 4 @ 0x0 is spam;
+</code></pre>
+<p>Register A will write <code>spam, spam, spam</code> to the console when someone writes to
+it.</p>
+<p>Templates in combination with parameters are even more powerful:</p>
+<pre><code>template lucky_number is read {
+    param extra_1 default 1;
+    param extra_2;
+
+    method read() -&gt; (uint64) {
+        local uint64 value = this.val * extra_1 + extra_2;
+        log error: "my lucky number is %d", value;
+        return value;
+    }
+}
+
+bank regs {
+    // [...]
+    register B size 4 @ 0x4 is lucky_number {
+        param extra_2 = 4711;
+    }
+</code></pre>
+<p>The <code>extra_1</code> parameter has a default value so there is no need to define it in
+<code>B</code>. But <code>extra_2</code> must be defined in <code>B</code> as it does not have a value set. The
+DML compiler will return an error if <code>extra_2</code> is not set, forcing everybody
+using the template to set it.</p>
+<p>The DML library contains many standard templates which can be used on registers
+and fields. The most common ones are the <code>read</code> and <code>write</code> templates which
+provide simple access points (the <code>read</code> and <code>write</code> methods) to modify the
+behaviour of registers or fields. The <em>DML 1.4 Reference Manual</em> lists all
+standard templates and their functionality.</p>
+<p>In addition to facilitating code-reuse by defining templates for common
+functionality, templates can also be used as a sort of “inheritance” mechanism
+in DML. For example, two devices may be almost similar except for some
+parameters and a few functional differences. In this case the common
+functionality can be implemented as a template, to be shared between the devices
+where the differences are abstracted out to parameters and methods that are
+specialized in the two (or more) devices. In a somewhat artificial example, a
+device may have several banks that have registers that byte-swaps any value
+written to them. The banks may have different ways to control if the swapping
+should take place. In this case it is possible to implement the common
+functionality in a template and to specialize the individual banks. The listing
+below shows an example of such a device, with comments inlined.</p>
+<pre><code>dml 1.4;
+
+device byte_swapper;
+param desc = "byte swapper";
+param documentation = "This device implements byte swapping functionality";
+
+// This is a template that implements basic byte swapping
+// functionality. An object implementing this template must define
+// the should_swap and get_name methods.
+template swapper {
+    // Swap value and returns the result. Swapping will only
+    // take place if should_swap returns true. It will also write a
+    // log message based on the get_name method.
+    method swap(uint32 value) -&gt; (uint32) {
+        if (should_swap()) {
+            log info, 2: "Swapping in %s", get_name();
+
+            value = (value &amp; 0xff) &lt;&lt; 24 | (value &amp; 0xff00) &lt;&lt; 8
+                | (value &amp; 0xff0000) &gt;&gt; 8 | (value &amp; 0xff000000) &gt;&gt; 24;
+        }
+
+        return value;
+    }
+}
+
+// This template implements a general swap enable/disable
+// functionality through a configuration register. An object
+// implementing this template must define a register named CONF with a
+// one-bit bit-field named SWAP.
+template swap_conf {
+    method should_swap() -&gt; (bool) {
+        return CONF.SWAP.val == 1;
+    }
+}
+
+// This template is a bank-template and implements a register bank
+// with a configuration register and a byte-swapping register. It also
+// implements the swapper template, it ISA swapper.
+template swap_bank {
+    is swapper;
+    is bank;
+
+    param register_size = 4;
+    param byte_order = "little-endian";
+
+    register CONF @ 0 {
+        field SWAP @ [0];
+    }
+
+    register SWAP @ 4 is read {
+        method read() -&gt; (uint64) {
+            return swap(default());
+        }
+    }
+}
+
+// swap1 bank, implements swap_bank and swap_conf. Swapping is
+// controlled through the CONF.SWAP bit.
+bank swap1 {
+    is swap_bank;
+    is swap_conf;
+
+    method get_name() -&gt; (const char *) {
+        return "swap1";
+    }
+}
+
+// swap2 bank, implements swap_bank and swap_conf. Swapping is
+// controlled through the CONF.SWAP bit.
+bank swap2 {
+    is swap_bank;
+    is swap_conf;
+
+    method get_name() -&gt; (const char *) {
+        return "swap2";
+    }
+}
+
+// swap_always bank, implements swap_bank template, but not the
+// swap_conf template. Swapping is always enabled.
+bank swap_always {
+    is swap_bank;
+
+    method should_swap() -&gt; (bool) {
+        return true;
+    }
+
+    method get_name() -&gt; (const char *) {
+        // Here we leverage the name parameter instead of manually
+        // specifying the name.
+        return name;
+    }
+}
+</code></pre>
+<p>In the above example the <code>get_name</code> and <code>should_swap</code> methods are specialized in
+the various bank instances. Although for the <code>should_swap</code> specialization for
+the bank <code>swap1</code> and <code>swap2</code> is done in a common template, the <code>swap_conf</code>
+template. This is a good example of using multiple templates to build more and
+more specialized instances using common code. Below is a simple test case for
+the byte-swapper device.</p>
+<pre><code>import dev_util as du
+import stest
+
+# Create a sample_swap object and raise the log-level
+s = SIM_create_object('byte_swapper', 's', [])
+s.log_level = 4
+
+# Create a register accessor for the CONF and SWAP registers in bank
+# swap1
+conf1 = du.Register_LE(s.bank.swap1, 0)
+swap1 = du.Register_LE(s.bank.swap1, 4)
+
+# Write a value to s:swap1:SWAP, it should NOT be swapped because CONF
+# is 0
+swap1.write(0xdeadbeef)
+stest.expect_equal(swap1.read(), 0xdeadbeef)
+
+# Now write 1 to CONF, to make the value swapped
+conf1.write(1)
+stest.expect_equal(swap1.read(), 0xefbeadde)
+
+# Same thing for bank 'swap2'
+conf2 = du.Register_LE(s.bank.swap2, 0)
+swap2 = du.Register_LE(s.bank.swap2, 4)
+swap2.write(0xdeadbeef)
+stest.expect_equal(swap2.read(), 0xdeadbeef)
+conf2.write(1)
+stest.expect_equal(swap2.read(), 0xefbeadde)
+
+# Now for the swap_always bank. The SWAP register will now swap
+# without setting the CONF register.
+swap = du.Register_LE(s.bank.swap_always, 4)
+swap.write(0xdeadbeef)
+stest.expect_equal(swap.read(), 0xefbeadde)
+</code></pre>
+<p>This is the corresponding test log.</p>
+<pre><code>=BEGIN s-swap -----------------------------------------------------------------
+[s info] Write to register swap1.SWAP &lt;- 0xdeadbeef
+[s info] Read from register swap1.SWAP -&gt; 0xdeadbeef
+[s info] Write to register swap1.CONF &lt;- 0x1
+[s info] Swapping in swap1
+[s info] Read from register swap1.SWAP -&gt; 0xefbeadde
+[s info] Write to register swap2.SWAP &lt;- 0xdeadbeef
+[s info] Read from register swap2.SWAP -&gt; 0xdeadbeef
+[s info] Write to register swap2.CONF &lt;- 0x1
+[s info] Swapping in swap2
+[s info] Read from register swap2.SWAP -&gt; 0xefbeadde
+[s info] Write to register swap_always.SWAP &lt;- 0xdeadbeef
+[s info] Swapping in swap_always
+[s info] Read from register swap_always.SWAP -&gt; 0xefbeadde
+=END s-swap 0.4 s -------------------------------------------------------------
+</code></pre>
+<h2 id="logging"><a href="#logging">5.7 Logging</a></h2>
+<p>Logging support is built into the language. Log outputs are made with the <code>log</code>
+statement as follows:</p>
+<pre>log <em>type</em>[, <em>level</em> [ then <em>subsequent_level</em> ] [,
+<em>groups</em>] ]: <em>string</em>[, <em>value1</em>, ..., <em>valueN</em>];
+</pre>
+<p>where the parameters mean:</p>
+<dl>
+<dt id="dt:type"><a href="#dt:type"><em><code>type</code></em></a></dt>
+<dd>One of the identifiers:
+<ul>
+<li><code>info</code>: Normal informational message</li>
+<li><code>error</code>: Unexpected error in the model (indicates a bug in the model)</li>
+<li><code>critical</code>: Serious error that will interrupt the simulation</li>
+<li><code>spec_viol</code>: Target program violates the specification</li>
+<li><code>unimpl</code>: Attempt to use not yet implemented functionality</li>
+</ul>
+</dd>
+<dt id="dt:level"><a href="#dt:level"><em><code>level</code></em></a></dt>
+<dd>An integer from 1 through 4, determining
+the verbosity level at which the message will be logged. The default is 1.
+This parameter has no effects if <em><code>type</code></em> is either <code>error</code> or <code>critical</code> and
+may be left unspecified if <em><code>groups</code></em> (see below) is not used.</dd>
+<dt id="dt:subsequent_level"><a href="#dt:subsequent_level"><em><code>subsequent_level</code></em></a></dt>
+<dd>An integer from 1 through 5.
+If specified, all logs after the first issued will be on the verbosity level
+<em><code>subsequent_level</code></em>. A <em><code>subsequent_level</code></em> of 5 means no logging after the
+initial log will be done.</dd>
+<dt id="dt:groups"><a href="#dt:groups"><em><code>groups</code></em></a></dt>
+<dd>One or several log groups, defined by
+the global declaration <code>loggroup</code>. See section <a class="reference" href="#log-groups">5.7.1</a> for details.
+Several log groups can be combined with the bitwise <strong>or</strong> operator “<code>|</code>”.</dd>
+<dt id="dt:string-values"><a href="#dt:string-values"><em><code>string, values</code></em></a></dt>
+<dd>A formatting string, as for the
+C function <code>printf()</code>, optionally followed by a comma separated list of values
+to be printed.</dd>
+</dl>
+<p>A small example:</p>
+<pre><code>loggroup example;
+
+method m(uint32 val) {
+    log info, 4, example : "val=%u", val;
+}
+</code></pre>
+<h3 id="log-groups"><a href="#log-groups">5.7.1 Log Groups</a></h3>
+<p>Log groups help debugging by grouping log-messages based on different parts of
+the device functionality. Each log message is associated with a number of groups
+as described above, and each log object has a builtin CLI command
+<strong>&lt;object&gt;.log-group</strong> to select which groups of log messages to show. The log
+messages of an Ethernet device can for example be divided into different groups
+for the receive logic and the transmit logic. You can then choose to only see
+log messages for the part you find interesting when running Simics.</p>
+<p>If a log message specifies no log group, it is unaffected by which log groups
+that are currently selected.</p>
+<h3 id="log-levels"><a href="#log-levels">5.7.2 Log Levels</a></h3>
+<p>Log levels are very helpful when it comes to finding bugs or examining what is
+happening inside a device. The default log-level in Simics is <code>1</code>. Different log
+levels target different groups of users:</p>
+<ul>
+<li>Log levels 1-2: Any user</li>
+<li>Log level 3: Developer of target software that interacts with this device</li>
+<li>Log level 4: Developer of the model itself</li>
+</ul>
+<p>Here are some logging examples of DML Ethernet controller that will help you to
+choose the appropriate log-level.</p>
+<dl>
+<dt id="dt:log-level-1"><a href="#dt:log-level-1">log-level 1</a></dt>
+<dd>Important messages that must be brought
+to the user’s attention.
+Example: <code>"Receive buffer functionality is not implemented."</code></dd>
+<dt id="dt:log-level-2"><a href="#dt:log-level-2">log-level 2</a></dt>
+<dd>High level informative messages like
+mode changes and important events.
+Example: <code>"Port status changed to link-up."</code></dd>
+<dt id="dt:log-level-3"><a href="#dt:log-level-3">log-level 3</a></dt>
+<dd>Detailed information for target software
+developer. Example: <code>"Received an ARP frame with correct CRC."</code></dd>
+<dt id="dt:log-level-4"><a href="#dt:log-level-4">log-level 4</a></dt>
+<dd>Debugging level with low level model
+detail. Mainly used for model development.
+Example: <code>"External buffer allocated at address 0x1000BEAF with 512 bytes."</code></dd>
+</dl>
+<h2 id="events"><a href="#events">5.8 Events</a></h2>
+<p>In a hardware simulation, it can often be useful to let something happen only
+after a certain amount of (simulated) time. This can be done in Simics by
+posting an event, which means that a callback function is placed in a queue, to
+be executed later in the simulation. The amount of simulated time before the
+event is triggered is usually specified in a number of seconds (as a
+floating-point number), but other units are possible; see the <em>DML 1.4 Reference
+Manual</em> for more information about the <em><code>timebase</code></em> parameter.</p>
+<p>The callbacks and posting is handled by declaring <code>event</code> objects. A simple
+event example looks like this:</p>
+<pre><code>event future is uint64_time_event {
+    method event(uint64 data) {
+        log info, 1 : "The future is here";
+    }
+}
+</code></pre>
+<p>The <code>uint64_time_event</code> template is a built-in template that provides
+the necessary wrappings for an event that is posted on seconds and that takes an
+<code>uint64</code>  as a data argument. The <code>event()</code> method is
+called with the posted data when the queue reaches a posted event.</p>
+<p>There are other built-in templates for posting with other callback argument
+types, or other time units. See the <em>DML 1.4 Reference Manual</em> for more
+information on these.</p>
+<p>To post an event, use the <code>post()</code> method on the DML object. Note that
+the signature of the <code>post()</code> method depends on the event template that
+is used.</p>
+<pre><code>// post an event 0.1 s in the future
+future.post(0.1, 0);
+</code></pre>
+<h3 id="event-data"><a href="#event-data">5.8.1 Event data</a></h3>
+<p>Every posted event can be associated with data.
+In the most simple cases you can use the <code>simple_event</code> variants
+of the built-in event templates to use no data argument, but sometimes the
+callback needs some more information about the action to be performed.
+When posting an event using the <code>post</code> method,
+data can be provided depending on which built-in template variant was used.</p>
+<p>If you need more advanced data types than the ones provided by the built-in
+templates, you must use the <code>custom_event</code> variant of the template.
+The data will then become a generic data pointer that you can re-cast as needed.</p>
+<p>To support checkpointing, all custom events must implement a few more methods.
+The <code>get_event_info</code> is called when creating the checkpoint to convert the event
+data to an <code>attr_value_t</code> that can be stored in the checkpoint. When restoring
+from a checkpoint, the <code>set_event_info</code> method is called to convert from an
+<code>attr_value_t</code> to a data pointer that can be passed to the event callback.</p>
+<p>If the data pointer points to newly allocated memory that is only passed to the
+<code>post</code> method, the allocated data is owned by the event. This means that it is
+up to the <code>event</code> method to deallocate the memory. But sometimes events needs to
+be removed before they are reached, and events using allocated memory must
+implement a <code>destroy</code> method that is passed the data pointer. This method should
+deallocate the data without performing any other action. The <code>destroy</code> method
+may not access the Simics configuration, since it may be called while removing
+objects.</p>
+<h3 id="managing-posted-events"><a href="#managing-posted-events">5.8.2 Managing posted events</a></h3>
+<p>If you changed your mind and a posted, but not yet handled, event is no longer
+valid, it can be canceled by calling the <code>remove()</code> method on the event object.
+Note that the signature of the <code>remove()</code> method depends on which built-in event
+template was used for the event.</p>
+<pre><code>future.remove(some_data);
+</code></pre>
+<p>To find out if there is an event posted but not yet handled, the method
+<code>posted()</code> can be called, and to get the time remaining until the event will be
+handled, the method <code>next()</code> will return the time as specified by <code>timebase</code>.
+Again, note that the signature of both of these methods depend on which built-in
+event template was used for the event.</p>
+<pre><code>local bool is_this_event_posted = future.posted(some_data);
+local double when_is_this_event_posted = future.next(some_data);
+</code></pre>
+<h3 id="after"><a href="#after">5.8.3 After</a></h3>
+<p>DML also provides a convenient shortcut with the <code>after</code> statement. An <code>after</code>
+statement is used to call a DML method some time in the future. The arguments to
+such method must be serializable by DML, as they will be stored in checkpoints.
+For more information on serializable types see the <em>DML 1.4 reference manual</em>.
+Method calls posted by after can be cancelled similar to events by calling the
+<code>cancel_after</code> method on the DML object that contained the method from which the
+event was posted. This will cancel <code>after</code> events that have been posted by
+methods of that object.</p>
+<pre><code>// call my_method() after 10.5s
+after 10.5 s: my_method();
+</code></pre>
+<p>The DML program continues immediately with the next statement following <code>after</code>,
+i.e., the event is executed <em>asynchronously</em>. Refer to the <em>DML 1.4 Reference
+Manual</em> for more information.</p>
+<h3 id="event-example"><a href="#event-example">5.8.4 Event Example</a></h3>
+<p>It is possible to modify our example to post an event when the register is
+written to, as follows:</p>
+<pre><code>dml 1.4;
+device sample_device;
+param documentation = "Timer example for Model Builder User's Guide";
+param desc = "example of timer";
+import "utility.dml";
+
+bank regs {
+    register delay size 4 is unmapped;
+    register r size 4 @ 0x0000 is write {
+        method write(uint64 val) {
+            this.val = 0;
+            delay.val = val;
+            ev.post(delay.val);
+            log info: "Posted tick event";
+        }
+        event ev is simple_time_event {
+            method event() {
+                r.val++;
+                log info: "Tick: %d.", r.val;
+                this.post(delay.val);
+            }
+        }
+    }
+}
+</code></pre>
+<p>In the example, the register itself functions as a counter, which is reset to
+zero upon a write access; the written value is used as the delay in seconds.
+Once the event happens, it re-posts itself after the same interval. Note the use
+of the unmapped register <code>delay</code> to store the delay internally. The counter
+could have been placed in a session field instead, or in a more realistic
+example the counter could have been placed in an additional register. Note that
+the <code>post</code> method’s signature is dependent on the template instantiated by the
+<code>ev</code> event, in this case <code>simple_time_event</code> means that it takes no arguments.</p>
+<p>A device that posts events must be connected to a <code>clock</code> object, which controls
+when the event is executed. All processor objects function as clocks. This is
+done by setting the <code>queue</code> attribute of the device. After recompiling and
+restarting Simics, enter:</p>
+<pre><code class="language-simics">simics&gt; <strong>@SIM_create_object('sample_device', 'dev1')</strong>
+simics&gt; <strong>dev1-&gt;queue = timer</strong>
+simics&gt; <strong>phys_mem.add-map dev1.bank.regs 0x1000 4</strong>
+</code></pre>
+<p>This connects your device to the clock <strong>timer</strong>, which was pre-defined by the
+<code>vacuum</code> target.</p>
+<p>Now enter the command <code>continue</code> (or <code>c</code> for short). This simply runs the
+simulation of the hardware. You should see no messages, since there is nothing
+exciting going on in the machine, except that the clock is ticking away. Press
+<code>Ctrl-C</code> to pause the simulation and get back to the prompt.</p>
+<p>Now write a large value to the register:</p>
+<pre><code class="language-simics">simics&gt; <strong>phys_mem.write 0x1000 10000 -l</strong>
+</code></pre>
+<p>and enter <code>c</code> again. You should see “Tick”-messages being written at fairly
+short intervals. Press <code>Ctrl-C</code> and write a lower value to the register:</p>
+<pre><code class="language-simics">simics&gt; <strong>phys_mem.write 0x1000 1 -l</strong>
+</code></pre>
+<p>then start the simulation again. The messages are now printed at high speed
+(although not ten thousand times as fast). The lesson from this is that
+simulated time is not strictly proportional to real time, and if a machine has
+very little to do, even 10,000 seconds can be simulated in a very short time.</p>
+<p>In this simple case, the event is not associated with any data. All events that
+have a non-NULL data pointer must implement more methods to support
+checkpointing. See section 5.8.1 for more details.</p>
+<p>Note that it is often bad for Simics performance to post many events; a counter
+such as the example device above could have been implemented in a more efficient
+way. See sections
+<a class="reference" href="modeling-techniques.html#transform-events-into-functions-of-time">2.3.3</a> and
+<a class="reference" href="modeling-techniques.html#cluster-events">2.3.2</a> for details.</p>
+<h2 id="haps"><a href="#haps">5.9 Haps</a></h2>
+<h3 id="providing-haps"><a href="#providing-haps">5.9.1 Providing Haps</a></h3>
+<p>As the Simics profiling and event viewing systems are based on listening to haps
+it can be useful for a device to directly trigger haps rather than relying on
+haps built into the memory, link, and processor models. In these situations the
+model has to choose between a standard Simics hap and a user defined hap.
+Standard haps have the benefit of documentation and predefined hap handlers.
+User defined haps have the advantage of specificity.</p>
+<h4 id="adding-a-new-type"><a href="#adding-a-new-type">5.9.1.1 Adding a New Type</a></h4>
+<p>Before handlers can be notified of a new hap, the hap must be known. A new hap
+type is made known through registration. Registering a new hap type is done with
+the function <code>SIM_hap_add_type()</code>. The signature is:</p>
+<pre><code>hap_type_t
+SIM_hap_add_type(const char *hap,
+                 const char *params,
+                 const char *param_desc,
+                 const char *index,
+                 const char *desc,
+                 int old_hap_obj);
+</code></pre>
+<p>where the parameters are:</p>
+<dl>
+<dt id="dt:hap"><a href="#dt:hap"><em>hap</em></a></dt>
+<dd>The name of the hap, which must be unique</dd>
+<dt id="dt:params"><a href="#dt:params"><em>params</em></a></dt>
+<dd>A string specifying the number of
+parameters of the hap and their types. The return value and the first two
+parameters of the callback function are always the same and are not included
+in the list. A valid parameter description string contains only the following
+type description characters:
+<ul>
+<li><code>i</code> – int</li>
+<li><code>I</code> – int64 (64 bit integer)</li>
+<li><code>e</code> – exception_type_t</li>
+<li><code>o</code> – object (i.e., void* in DML and C, and a Python object in Python)</li>
+<li><code>s</code> – string</li>
+<li><code>m</code> – memory transaction (<code>generic_transaction_t *</code> in DML and C)</li>
+<li><code>c</code> – configuration object (<code>conf_object_t *</code> in DML and C)</li>
+<li><code>v</code> – <code>void *</code></li>
+</ul>
+</dd>
+<dt id="dt:param_desc"><a href="#dt:param_desc"><em>param_desc</em></a></dt>
+<dd>space separated list of descriptive
+parameter names (in the same order as <code>params</code>, so that the first word is the
+name of the first parameter. If <code>param</code> is the empty string, <code>param_desc</code> may
+be None.</dd>
+<dt id="dt:index"><a href="#dt:index"><em>index</em></a></dt>
+<dd>A string describing the index value for the
+hap, or None if there is no index value. The meaning of indexes is up to you
+to define.</dd>
+<dt id="dt:desc"><a href="#dt:desc"><em>desc</em></a></dt>
+<dd>A human readable description of the hap.</dd>
+<dt id="dt:old_hap_obj"><a href="#dt:old_hap_obj"><em>old_hap_obj</em></a></dt>
+<dd>Always 0.</dd>
+</dl>
+<p>The return value is a handle that must be saved for operations on the hap.</p>
+<p>Example:</p>
+<pre><code>session hap_type_t hap_handle;
+
+method init() {
+    […]
+    hap_handle = SIM_hap_add_type("My_Special_Hap",
+                                  "ii",
+                                  "val1 val2",
+                                  NULL,
+                                  "Triggered when something special"
+                                  " happens in my module.",
+                                  0);
+    if (hap_handle &lt;= 0) {
+        /× error handling ×/
+        […]
+    }
+}
+</code></pre>
+<p>This registration will be executed once for every instance of the device model,
+but when <code>SIM_hap_add_type</code> is called with the same arguments it will avoid
+registering a duplicate hap type and instead return the handle of the previous
+registration.</p>
+<h4 id="triggering-a-hap"><a href="#triggering-a-hap">5.9.1.2 Triggering a Hap</a></h4>
+<p>Whenever the condition for the hap is met, the handlers for the hap should be
+notified. Triggering a hap incurs some overhead; if it occurs in
+performance-sensitive code, it may be beneficial to use one of the
+<code>SIM_hap_is_active_obj</code> or <code>SIM_hap_is_active_obj_idx</code> functions to check if
+there are any handlers prior to calling the notification function.</p>
+<pre><code>bool SIM_hap_is_active_obj(hap_type_t hap, conf_object_t *NOTNULL obj);
+
+bool SIM_hap_is_active_obj_idx(hap_type_t hap,
+                               conf_object_t *NOTNULL obj, int64 index);
+</code></pre>
+<p>where the parameter <code>hap</code> is the value returned from <code>SIM_hap_add_type()</code> or
+from <code>SIM_hap_get_number()</code> if using a standard hap type. These predicates are
+approximate, but if they return false, there is no need to trigger the hap since
+no installed functions would be called.</p>
+<p>The notification to handlers is normally done by calling one of
+<code>SIM_hap_occurred()</code>, <code>SIM_hap_occurred_vararg()</code>, <code>SIM_hap_occurred_always()</code>,
+and <code>SIM_hap_occurred_always_vararg()</code>. See the <em>API Reference Manual</em> for
+information about the differences.</p>
+<pre><code>int
+SIM_c_hap_occurred_always(hap_type_t     hap,
+                          conf_object_t *obj,
+                          int64          value,
+                          ...);
+</code></pre>
+<p>The parameters are:</p>
+<dl>
+<dt id="dt:hap-2"><a href="#dt:hap-2"><em>hap</em></a></dt>
+<dd>The handle to the hap type, as returned from
+<code>SIM_hap_add_type()</code> and <code>SIM_hap_get_number()</code>.</dd>
+<dt id="dt:obj"><a href="#dt:obj"><em>obj</em></a></dt>
+<dd>The object for which the condition is met.</dd>
+<dt id="dt:value"><a href="#dt:value"><em>value</em></a></dt>
+<dd>Only meaningful if the hap is indexed. The meaning is defined by you.</dd>
+</dl>
+<p>The hap parameters will be provided as additional parameters to the function. A
+short example:</p>
+<pre><code>method some_meth(int v1, int v2) {
+    if (some_condition) {
+        if (SIM_hap_is_active_obj(hap_handle, dev.obj))
+            SIM_c_hap_occurred(hap_handle, dev.obj, 0, v1, v2)
+    }
+}
+</code></pre>
+
+<div class="chain">
+<a href="device-modeling-overview.html">4 Overview</a>
+<a href="building-well-behaved-models.html">6 Building Well-Behaved Models</a>
+</div>

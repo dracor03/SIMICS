@@ -1,0 +1,138 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Class Definitions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="linking-and-initialization.html">3 Linking and Initialization</a>
+<a href="link-specific-interfaces.html">5 Link-Specific Interfaces</a>
+</div>
+<div class="path">
+<a href="index.html">Link Library Programming Guide</a>
+&nbsp;/&nbsp;</div><h1 id="class-definitions"><a href="#class-definitions">4 Class Definitions</a></h1>
+<p>Each class defines a C <code>struct</code> type to store an instance of the class.
+The <code>struct</code> must start with a <code>conf_object_t</code>, and like any Simics configuration object it may also contain any additional configuration parameters required by the specific link.
+As usual, if this information needs to be saved in checkpoints, you as the class author are responsible for registering attributes that save and restore it.</p>
+<pre><code>typedef struct {
+        conf_object_t obj;
+
+        /* Any link-specific parameters would go here. */
+} datagram_link_t;
+</code></pre>
+<pre><code>typedef struct {
+        conf_object_t obj;
+
+        /* Any endpoint-specific state would go here. */
+} datagram_link_endpoint_t;
+</code></pre>
+<p>Each link type needs to declare a variable of type <code>link_type_t</code> and fill it with information used by the link library to access functionality that is specific to the link type.
+Each of the <code>link_type_t</code> member functions is described in the <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+<p>The link class’s <code>init()</code> method needs to call <code>SIMLINK_init()</code> to attach all link library’s internal information to the link object.
+The <code>finalize()</code> method needs to call <code>SIMLINK_finalize()</code>.</p>
+<pre><code>static conf_object_t *
+datagram_link_alloc(conf_class_t *cls)
+{
+        datagram_link_t *dl = MM_ZALLOC(1, datagram_link_t);
+        return &amp;dl-&gt;obj;
+}
+
+static void *
+datagram_link_init(conf_object_t *obj)
+{
+        datagram_link_t *dl = (datagram_link_t *)obj;
+
+        static const link_type_t link_methods = {
+                .msg_to_attr = msg_to_attr,
+                .msg_from_attr = msg_from_attr,
+                .free_msg = free_msg,
+                .marshal = marshal,
+                .unmarshal = unmarshal,
+                .deliver = deliver,
+                .update_config_value = link_config_value_updated,
+                .remove_config_value = link_config_value_removed,
+        };
+        SIMLINK_init(&amp;dl-&gt;obj, &amp;link_methods);
+
+        return &amp;dl-&gt;obj;
+}
+</code></pre>
+<pre><code>static void
+datagram_link_finalize(conf_object_t *obj)
+{
+        SIMLINK_finalize(obj);
+}
+</code></pre>
+<p>Similarly, the endpoint class’s <code>init()</code> and <code>finalize()</code> methods need to call <code>SIMLINK_endpoint_init()</code> and <code>SIMLINK_endpoint_finalize()</code>, respectively:</p>
+<pre><code>static void *
+datagram_link_endpoint_init(conf_object_t *obj)
+{
+        datagram_link_endpoint_t *dlep =
+                (datagram_link_endpoint_t *)obj;
+        SIMLINK_endpoint_init(&amp;dlep-&gt;obj, false);
+        return dlep;
+}
+</code></pre>
+<pre><code>static void
+datagram_link_endpoint_finalize(conf_object_t *ep)
+{
+        SIMLINK_endpoint_finalize(ep);
+}
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Depending on the current configuration, endpoint objects might be created while no device is yet connected.
+For that reason, device related operations, such as caching an interface, are expected to be done in the <code>device_changed()</code> callback rather than in the <code>finalize()</code> function.
+See also <code>link_type_t</code> documentation for more information and an example.</p>
+</blockquote>
+<p>The endpoint class also has to have a <code>deinit()</code> function, which has to be, or at least call, <code>SIMLINK_endpoint_disconnect()</code>.</p>
+<p>After declaring the link class with <code>SIM_create_class()</code>, <code>SIMLINK_register_class()</code> must also be called, with the class as argument.</p>
+<p>Similarly, for the endpoint class, <code>SIMLINK_register_endpoint_class()</code> must be called.
+It takes two parameters: the endpoint class and the attribute type of a checkpointed in-flight link message.</p>
+<pre><code>void
+init_local()
+{
+        /* The link library must always be initialised first. */
+        SIMLINK_init_library();
+
+        const class_info_t cl_methods = {
+                .alloc = datagram_link_alloc,
+                .init = datagram_link_init,
+                .finalize = datagram_link_finalize,
+                .deinit = datagram_link_deinit,
+                .dealloc = datagram_link_dealloc,
+                .short_desc = "link that broadcasts byte strings",
+                .description = "A link that broadcasts byte strings."
+        };
+        conf_class_t *cl = SIM_create_class("datagram_link_impl",
+                                              &amp;cl_methods);
+
+        /* Tell the link library what class represents the link */
+        SIMLINK_register_class(cl);
+
+        const class_info_t epcl_methods = {
+                .alloc = datagram_link_endpoint_alloc,
+                .init = datagram_link_endpoint_init,
+                .finalize = datagram_link_endpoint_finalize,
+                .deinit = SIMLINK_endpoint_disconnect,
+                .dealloc = datagram_link_endpoint_dealloc,
+                .short_desc = "endpoint for datagram links",
+                .description = "Endpoint for datagram link objects."
+        };
+        conf_class_t *epcl = SIM_create_class("datagram_link_endpoint",
+                                                &amp;epcl_methods);
+
+        static const datagram_link_interface_t dgram_link_if = {
+                .receive = receive
+        };
+        SIM_REGISTER_INTERFACE(epcl, datagram_link, &amp;dgram_link_if);
+
+        /* Tell the link library what class we use for endpoints */
+        SIMLINK_register_endpoint_class(epcl, "d");
+}
+</code></pre>
+
+<div class="chain">
+<a href="linking-and-initialization.html">3 Linking and Initialization</a>
+<a href="link-specific-interfaces.html">5 Link-Specific Interfaces</a>
+</div>

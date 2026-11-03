@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>log</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-local.html">local</a>
+<a href="rm-cmd-log-filter.html">log-filter</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="log"></a>
+<h1 id="log"><a href="#log">log</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>log</b> [<i>object</i>] [<i>count</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Display entries in the log buffers. Use the <i>object</i> argument to display the entries for a specific object, otherwise the command lists the entries of all object's log buffers but sorted by time. The optional <i>count</i> argument is the number of entries to list. Only the last 10 entries are listed by default.
+<p>
+All log buffers are zero-sized by default. The <code>log-size</code> command has to be used to allocate space for log entries. This has to be done before running the part of the simulation that generates the log messages.
+</p><p>
+Only log messages the match the currently configured level, group and type are saved to the log buffers. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-log-group.html">&lt;conf_object&gt;.log-group</a>, 
+<a href="rm-cmd-log-level.html">log-level</a>, 
+<a href="rm-cmd-log-size.html">log-size</a>, 
+<a href="rm-cmd-log-type.html">log-type</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-local.html">local</a>
+<a href="rm-cmd-log-filter.html">log-filter</a>
+</div>

@@ -1,0 +1,42 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;graphcon&gt;.wait-for-pixel-value</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-graphcon.vnc-status.html">&lt;graphcon&gt;.vnc-status</a>
+<a href="rm-cmd-hal.info.html">&lt;hal&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="graphcon.wait-for-pixel-value"></a>
+<h1 id="graphcon.wait-for-pixel-value"><a href="#graphcon.wait-for-pixel-value">&lt;graphcon&gt;.wait-for-pixel-value</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;graphcon&gt;.wait-for-pixel-value</b> <i>x</i> <i>y</i> <i>rgb</i> <i>interval</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Wait until the pixel at (<i>x</i>, <i>y</i>) has the given value, specified by <i>rgb</i>, either a 3-element list with format [R, G, B] or as a hex string "#RRGGBB". The pixel is checked every <i>interval</i> seconds of virtual time on the clock associated to the console. 
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.graphcon.html">graphcon</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-gfx_break.bp-wait-for-gfx.html">&lt;gfx_break&gt;.bp-wait-for-gfx</a>, 
+<a href="rm-cmd-graphcon.get-pixel.html">&lt;graphcon&gt;.get-pixel</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-graphcon.vnc-status.html">&lt;graphcon&gt;.vnc-status</a>
+<a href="rm-cmd-hal.info.html">&lt;hal&gt;.info</a>
+</div>

@@ -1,0 +1,90 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1 Introduction</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="index.html">Getting Started</a>
+<a href="installation.html">2 Installation</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;</div><h1 id="introduction"><a href="#introduction">1 Introduction</a></h1>
+<p>This document provides an introduction to the Intel Simics product and some of
+its features. Intel Simics is a full-system simulator mainly targeting software
+development and analysis. To do so, it provides hardware and software
+inspection, dynamic system configuration, hardware modelling tools, scripting,
+and a rich set of other features. Unlike many other virtual machine products,
+the Intel Simics simulator does not focus on being a hardware replacement,
+although it can be used in that way.</p>
+<p>The introduction in this document is in the form of a few short step-by-step
+tutorials.</p>
+<h2 id="conventions"><a href="#conventions">1.1 Conventions</a></h2>
+<ul>
+<li>
+<p>Scripts, screen dumps and code fragments are presented in a <code>monospace</code> font.
+In screen dumps, user input is always presented in bold font, as in:</p>
+<pre><code class="language-simics">Welcome to the Simics prompt
+simics&gt; <strong>this is something that you should type</strong>
+</code></pre>
+</li>
+<li>
+<p>The character “/” is used to separate directories and files, for Linux. If you
+are using Windows, you should read the character as “\” instead.</p>
+</li>
+</ul>
+<h2 id="intel-simics-terminology"><a href="#intel-simics-terminology">1.2 Intel Simics Terminology</a></h2>
+<p>This section presents the terminology used throughout Intel Simics
+documentation.</p>
+<ul>
+<li><strong>Intel Simics Packages</strong> are the installable packages.
+The packages can be identified by number or by name.
+Noteworthy packages:
+<ul>
+<li>The <strong>Intel Simics Base package (#1000)</strong>, referred to as the <strong>base
+package</strong>, containing the simulator.</li>
+<li>Other packages are referred to as <strong>add-on packages</strong>, and these
+typically contain extra tools or simulated hardware targets.</li>
+</ul>
+</li>
+<li>An <strong>Intel Simics installation</strong> is a set of installed Intel Simics
+<em>packages</em>.</li>
+<li>An <strong>Intel Simics project</strong>, referred to as <strong>the project</strong>, is the workspace
+where the simulator is started. The project is configured with a set of
+associated packages, at least the <em>base package</em> and possibly some <em>add-on</em>
+packages. Besides starting the simulator, the user can create custom start
+scripts and also read documentation for all packages available to the project.</li>
+<li>The <strong>Simics Command Line Interface</strong>, referred to as the <strong>CLI</strong>, is the main
+interface to the simulator for most users and is started by default. It is
+also possible to launch the simulator in non-interactive, <em>batch</em> mode, which
+can be useful when running tests. In the CLI, both <em>Python</em> and the <em>Simics
+script language</em> are available, and can be used interchangeably.</li>
+<li>The <strong>host</strong>, or the <strong>host machine</strong> is the computer where the Intel Simics
+simulator is running.</li>
+<li>The <strong>target machine</strong> or <strong>target system</strong> is the hardware being simulated.</li>
+</ul>
+<p>To simulate a <em>target machine</em>, a <em>configuration</em> must be created.
+A <em>configuration</em> consists of <em>objects</em>, object hierarchy,
+properties, and connections between <em>objects</em>.</p>
+<p>The default way of creating a configuration is to <em>load a target</em>.
+For legacy reasons, it is also possible to create configurations by running
+CLI or Python scripts.</p>
+<p>When creating a configuration for a specific target machine, it is often
+possible to <em>customize</em> properties of the target machine. For <em>targets</em>, the
+configurable parameters are called <em>target parameters</em>. (see <a href="../simics-user-guide/script-support-in-simics.html#targets-and-parameters"><em>Simics User’s
+Guide</em></a>).</p>
+<p>A simulation session can contain multiple target machines, for example when
+simulating a network.</p>
+<p>For interaction with the target system, the simulator can show <em>graphics
+consoles</em> and <em>serial consoles</em>.</p>
+<figure id="simics-terminology">
+<p><img alt="" src="simics-terminology.png"></p><figcaption>Figure 1. This is an illustration of some of the
+key concepts</figcaption><p></p>
+</figure>
+
+<div class="chain">
+<a href="index.html">Getting Started</a>
+<a href="installation.html">2 Installation</a>
+</div>

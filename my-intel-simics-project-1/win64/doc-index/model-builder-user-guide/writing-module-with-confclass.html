@@ -1,0 +1,825 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>16.2 Modeling with Python (confclass)</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="writing-module-with-pyobj.html">16.1 Modeling with Python (pyobj)</a>
+<a href="migrate-pyobj-to-confclass.html">16.3 Migrating to confclass</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;
+<a href="writing-module-with-python.html">16 Modeling with Python</a>
+&nbsp;/&nbsp;</div><h1 id="modeling-with-python-confclass"><a href="#modeling-with-python-confclass">16.2 Modeling with Python (confclass)</a></h1>
+<p>This section describes how to model devices using Python and the <code>confclass</code>
+class.</p>
+<h2 id="overview"><a href="#overview">16.2.1 Overview</a></h2>
+<p>A custom class always starts by creating a <code>confclass</code> object.
+The <code>confclass</code> class is available in the <code>simics</code> module.
+This is the shortest possible custom class based on <code>confclass</code>:</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+</code></pre>
+<p>This will create a conf class named <code>my_device</code>, and allow creation of Simics
+objects, for example by using
+<a href="../rm-api/sim-api-configuration.html#SIM_set_configuration"><em>SIM_set_configuration</em></a>
+or
+<a href="../rm-api/sim-api-configuration.html#SIM_create_object"><em>SIM_create_object</em></a>.</p>
+<p>To further develop a custom class, the <code>confclass</code> object (<code>cls</code>) is then used
+to:</p>
+<ol>
+<li><em>create hierarchical items</em> like:
+<ul>
+<li>add attributes under <code>cls.attr</code>, such as <code>cls.attr.my_attribute</code></li>
+<li>add port objects under <code>cls.o</code>, such as <code>cls.o.port.my_interface()</code></li>
+<li>add port interfaces (which is a legacy feature) under <code>cls.ports</code></li>
+</ul>
+</li>
+<li><em>specify special functions</em> using <em>decorators</em>:
+<ul>
+<li><code>conf_class_t</code> standard methods, such as <code>@cls.finalize</code></li>
+<li><em>interface methods</em>, for example <code>@cls.iface.signal.signal_raise</code></li>
+<li><em>attributes</em> and get/set methods, such as <code>@cls.attr.name.setter</code></li>
+</ul>
+</li>
+</ol>
+<blockquote class="markdown-alert-note">
+<p>Note that <em>hierarchical items</em> also contains <em>decorators</em>, which express
+hierarchical significance, as will be explained in the
+<a href="#attributes"><em>attributes</em></a> and the <a href="#port-objects"><em>port objects</em></a> sections.</p>
+</blockquote>
+<h2 id="creating-an-example-device-class"><a href="#creating-an-example-device-class">16.2.2 Creating an example Device Class</a></h2>
+<p>A complete Simics module with a device class based on <code>confclass</code> can be created
+using the <code>project-setup</code> script:</p>
+<dl>
+<dt id="dt:windows"><a href="#dt:windows">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">project&gt; <strong>bin\project-setup.bat --py-device-confclass my-confclass-device</strong>
+</code></pre>
+</dd>
+<dt id="dt:linux"><a href="#dt:linux">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">project$ <strong>./bin/project-setup --py-device-confclass my-confclass-device</strong>
+</code></pre>
+</dd>
+</dl>
+<p>This will create skeleton code for a new device in the
+<code>[project]/modules/my-confclass-device/</code> directory, with all files needed to
+build it as a Simics module. The entry point for a module written in Python is
+the file <code>[project]/modules/module_load.py</code>, which is executed when the Simics
+module is loaded. This file is normally small, containing something like:</p>
+<pre><code>from . import my_device_confclass
+</code></pre>
+<p>The rest of the implementation is given in another file, in this case
+<code>[project]/modules/my_device_confclass.py</code>.</p>
+<h2 id="creating-a-device-class"><a href="#creating-a-device-class">16.2.3 Creating a Device Class</a></h2>
+<p>The <code>confclass</code> class is available from the <code>simics</code> module.
+Here is the shortest possible Python device created with <code>confclass</code>:</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+</code></pre>
+<p>The complete list of <code>confclass</code> creation arguments is:</p>
+<table><thead><tr><th style="text-align: left"><em>Argument</em></th><th style="text-align: left"><em>Desc</em></th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>classname</code></td><td style="text-align: left">the name of the device class</td></tr>
+<tr><td style="text-align: left"><code>parent</code></td><td style="text-align: left">used to specify parent class when using inheritance (see the <a href="#inheritance"><em>Inheritance</em></a> section)</td></tr>
+<tr><td style="text-align: left"><code>pseudo</code></td><td style="text-align: left">set to True to make a Sim_Class_Kind_Pseudo class (see <a href="../rm-api/dev-api-types-generic.html#class_info_t">class_info_t</a>)</td></tr>
+<tr><td style="text-align: left"><code>register</code></td><td style="text-align: left">set to False to prevent registration (see the <a href="#prevent-registration"><em>Prevent registration</em></a> section)</td></tr>
+<tr><td style="text-align: left"><code>short_doc</code></td><td style="text-align: left">short documentation, see next section</td></tr>
+<tr><td style="text-align: left"><code>doc</code></td><td style="text-align: left">long documentation, see next section</td></tr>
+</tbody></table>
+<h2 id="class-documentation"><a href="#class-documentation">16.2.4 Class Documentation</a></h2>
+<p>This is code for <code>my_class</code> class, but this time with added documentation.</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(
+        classname="my_device",
+        short_doc="one-line documentation",
+        doc="Long documentation.")
+</code></pre>
+<p>
+The added optional arguments in the example are:</p>
+<ul>
+<li>
+<p><code>short_doc</code> - sets a one-line string, which can be seen when using the command
+<code>list-classes</code>.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-classes substr = my_device</strong>
+The following classes are available:
+┌─────────┬──────────────────────┐
+│  Class  │  Short description   │
+├─────────┼──────────────────────┤
+│my_device│one-line documentation│
+└─────────┴──────────────────────┘
+</code></pre>
+</li>
+<li>
+<p><code>doc</code> - a longer class description visible in the CLI <code>help</code> command.</p>
+<pre><code class="language-simics">simics&gt; <strong>help class:my_device</strong>
+Class my_device
+
+    Description
+        A longer description. The class my_device is empty
+...
+</code></pre>
+</li>
+</ul>
+<h2 id="overriding-conf-object-methods"><a href="#overriding-conf-object-methods">16.2.5 Overriding Conf Object Methods</a></h2>
+<p>Most functions in the <code>class_info_t</code> struct that is passed to the <code>SIM_create_class</code> (see also the <a href="object-lifetime.html"><em>Object Lifetime</em></a> section) can be optionally be overridden using <em>decorators</em> provided by the <code>cls</code>:</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+
+    def __init__(self):
+        self.calls = []
+
+    @cls.init
+    def initialize(self):
+        self.calls.append("initialize")
+
+    @cls.finalize
+    def finalize(self):
+        self.calls.append("finalize")
+
+    @cls.objects_finalized
+    def objects_finalized(self):
+        self.calls.append("objects_finalized")
+
+    @cls.deinit
+    def deinit(self):
+        global deinit_called
+        deinit_called = True
+</code></pre>
+<h2 id="accessing-the-python-object"><a href="#accessing-the-python-object">16.2.6 Accessing the Python Object</a></h2>
+<p>Inside the class, the <code>self</code> argument to object methods contains an instance of
+the Python class, which is expected since it is a Python object. This is also
+true for Simics callback methods, such as the object <code>init</code> callback in this
+example:</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    def __init__(self):
+        assert isinstance(self, MyDevice)
+
+    @cls.init
+    def init(self):
+        assert isinstance(self, MyDevice)
+</code></pre>
+<p>On an instance of the Simics class, the instance of <code>MyDevice</code> is available as
+<code>&lt;device&gt;.object_data</code>:</p>
+<pre><code>device = simics.SIM_create_object("my_device", "device")
+assert isinstance(device.object_data, MyDevice)
+</code></pre>
+<p>This is another example showing access to the variable <code>local</code> from the Simics
+object <code>device</code>, and <code>object_data</code>.</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    @cls.init
+    def init(self):
+        self.local = 1
+
+device = simics.SIM_create_object("my_device", "device")
+assert device.object_data.local == 1
+</code></pre>
+<p>Confclass automatically sets the <code>obj</code>-member of the Python object to the
+corresponding configuration object (<code>conf_object_t</code>). In this example,
+<code>self.obj</code> is used with <code>SIM_object_name</code>, which takes a configuration object /
+<code>conf_object_t</code> as argument, to print the object name.</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    @cls.objects_finalized
+    def objects_finalized(self):
+        print(simics.SIM_object_name(self.obj))
+device = simics.SIM_create_object("my_device", "device")
+</code></pre>
+<h2 id="attributes"><a href="#attributes">16.2.7 Attributes</a></h2>
+<p>Attributes are created by adding them to the namespace under <code>&lt;confclass obj&gt;.attr</code>, for example <code>&lt;confclass obj&gt;.attr.&lt;my_attribute&gt;</code>. In this example,
+we create an attribute <code>v1</code> with the attribute type <code>"i"</code>:</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    cls.attr.v1("i")
+</code></pre>
+<ul>
+<li>The attribute type (<code>attr_type</code>) is the only mandatory argument.</li>
+<li>If no other arguments are used, the attribute kind is set to
+<a href="writing-module-with-c.html#attributes"><em>Sim_Attr_Required</em></a>, which means
+default value is required and the attribute is saved in checkpoints.</li>
+<li>Default attribute <em>getter</em> and <em>setter</em> are automatically added since no
+custom methods have been assigned.</li>
+</ul>
+<pre><code># Create an object named 'device', with default value 1 for v1.
+device = simics.SIM_create_object(
+    MyDevice.cls.classname, "device", [["v1", 1]])
+stest.expect_equal(device.v1, 1)
+</code></pre>
+<p>To specify custom attribute <em>getters</em> and <em>setters</em>, decorate the custom
+function with the <code>getter</code> or <code>setter</code> decorators in the attribute object. Using
+the previous example, an overridden <em>getter</em> function should then be decorated
+with <code>@cls.attr.v1.getter</code>, and a <em>setter</em> method would be decorated with
+<code>@cls.attr.v1.setter</code></p>
+<pre><code>    @cls.attr.v1.getter
+    def get_v1(self):
+        return self.v1
+</code></pre>
+<pre><code>    @cls.attr.v1.setter
+    def set_v1(self, new_value):
+        self.v1 = new_value
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Note that the decorators are taken hierarchically from <code>cls.attr.v1</code>, and that
+the backing value can be accessed with <code>self.v1</code>.</p>
+</blockquote>
+<p>To document the attribute, set the <code>doc</code> argument. This corresponds to the
+<code>desc</code> argument in <code>SIM_register_attribute</code>.</p>
+<!--- t48_confclass/s-attribute.py::test2 also used @property, perhaps this
+should be documented as well. -->
+<p>As is documented in the <a href="writing-module-with-c.html#attributes"><em>Modelling with
+C</em></a> section and in the API Reference Manual
+(<a href="../rm-api/dev-api-configuration.html#SIM_register_attribute"><em>SIM_register_attribute</em></a>),
+attributes can have different properties that can be controlled with the
+<code>attr_attr_t attr</code> in <code>SIM_register_attribute</code>. For confclass, the corresponding
+argument is <code>kind</code>, but it is more convenient to set this to combinations of
+attr_attr_t.</p>
+<p>As has been mentioned before, <code>kind</code> defaults to <code>Sim_Attr_Required</code>, but when
+using the optional arguments, the mutually exclusive (bits in 0x7) parts of
+<code>kind</code> (<code>attr_attr_t</code>) will be updated according to the arguments used:</p>
+<dl>
+<dt id="dt:default"><a href="#dt:default"><code>default</code></a></dt>
+<dd>Set a default value. Also set kind to <code>Sim_Attr_Optional</code> in <code>kind</code> if the
+current value is <code>Sim_Attr_Required</code>. See also additional information on
+attribute <a href="#default-values">default values</a>.</dd>
+<dt id="dt:optional"><a href="#dt:optional"><code>optional</code></a></dt>
+<dd>Make attribute optional. Set to true to set <code>Sim_Attr_Optional</code> in <code>kind</code>.</dd>
+<dt id="dt:pseudo"><a href="#dt:pseudo"><code>pseudo</code></a></dt>
+<dd>Make attribute pseudo. Set to true to set <code>Sim_Attr_Pseudo</code> in <code>kind</code>.</dd>
+<dt id="dt:read_only"><a href="#dt:read_only"><code>read_only</code></a></dt>
+<dd>Make attribute read-only. If set to true, <code>pseudo</code> must also be set to true.
+(see note below)</dd>
+<dt id="dt:write_only"><a href="#dt:write_only"><code>write_only</code></a></dt>
+<dd>Make attribute write-only. If set to true, <code>pseudo</code> must also be set to true.
+(see note below)</dd>
+</dl>
+<blockquote class="markdown-alert-note">
+<p>The reason why <code>pseudo</code> must be set to true when setting either <code>read_only</code> or
+<code>write_only</code> to true is that attributes that are saved to checkpoints (for
+example if <code>Sim_Attr_Optional</code> is set) must have be both <em>readable and
+writeable</em>.</p>
+</blockquote>
+<h3 id="examples"><a href="#examples">16.2.7.1 Examples</a></h3>
+<p>In the following example various attributes are created:</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+
+    # Add required attribute.
+    cls.attr.attr0("i")
+
+    # Add an optional attribute by setting 'default' with documentation.
+    cls.attr.attr1("i", default=1, doc="documentation")
+
+    # Add a read-only attribute.
+    cls.attr.attr2("i", read_only=True, default=2, pseudo=True)
+
+    # Add a write-only attribute.
+    cls.attr.attr3("i", write_only=True, pseudo=True)
+
+    # Add a pseudo attribute.
+    cls.attr.attr4("i", pseudo=True)
+
+    # Create a required attribute with custom access methods below.
+    # The access methods use the decorators from the attribute:
+    # - @cls.attr.attr5.getter
+    # - @cls.attr.attr5.setter
+    cls.attr.attr5("i")
+
+    # Use the getter decorator for 'attr5'
+    @cls.attr.attr5.getter
+    def get_attr5(self):
+        return self.attr5
+
+    # Use the setter decorator for 'attr5'
+    @cls.attr.attr5.setter
+    def set_attr5(self, new_value):
+        self.attr5 = new_value
+</code></pre>
+<h3 id="default-values"><a href="#default-values">16.2.7.2 Default Values</a></h3>
+<p>If an attribute is of container type, the default value cannot be an instance of that type.
+The reason for this is that the default value would otherwise be shared among all instances
+of that class. So if the attribute was a list, and <code>obj1</code> appended an element to the list,
+that would also affect <code>obj2</code>, assuming these are instances of the same class.</p>
+<p>For example, if having an attribute <code>attr1</code> that has the type list of integers,
+having <code>[]</code> as default value as in the class <code>wrong_default_value</code> will raise
+an exception.</p>
+<pre><code>class WrongDefaultValue:
+    cls = simics.confclass(classname="wrong_default_value")
+    cls.attr.attr1("[i*]", default=[])
+</code></pre>
+<p>As a workaround, instead use a callable that requires no argument, as in the
+class <code>right_default_value</code>. This will create a unique list for each instance as
+default value.</p>
+<pre><code>class RightDefaultValue:
+    cls = simics.confclass(classname="right_default_value")
+    cls.attr.attr1("[i*]", default=list)
+</code></pre>
+<p>Allowed default values are:</p>
+<ul>
+<li><em>callables without any arguments</em> - will be called for each time an object is instantiated to guarantee a unique instance of default value per instance</li>
+<li><em>simics.conf_object_t</em> (<code>"o"</code>)</li>
+<li><em>basic types supported as attributes</em>
+<ul>
+<li>bool (<code>"b"</code>)</li>
+<li>None, NIL (<code>"n"</code>)</li>
+<li>float (<code>"f"</code>)</li>
+<li>tuple/bytes (<code>"d"</code>)</li>
+<li>int (<code>"i"</code>)</li>
+<li>str (<code>"s"</code>)</li>
+</ul>
+</li>
+</ul>
+<p>Forbidden default values are (container types):</p>
+<ul>
+<li>list (<code>[...]</code>)</li>
+<li>dict (<code>{...}</code>)</li>
+</ul>
+<h2 id="info-and-status-commands"><a href="#info-and-status-commands">16.2.8 Info and Status Commands</a></h2>
+<p>The <code>info</code> and <code>status</code> commands can easily be added by using a decorator to the
+method that provides the info or status data. In the below example:</p>
+<ul>
+<li>the <code>@cls.command.info</code> decorator is used to specify that the <code>get_info</code>
+method should provide data to the <code>&lt;object&gt;.info</code> command.</li>
+<li>the <code>@cls.command.status</code> decorator is used to specify that the <code>get_status</code>
+method should provide data to the <code>&lt;object&gt;.status</code> command.</li>
+</ul>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+
+    @cls.init
+    def init(self):
+        self.info_value = 1
+        self.status_value = 2
+
+    @cls.command.info
+    def get_info(self):
+        return [("Info", [("value", self.info_value)])]
+
+    @cls.command.status
+    def get_status(self):
+        return [("Status", [("value", self.status_value)])]
+</code></pre>
+<h2 id="prevent-registration"><a href="#prevent-registration">16.2.9 Prevent Registration</a></h2>
+<p>By default a class created using <code>confclass</code> is automatically registered as a
+Simics class. To prevent the registration, the argument <code>register</code> can be set to
+<code>False</code>. At a later stage, use the <code>register</code> function to register the class.</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device", register=False)
+</code></pre>
+<h2 id="interfaces"><a href="#interfaces">16.2.10 Interfaces</a></h2>
+<p>Interfaces are implemented using <code>cls.iface.&lt;name&gt;</code> where <code>&lt;name&gt;</code> is the name
+of the Simics interface.
+For each method in the interface, there will be a decorator that is used to
+specify custom methods in the interface implementation.</p>
+<p>In this example we use the <code>signal</code> interface, and use
+the <code>cls.iface.signal.signal_raise</code> and <code>cls.iface.signal.signal_lower</code>
+decorators to specify the custom methods in the interface implementation.</p>
+<pre><code>class MyDevice:
+    cls = simics.confclass(classname="my_device")
+    cls.attr.signal_raised("b", default=False)
+
+    @cls.iface.signal.signal_raise
+    def signal_raise(self):
+        self.signal_raised = True
+
+    @cls.iface.signal.signal_lower
+    def signal_lower(self):
+        self.signal_raised = False
+</code></pre>
+<h2 id="port-objects"><a href="#port-objects">16.2.11 Port Objects</a></h2>
+<p><a href="port-objects.html#port-objects">Port objects</a> allow a class to have several
+implementations of the same interface (see <a href="#two-interfaces">example</a>). Port
+objects are added using the <code>&lt;parent confclass&gt;.o</code> namespace, for example
+<code>&lt;parent confclass&gt;.o.port.port1()</code>. This gives another <code>confclass</code> instance
+which can be used to add attributes and interfaces to the port object, just like
+it is done with the parent’s <code>confclass</code>.</p>
+<h3 id="basic-examples"><a href="#basic-examples">16.2.11.1 Basic Examples</a></h3>
+<p>When adding the <code>confclass</code> for the port object, the <code>classname</code> argument can be
+used or not used to achieve different results:</p>
+<ol>
+<li>
+<p>By not specifying <code>classname</code>, a class name will be assigned based on the
+parent class name and the last component of the hierarchical name.</p>
+
+<pre><code>class Parent1:
+    parent = simics.confclass(classname='parent1')  # the parent confclass
+    child = parent.o.port.child()  # default classname
+</code></pre>
+
+<p>Since the child/port objects lacks a classname, it will automatically be
+assigned the name <code>parent1.child</code>.</p>
+
+<pre><code>obj1 = SIM_create_object('parent1', 'obj1', [])
+stest.expect_equal(obj1.port.child.classname, 'parent1.child')
+</code></pre>
+</li>
+<li>
+<p>It is also possible to specify the last part of a custom class name, by
+setting <code>classname</code> to a string that starts with a <em>dot</em>, followed by a valid
+class name.</p>
+
+<pre><code>class Parent2:
+    parent = simics.confclass(classname='parent2')  # the parent confclass
+    child = parent.o.port.child('.custom_child')  # name starting with dot
+</code></pre>
+
+<p>The parent class name will automatically be prepended to the custom class
+name.</p>
+
+<pre><code>obj2 = SIM_create_object('parent2', 'obj2', [])
+stest.expect_equal(obj2.port.child.classname, 'parent2.custom_child')
+</code></pre>
+</li>
+<li>
+<p>Finally, it is also possible to specify an existing class.</p>
+
+<pre><code>class Child3:
+    cls = simics.confclass(classname='child3')
+
+class Parent3:
+    parent = simics.confclass(classname='parent3')  # the parent confclass
+    child = parent.o.port.child(classname='child3')  # child3 defined above
+</code></pre>
+
+<p>The child port object will have the <code>child3</code> class, and will get an instance
+of the <code>Child3</code> as <code>object_data</code>.</p>
+
+<pre><code>obj3 = SIM_create_object('parent3', 'obj3', [])
+stest.expect_equal(obj3.port.child.classname, 'child3')
+stest.expect_true(isinstance(obj3.port.child.object_data, Child3))
+</code></pre>
+</li>
+</ol>
+<blockquote class="markdown-alert-note">
+<p>An important difference between these examples is the <code>object_data</code> of the
+port object. In the first two examples, the <code>object_data</code> will be set to the
+parent objects <code>object_data</code>, since there is no custom Python class, while in
+the last example, the <code>object_data</code> will be set to an instance of the Python
+class <code>Class3</code>, associated with <code>child3</code>.
+This is important, since the state for the port object will be separate from the
+parent object. The storage for attributes will be separate, and interface
+implementations will not get direct access to the parent’s <code>object_data</code> and
+must use <code>SIM_port_object_parent(self.obj).object_data</code> to access the parent’s
+state.</p>
+</blockquote>
+<h3 id="add-an-interface"><a href="#add-an-interface">16.2.11.2 Add an Interface</a></h3>
+<p>To add an interface, use the reference to the port objects <code>confobject</code>. The
+<code>history</code> member can be accessed with <code>self.history</code> from methods decorated
+with both parent and child. The reason for this is that the child class does
+not have a custom Python class and will hence share <code>object_data</code> with the
+parent class.</p>
+<pre><code>class Parent:
+    parent = simics.confclass(classname="parent")
+    child = parent.o.port.child()
+
+    @parent.init
+    def init(self):
+        self.history = []
+
+    @child.iface.signal.signal_raise
+    def signal_raise(self):
+        self.history.append("raise")
+
+    @child.iface.signal.signal_lower
+    def signal_lower(self):
+        self.history.append("lower")
+</code></pre>
+<p>Call the signal interface on the child/port interface and verify the contents
+of <code>history</code>.</p>
+<pre><code>obj = SIM_create_object("parent", "obj")
+obj.port.child.iface.signal.signal_lower()
+obj.port.child.iface.signal.signal_raise()
+stest.expect_equal(obj.object_data.history, ["lower", "raise"])
+</code></pre>
+<h3 id="add-an-attribute"><a href="#add-an-attribute">16.2.11.3 Add an Attribute</a></h3>
+<p>Replace the member variable <code>history</code> in the <a href="#add-an-interface">previous</a>
+example with an attribute.</p>
+<pre><code>class Parent:
+    parent = simics.confclass(classname="parent")
+    child = parent.o.port.child()
+    child.attr.history("[s*]", default=list)
+
+    @child.iface.signal.signal_raise
+    def signal_raise(self):
+        self.history.append("raise")
+
+    @child.iface.signal.signal_lower
+    def signal_lower(self):
+        self.history.append("lower")
+</code></pre>
+<p>Call the signal interface on the child/port interface and verify the contents
+of the history variable.</p>
+<pre><code>obj = SIM_create_object("parent", "obj")
+obj.port.child.iface.signal.signal_lower()
+obj.port.child.iface.signal.signal_raise()
+stest.expect_equal(obj.port.child.history, ["lower", "raise"])
+</code></pre>
+<p>Because the object_data is shared between parent and child, history is
+accessible from the parent object as well.</p>
+<pre><code>stest.expect_equal(obj.object_data.history,  ["lower", "raise"])
+</code></pre>
+<h3 id="attribute-conflicts"><a href="#attribute-conflicts">16.2.11.4 Attribute Conflicts</a></h3>
+<p>As mentioned above, the <code>object_data</code> (<code>self</code>) of the port object is set to
+either:</p>
+<ul>
+<li><em><code>object_data</code> of the parent class</em></li>
+<li>an instance the port object’s Python class</li>
+</ul>
+<p>If the <code>object_data</code> is shared with the parents, the attributes are required
+to be unique. In this example attribute <code>a</code> exists in both the parent and port
+object, which will result in a raised exception during class definition.</p>
+<pre><code>try:
+    class Parent1:
+        parent = simics.confclass(classname="parent1")  # the parent confclass
+        parent.attr.a("i", default=1)
+        child = parent.o.port.child()  # the child/port confclass
+        child.attr.a("i", default=2)  # name collision for attribute "a"
+except TypeError:
+    pass  # expected
+else:
+    stest.fail("Did not get TypeError for colliding attributes.")
+</code></pre>
+<p>To correct the situation, add a Python class to the port object. This will
+result in that the parent and the port objects will get unique <code>object_data</code>.</p>
+<pre><code>class Child2:
+    cls = simics.confclass(classname="child2")
+    cls.attr.a("i", default=2)
+
+class Parent2:
+    parent = simics.confclass(classname="parent2")
+    parent.attr.a("i", default=1)
+    child = parent.o.port.child(classname=Child2.cls.classname)
+</code></pre>
+<p>By providing a custom Python class for the port object, the port object will
+get a non-shared unique <code>object_data</code> (an instance of <code>Child</code>), thus
+eliminating the attribute collision between the parent and the port object.</p>
+<pre><code>parent = simics.SIM_create_object("parent2", "parent")
+stest.expect_different(parent.object_data, parent.port.child.object_data)
+stest.expect_equal(parent.a, 1)
+stest.expect_equal(parent.port.child.a, 2)
+</code></pre>
+<h3 id="advanced-port-object-examples"><a href="#advanced-port-object-examples">16.2.11.5 Advanced Port Object Examples</a></h3>
+<h4 id="two-interfaces"><a href="#two-interfaces">16.2.11.5.1 Two Interfaces</a></h4>
+<p>In the below example, <code>my_device</code> has two port objects with different
+implementations of the
+<a href="../rm-api/model-to-model-interfaces.html#signal_interface_t"><em>signal</em></a> interface.</p>
+<pre><code>class MyDevice:
+    """This class contains two implementations of the 'signal' interface
+    implemented in two different port objects."""
+    RAISE = "raise"
+    LOWER = "lower"
+
+    cls = simics.confclass(classname="my_device")
+    reset_1 = cls.o.port.RESET_1()
+    reset_2 = cls.o.port.RESET_2()
+    cls.attr.history("[[ss]*]", default=list)
+
+    @reset_1.iface.signal.signal_raise
+    def reset_1_raise(self):
+        self.signal_raise_common("RESET_1")
+
+    @reset_1.iface.signal.signal_lower
+    def reset_1_lower(self):
+        self.signal_lower_common("RESET_1")
+
+    @reset_2.iface.signal.signal_raise
+    def reset_2_raise(self):
+        self.signal_raise_common("RESET_2")
+
+    @reset_2.iface.signal.signal_lower
+    def reset_2_lower(self):
+        self.signal_lower_common("RESET_2")
+
+    def signal_raise_common(self, port):
+        self.history.append([port, self.RAISE])
+
+    def signal_lower_common(self, port):
+        self.history.append([port, self.LOWER])
+</code></pre>
+<h3 id="using-an-existing-class"><a href="#using-an-existing-class">16.2.11.6 Using an existing class</a></h3>
+<p>To specify an existing class, set <code>classname</code> to an existing class.
+This way, an interface implementation can be added from another class.</p>
+<pre><code>class Resetter:
+    """A class implementing the 'signal' interface."""
+    cls = simics.confclass(classname="resetter")
+    cls.attr.raised("b", default=False)
+    cls.iface.signal()
+
+    @cls.iface.signal.signal_raise
+    def signal_raise(self):
+        self.raised = True
+
+class MyDevice:
+    """Set the class 'resetter' as port object class to get the 'signal'
+    interface (implemented by 'resetter')."""
+    cls = simics.confclass(classname="my_device")
+    reset = cls.o.port.RESET(classname="resetter")
+</code></pre>
+<h2 id="port-interfaces"><a href="#port-interfaces">16.2.12 Port Interfaces</a></h2>
+<p><em>Port interfaces</em> is a legacy feature that allows a class to have several
+implementations of the same interface. The recommended way to do this is to use
+<a href="#port-objects"><em>Port Objects</em></a>.</p>
+<p>When a port interface has been defined, it can be retrieved from the object with
+<a href="../rm-api/dev-api-configuration.html#SIM_get_interface"><em>SIM_get_port_interface</em></a>.
+Below is an example of how port objects are registered in Python using the
+<code>confclass</code> framework:</p>
+<pre><code>class MyDevice:
+    RAISE = "raise"
+    LOWER = "lower"
+
+    cls = simics.confclass(classname="my_device")
+    reset_1_iface = cls.ports.RESET_1.signal
+    reset_2_iface = cls.ports.RESET_2.signal
+    cls.attr.history("[[ss]*]", default=list)
+
+    @reset_1_iface.signal_raise
+    def reset_1_raise(self):
+        self.signal_raise_common("RESET_1")
+
+    @reset_1_iface.signal_lower
+    def reset_1_lower(self):
+        self.signal_lower_common("RESET_1")
+
+    @reset_2_iface.signal_raise
+    def reset_2_raise(self):
+        self.signal_raise_common("RESET_2")
+
+    @reset_2_iface.signal_lower
+    def reset_2_lower(self):
+        self.signal_lower_common("RESET_2")
+
+    def signal_raise_common(self, port):
+        self.history.append([port, self.RAISE])
+
+    def signal_lower_common(self, port):
+        self.history.append([port, self.LOWER])
+</code></pre>
+<h2 id="events"><a href="#events">16.2.13 Events</a></h2>
+<p>Simics Events classes can be registered by appending an event name to the
+<code>&lt;confclass&gt;.event</code> namespace, and this will create an object with
+<em>decorators</em> that can be used to specify the event <em>callbacks</em>.</p>
+<p>When creating a Simics object from a confclass that has declared events, there
+will be an entry for each event class on Python object, and this entry can be
+used to post/cancel/find events for this class.
+For example, this would post the <code>my_event</code> event to trigger in <code>123</code> cycles,
+using the clock <code>conf.clk</code>:</p>
+<pre><code>obj.object_data.my_event.post(clock=conf.clk, cycles=123)
+</code></pre>
+<p>The clock object (requirements depends on the delay metrics), can either be
+specified with the <code>clock</code> key-word argument, but alternatively, if the object
+has an object assigned to the <code>queue</code> attribute, this will be used
+(<a href="../rm-api/dev-api-configuration.html#SIM_object_clock"><code>SIM_object_clock</code></a>
+is used internally).</p>
+<p>If the object has a clock (<code>queue</code> set), and <code>clock</code> is specified in a call,
+the object from <code>clock</code> argument is used.</p>
+<h3 id="declaration"><a href="#declaration">16.2.13.1 Declaration</a></h3>
+<p>Events are added by appending an event name to the <code>&lt;confclass&gt;.event</code>
+namespace. The only requirement is that a <code>callback</code> function (see
+<a href="../rm-api/dev-api-events.html#SIM_register_event">SIM_register_event</a>)
+is implemented and decorated with <code>&lt;confclass&gt;&lt;event name&gt;.callback</code>. This
+is the shortest possible event declaration:</p>
+<pre><code>class MyDevice1:
+    cls = simics.confclass(classname="my_device1")
+
+    @cls.event.my_event.callback
+    def callback(self, data):
+        pass
+</code></pre>
+<p>The complete list of decorator is:</p>
+<ul>
+<li><code>@&lt;confclass&gt;.event.&lt;event name&gt;.callback</code> (required)</li>
+<li><code>@&lt;confclass&gt;.event.&lt;event name&gt;.destroy</code> (optional)</li>
+<li><code>@&lt;confclass&gt;.event.&lt;event name&gt;.get_value</code> (required if saved and data needed)</li>
+<li><code>@&lt;confclass&gt;.event.&lt;event name&gt;.set_value</code> (required if saved and data needed)</li>
+<li><code>@&lt;confclass&gt;.event.&lt;event name&gt;.describe</code> (optional)</li>
+</ul>
+<p>With a call to the event declaration, it is possible to customize:</p>
+<ul>
+<li><code>flags</code>:
+to change the <code>event_class_flag_t</code>, the default is <code>Sim_EC_No_Flags</code>, meaning
+that the event are saved checkpoints. See also note below.</li>
+<li><code>description</code>:
+allows specifying a static event description, as an alternative to using the
+<code>@&lt;confclass&gt;.event.&lt;event name&gt;.describe</code> decorator to decorate the custom describe method.</li>
+<li><code>saved</code>:
+controls if the event is checkpointed or not, by setting or clearing <code>Sim_EC_Notsaved</code>.</li>
+</ul>
+<p>Here is an example of declaring an non-saved event class with a static
+description.</p>
+<pre><code>class MyDevice2:
+    cls = simics.confclass(classname="my_device2")
+    cls.event.my_event(saved=False, description="nice weather")
+
+    @cls.event.my_event.callback
+    def callback(self, data):
+        assert data is None
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Even though events are per default saved to checkpoints, because of the
+default <code>flags</code> being <code>Sim_EC_No_Flags</code>, the data used when posting events
+will not be handled properly unless the <code>get_value</code> and <code>set_value</code> callbacks
+are implemented and assigned (decorated) to handle the data.
+If <code>get_value</code> and <code>set_value</code> are not implemented, a default implementation
+will be provided that always defaults the <code>data</code> argument to the callback
+as being <code>None</code>.</p>
+</blockquote>
+<h3 id="posting-cancelling-finding"><a href="#posting-cancelling-finding">16.2.13.2 Posting/Cancelling/Finding</a></h3>
+<p>As mentioned earlier, a member of Python object will be set for each declared
+event, and this member allows using the event.</p>
+<pre><code>class MyDevice3:
+    cls = simics.confclass(classname="my_device3")
+    cls.attr.callback_args(
+        "[s*]", default=list, doc="arguments to each call to 'callback'")
+    cls.event.my_event(saved=False, description="nice weather")
+
+    @cls.event.my_event.callback
+    def callback(self, data):
+        self.callback_args.append(data)
+</code></pre>
+<p>Create an object and a clock. Set ‘event’ to the member used to access the
+event run-time functionality.</p>
+<pre><code>simics.SIM_add_configuration([
+    simics.pre_conf_object("device", MyDevice3.cls.classname),
+    simics.pre_conf_object("clock", "clock", freq_mhz=100)], None)
+device = conf.device
+clock = conf.clock
+event = device.object_data.my_event
+</code></pre>
+<p>Post an event to trigger after 1 cycles and data “1”.
+Here the clock is specified as an argument.</p>
+<pre><code>event.post(clock=clock, cycles=1, data="1")
+</code></pre>
+<p>Set the ‘queue’ attribute in the object. After this, we don’t have to specify
+the clock argument in each event operation.</p>
+<pre><code>device.queue = clock
+</code></pre>
+<p>Post another event to trigger after 2 cycles and data “2”. Here we make use
+of that ‘device’ has a clock, and we don’t need to specify this.</p>
+<pre><code>event.post(cycles=2, data="2")
+</code></pre>
+<p>Now we will list the posted events, identifying them with the data we used
+when posting.</p>
+<pre><code>stest.expect_equal(event.find_next_cycles(data="1"), 1)
+stest.expect_equal(event.find_next_cycles(data="2"), 2)
+</code></pre>
+<p>Cancel the first event posted at cycle 1, and check that it is gone.</p>
+<pre><code>event.cancel_time(data="1")
+stest.expect_equal(event.find_next_cycles(data="1"), None)
+</code></pre>
+<p>Run forward two cycles, and check that the “2” event has triggered.</p>
+<pre><code>cli.global_cmds.continue_cycles(count=2)
+stest.expect_equal(event.find_next_cycles(data="2"), None)
+stest.expect_equal(device.callback_args, ["2"])
+</code></pre>
+<h3 id="see-also"><a href="#see-also">16.2.13.3 See also</a></h3>
+<ul>
+<li><a href="programming-with-dml.html#events"><em>DML</em></a></li>
+<li><a href="../rm-api/dev-api-events.html#SIM_register_event"><em>SIM_register_event</em></a></li>
+<li><a href="../rm-api/dev-api-events.html#SIM_event_post_time"><em>SIM_event_post_cycle</em></a></li>
+</ul>
+<h2 id="inheritance"><a href="#inheritance">16.2.14 Inheritance</a></h2>
+<p>Inheritance works as dictated by Python. However, just using inheritance will
+not result in Simics (confclass) specific properties, such as <em>attributes</em> and
+<em>interfaces</em> being inherited. For this, the <code>parent</code> parameter must be set to
+the <code>confclass</code> class of the parent class.</p>
+<pre><code>class Parent:
+    """Class with attribute 'a1' and method 'foo'."""
+    cls = simics.confclass(classname="parent")
+    cls.attr.a1("i", default=1)
+    def foo(self):
+        pass
+
+class InheritPython(Parent):
+    """Inherits from 'Parent', but not the Simics parts."""
+    @classmethod
+    def check(cls):
+        stest.expect_true(hasattr(cls, "foo"))
+        stest.expect_false(hasattr(cls, "a1"))
+
+class InheritPythonAndSimics(Parent):
+    """Inherit from 'Parent', including the Simics parts."""
+    cls = simics.confclass(classname="inherit_py_and_sim", parent=Parent.cls)
+    @classmethod
+    def check(cls):
+        stest.expect_true(hasattr(cls, "foo"))
+        stest.expect_true(hasattr(cls, "a1"))
+
+class InheritPythonOverrideSimics1(Parent):
+    """Inherit from Parent (not Simics parts) and create a Simics class."""
+    cls = simics.confclass(classname="inherit_py_override_sim")
+    @classmethod
+    def check(cls):
+        stest.expect_true(hasattr(cls, "foo"))
+        stest.expect_false(hasattr(cls, "a1"))
+</code></pre>
+
+<div class="chain">
+<a href="writing-module-with-pyobj.html">16.1 Modeling with Python (pyobj)</a>
+<a href="migrate-pyobj-to-confclass.html">16.3 Migrating to confclass</a>
+</div>

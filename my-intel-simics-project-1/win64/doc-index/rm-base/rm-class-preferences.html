@@ -1,0 +1,182 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>preferences</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-port-space.html">port-space</a>
+<a href="rm-class-probe_monitor.html">probe_monitor</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="preferences"><a href="#preferences">preferences</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>preferences</tt> class represents Simics's global simulator preferences that, unlike the settings in the <tt>sim</tt> object, usually are the same between sessions.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, preference
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:pref-change"><a href="#dt:pref-change">pref-change</a></dt>
+<dd>Notifier that is triggered when preferences are changed.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-preferences.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-preferences.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:startup_simics_path"><a href="#dt:startup_simics_path">
+<i>startup_simics_path</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[s*]</code>
+<br>The initial value of the Simics search path. This list of dictionaries are copied to the sim-&gt;simics_path attribute at startup.</dd>
+<dt id="dt:swap_dir"><a href="#dt:swap_dir">
+<i>swap_dir</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Directory where to store swap files, to limit Simics memory usage.</dd>
+<dt id="dt:output_radix"><a href="#dt:output_radix">
+<i>output_radix</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The default output radix for integers in the command line. One of 2, 8, 10 and 16. Default is 10.</dd>
+<dt id="dt:output_grouping"><a href="#dt:output_grouping">
+<i>output_grouping</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiii]</code>
+<br>The default digit grouping for integers in the command line, for binary, octal, decimal and hexadecimal integers.</dd>
+<dt id="dt:enable_multithreading"><a href="#dt:enable_multithreading">
+<i>enable_multithreading</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to TRUE if Multimachine Accelerator should be enabled when Simics is started. Default TRUE.</dd>
+<dt id="dt:history_lines"><a href="#dt:history_lines">
+<i>history_lines</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The number of input lines saved in the command history.</dd>
+<dt id="dt:readline_shortcuts"><a href="#dt:readline_shortcuts">
+<i>readline_shortcuts</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to TRUE if GNU Readline style keyboard shortcuts should be used in the command line. If set to FALSE, Windows style shortcuts are used.</dd>
+<dt id="dt:default_log_endianness"><a href="#dt:default_log_endianness">
+<i>default_log_endianness</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Sets the default endianness of logged values when not given by context. Valid values are "little" (the default) and "big".</dd>
+<dt id="dt:wireshark_path"><a href="#dt:wireshark_path">
+<i>wireshark_path</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>The directory were wireshark or ethereal binaries are located. If not set the default environment path will be searched.</dd>
+<dt id="dt:cli_table_border_style"><a href="#dt:cli_table_border_style">
+<i>cli_table_border_style</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>The style of the table-borders. Valid styles are: borderless, ascii, thin, thick and header_only_underline_ascii. Default is thin.</dd>
+<dt id="dt:cli_table_maximum_width"><a href="#dt:cli_table_maximum_width">
+<i>cli_table_maximum_width</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The maximum width of tables. If set to 0, the width will be unlimited in batch mode and will be set to the full terminal width in interactive CLI. The default is 0.</dd>
+<dt id="dt:ai_agent_command"><a href="#dt:ai_agent_command">
+<i>ai_agent_command</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Shell command to start the AI agent process for ai-mode. Default is 'gh copilot -- --acp --stdio'.</dd>
+<dt id="dt:ai_agent_model"><a href="#dt:ai_agent_model">
+<i>ai_agent_model</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Default AI model for ai-mode. Used when no model argument is given to the ai-mode command. If not set, the agent's default model is used.</dd>
+<dt id="dt:force_ipv4"><a href="#dt:force_ipv4">
+<i>force_ipv4</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, network services such as telnet and VNC in the target consoles will use IPv4 only. Default is FALSE.</dd>
+<dt id="dt:log_setup"><a href="#dt:log_setup">
+<i>log_setup</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|[[sb][sb][sb][sb][sb][sb][sb][sn|s][sn|s]]</code>
+<br>Log setup preferences similar to that of the log-setup command.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-class-port-space.html">port-space</a>
+<a href="rm-class-probe_monitor.html">probe_monitor</a>
+</div>

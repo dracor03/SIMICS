@@ -1,0 +1,327 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Migrating From the Legacy PCI Library</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="commands.html">Simics Commands</a>
+<a href="pcie-hybrid-systems.html">Connecting external Simulators, Emulators or Hardware</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="migrating-devices-written-with-the-legacy-pci-library"><a href="#migrating-devices-written-with-the-legacy-pci-library">Migrating Devices Written With the Legacy PCI Library</a></h1>
+<p>This section of the documentation focuses on providing a guide for how to
+migrate PCIe devices written with the legacy PCI library (devices that import
+<code>pci/common.dml</code> for endpoint implementations or <code>pci/pcie-to-pcie.dml</code> for port
+implementations). Additionally, a short overview of some high-level differences
+between the two libraries is provided. For a proper understanding of this
+library, it is important to read the other sections of the <a href="index.html">PCIe Modeling
+Library Documentation</a>.</p>
+<h2 id="high-level-difference"><a href="#high-level-difference">High-level Difference</a></h2>
+<p>The new PCIe library utilizes modern Simics features, such as <code>transaction_t</code>,
+<code>atom_t</code>, <code>map_target_t</code> and <code>transaction_translator</code> in its implementation. The
+transaction_t data type has a number of advantages compared to the
+generic_memory_operation data type that the prior library was based on. It
+provides better traceability, easier debugging, asynchronous operations and the
+ability to easily add inspectable extensions. Improved performance for an device
+doing DMA is also a benefit. In addition, <code>atom_t</code> maps well to different TLP
+headers or fields.</p>
+<p>Furthermore, the new library is implemented
+from the ground up using modern DML 1.4. While there is a 1.4 version of the old
+library, it was initially implemented using 1.2 and the 1.4 is a compatibility
+port. With modern DML, more PCIe specific functionality can be handled by the
+library without the user of the library having to do it. An example of this is
+having to reference all the function banks for a multi-function endpoint in a
+param. Similarly with BAR registers of a function having to be referenced in
+param. It also simplifies for the user to override aspects of the library
+without changes necessarily needed in the library itself or having to fork the
+library.</p>
+<p>The library also provides support for partial migration of parts of a PCIe
+topology implemented using the legacy PCI library.
+<code>pcie-downstream-port-legacy</code>, which can be utilized in switch and root ports
+implemented with the new PCIe library, allows for connecting devices that are
+implemented using the legacy PCI library. Similarly, the
+<code>legacy-upstream-pcie-adapter</code> allows for connecting devices implemented with
+the new PCIe library, to a port implemented using the legacy PCI library.</p>
+<h3 id="pci-bus-and-pcie-downstream-port"><a href="#pci-bus-and-pcie-downstream-port"><code>pci-bus</code> and <code>pcie-downstream-port</code></a></h3>
+<p>The legacy PCI library implements a PCI(e) hierarchy using a <code>pci-bus</code> or
+<code>pcie-bus</code>. These are devices that implement the <code>pci_bus</code> Simics interface and
+represent a PCI(e) bus. An endpoint or root/switch port would then reside on
+such a bus by being set in the bus’ <code>pci_devices</code> attribute. Say you have a
+switch, it has an internal bus stemming from the upstream port where only the
+upstream downstream ports may reside. Then each downstream port creates a new
+bus underneath it where endpoints or upstream ports would reside. Each bus in
+this case would be a <code>pci-bus</code> or <code>pcie-bus</code> object when using the legacy PCI
+library. You could say that the legacy PCI(e) library was bus oriented i.e. the
+main abstraction was the <code>pci-bus</code> or <code>pcie-bus</code> and that stems from the fact
+that it was originally developed for PCI which is bus oriented and PCIe support
+was added on top of it. The new library drops the bus centric legacy and is
+modeled around ports. This maps more easily to the current PCIe specification
+which to a large extent is focused on point to point links with ports at both
+ends (with the obvious exception of PCIe switches). Hence, with the new library
+the main abstractions are instead <code>pcie-downstream-port</code> or
+<code>pcie-downstream-port-legacy</code>. Each root/switch port implemented with the new
+library (a device or subdevice that instantiates one of the template
+<code>pcie_&lt;root/upstream/downstream&gt;_port</code>) will also create a subdevice object of
+the class <code>pcie-downstream-port</code> (can be overridden to the legacy compatible
+variant or a custom variant). Devices would then reside on the <code>devices</code>
+attribute of the <code>pcie-downstream-port</code> object or (<code>pci_devices</code> attribute in
+the case of connecting a legacy device to <code>pcie-downstream-port-legacy</code>).</p>
+<p><code>pcie-downstream-port</code>:s, unlike <code>pci-bus</code>, does not require creating
+memory-space objects for each of <code>cfg</code>, <code>mem</code> and <code>io</code> space, as it is handles
+this internally. This simplifies component code from</p>
+<pre><code class="language-python">bus = self.add_pre_obj('pci_bus', 'pcie-bus')
+bus.memory_space = self.add_pre_obj('pci_mem', 'memory-space')
+bus.conf_space = self.add_pre_obj('pci_conf', 'memory-space')
+bus.io_space = self.add_pre_obj('pci_io', 'memory-space')
+bus.pci_devices = […]
+</code></pre>
+<p>to</p>
+<pre><code class="language-python">dp = self.add_pre_obj('pcie_dp', 'pcie-downstream-port')
+dp.devices = […]
+</code></pre>
+<p>Additionally, when using <code>pci-bus</code>, even after placing a PCIe port device in the
+<code>pci_devices</code> attribute, one also has to set the <code>secondary_bus</code> of the port
+device to the bus as well. This is not needed with <code>pcie-downstream-port</code> as the
+port implemented with the new library only has to be put in the <code>devices</code> or
+<code>pci_device</code> attribute of the <code>pcie-downstream-port(-legacy)</code>.</p>
+<p>Refer to the <a href="high-level-design.html">High level design</a> section of the
+documentation to get a more elaborate high-level overview of the new PCIe
+library.</p>
+<h3 id="the-old-library-is-considered-legacy"><a href="#the-old-library-is-considered-legacy">The Old Library is Considered Legacy</a></h3>
+<p>The new PCIe library supports many more features from more recent versions of
+the PCIe specification. No new features are being implemented for the old
+library as it is considered legacy.</p>
+<h2 id="steps-for-migrating-devices"><a href="#steps-for-migrating-devices">Steps for Migrating Devices</a></h2>
+<p>This section describes common steps for migrating different PCIe devices
+implemented with the legacy PCI library. Keep in mind that the device that is
+being migrated might be doing some custom utilization of the legacy library, and
+migrating such things is most likely not covered by this section. However,
+reading these steps, along with the rest of the documentation for this library,
+might provide clues on how to go about migrating that custom logic.</p>
+<p>Migration typically involves writing and rewriting a large number of params. To
+guard against misspellings, consider enabling the <a href="../dml-1.4-reference-manual/provisional-auto.html#dt:explicit_param_decls">provisional language feature
+<code>explicit_param_decls</code></a>.</p>
+<h3 id="single-function-endpoints"><a href="#single-function-endpoints">Single Function Endpoints</a></h3>
+<ol>
+<li>If the device to be migrated is not written in DML 1.4 (but rather 1.2),
+first port it to 1.4. Instruction for this can be found in <a href="../dml-1.4-reference-manual/port-dml.html">Porting DML 1.2
+to DML 1.4</a>.</li>
+<li>Import the new library instead of the old library: <code>import pci/common.dml</code> -&gt;
+<code>import pcie/common.dml</code></li>
+<li>If the device instantiates the <code>pcie_device</code>, instead instantiate
+<code>pcie_endpoint</code>. Also remove the <code>pci_hotplug</code> param if defined.</li>
+<li>Set the <code>pcie_version</code> param to a suitable value.</li>
+<li>Start by migrating the pci config bank to be implemented using the new
+library.
+<ol>
+<li>Rename the <code>pci_config</code> bank to <code>pcie_config</code>.</li>
+<li>Remove the <code>base_address_registers</code> param in the <code>pcie_config</code> bank</li>
+<li>Migrate the capabilities in the PCI and PCIe configuration space to
+utilize the new capability templates (link to doc where these are
+documented).</li>
+<li>Ensure that the capabilities_ptr points to the first capability in the
+non-extended PCI configuration space.</li>
+<li>The existing bar registers should already be instantiating
+<code>memory_base_address_64</code> or <code>memory_base_address_32</code>. Remove the
+<code>map_func</code> params from these registers and add a new param <code>map_obj</code>.
+This param should be an object that should be mapped by this bar
+register. The object will start at offset 0 in the mapped area by the BAR
+register. This object could for instance be a bank (example where the
+device has a bank defined in dml with the name “my_bank”): <code>param map_obj = my_bank.obj</code>.</li>
+<li>If there are unused BARs declared using the <code>no_base_address_64</code> or
+<code>no_base_address_32</code> templates, delete them.</li>
+</ol>
+</li>
+<li>Remove the <code>function</code> <code>param</code> and the <code>function_mapped_bank</code> template
+instantiations in banks that were mapped by BAR registers.</li>
+<li>If the device uses legacy PCI interrupts, change the handling of the
+interrupt_pin values from calling
+<code>pci_raise_interrupt(...)</code>/<code>pci_lower_interrupt(...)</code> to either
+<code>pcie_config.raise_legacy_interrupt()</code>/<code>pcie_config.lower_legacy_interrupt()</code>
+<ol>
+<li>
+<p>Note that if the device instead uses
+<code>pci_raise_interrupt_pin()</code>/<code>pci_lower_interrupt_pin()</code> and uses INTx
+emulation in a way that is not allowed by the PCIe spec (for example
+having a single function being able to assert multiple virtual pins). One
+has to utilize the <code>pcie_config.set_legacy_interrupt()</code> method along with
+checking and setting the applicable INTx registers in the config bank:</p>
+<pre><code class="language-dml">dml 1.4;
+device legacy_irq_dev;
+import "pcie/common.dml";
+is pcie_endpoint;
+
+template custom_legacy_irq {
+    method assert_intx(pci_interrupt_pin_t pin) {
+        this.status.ins.set(1);
+        if (this.command.id.val == 0)
+            this.set_legacy_interrupt(pin, 1);
+    }
+
+    attribute raise_legacy_irq is (pseudo_attr, uint64_attr) {
+        method set(attr_value_t val) throws {
+            local pci_interrupt_pin_t pin = SIM_attr_integer(val);
+            if ((pin &gt;= PCI_INTERRUPT_INTA) &amp;&amp; (pin &lt;= PCI_INTERRUPT_INTD))
+                pcie_config.assert_intx(pin);
+        }
+    }
+}
+
+bank pcie_config is custom_legacy_irq {
+    // ...
+}
+</code></pre>
+</li>
+</ol>
+</li>
+</ol>
+<p>Here, <code>pin</code> is one greater than the argument that would previously have been
+passed to <code>pci_raise_interrupt_pin()</code>.
+2. Calls to <code>pci_data_from_memory(...)</code>/<code>pci_data_to_memory(...)</code> should be
+replaced with calls to
+<code>pcie_config.memory.read_bytes()</code>/<code>pcie_config.memory.write_bytes()</code>.</p>
+<p>Calls to <code>pci_value_from_memory(...)</code>/<code>pci_value_to_memory(...)</code> should be
+replaced with calls to <code>pcie_config.memory.read()</code>/<code>pcie_config.memory.write()</code>.
+Alternatively rewrite them to use <code>bytes_t</code> objects and then use
+<code>read_bytes()</code>/<code>write_bytes()</code>.
+8. If the device uses MSI and/or MSI-X.
+1. For MSI, assuming the MSI capability instantiation in the config bank has
+been migrated to the capability templates from the new library, MSI
+interrupts can be handled by calling
+<code>pcie_config.msi.raise()</code>/<code>pcie_config.msi.lower()</code>.
+2. For MSI-X, when the MSI-X capability instantiation in the config bank has
+been migrated to the capability templates from the new library, the
+<code>msix_data_bank</code> param in the MSI-X capability must be set. This should be a
+bank that has instantiated the <code>msix_table</code> template. This bank in turn should
+set a param <code>msix_bank</code> to a bank that is associated with this MSIX table (in a
+single function endpoint that would be pcie_config). Then instead of calling
+<code>pci_config.pci_raise_msix_interrupt()</code>/<code>pci_config.pci_lower_msix_interrupt()</code>,
+one would call <code>pcie_config.msix.raise()</code>/<code>pcie_config.msix.lower()</code>.</p>
+<h3 id="multi-function-endpoints"><a href="#multi-function-endpoints">Multi-function Endpoints</a></h3>
+<p>Similar process to the single function endpoint migration process. Steps that
+differ will be mentioned below.</p>
+<ol>
+<li>If the device instantiates the <code>pci_mf_device</code>, instead import
+<code>pcie_multifunction_endpoint</code>. Also remove the <code>param pcie_device=true</code> from
+the device (and <code>pci_hotplug</code> if defined).</li>
+<li>Remove the <code>mf_banks</code> param.</li>
+<li>In each physical function bank, replace the <code>mf_fun</code> param with <code>function</code>
+(with the same value).</li>
+<li>In each physical function bank, replace the instantiation of the
+<code>pci_config_type_0_mf</code> instantiation with <code>type_0_bank</code> template.</li>
+<li>Remove any instantiations of <code>providing_legacy_interrupts</code> and
+<code>providing_dma_methods</code>. Legacy interrupts and DMA can be achieved similarly
+to the single endpoints explained previously (call the interrupt or memory
+methods defined in the config bank).</li>
+<li>In each physical function bank, if it has the ARI capability
+<ol>
+<li>Remove the use of the ARI capability template from the legacy PCIe
+library (<code>defining_pcie_ari_capability_v3</code>) and instead use
+<code>defining_ari_capability</code>.</li>
+<li>The nfn field should now instead be set within the <code>capability</code> register
+in the <code>ari</code> group of the function bank.</li>
+</ol>
+</li>
+</ol>
+<h3 id="functions-implementing-sr-iov"><a href="#functions-implementing-sr-iov">Functions Implementing SR-IOV</a></h3>
+<p>Similar process to the single/multi-function endpoint migration. Additional
+steps described below.</p>
+<ol>
+<li>Locate all physical functions (the <code>pci_config</code> or banks that instantiate
+<code>pci_config_type_0_mf</code>) that are associated with virtual functions.</li>
+<li>Assuming the instantiation of the SR-IOV capability template from the old
+library has been replaced with the template from the new one.
+<ol>
+<li>Remove the <code>sriov_vf_bars</code> param and the sriov_total_vfs register.</li>
+<li>Move the SR-IOV BAR registers to group <code>sriov</code> (created by the
+instantiation of <code>defining_sriov_capability</code>). Have these registers
+still instantiating the <code>vf_bar_64</code> or the <code>vf_bar_32</code> template (there’s
+a new implementation for these templates in the new library).</li>
+<li>The register containing the VF device id should be renamed
+sriov_vf_device_id -&gt; vf_device_id and be moved to the <code>sriov</code> group.
+Its value should be set with param init_val.</li>
+<li>Remove the sriov_first_vf_offset and replace it by implementing the
+<code>get_offset()</code> method in the <code>sriov</code> group.</li>
+<li>Remove the sriov_vf_stride and replace it by implementing the
+<code>get_stride()</code> method in the <code>sriov</code> group.</li>
+</ol>
+</li>
+<li>Set the param <code>sriov_virtual_functions</code> in each physical function that
+instantiates the <code>defining_sriov_capability</code> template. This param should point
+to an array of banks that instantiate the <code>vf_type_0_bank</code> template. In each
+SR-IOV BAR register, set the param map_obj to an array of banks that is equal to
+the number of virtual functions.</li>
+</ol>
+<h3 id="root-complex-and-switches"><a href="#root-complex-and-switches">Root Complex and Switches</a></h3>
+<p>PCIe port devices are used to construct Root Complexes (root ports) and Switches
+(upstream and downstream ports). With the legacy PCI library, all the
+connections for a PCIe port are handled through <code>pcie-bus</code>. The port would
+reside on a bus by being placed in the <code>pci_devices</code> attribute of a <code>pcie-bus</code>,
+and the bus underneath the port, the secondary bus, would be a (different)
+<code>pcie_bus</code> that is set in the <code>secondary_bus</code> attribute of the port. These
+connection schemes are typically handled in a component that creates multiple
+instances of PCIe port devices and <code>pcie-bus</code>. With the new library, there is
+more flexibility in regard to how to construct a Switch or Root Complex. For
+instance, it is possible to construct them as one Simics device, where all
+the ports in the device would be subdevices. One could then place the downstream
+port subdevice objects in the <code>devices</code> attribute of the upstream port subdevice
+during <code>post_init</code>. However, it is still possible to construct them as a
+component similarly to how it is done with the legacy library. The difference
+being that one only needs to create object instances of the applicable ports and
+connect them to each other using the <code>devices</code> attribute of the
+<code>pcie-downstream-port</code> subdevice in each port, with no need for <code>pcie-bus</code> like
+objects.</p>
+<h4 id="host-bridges"><a href="#host-bridges">Host Bridges</a></h4>
+<p>While PCIe ports are represented as PCI-PCI bridges in Switches and Root
+Complexes and are PCIe function in their own right with a dedicated device/port
+type in the PCI Express Capability Structure, Host Bridges in a Root Complex are
+more loosely defined. A Host Bridge is defined as “Part of a Root Complex that
+connects a host CPU or CPUs to a Hierarchy”. How it is implemented is not
+defined, meaning that different devices have likely chosen different ways of
+implementing it. Sometimes the Host Bridge is represented as a function in the
+Root Complex, other times that is not the case. This also means that the
+implementations of Root Complex device models will not look the same in regard
+to how the Host Bridge is handled.</p>
+<p>An example would be the Host Bridge has been implemented as a function by
+instantiating the <code>pcie_device</code> template from the legacy library and
+implementing the legacy <code>pci_upstream</code> interface to handle upstream memory
+transactions. Then it routes the transaction to some applicable device or memory
+space. Migrating such a Host Bridge to the new library would entail first
+treating it as a single function endpoint. Then remove the <code>pci_upstream</code>
+interface implementation and instead implement the <code>translator</code> interface or
+<code>transaction_translator</code> interface. Here, one has to keep in mind that the
+legacy <code>pci_upstream</code> receives an old transaction type <code>generic_transaction_t</code>,
+while the <code>transaction_translator</code> receives transaction of type <code>transaction_t</code>.
+How these transactions differ from the older transaction type is out of the
+scope of this documentation. An overview of transactions can be found in the
+<a href="../model-builder-user-guide/transactions.html">Transactions</a> section of the
+Model Builder User Guide.</p>
+<h4 id="upstream-downstream-root-ports"><a href="#upstream-downstream-root-ports">Upstream/Downstream/Root Ports</a></h4>
+<p>Similar process to the single function endpoint migration process. Steps that
+differ will be mentioned below.</p>
+<ol>
+<li>If the device imports <code>pci\pcie-to-pcie</code> or <code>pci/bridge.dml</code>, remove these
+imports (import <code>pcie/common.dml</code> instead).</li>
+<li>Remove the parameters <code>forward_io</code>, <code>forward_io32</code>, <code>forward_mem</code>,
+<code>forward_prefetchable</code>, <code>forward_prefetchable64</code> and <code>pci_hotplug</code>.</li>
+<li>Instantiate one of the <code>pcie_root_port</code>, <code>pcie_downstream_port</code> or
+<code>pcie_upstream_port</code>.</li>
+<li>Hot-plug support is enabled by setting <code>param has_hotplug_capable_slot = true;</code> in the <code>exp</code> group of the PCI Express Capability structure that
+should be present in the <code>pcie_config</code> bank.</li>
+</ol>
+<h3 id="compatibility-with-legacy-devices"><a href="#compatibility-with-legacy-devices">Compatibility With Legacy Devices</a></h3>
+<p>Devices (both endpoints and switches) implemented with the legacy PCI library
+can be connected to root/downstream ports in a PCIe hierarchy implemented with
+the new library. For this to work, the root/downstream port must ensure that the
+instantiated downstream port object in the root/downstream port must be of the
+class <code>pcie-downstream-port-legacy</code>. This can be achieved by setting the
+<code>classname</code> param accordingly in the <code>downstream_port</code> <code>connect</code> of the device
+that instantiated <code>pcie_&lt;root/upstream/downstream&gt;_port</code>.</p>
+
+<div class="chain">
+<a href="commands.html">Simics Commands</a>
+<a href="pcie-hybrid-systems.html">Connecting external Simulators, Emulators or Hardware</a>
+</div>

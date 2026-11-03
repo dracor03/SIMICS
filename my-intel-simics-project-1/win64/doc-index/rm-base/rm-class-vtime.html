@@ -1,0 +1,81 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>vtime</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-vmcom.html">vmcom</a>
+<a href="rm-class-vtime-extension.html">vtime-extension</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="vtime"><a href="#vtime">vtime</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A <tt>vtime</tt> port object is created when the <tt>clock-extension</tt> extension class is used to extend CPU and clock classes with event posting functionality: the <tt>clock-extension</tt> class creates an instance of the <tt>vtime</tt> class in the 'vtime' port of the parent object. See the documentation for the <tt>clock-extension</tt> class and <tt>SIM_extend_class</tt> for related information.
+<p>
+An instance of the <tt>vtime</tt> class is responsible for a connection between a CPU or clock object - usually, it is the parent object of the <tt>vtime</tt> instance - from one side and, from another side, the objects of the <tt>cycle-counter</tt> class that are connected to the <tt>vtime</tt> instance. There can be multiple <tt>cycle-counter</tt> objects that are connected to a single <tt>vtime</tt> object.
+</p><p>
+Communication between CPU and clock objects with the <tt>vtime</tt> objects is done in the following way. CPU and clock objects are responsible for calling the <tt>event_handler</tt> interface of the <tt>vtime</tt> objects. The <tt>vtime</tt> objects use the <tt>frequency</tt> interface provided by CPU and clock objects as well as the <tt>event_delta</tt> interface provided by CPU objects.
+</p><p>
+Communication between a <tt>vtime</tt> object and <tt>cycle-counter</tt> objects connected to it is done via non-public interfaces.
+</p><h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, event_handler, temporal_state, frequency
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:frequency-change"><a href="#dt:frequency-change">frequency-change</a></dt>
+<dd>Notifier that is triggered when frequency changes. New frequency can be read via the frequency interface of the object.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:frequency"><a href="#dt:frequency">
+<i>frequency</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i|f|o|[of]</code>
+<br>frequency</dd>
+<dt id="dt:advancer"><a href="#dt:advancer">
+<i>advancer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Object implementing the <tt>event_delta</tt> interface or NIL.</dd>
+<dt id="dt:connected_cycle_counters"><a href="#dt:connected_cycle_counters">
+<i>connected_cycle_counters</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[o*]</code>
+<br>Cycle-counter objects driven by this object.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-class-vmcom.html">vmcom</a>
+<a href="rm-class-vtime-extension.html">vtime-extension</a>
+</div>

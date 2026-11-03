@@ -1,0 +1,314 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>x2apic_v2</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-vtune_measurement.html">vtune_measurement</a>
+<a href="rm-class-x86-reset-bus.html">x86-reset-bus</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="x2apic_v2"><a href="#x2apic_v2">x2apic_v2</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Local advanced programmable interrupt controller. It receives and routes interrupts from processor's interrupt pins, from internal sources, from an external I/O APIC and interprocessor interrupts from other logical processors. The x2APIC architecture is a backward-compatible extension of the xAPIC architecture.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, apic_bus_to_apic, apic_cpu, apic_inter_core_smi_handling, apic_timer, broadcast_filter, int_register, interrupt_cpu, x86_rar_interrupt
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-apic_regs"><a href="#dt:bank-apic_regs">bank.apic_regs</a></dt>
+<dd>
+<a href="rm-class-x2apic_v2.html#x2apic_v2.ApicBankPort">x2apic_v2.ApicBankPort</a>
+ – register bank</dd>
+<dt id="dt:port-freq_listener"><a href="#dt:port-freq_listener">port.freq_listener</a></dt>
+<dd>
+<a href="rm-class-x2apic_v2.html#x2apic_v2.frequency_listener_port">x2apic_v2.frequency_listener_port</a>
+ – A port class that implements frequency_listener_interface_t</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-x2apic_v2.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-x2apic_v2.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:arbitration_id"><a href="#dt:arbitration_id">
+<i>arbitration_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Arbitration ID</dd>
+<dt id="dt:apic_type"><a href="#dt:apic_type">
+<i>apic_type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>APIC type (P4, P6, or X2)</dd>
+<dt id="dt:cpu"><a href="#dt:cpu">
+<i>cpu</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Target processor implementing the X86 and PROCESSOR_INFO_V2 interfaces. The APIC will assume ownership of the APICBASE MSR if the processor implements the X86_MSR interface. If the processor does not implement the X86_MSR interface, then the APIC needs to be mapped and potentially moved by some other logic.</dd>
+<dt id="dt:physical_broadcast_address"><a href="#dt:physical_broadcast_address">
+<i>physical_broadcast_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current broadcast address for interprocessor interrupts and interrupts from the I/O-APIC. Default value is FFh (0Fh for Pentium® (classic) family or P6 family processors); FFFFFFFFh in x2APIC mode</dd>
+<dt id="dt:priority"><a href="#dt:priority">
+<i>priority</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[[ii]{2}]{16}]</code>
+<br>(((<i>state</i>, <i>vector</i>){2}){16}). Interrupt slots.</dd>
+<dt id="dt:interrupt_posted"><a href="#dt:interrupt_posted">
+<i>interrupt_posted</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Interrupt signal raised</dd>
+<dt id="dt:count_in_progress"><a href="#dt:count_in_progress">
+<i>count_in_progress</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Count is in progress</dd>
+<dt id="dt:p4_x2apic"><a href="#dt:p4_x2apic">
+<i>p4_x2apic</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>When set to TRUE it allows write to ia32_apic_base[10] bit without GP with apic_type != X2, but value of this bit won't be changed by write operation of the WRMSR instruction.</dd>
+<dt id="dt:cpu_bus_divisor"><a href="#dt:cpu_bus_divisor">
+<i>cpu_bus_divisor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Divisor between CPU frequency and bus frequency used by the APIC timer. Ignored if invariant TSC is available</dd>
+<dt id="dt:ext_int_obj"><a href="#dt:ext_int_obj">
+<i>ext_int_obj</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Object pending with delivery mode ExtINT</dd>
+<dt id="dt:frequency"><a href="#dt:frequency">
+<i>frequency</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>System Bus Frequency in Hz. Ignored if invariant TSC is available</dd>
+<dt id="dt:apic_bus"><a href="#dt:apic_bus">
+<i>apic_bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Bus implementing the apic-bus interface.</dd>
+<dt id="dt:apic_id"><a href="#dt:apic_id">
+<i>apic_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Full 32 bit APIC ID</dd>
+<dt id="dt:apicbase_msr_write"><a href="#dt:apicbase_msr_write">
+<i>apicbase_msr_write</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>[ii]</code>
+<br>Force a value change in IA32_APICBASE_MSR with side effects. The first integer is the value, the second the access type. 0 means attribute access, 1 means instruction access.</dd>
+<dt id="dt:post_smi_delay"><a href="#dt:post_smi_delay">
+<i>post_smi_delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>How many cycles will CPU run after SMI before stalling itself till the end of time quantum</dd>
+<dt id="dt:x2apic_mode_only"><a href="#dt:x2apic_mode_only">
+<i>x2apic_mode_only</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>True if the APIC only supports x2APIC mode and can not be disabled.</dd>
+<dt id="dt:interrupt_subscriber"><a href="#dt:interrupt_subscriber">
+<i>interrupt_subscriber</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Set an object that will subscribe to the interrupts that the APIC generates. The object must implement the interrupt_subscriber_interface_t interface.</dd>
+<dt id="dt:has_lvt_2e"><a href="#dt:has_lvt_2e">
+<i>has_lvt_2e</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>True if the APIC supports LVT index 0x2e.</dd>
+<dt id="dt:blocked_broadcast_events"><a href="#dt:blocked_broadcast_events">
+<i>blocked_broadcast_events</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Mask of broadcast events that are not supposed to be delivered via this APIC</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.x2apic-c++.html">x2apic-c++</a>
+</section>
+<h2 id="x2apic_v2.ApicBankPort"><a href="#x2apic_v2.ApicBankPort">x2apic_v2.ApicBankPort</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+register bank
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:bank-register-value-change"><a href="#dt:bank-register-value-change">bank-register-value-change</a></dt>
+<dd>Notifier that is triggered when bank register value changes.</dd>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-transaction">
+<a href="#commands-for-interface-transaction">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="x2apic_v2.frequency_listener_port"><a href="#x2apic_v2.frequency_listener_port">x2apic_v2.frequency_listener_port</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+A port class that implements frequency_listener_interface_t
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, frequency_listener
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-vtune_measurement.html">vtune_measurement</a>
+<a href="rm-class-x86-reset-bus.html">x86-reset-bus</a>
+</div>

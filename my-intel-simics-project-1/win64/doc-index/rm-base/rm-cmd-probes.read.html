@@ -1,0 +1,87 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;probes&gt;.read</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-probes.new-sum-probe.html">&lt;probes&gt;.new-sum-probe</a>
+<a href="rm-cmd-probes.status.html">&lt;probes&gt;.status</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="probes.read"></a>
+<h1 id="probes.read"><a href="#probes.read">&lt;probes&gt;.read</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;probes&gt;.read</b> [<i>"probe"</i>] [-values] [-raw-values] [<i>"probe-kind"</i>] [<i>object</i>] [-recursive] [<i>"substr"</i>] ([ <i>"categories"</i> ... ] | list of <i>"categories"</i>) ([ <i>probe-types</i> ... ] | list of <i>probe-types</i>) [-active] [<i>max</i>] [<i>max-table-width</i>] [<i>"sort-on-column"</i>] [<i>sort-order</i>] [<i>float-decimals</i>] [<i>border-style</i>] [-show-all-columns] [-ignore-column-widths] [-verbose] [-no-row-column] [-no-footers] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Reads and display the current value of one, or several probes in the system.
+<p>
+The optional <i>probe</i> argument specifies a specific probe to read. When this is used, only one probe is read, displayed and returned. In all other cases a table is shown and a list of values is being returned, even if there is only one probe actually read.
+</p><p>
+Without any arguments or switches, all probes in the system are being read and shown.
+</p><p>
+Filtering.
+</p><p>
+To reduce the number of probes shown, there are a large number of command arguments/switches that filters out the non-matching probes. Many filters can be used in the same command invocation.
+</p><p>
+The <i>probe-kind</i> filter specifies which probe-kinds to include. This can be the full name of a specific probe kind, or the string can be a partial kind, for example specifying <tt>cpu.exec_modes.</tt> would include all probe-kinds starting with this string.
+</p><p>
+The <i>substr</i> argument filter allows only probes which has a specific string in the probe name to be displayed.
+</p><p>
+To find probes in a particular object the <i>object</i> argument can be used, only showing the probes on that specific object.
+</p><p>
+In combination with the <i>object</i> argument the <tt>-recursive</tt> switch can be used to look at the probes that exists beneath the specified object, in the object hierarchy. This allows zooming in on the probes within a particular subsystem of the entire target system.
+</p><p>
+Each probe might be assigned with a number of categories represented as strings that describe some property of what they measure. The <i>categories</i> filter can be used to only include the probes which have <b>all</b> of the requested categories included.
+</p><p>
+Probes can returned different types when read. The <i>probe-types</i> argument allows only certain types to be shown.
+</p><p>
+Some probes requires subscription before they can return any value. The <tt>-active</tt> switch automatically discards the probes that cannot currently be read. For these to be shown the <code>&lt;probes&gt;.subscribe</code> command should be used first.
+</p><p>
+Controlling value output format.
+</p><p>
+By default, the value displayed, and returned, is formatted as a string, according to how the probe's suggested human-readable format.
+</p><p>
+To get the actual (non-formatted) values, the <tt>-values</tt> switch can be used.
+</p><p>
+If <tt>-raw-values</tt> is given the raw representation of the probe will be printed, i.e., for fraction probes the numerator and the denominator will be printed separately and for histogram probes the list of keys together with the corresponding value will printed. If the command is used in an expression these values will also be returned in CLI lists. Below are the generic table arguments. The <i>max</i> argument selects how many rows that should be printed, default is 40. Use max = 0 to get the entire table.
+</p><p>
+The <i>max-table-width</i> argument specifies how many characters the table width is allowed to be. Default is zero, which means that Simics will get the current width of the terminal where the command is executed. Tables which initially become wider than this, will be shrunk down by splitting cells to multiple lines.
+</p><p>
+The <i>sort-on-column</i> argument allows the table to be sorted on certain column names, not all columns are allowed to be sorted on. If <i>sort-on-column</i> is not specified, the table may be sorted on a the column it finds most interesting or present the table unsorted.
+</p><p>
+The <i>sort-order</i> argument allows the sort-order to be changed, so either high values are listed first ('descending') or low values are listed first ('ascending'). If not selected, the default order is selected by the column which is being sorted upon.
+</p><p>
+The <i>float-decimals</i> argument can be used to print out more or less number of decimals on the floating point numbers in the table.
+</p><p>
+The <i>border-style</i> argument specifies how the borders for the table should look like. Possible values are <tt>borderless</tt>, <tt>ascii</tt>, <tt>thin</tt> and <tt>thick</tt>. Default is 'thin'.
+</p><p>
+The <tt>-show-all-columns</tt> flag possibly displays some hidden columns. Some autogenerated columns associated with another column are normally only displayed if that column is used for sorting. This flag enables all columns to be showed in the same table.
+</p><p>
+The <tt>-ignore-column-widths</tt> flag formats the table columns to be the max widths of the contents in the displayed rows. Consequently ignoring any explicitly set widths set in the columns.
+</p><p>
+The <tt>-verbose</tt> flag displays additional information of the table such as a description on what each column represents.
+</p><p>
+By default, an additional 'row' column is added to the far left, displaying each row's number. This can be suppressed with the <tt>-no-row-column</tt> flag. Note that footers uses the row column for the footer-names. Consequently, if the row column is removed, and footers are printed, another empty column is created instead.
+</p><p>
+Any columns have data which should be calculated and displayed in the footer, this will be printed by default. The footer can be suppressed with the <tt>-no-footers</tt> flag.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probes-singleton.html">probes-singleton</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-probes.new-sum-probe.html">&lt;probes&gt;.new-sum-probe</a>
+<a href="rm-cmd-probes.status.html">&lt;probes&gt;.status</a>
+</div>

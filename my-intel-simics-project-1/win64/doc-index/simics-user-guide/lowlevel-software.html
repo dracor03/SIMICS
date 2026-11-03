@@ -1,0 +1,112 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3.3 Using Simics for Hardware Bring-Up and Firmware Development</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="debug.html">3.2 Low-level Debugging with Simics</a>
+<a href="gdb.html">3.4 Using Simics with GDB</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="low-level-debugging.html">3 Low-Level Debugging</a>
+&nbsp;/&nbsp;</div><h1 id="using-simics-for-hardware-bring-up-and-firmware-development"><a href="#using-simics-for-hardware-bring-up-and-firmware-development">3.3 Using Simics for Hardware Bring-Up and Firmware Development</a></h1>
+<p>Simics makes hardware bring-up, firmware development, and other low-level
+programming tasks easier in a number of ways:</p>
+<dl>
+<dt id="dt:hardware-replacement"><a href="#dt:hardware-replacement">Hardware replacement</a></dt>
+<dd>A simulator replaces hardware.
+This has two key benefits during hardware bring-up: you can start working on
+the software before the hardware is available, and you can have as many copies
+of the simulated hardware as you like. Both of these translate directly to
+reduced total development time for the combined hardware+software product.</dd>
+<dt id="dt:inspection-and-modification"><a href="#dt:inspection-and-modification">Inspection and modification</a></dt>
+<dd>You can inspect the
+state of the entire simulation—memory, processor registers, device registers,
+anything—all entirely non-intrusively. And time is simply paused while you do
+so. You can restore a snapshot taken earlier, modify memory or register
+contents, and then run forward again and see the effects of this change.</dd>
+<dt id="dt:full-debug-support"><a href="#dt:full-debug-support">Full debug support</a></dt>
+<dd>The full power of Simics
+debugging (see chapter <a class="reference" href="debug.html">3.2</a>), with breakpoints, symbolic debugging,
+scripting, and so on, is available everywhere, even at the very lowest levels.</dd>
+</dl>
+<h2 id="a-simple-example"><a href="#a-simple-example">3.3.1 A Simple Example</a></h2>
+<p>It is easy to write a handful of instructions directly to memory, fill the
+registers with any necessary values, and manually single-step through this
+little program:</p>
+<pre><code class="language-simics">simics&gt; <strong>board.mb.cpu0.core[0][0]-&gt;cs[7] = 0</strong>
+simics&gt; <strong>board.mb.cpu0.core[0][0]-&gt;cs[8] = 0xffffffff</strong>
+simics&gt; <strong>load-file test.bin 0xf000</strong>
+simics&gt; <strong>set-pc 0x10001</strong>
+simics&gt; <strong>%dx = 4711</strong>
+simics&gt; <strong>si</strong>
+[board.mb.cpu0.core[0][0]] cs:0x0000000000010001 p:0x0000000010001  mov ax,0x1
+simics&gt; <strong>si</strong>
+[board.mb.cpu0.core[0][0]] cs:0x0000000000010004 p:0x0000000010004  xor ebx,ebx
+</code></pre>
+<p>As always in Simics, this can be scripted if you expect to run it more than
+once:</p>
+<dl>
+<dt id="dt:test-simics"><a href="#dt:test-simics"><code>test.simics</code></a></dt>
+<dd>
+<pre><code>run-script targets/qsp-x86/firststeps.simics
+board.mb.cpu0.core[0][0]-&gt;cs[7] = 0
+board.mb.cpu0.core[0][0]-&gt;cs[8] = 0xffffffff
+load-file test.bin 0xf000
+set-pc 0x10001
+%dx = 4711
+continue 12
+expect %dx 4713
+expect %pc 0x1001c
+quit
+</code></pre>
+</dd>
+</dl>
+<pre><code>$ ./simics test.simics
+*** Values differ in expect command: 4711 4713
+$
+</code></pre>
+<p>Here, we first call another simics script to set up the machine for us, then run
+our test case. The <code>expect</code>s will cause Simics to exit with an error code (as
+shown) if the conditions are not met; otherwise, the <code>quit</code> will cause Simics to
+quit successfully.</p>
+<h2 id="going-further"><a href="#going-further">3.3.2 Going Further</a></h2>
+<p>The simple script in the last section can be extended in several directions:</p>
+<ul>
+<li>
+<p><code>load-file</code> simply writes the contents of a file directly to memory. There are
+at least two other options:</p>
+<ul>
+<li>Using <code>set</code> to write values directly to memory. This is useful if the test
+program is only a few instructions long.</li>
+<li>Using <code>load-binary</code> to load an executable in one of the formats Simics
+recognizes, such as ELF. Unlike <code>load-file</code>, this command automatically
+loads the executable at the right address, and returns the entry point
+address.</li>
+</ul>
+</li>
+<li>
+<p>You can have more complicated stop conditions than simply “run twelve
+instructions”; for example, you can use execution or data breakpoints (section
+<a class="reference" href="debug.html#memory-breakpoints">3.2.1.2</a>), control register breakpoints (section
+<a class="reference" href="debug.html#control-register-breakpoints">3.2.1.4</a>), device I/O breakpoints (section
+<a class="reference" href="debug.html#i-o-breakpoints">3.2.1.5</a>), or magic instruction breakpoints (section
+<a class="reference" href="debug.html#magic-instructions-and-magic-breakpoints">3.2.1.8</a>).</p>
+</li>
+<li>
+<p>Various conditions cause Simics to trigger <em>haps</em>; for example breakpoints,
+privilege level changes, magic instructions, and traps. You can easily write a
+small hap callback function that is called whenever this happens; such a
+callback could terminate the simulation (indicating success or failure), or
+simply log or change some value.</p>
+</li>
+</ul>
+
+<div class="chain">
+<a href="debug.html">3.2 Low-level Debugging with Simics</a>
+<a href="gdb.html">3.4 Using Simics with GDB</a>
+</div>

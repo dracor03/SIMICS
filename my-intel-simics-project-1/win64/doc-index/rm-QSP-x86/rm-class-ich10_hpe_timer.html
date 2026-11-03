@@ -1,0 +1,171 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ich10_hpe_timer</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_cf9.html">ich10_cf9</a>
+<a href="rm-class-ich10_lan_v2.html">ich10_lan_v2</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ich10_hpe_timer"><a href="#ich10_hpe_timer">ich10_hpe_timer</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+High precision event timer in Intel® ICH10
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, simple_interrupt
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:intc_8259-optional"><a href="#dt:intc_8259-optional">intc_8259 (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: simple_interrupt
+</dd>
+<dt id="dt:intc_apic-optional"><a href="#dt:intc_apic-optional">intc_apic (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: ioapic
+</dd>
+<dt id="dt:lpc-optional"><a href="#dt:lpc-optional">lpc (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: hpet_msi
+</dd>
+<dt id="dt:memory_space-optional"><a href="#dt:memory_space-optional">memory_space (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: memory_space
+</dd>
+<dt id="dt:msi_transaction_tgt-optional"><a href="#dt:msi_transaction_tgt-optional">msi_transaction_tgt (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: transaction
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-regs"><a href="#dt:bank-regs">bank.regs</a></dt>
+<dd>
+<a href="rm-class-ich10_hpe_timer.html#ich10_hpe_timer.regs">ich10_hpe_timer.regs</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_hpe_timer.html#ich10_hpe_timer.HRESET">ich10_hpe_timer.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_hpe_timer.html#ich10_hpe_timer.SRESET">ich10_hpe_timer.SRESET</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ich10_hpe_timer.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ich10_hpe_timer.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:comp_write_slow_cycles"><a href="#dt:comp_write_slow_cycles">
+<i>comp_write_slow_cycles</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of cycles the cpu should be stalled when the comparator register is written (performance optimization)</dd>
+<dt id="dt:intc_8259"><a href="#dt:intc_8259">
+<i>intc_8259</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connection to Intel 8259A Programmable Interrupt Controller.
+<p>
+Required interfaces: <tt>simple_interrupt</tt>.</p></dd>
+<dt id="dt:intc_apic"><a href="#dt:intc_apic">
+<i>intc_apic</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connection to APIC interrupt controller.
+<p>
+Required interfaces: <tt>ioapic</tt>.</p></dd>
+<dt id="dt:lpc"><a href="#dt:lpc">
+<i>lpc</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>LPC bridge used to deliver FSB interrupts.If no LPC bridge is specified, FSB interrupts will be sent directlyon the connected memory space.
+<p>
+Required interfaces: <tt>hpet_msi</tt>.</p></dd>
+<dt id="dt:memory_space"><a href="#dt:memory_space">
+<i>memory_space</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Memory space used for FSB interrupt deliveryused if the LPC bridge is not used for FSB interrupt delivery.
+<p>
+Required interfaces: <tt>memory_space</tt>.</p></dd>
+<dt id="dt:msi_transaction_tgt"><a href="#dt:msi_transaction_tgt">
+<i>msi_transaction_tgt</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Object used for FSB interrupt deliveryused if the LPC bridge and memory space are not used for FSB interrupt delivery.
+<p>
+Required interfaces: <tt>transaction</tt>.</p></dd>
+<dt id="dt:start_time"><a href="#dt:start_time">
+<i>start_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Latest start time of the main counter</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ICH10.html">ICH10</a>
+</section>
+<h2 id="ich10_hpe_timer.HRESET"><a href="#ich10_hpe_timer.HRESET">ich10_hpe_timer.HRESET</a></h2>
+<h2 id="ich10_hpe_timer.SRESET"><a href="#ich10_hpe_timer.SRESET">ich10_hpe_timer.SRESET</a></h2>
+<h2 id="ich10_hpe_timer.regs"><a href="#ich10_hpe_timer.regs">ich10_hpe_timer.regs</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_cf9.html">ich10_cf9</a>
+<a href="rm-class-ich10_lan_v2.html">ich10_lan_v2</a>
+</div>

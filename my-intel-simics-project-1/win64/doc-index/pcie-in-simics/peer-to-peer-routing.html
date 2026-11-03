@@ -1,0 +1,168 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Peer-to-Peer Routing</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="link-training.html">Link Training</a>
+<a href="dml-template-reference.html">DML template reference</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="peer-to-peer-routing"><a href="#peer-to-peer-routing">Peer-to-Peer Routing</a></h1>
+<p>Peer-to-peer (P2P) routing allows PCIe transactions to be routed
+directly between functions or ports within the same device or switch,
+without traversing the upstream link to the root complex. The PCIe
+library provides two templates for P2P routing support:</p>
+<ul>
+<li><code>device_local_p2p</code> — for multi-function (MF) and SR-IOV endpoint
+devices</li>
+<li><code>switch_p2p</code> — for PCIe switch downstream ports</li>
+</ul>
+<p>Both templates hook into the upstream egress path. When a function or
+downstream port sends a transaction upstream, the P2P routing logic
+in the upstream egress path intercepts it and checks whether the
+destination can be reached locally. If so, the transaction is
+redirected to the local ingress path of the matching target.</p>
+<h2 id="relationship-to-acs"><a href="#relationship-to-acs">Relationship to ACS</a></h2>
+<p>ACS can be used to control peer-to-peer routing, like preventing
+peer-to-peer routing between certain switch ports and forcing everything
+upstream.
+Currently peer-to-peer routing is <strong>NOT</strong> yet connected to the
+ACS feature in the PCIe library, meaning ACS <strong>cannot</strong> yet
+control this peer-to-peer routing automatically.
+This will be added in the future.</p>
+<h2 id="transaction-types"><a href="#transaction-types">Transaction Types</a></h2>
+<p>P2P routing supports two types of transactions:</p>
+<ul>
+<li><strong>Memory transactions</strong> (<code>PCIE_Type_Mem</code>): routed based on BAR
+address ranges.</li>
+<li><strong>ID-routed messages</strong> (<code>PCIE_Type_Msg</code> with
+<code>PCIE_Msg_Route_ID</code>): routed based on device ID (BDF) matching for
+endpoints, or bus number range matching for switches.</li>
+</ul>
+<p>Other transaction types (e.g., broadcast messages, IO, or
+configuration) are not P2P-routable and are always forwarded upstream.</p>
+<h2 id="device-local-p2p-routing"><a href="#device-local-p2p-routing">Device-Local P2P Routing</a></h2>
+<p>The <code>device_local_p2p</code> template enables P2P routing between functions
+within the same PCIe device. This covers:</p>
+<ul>
+<li><strong>Multi-function devices</strong>: routing between different physical
+functions (PFs).</li>
+<li><strong>SR-IOV devices</strong>: routing between PFs and VFs, or between
+different VFs.</li>
+</ul>
+<p>To use <code>device_local_p2p</code>, instantiate it on the device.</p>
+<p>By default <code>can_route_p2p</code> returns <code>(PCIE_P2P_ROUTE_UPSTREAM, t)</code>, where <code>t</code> is the
+transaction that was passed into the call. Hence, P2P routing must be
+explicitly enabled by overriding this method. This reflects the fact
+that device-local P2P routing is an optional feature in real hardware.</p>
+<p>Override <code>can_route_p2p</code> in the
+<code>device_local_p2p</code> group to control which function pairs are allowed
+to communicate:</p>
+<pre><code>is device_local_p2p;
+group device_local_p2p {
+    // we have a single PF bank at top level and 512 VFs
+    // in group "vfs". The test will only use two VFs
+    // hence our callback only deals with these two
+    method can_route_p2p(uint16 rid, uint16 tid, transaction_t *t, uint64 addr)
+           -&gt; (pcie_p2p_routing_decision_t, transaction_t*) default {
+        // we allow the PF to talk to all VFs
+        if (rid == pf.get_device_id())
+            return (PCIE_P2P_ROUTE_P2P, t);
+        // we do not allow direct access to the PF from the VFs
+        if (tid == pf.get_device_id())
+            return (PCIE_P2P_ROUTE_UPSTREAM, t);
+        // we allow VF1 to talk to VF0 but not the other way around
+        if (rid == vfs.vf[1].get_device_id() 
+            &amp;&amp; tid == vfs.vf[0].get_device_id())
+            return (PCIE_P2P_ROUTE_P2P, t);
+        return default(rid, tid, t, addr);
+    }
+}
+</code></pre>
+<p>For memory transactions, the routing logic performs a lookup
+if the targeted address is covered by any BAR range in any config
+bank of the sending device.
+For ID-routed messages, it checks if the targeted ID is owned by
+the sending device. If this is the case, it then calls <code>can_route_p2p</code>
+and if that returns true, sends the transaction directly to the
+device-local destination and does not send it upstream.</p>
+<p>See <a class="reference" href="upstream_xgress.html#device_local_p2p">device_local_p2p</a> for the full template
+reference.</p>
+<h2 id="switch-p2p-routing"><a href="#switch-p2p-routing">Switch P2P Routing</a></h2>
+<p>The <code>switch_p2p</code> template enables P2P routing between downstream
+ports of a PCIe switch. When one downstream port sends a transaction
+upstream, the switch checks whether the destination matches the
+address range or bus number range of another downstream port and, if
+so, redirects the transaction to that port’s ingress.</p>
+<p>To use <code>switch_p2p</code>, instantiate it on each downstream port
+subdevice and set parameter <code>downstream_ports</code> in the <code>switch_p2p</code>
+group to the sequence of all downstream ports in the switch.</p>
+<p>The sequence does not have to be sorted. The <code>switch_p2p</code> template
+will sort it according to the BDFs of the downstream ports.</p>
+<pre><code>subdevice dsp[i &lt; 4] is (pcie_downstream_port, switch_p2p) {
+    in group switch_p2p {
+        param downstream_ports = (each pcie_downstream_port in (dev));
+        // [...]
+</code></pre>
+<p>By default <code>can_route_p2p</code> returns <code>(PCIE_P2P_ROUTE_P2P, t)</code> for switches, where <code>t</code> is the
+transaction that was passed into the call, because P2P
+routing is the standard behavior of a switch. Override <code>can_route_p2p</code> to restrict
+which port pairs are allowed. The example below also shows how you
+could use an attribute to select default switch behavior
+or filtered behavior.</p>
+<pre><code>        //  Still in scope of dsp[i &lt; 4] is (pcie_downstream_port, switch_p2p)
+        //  and group switch_p2p
+        method can_route_p2p(uint64 target_port_index, transaction_t *t, uint64 addr)
+            -&gt; (pcie_p2p_routing_decision_t, transaction_t *) default {
+            log info, 3: "Switch can_route_p2p: target_port=%04x addr=%016x",
+                target_port_index, addr;
+            if (!filter_peer_to_peer.val)  // an attribute to control selective P2P
+                return default(target_port_index, t, addr);
+            // note: source port (index i) is counted from 0 while target_port_index is
+            //       counted from 1, so we compare to i+1
+            switch (i + 1) {
+                // port 1 can peer to peer route to itself and target port 2
+                case 1:
+                    if (target_port_index == 1 || target_port_index == 2)
+                        return (PCIE_P2P_ROUTE_P2P, t);
+                    break;
+                // port 2 can peer to peer route only to itself
+                case 2:
+                    if (target_port_index == 2)
+                        return (PCIE_P2P_ROUTE_P2P, t);
+                    break;
+                // port 3 can only peer to peer route to port 4
+                case 3:
+                    if (target_port_index == 4)
+                        return (PCIE_P2P_ROUTE_P2P, t);
+                    break;
+                // port 4 can peer to peer route to everyone
+                case 4:
+                    return (PCIE_P2P_ROUTE_P2P, t);
+                default:
+                    break;
+            }
+            return (PCIE_P2P_ROUTE_UPSTREAM, t);
+        }
+    }  // end group switch_p2p
+}  // end subdevice dsp[i &lt; 4]
+</code></pre>
+<p>Note that <code>target_port_index</code> is 1-based in order to keep it aligned
+to port numbering in ACS where port index 0 is always the upstream
+port of a switch. Hence, the downstream port indices start at index 1.
+Index 1 is always the downstream port with the lowest BDF, index 2
+is the next higher BDF and so on and so forth.</p>
+<p>For memory transactions, the switch matches against the Type 1 BAR
+memory ranges of each downstream port. For ID-routed messages, it
+checks whether the target bus number falls within the
+secondary/subordinate bus number range of a downstream port.</p>
+<p>See <a class="reference" href="bridge_combined.html#switch_p2p">switch_p2p</a> for the full template reference.</p>
+
+<div class="chain">
+<a href="link-training.html">Link Training</a>
+<a href="dml-template-reference.html">DML template reference</a>
+</div>

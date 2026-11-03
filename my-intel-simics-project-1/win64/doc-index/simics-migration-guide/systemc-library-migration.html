@@ -1,0 +1,27 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 SystemC Library</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="from-io-mem-2-trans.html">5 Migrating from IO Memory to Transactions</a>
+<a href="deprecation-table.html">7 Deprecated and Legacy Functionality</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Migration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="systemc-library"><a href="#systemc-library">6 SystemC Library</a></h1>
+<h2 id="package-1013"><a href="#package-1013">6.1 Package 1013</a></h2>
+<p>The SystemC Library has been moved out of the Simics Base package to a separate
+package 1013 (*SystemC-Library*). Users migrating to Simics version 6.0.207 or
+later will need to install package 1013 to continue using SystemC.</p>
+<p>The build process and usage of the SystemC Library remain unchanged, and no
+modifications are required for users’ existing SystemC modules. However, since
+the <code>SCL_VERSION</code> has been updated, both the SystemC Library and the SystemC
+modules must be rebuilt following the migration.</p>
+
+<div class="chain">
+<a href="from-io-mem-2-trans.html">5 Migrating from IO Memory to Transactions</a>
+<a href="deprecation-table.html">7 Deprecated and Legacy Functionality</a>
+</div>

@@ -1,0 +1,111 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>interface_log_tool</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-interface_histogram_tool_connection.html">interface_histogram_tool_connection</a>
+<a href="rm-class-interface_log_tool_connection.html">interface_log_tool_connection</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="interface_log_tool"><a href="#interface_log_tool">interface_log_tool</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Log interface calls
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_tool
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-interface_log_tool.add-filter.html">add-filter</a>
+ – add filter to the tool</li>
+<li>
+<a href="rm-cmd-interface_log_tool.control-blocked-interfaces.html">control-blocked-interfaces</a>
+ – control blocked interfaces</li>
+<li>
+<a href="rm-cmd-interface_log_tool.control-logged-interfaces.html">control-logged-interfaces</a>
+ – control logged interfaces</li>
+<li>
+<a href="rm-cmd-interface_log_tool.delete.html">delete</a>
+ – deletes instrumentation tool</li>
+<li>
+<a href="rm-cmd-interface_log_tool.disable-instrumentation.html">disable-instrumentation</a>
+ – disable instrumentation</li>
+<li>
+<a href="rm-cmd-interface_log_tool.enable-instrumentation.html">enable-instrumentation</a>
+ – enable instrumentation</li>
+<li>
+<a href="rm-cmd-interface_log_tool.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-interface_log_tool.list-providers.html">list-providers</a>
+ – list-provider objects</li>
+<li>
+<a href="rm-cmd-interface_log_tool.remove-filter.html">remove-filter</a>
+ – remove filter from the tool</li>
+<li>
+<a href="rm-cmd-interface_log_tool.remove-instrumentation.html">remove-instrumentation</a>
+ – remove instrumentation</li>
+<li>
+<a href="rm-cmd-interface_log_tool.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:file"><a href="#dt:file">
+<i>file</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Write log to this file.</dd>
+<dt id="dt:no_thread_id"><a href="#dt:no_thread_id">
+<i>no_thread_id</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Replace the operating-system thread ID with &lt;tid&gt;.</dd>
+<dt id="dt:anonymous_pointers"><a href="#dt:anonymous_pointers">
+<i>anonymous_pointers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Replace raw pointer values with &lt;ptr&gt;.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.interface-log-tool.html">interface-log-tool</a>
+</section>
+<div class="chain">
+<a href="rm-class-interface_histogram_tool_connection.html">interface_histogram_tool_connection</a>
+<a href="rm-class-interface_log_tool_connection.html">interface_log_tool_connection</a>
+</div>

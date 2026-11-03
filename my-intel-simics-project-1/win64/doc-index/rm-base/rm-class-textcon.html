@@ -1,0 +1,360 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>textcon</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-text-frontend-winsome.html">text-frontend-winsome</a>
+<a href="rm-class-time-server.html">time-server</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="textcon"><a href="#textcon">textcon</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>textcon</tt> class provides a text user interface to a simulated machine. The console is typically connected to a simulated serial device.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, serial_device, serial_console_frontend, recorded, con_input, text_console_backend, telnet_connection_v2, external_connection_events, host_serial, probe_index, asciicast_export, break_strings, break_strings_v2
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:textcon-close"><a href="#dt:textcon-close">textcon-close</a></dt>
+<dd>Notifier that is triggered when a text console is closed.</dd>
+<dt id="dt:textcon-open"><a href="#dt:textcon-open">textcon-open</a></dt>
+<dd>Notifier that is triggered when a text console is opened.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:tcp"><a href="#dt:tcp">tcp</a></dt>
+<dd>
+<a href="rm-class-tcp-server.html#tcp-server">tcp-server</a>
+ – Telnet TCP server</dd>
+<dt id="dt:unix_socket"><a href="#dt:unix_socket">unix_socket</a></dt>
+<dd>
+<a href="rm-class-unix-socket-server.html#unix-socket-server">unix-socket-server</a>
+ – Telnet Unix domain socket server</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-textcon.capture-start.html">capture-start</a>
+ – capture output to file</li>
+<li>
+<a href="rm-cmd-textcon.capture-stop.html">capture-stop</a>
+ – stop output capture to file</li>
+<li>
+<a href="rm-cmd-textcon.enable-cmd-line-output.html">disable-cmd-line-output</a>
+ – disable output to Simics command line</li>
+<li>
+<a href="rm-cmd-textcon.enable-cmd-line-output.html">enable-cmd-line-output</a>
+ – enable output to Simics command line</li>
+<li>
+<a href="rm-cmd-textcon.hide.html">hide</a>
+ – hide the console window</li>
+<li>
+<a href="rm-cmd-textcon.host-serial-setup.html">host-serial-setup</a>
+ – setup host serial connection</li>
+<li>
+<a href="rm-cmd-textcon.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-textcon.input.html">input</a>
+ – send input to a console</li>
+<li>
+<a href="rm-cmd-textcon.input-file.html">input-file</a>
+ – input a file into a console</li>
+<li>
+<a href="rm-cmd-textcon.record-start.html">record-start</a>
+ – start recording of output on the console</li>
+<li>
+<a href="rm-cmd-textcon.record-stop.html">record-stop</a>
+ – stop recording of output on the console</li>
+<li>
+<a href="rm-cmd-textcon.save-to-file.html">save-to-file</a>
+ – save console screen to file</li>
+<li>
+<a href="rm-cmd-textcon.show.html">show</a>
+ – display the console window</li>
+<li>
+<a href="rm-cmd-textcon.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-textcon.telnet-setup.html">telnet-setup</a>
+ – setup telnet connection</li>
+<li>
+<a href="rm-cmd-textcon.telnet-status.html">telnet-status</a>
+ – return telnet connection data</li>
+</ul>
+<h2 id="commands-for-interface-break_strings_v2">
+<a href="#commands-for-interface-break_strings_v2">Commands for interface break_strings_v2</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-break_strings_v2.bp-break-console-string.html">bp-break-console-string</a>
+ – set string breakpoint</li>
+<li>
+<a href="rm-cmd-break_strings_v2.bp-run-until-console-string.html">bp-run-until-console-string</a>
+ – run until string appears</li>
+<li>
+<a href="rm-cmd-break_strings_v2.bp-trace-console-string.html">bp-trace-console-string</a>
+ – enable tracing of string appearances</li>
+<li>
+<a href="rm-cmd-break_strings_v2.bp-wait-for-console-string.html">bp-wait-for-console-string</a>
+ – wait for specified string</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:device"><a href="#dt:device">
+<i>device</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>The serial device that the console is attached to, must implement the 'serial_device' interface.</dd>
+<dt id="dt:serial_frontends"><a href="#dt:serial_frontends">
+<i>serial_frontends</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>Serial frontends connected to the console. These must implement the serial_console_frontend interface and will receive all output to the console.</dd>
+<dt id="dt:output_file"><a href="#dt:output_file">
+<i>output_file</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>If set to a non-empty string, output will be directed to and appended to this file. Set to an empty string to stop file output.</dd>
+<dt id="dt:cmd_line_output"><a href="#dt:cmd_line_output">
+<i>cmd_line_output</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If set to TRUE, the Simics command line will receive console output, which will also be logged at level 3. Command line and log output will also happen automatically when the console is started in invisible mode, until it is explicitly displayed, or until this flag is set to FALSE.</dd>
+<dt id="dt:output_line"><a href="#dt:output_line">
+<i>output_line</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>The current output line of printable characters from the attached device.</dd>
+<dt id="dt:log_line"><a href="#dt:log_line">
+<i>log_line</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>The current pending log output line.</dd>
+<dt id="dt:convert_crlf"><a href="#dt:convert_crlf">
+<i>convert_crlf</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, LF characters received from the attached device are converted to CRLF.</dd>
+<dt id="dt:filter_esc"><a href="#dt:filter_esc">
+<i>filter_esc</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[bbbb]</code>
+<br>Determines if ANSI escape sequences sent from the attached device will be filtered out in different circumstances: [for breakpoint matching, for command line, for log output, elsewhere]. The default is [TRUE, TRUE, FALSE, FALSE].</dd>
+<dt id="dt:recorder"><a href="#dt:recorder">
+<i>recorder</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Associated recorder object. Used for recording console input.</dd>
+<dt id="dt:output_recording"><a href="#dt:output_recording">
+<i>output_recording</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>When enabled, all characters written to the console will be recorded. The record can be read from the attribute <i>recorded_output</i>.</dd>
+<dt id="dt:recorded_output"><a href="#dt:recorded_output">
+<i>recorded_output</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>The characters that have been recorded when the attribute <i>output_recording</i> is <i>TRUE</i>. Note that the recorded string will NOT be cleared when <i>output_recording</i> is reset.</dd>
+<dt id="dt:window_title"><a href="#dt:window_title">
+<i>window_title</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Console GUI window title.</dd>
+<dt id="dt:screen_size"><a href="#dt:screen_size">
+<i>screen_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Console visible screen size (columns, rows).</dd>
+<dt id="dt:max_scrollback_size"><a href="#dt:max_scrollback_size">
+<i>max_scrollback_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Maximum number of scrollback lines. Set to 0 for no maximum. Default is 10000.</dd>
+<dt id="dt:screen_data"><a href="#dt:screen_data">
+<i>screen_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[i*][[iii]*][[ib]*]]</code>
+<br>Console screen contents (characters, attributes, line_info). Characters and attributes lists have length width * height. Attributes list contains (attribute, fg colour, bg colour) for every screen character. line_info is a list with meta data for every line: (line length, line wrap).</dd>
+<dt id="dt:scrollback_data"><a href="#dt:scrollback_data">
+<i>scrollback_data</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ddd[[ib]*]]</code>
+<br>Console scrollback contents (characters, attributes, colours, line_info). line_info has the same format as for the <tt>screen_data</tt> attribute. The character data also has the same format but is given as binary for faster checkpointing. The attribute data is a list of text_console_attrib_t.attrib values for each scrollback character, and the colour data is a list of text_console_colour_t values, alternating foreground and background colours (hence the colour data is 4 times long as the character data).</dd>
+<dt id="dt:default_colours"><a href="#dt:default_colours">
+<i>default_colours</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Default text colours (foreground, background) in 0xRRGGBB format.</dd>
+<dt id="dt:visible"><a href="#dt:visible">
+<i>visible</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b|n</code>
+<br>Show/hide console GUI window. Setting to NIL only has effect before instantiation, in which case it leads to the default visibility behaviour of showing the console window if it is the unique console in the configuration.</dd>
+<dt id="dt:decawm"><a href="#dt:decawm">
+<i>DECAWM</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Auto-wrap mode.</dd>
+<dt id="dt:tab_stops"><a href="#dt:tab_stops">
+<i>tab_stops</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Current tab stop positions (1-based).</dd>
+<dt id="dt:backspace_sends_del"><a href="#dt:backspace_sends_del">
+<i>backspace_sends_del</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, the backspace key sends DEL (127), otherwise BS (8). Default is TRUE.</dd>
+<dt id="dt:input_mode"><a href="#dt:input_mode">
+<i>input_mode</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>What terminal type to emulate for keyboard inputs. Possible values are <tt>"standard"</tt> (VT220/XTerm), which is the default, and <tt>"microsoft"</tt> (Microsoft's "VT100+").</dd>
+<dt id="dt:osc_parameters"><a href="#dt:osc_parameters">
+<i>osc_parameters</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[ss]*]</code>
+<br>Selected key/value parameters received via OSC 3008 (shell integration) escape sequences. Only a fixed set of keys (cwd, user, hostname, shell, term, version, pid) is kept; other keys are ignored.</dd>
+<dt id="dt:buffer_until_telnet_connection"><a href="#dt:buffer_until_telnet_connection">
+<i>buffer_until_telnet_connection</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, the console will buffer any output until a client connects. If FALSE, such output will be discarded. This cannot be set if <tt>telnet_send_data_on_connect</tt> is set.</dd>
+<dt id="dt:telnet_output_buffer"><a href="#dt:telnet_output_buffer">
+<i>telnet_output_buffer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Characters transmitted by the simulated serial port, but not yet written out by the console.</dd>
+<dt id="dt:telnet_raw"><a href="#dt:telnet_raw">
+<i>telnet_raw</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, will not interpret telnet control codes or otherwise change the bytes transmitted in either direction.</dd>
+<dt id="dt:telnet_send_data_on_connect"><a href="#dt:telnet_send_data_on_connect">
+<i>telnet_send_data_on_connect</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If TRUE, the currently visible console screen will be sent to the telnet client upon connection. This cannot be set if the <tt>buffer_until_telnet_connection</tt> attribute is set. The data sent includes formatting control characters</dd>
+<dt id="dt:pty"><a href="#dt:pty">
+<i>pty</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>s|n</code>
+<br>Name of the allocated host serial device, or NIL.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.textcon.html">textcon</a>
+</section>
+<div class="chain">
+<a href="rm-class-text-frontend-winsome.html">text-frontend-winsome</a>
+<a href="rm-class-time-server.html">time-server</a>
+</div>

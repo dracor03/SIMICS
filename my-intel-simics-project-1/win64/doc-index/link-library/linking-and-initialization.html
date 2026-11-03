@@ -1,0 +1,33 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 Linking and Initialization</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="link-concepts.html">2 Link Concepts</a>
+<a href="class-definitions.html">4 Class Definitions</a>
+</div>
+<div class="path">
+<a href="index.html">Link Library Programming Guide</a>
+&nbsp;/&nbsp;</div><h1 id="linking-and-initialization"><a href="#linking-and-initialization">3 Linking and Initialization</a></h1>
+<p>Linking the link library to your module is simply a matter of adding the following line to the module’s <code>Makefile</code> (for GNU Make builds):</p>
+<pre><code>MODULE_LDFLAGS = -llink
+</code></pre>
+<p>For CMake-based builds, use <code>target_link_libraries</code> to link against the link library instead.</p>
+<p>The <code>init_local()</code> function in the link module needs to call the <code>SIMLINK_init_library()</code> function:</p>
+<pre><code>void
+init_local()
+{
+        /* The link library must always be initialised first. */
+        SIMLINK_init_library();
+
+        /* The rest of the module initialization */
+}
+</code></pre>
+
+<div class="chain">
+<a href="link-concepts.html">2 Link Concepts</a>
+<a href="class-definitions.html">4 Class Definitions</a>
+</div>

@@ -1,0 +1,84 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>event_histogram</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-eth_injector.html">eth_injector</a>
+<a href="rm-class-event_histogram_connection.html">event_histogram_connection</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="event_histogram"><a href="#event_histogram">event_histogram</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Instrumentation tool that collect and displays all events dispatched in connected clocks/processors in a histogram
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_tool, table
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-event_histogram.add-filter.html">add-filter</a>
+ – add filter to the tool</li>
+<li>
+<a href="rm-cmd-event_histogram.add-instrumentation.html">add-instrumentation</a>
+ – add instrumentation</li>
+<li>
+<a href="rm-cmd-event_histogram.clear.html">clear</a>
+ – clear instruction sizes frequencies</li>
+<li>
+<a href="rm-cmd-event_histogram.delete.html">delete</a>
+ – deletes instrumentation tool</li>
+<li>
+<a href="rm-cmd-event_histogram.histogram.html">histogram</a>
+ – print taken exceptions with frequencies</li>
+<li>
+<a href="rm-cmd-event_histogram.list-providers.html">list-providers</a>
+ – list-provider objects</li>
+<li>
+<a href="rm-cmd-event_histogram.remove-filter.html">remove-filter</a>
+ – remove filter from the tool</li>
+<li>
+<a href="rm-cmd-event_histogram.remove-instrumentation.html">remove-instrumentation</a>
+ – remove instrumentation</li>
+</ul>
+<h2 id="commands-for-interface-table">
+<a href="#commands-for-interface-table">Commands for interface table</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-table.export-table-csv.html">export-table-csv</a>
+ – print table to file in csv format</li>
+<li>
+<a href="rm-cmd-table.print-table.html">print-table</a>
+ – print table</li>
+</ul>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.event-histogram.html">event-histogram</a>
+</section>
+<div class="chain">
+<a href="rm-class-eth_injector.html">eth_injector</a>
+<a href="rm-class-event_histogram_connection.html">event_histogram_connection</a>
+</div>

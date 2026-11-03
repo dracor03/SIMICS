@@ -1,0 +1,441 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>i82571EB_v2</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-i82559.html">i82559</a>
+<a href="rm-class-i82574_v2.html">i82574_v2</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="i82571EB_v2"><a href="#i82571EB_v2">i82571EB_v2</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Intel® i82571EB PCIe Gigabit Ethernet Controller.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, ieee_802_3_mac, ieee_802_3_mac_v3, io_memory, pci_device
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:expansion_rom-optional"><a href="#dt:expansion_rom-optional">expansion_rom (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: rom
+</dd>
+<dt id="dt:mii-required"><a href="#dt:mii-required">mii (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: mii_management
+</dd>
+<dt id="dt:pci_bus-optional"><a href="#dt:pci_bus-optional">pci_bus (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory, pci_bus, pci_express
+</dd>
+<dd>
+<b>Optional interfaces</b>: pci_upstream_operation
+</dd>
+<dt id="dt:phy-required"><a href="#dt:phy-required">phy (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: ieee_802_3_phy_v2
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-csr"><a href="#dt:bank-csr">bank.csr</a></dt>
+<dd>
+<a href="rm-class-i82571EB_v2.html#i82571EB_v2.csr">i82571EB_v2.csr</a>
+ – i82571EB Ethernet Controller Registers</dd>
+<dt id="dt:bank-io_mapped"><a href="#dt:bank-io_mapped">bank.io_mapped</a></dt>
+<dd>
+<a href="rm-class-i82571EB_v2.html#i82571EB_v2.io_mapped">i82571EB_v2.io_mapped</a>
+ – I/O-Mapped Access to Internal Registers and Memory</dd>
+<dt id="dt:bank-pci_config"><a href="#dt:bank-pci_config">bank.pci_config</a></dt>
+<dd>
+<a href="rm-class-i82571EB_v2.html#i82571EB_v2.pci_config">i82571EB_v2.pci_config</a>
+ – The PCI configuration space.</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-i82571EB_v2.html#i82571EB_v2.HRESET">i82571EB_v2.HRESET</a>
+</dd>
+<dt id="dt:port-power"><a href="#dt:port-power">port.POWER</a></dt>
+<dd>
+<a href="rm-class-i82571EB_v2.html#i82571EB_v2.POWER">i82571EB_v2.POWER</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-i82571EB_v2.html#i82571EB_v2.SRESET">i82571EB_v2.SRESET</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-i82571EB_v2.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-i82571EB_v2.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:config_registers"><a href="#dt:config_registers">
+<i>config_registers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[i*]</code>
+<br>The PCI configuration registers, each 32 bits in size.</dd>
+<dt id="dt:eeprom"><a href="#dt:eeprom">
+<i>eeprom</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{64}]</code>
+<br>EEPROM (for mac address)</dd>
+<dt id="dt:expansion_rom_size"><a href="#dt:expansion_rom_size">
+<i>expansion_rom_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the expansion ROM mapping.</dd>
+<dt id="dt:ext_interrupt_raised"><a href="#dt:ext_interrupt_raised">
+<i>ext_interrupt_raised</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Extended Interrupt Output State</dd>
+<dt id="dt:flash"><a href="#dt:flash">
+<i>flash</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Connection to the SPI interface in the i82571EB</dd>
+<dt id="dt:flash_func"><a href="#dt:flash_func">
+<i>flash_func</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Function number of GbE SPI flash program register bank in the SPI</dd>
+<dt id="dt:interrupt_raised"><a href="#dt:interrupt_raised">
+<i>interrupt_raised</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Interrupt Output State</dd>
+<dt id="dt:lan_identifier"><a href="#dt:lan_identifier">
+<i>lan_identifier</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>LAN ID, LAN A or LAN B (0b00=LAN A, 0b01=LAN B)</dd>
+<dt id="dt:legacy_interrupt_raised"><a href="#dt:legacy_interrupt_raised">
+<i>legacy_interrupt_raised</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Legacy Interrupt Output State</dd>
+<dt id="dt:mac_address"><a href="#dt:mac_address">
+<i>mac_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>MAC address ('XX:XX:XX:XX:XX:XX' string)</dd>
+<dt id="dt:mii"><a href="#dt:mii">
+<i>mii</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>connect to external PHY for MDIO access
+<p>
+Required interface: <tt>mii_management</tt></p></dd>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The PCI bus this device is connected to, implementing the <tt>pci-bus</tt> interface.
+<p>
+Required interfaces: <tt>io_memory</tt>, <tt>pci_bus</tt>, <tt>pci_express</tt>
+</p><p>
+Optional interface: <tt>pci_upstream_operation</tt></p></dd>
+<dt id="dt:phy"><a href="#dt:phy">
+<i>phy</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>connects to external PHY
+<p>
+Required interface: <tt>ieee_802_3_phy_v2</tt></p></dd>
+<dt id="dt:phy_address"><a href="#dt:phy_address">
+<i>phy_address</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address of attached external PHY</dd>
+<dt id="dt:tx_descriptor"><a href="#dt:tx_descriptor">
+<i>tx_descriptor</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[id]</code>
+<br>Current transmit descriptor</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.i82571EB-v2.html">i82571EB-v2</a>
+</section>
+<h2 id="i82571EB_v2.HRESET"><a href="#i82571EB_v2.HRESET">i82571EB_v2.HRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="i82571EB_v2.POWER"><a href="#i82571EB_v2.POWER">i82571EB_v2.POWER</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="i82571EB_v2.SRESET"><a href="#i82571EB_v2.SRESET">i82571EB_v2.SRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-4">
+<a href="#interfaces-implemented-4">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-4">
+<a href="#notifiers-4">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-4"><a href="#dt:cell-change-4">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-4"><a href="#dt:object-delete-4">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-4"><a href="#dt:queue-change-4">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="i82571EB_v2.csr"><a href="#i82571EB_v2.csr">i82571EB_v2.csr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+i82571EB Ethernet Controller Registers
+<h2 id="interfaces-implemented-5">
+<a href="#interfaces-implemented-5">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, io_memory, register_view, register_view_catalog, register_view_read_only
+<h2 id="notifiers-5">
+<a href="#notifiers-5">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-5"><a href="#dt:cell-change-5">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-5"><a href="#dt:object-delete-5">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-5"><a href="#dt:queue-change-5">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+</section>
+<h2 id="i82571EB_v2.io_mapped"><a href="#i82571EB_v2.io_mapped">i82571EB_v2.io_mapped</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+I/O-Mapped Access to Internal Registers and Memory
+<h2 id="interfaces-implemented-6">
+<a href="#interfaces-implemented-6">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, io_memory, register_view, register_view_catalog, register_view_read_only
+<h2 id="notifiers-6">
+<a href="#notifiers-6">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-6"><a href="#dt:cell-change-6">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-6"><a href="#dt:object-delete-6">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-6"><a href="#dt:queue-change-6">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-2">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-2">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-2">
+<a href="#commands-for-interface-instrumentation_order-2">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+</section>
+<h2 id="i82571EB_v2.pci_config"><a href="#i82571EB_v2.pci_config">i82571EB_v2.pci_config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-4">
+<a href="#description-4">Description</a>
+</h2>
+The PCI configuration space.
+<h2 id="interfaces-implemented-7">
+<a href="#interfaces-implemented-7">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, io_memory, register_view, register_view_catalog, register_view_read_only
+<h2 id="notifiers-7">
+<a href="#notifiers-7">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-7"><a href="#dt:cell-change-7">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-7"><a href="#dt:object-delete-7">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-7"><a href="#dt:queue-change-7">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-3">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-3">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-3">
+<a href="#commands-for-interface-instrumentation_order-3">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+</section>
+<div class="chain">
+<a href="rm-class-i82559.html">i82559</a>
+<a href="rm-class-i82574_v2.html">i82574_v2</a>
+</div>

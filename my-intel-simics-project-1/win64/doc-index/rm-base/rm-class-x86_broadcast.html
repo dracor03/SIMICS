@@ -1,0 +1,76 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>x86_broadcast</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-x86_branch_profiler.html">x86_branch_profiler</a>
+<a href="rm-class-x86_mode_filter.html">x86_mode_filter</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="x86_broadcast"><a href="#x86_broadcast">x86_broadcast</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+CPU broadcast device.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-x86_broadcast.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-x86_broadcast.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:cpus"><a href="#dt:cpus">
+<i>cpus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>List of all CPUs.</dd>
+<dt id="dt:images"><a href="#dt:images">
+<i>images</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>List of images.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.x86_broadcast.html">x86_broadcast</a>
+</section>
+<div class="chain">
+<a href="rm-class-x86_branch_profiler.html">x86_branch_profiler</a>
+<a href="rm-class-x86_mode_filter.html">x86_mode_filter</a>
+</div>

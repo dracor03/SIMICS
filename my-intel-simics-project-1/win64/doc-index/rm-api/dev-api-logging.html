@@ -1,0 +1,170 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Logging</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-haps.html">Haps</a>
+<a href="dev-api-transactions.html">Transactions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Logging</h1>
+<h2 id="SIM_LOG_INFO"><a href="#SIM_LOG_INFO">SIM_LOG_INFO...</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_LOG_INFO… — output log message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_log_info(int level, conf_object_t *NOTNULL dev, int grp,
+             const char *NOTNULL fmt, ...);
+
+void
+SIM_log_spec_violation(int level, conf_object_t *NOTNULL dev, int grp,
+                       const char *NOTNULL fmt, ...);
+
+void
+SIM_log_unimplemented(int level, conf_object_t *NOTNULL dev, int grp,
+                      const char *NOTNULL fmt, ...);
+
+void
+SIM_log_error(conf_object_t *NOTNULL dev, int grp,
+              const char *NOTNULL fmt, ...);
+
+void
+SIM_log_critical(conf_object_t *NOTNULL dev, int grp,
+                 const char *NOTNULL fmt, ...);
+
+void
+SIM_log_message(conf_object_t *obj, int level, uint64 group_ids,
+                log_type_t log_type, const char *message);
+
+void
+SIM_log_message_vararg(conf_object_t *NOTNULL obj, int level, uint64 grp,
+                       log_type_t log_type, const char *NOTNULL fmt, ...);
+
+// not available in DML
+
+SIM_LOG_ERROR(dev, grp, ...);
+SIM_LOG_CRITICAL(dev, grp, ...);
+SIM_LOG_INFO(lvl, dev, grp, ...);
+SIM_LOG_SPEC_VIOLATION(lvl, dev, grp, ...);
+SIM_LOG_UNIMPLEMENTED(lvl, dev, grp, ...);
+SIM_LOG_WARNING(dev, grp, ...);
+SIM_LOG_INFO_ONCE(lvl1, lvl2, dev, grp, ...);
+SIM_LOG_SPEC_VIOLATION_ONCE(lvl1, lvl2, dev, grp, ...);
+SIM_LOG_UNIMPLEMENTED_ONCE(lvl1, lvl2, dev, grp, ...);
+SIM_LOG_WARNING_ONCE(dev, grp, ...);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_log_info(...)
+simics.SIM_log_spec_violation(...)
+simics.SIM_log_unimplemented(...)
+simics.SIM_log_error(...)
+simics.SIM_log_critical(...)
+simics.SIM_log_message(...)
+</code></pre>
+<h2>Description</h2>
+<p>These logging macros are used to emit information and error messages.</p>
+<p>The <code>level</code> parameter indicates the importance; a lower value means a more important message. <a href="dev-api-logging.html#SIM_LOG_INFO"><code>SIM_LOG_ERROR</code></a> has no <code>level</code> parameter and will always emit messages.</p>
+<p><code>level</code> should be between 1 and 4:</p>
+<ol>
+<li>important messages that are always printed</li>
+<li>“high-level” informative messages</li>
+<li>standard debug messages</li>
+<li>detailed information, such as register accesses</li>
+</ol>
+<p>The <code>dev</code> argument identifies the object the log message is about. The message is emitted for that object, so the object’s current log settings are used when the message is filtered and timestamped, and the object’s name is what appears in the formatted log message. In other words, pass the object whose behavior or state the message describes, not just the object making the call.</p>
+<p>The <code>grp</code> parameter should have a bit set for each log group that the message corresponds to, as defined by the <a href="dev-api-logging.html#SIM_log_register_groups"><code>SIM_log_register_groups</code></a> function, while a value of 0 equals <em>any</em> group.</p>
+<p>The <code>level</code> and <code>grp</code> parameters allow the user to selectively display more or fewer messages using the <code>log-level</code>, <code>log-group</code> and <code>log-type</code> commands.</p>
+<p>The <code>fmt</code> argument and those following it are used for string formatting in the same way as in the standard <code>sprintf</code> function.</p>
+<p>The logging macros are among the few Simics APIs that may be called while a frontend exception is pending.</p>
+<p>The use of the different macors is discussed in <a href="../model-builder-user-guide/writing-module-with-c.html#logging">Simics Model Builder User’s Guide, section “Logging”</a>:</p>
+<ul>
+<li><em>info</em>: Normal informational message</li>
+<li><em>warning</em>: Unexpected problem in the model, but simulation can continue.</li>
+<li><em>error</em>: Unexpected error in the model (indicates a bug in the model).</li>
+<li><em>critical</em>: Critical error that will interrupt the simulation (indicates a bug that the model may not recover from).</li>
+<li><em>spec_violation</em>: Target program violates the specification.</li>
+<li><em>unimplemented</em>: Attempt to use not yet implemented functionality.</li>
+</ul>
+<p>If the <code>sim-&gt;stop_on_error</code> attribute is set to true, for example if Simics was started with the <code>--stop-on-error</code> command line flag, then Simics will exit with an error code when a log message of the <em>error</em> type is generated.</p>
+<p>If the <code>sim-&gt;warnings_as_errors</code> attribute is set to true, for example if Simics was started with the <code>--warnings-as-errors</code> command line flag, then a log warning has the same effect as a log error.</p>
+<p>From Python use the logging functions instead of the logging macros.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+<h2>See Also</h2>
+<p><a href="dev-api-logging.html#SIM_log_register_groups"><code>SIM_log_register_groups</code></a>, <a href="dev-api-configuration.html#SIM_attribute_error"><code>SIM_attribute_error</code></a></p>
+</section>
+<h2 id="SIM_log_level"><a href="#SIM_log_level">SIM_log_level, SIM_set_log_level</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_log_level, SIM_set_log_level — set and get log level</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+unsigned
+SIM_log_level(const conf_object_t *NOTNULL obj);
+
+void
+SIM_set_log_level(conf_object_t *NOTNULL obj, unsigned level);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_log_level(...)
+simics.SIM_set_log_level(...)
+</code></pre>
+<h2>Description</h2>
+<p>Retrieve or set the log level of an object. The level must be in the range 0..4 inclusive. Higher values mean more detailed logging.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_log_register_groups"><a href="#SIM_log_register_groups">SIM_log_register_groups</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_log_register_groups — register names of log groups</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_log_register_groups(conf_class_t *NOTNULL cls,
+                        const char *const *NOTNULL names);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_log_register_groups(...)
+</code></pre>
+<h2>Description</h2>
+<p>Register a list of log groups that an object can use to separate messages. The order of the groups in the list defines the group ids that should be used in calls to <a href="dev-api-logging.html#SIM_LOG_INFO"><code>SIM_LOG_INFO</code></a> and similar functions. The <code>group_ids</code> argument to those functions should have a bit set corresponding to the group; i.e., a value of 1 for the first group, 2 for the second, 4 for the third, etc. <code>names</code> should be a <code>NULL</code>-terminated array.</p>
+<p>A class may have up to 63 user-defined log groups.</p>
+<p>The <code>Default_Log_Group</code> group is present on all classes. It is used for log entries where no group is specified.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown in case of an error, e.g. if log groups are already registered.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-logging.html#SIM_LOG_INFO"><code>SIM_LOG_INFO</code></a></p>
+</section>
+<div class="chain">
+<a href="dev-api-haps.html">Haps</a>
+<a href="dev-api-transactions.html">Transactions</a>
+</div>

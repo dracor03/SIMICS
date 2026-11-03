@@ -1,0 +1,53 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;breakpoint&gt;.bp-trace-memory</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-breakpoint.bp-run-until-memory.html">&lt;breakpoint&gt;.bp-run-until-memory</a>
+<a href="rm-cmd-breakpoint.bp-wait-for-memory.html">&lt;breakpoint&gt;.bp-wait-for-memory</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="breakpoint.bp-trace-memory"></a>
+<h1 id="breakpoint.bp-trace-memory"><a href="#breakpoint.bp-trace-memory">&lt;breakpoint&gt;.bp-trace-memory</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;breakpoint&gt;.bp-trace-memory</b> <i>address</i> [<i>length</i>] [-r] [-w] [-x] [<i>"prefix"</i>] [<i>"substr"</i>] [<i>"pattern"</i>] [<i>"mask"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Enables tracing of memory accesses.
+<p>
+The accesses to trace are specified as (read, write, or execute) on <i>address</i> for an object implementing the <tt>breakpoint</tt> interface. For physical addresses, this is typically a <tt>memory-space</tt> object, and for virtual addresses it is a <tt>context</tt> object.
+</p><p>
+Accesses intersecting the given range will be traced. By default only instruction execution is traced, but any subset of read, write, and execute accesses can traced using combinations of <tt>-r</tt>, <tt>-w</tt>, and <tt>-x</tt>.
+</p><p>
+<i>length</i> is the interval length in bytes (default is 1).
+</p><p>
+By default, tracing is done on memory connected to the current frontend processor (see <code>pselect</code>). Default is to trace virtual address accesses (in the current context). To trace physical accesses, prefix the <i>address</i> with <tt>p:</tt>.
+</p><p>
+Use <i>prefix</i> to trace instructions with this prefix. For example, a prefix "add" will trace instructions that begins with "add". The text to compare the prefix with for an instruction is the one which the instruction is disassembled to. The comparison is case insensitive.
+</p><p>
+Use <i>substr</i> to trace instructions with a certain syntax substring. For example, specifying a substring "r31" will trace instructions containing the substring "r31". The match is case insensitive.
+</p><p>
+Use <i>pattern</i> to trace instructions with a certain bit-pattern. First the <i>mask</i> will be applied to the instruction and then the result will be compared with the <i>pattern</i>. For example, a pattern "0x0100" and mask "0x0101" will trace instructions whose first byte has the lowest bit set and the second not.
+</p><p>
+Note that pattern and mask are supplied as strings with string byte order (low address first). 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-breakpoint.bp-run-until-memory.html">&lt;breakpoint&gt;.bp-run-until-memory</a>
+<a href="rm-cmd-breakpoint.bp-wait-for-memory.html">&lt;breakpoint&gt;.bp-wait-for-memory</a>
+</div>

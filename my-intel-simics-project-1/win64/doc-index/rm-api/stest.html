@@ -1,0 +1,273 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>stest</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="instrumentation.html">instrumentation</a>
+<a href="dev_util.html">dev_util</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="stest"><a href="#stest">stest</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>stest — Utilities for testing simics.</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import stest
+</code></pre>
+</section>
+<h2 id="stest.TestFailure"><a href="#stest.TestFailure">class stest.TestFailure</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class stest.TestFailure
+</code></pre>
+<h2>Description</h2>
+<p>Exception class used to signal failures in Simics tests.</p>
+<p>Use the <a href="stest.html#stest.fail"><code>fail</code></a> function instead of raising this exception yourself.</p>
+</section>
+<h2 id="stest.fail"><a href="#stest.fail">stest.fail</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.fail(msg)
+</code></pre>
+<h2>Description</h2>
+<p>Signal a failure in a test.</p>
+<p>Takes a string describing the failure as its single argument. If called in collect failures mode this will collect the failure for later checking with <a href="stest.html#stest.check_failures"><code>check_failures</code></a>. If called outside collect failures mode it will immediately raise a <a href="stest.html#stest.TestFailure"><code>TestFailure</code></a> exception instead.</p>
+</section>
+<h2 id="stest.collect_failures"><a href="#stest.collect_failures">stest.collect_failures</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.collect_failures()
+</code></pre>
+<h2>Description</h2>
+<p>Change the behavior of stest to collect failures instead of terminating on the first failure detected.</p>
+<p>If you use this you have to call <a href="stest.html#stest.check_failures"><code>check_failures</code></a> at the end of your test script to check if it signaled any failures.</p>
+</section>
+<h2 id="stest.check_failures"><a href="#stest.check_failures">stest.check_failures</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.check_failures()
+</code></pre>
+<h2>Description</h2>
+<p>Check if any failures have occurred and leave collect failures mode.</p>
+<p>If any failures have occurred this function will report the failures and raise a <a href="stest.html#stest.TestFailure"><code>TestFailure</code></a> exception. If called outside collect failures mode this function will fail.</p>
+</section>
+<h2 id="stest.trap_log"><a href="#stest.trap_log">stest.trap_log</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.trap_log(logtype, obj=None)
+</code></pre>
+<h2>Description</h2>
+<p>Configure Simics to trap a type of log messages, and cause Simics to quit with a test failure on any such log message.</p>
+<p>By default the stest trap ‘error’ and ‘spec-viol’ log messages.</p>
+<p><code>trap_log</code> without an object sets the default handling for the given log type. Object specific settings always take precedence over the default handling.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:logtype"><a href="#dt:logtype">logtype</a></dt>
+<dd>the type of log messages to trap, one of ‘info’, ‘error’, ‘undef’, ‘spec-viol’, and ‘unimpl’</dd>
+<dt id="dt:obj"><a href="#dt:obj">obj</a></dt>
+<dd>the configuration object whose log messages to trap, defaults to None, which means that all log messages of the right type are trapped</dd>
+</dl>
+</section>
+<h2 id="stest.untrap_log"><a href="#stest.untrap_log">stest.untrap_log</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.untrap_log(logtype, obj=None)
+</code></pre>
+<h2>Description</h2>
+<p>Explicitly allow messages of a given log type.</p>
+<p>Can be used to undo a previous <a href="stest.html#stest.trap_log"><code>trap_log</code></a> or to filter objects from a default trap.</p>
+<p><code>untrap_log</code> without an object sets the default behavior for the given log type. Object specific settings always take precedence over the default handling.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:logtype-2"><a href="#dt:logtype-2">logtype</a></dt>
+<dd>the type of log messages to untrap, one of ‘info’, ‘error’, ‘undef’, ‘spec-viol’, and ‘unimpl’</dd>
+<dt id="dt:obj-2"><a href="#dt:obj-2">obj</a></dt>
+<dd>the configuration object whose log messages to untrap, defaults to None, which means that all log messages of the right type are untrapped</dd>
+</dl>
+</section>
+<h2 id="stest.trapped_log_types"><a href="#stest.trapped_log_types">stest.trapped_log_types</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.trapped_log_types()
+</code></pre>
+<h2>Description</h2>
+<p>Returns the log types currently trapped.</p>
+</section>
+<h2 id="stest.expect_true"><a href="#stest.expect_true">stest.expect_true</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_true(cond, msg='expectation failed')
+</code></pre>
+<h2>Description</h2>
+<p>Check if a condition is true and cause a test failure if it is not.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:cond"><a href="#dt:cond">cond</a></dt>
+<dd>the condition to test</dd>
+<dt id="dt:msg"><a href="#dt:msg">msg</a></dt>
+<dd>a message explaining the failure</dd>
+</dl>
+</section>
+<h2 id="stest.expect_false"><a href="#stest.expect_false">stest.expect_false</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_false(cond, msg='expectation failed')
+</code></pre>
+<h2>Description</h2>
+<p>Check if a condition is false and cause a test failure if it is not.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:cond-2"><a href="#dt:cond-2">cond</a></dt>
+<dd>the condition to test</dd>
+<dt id="dt:msg-2"><a href="#dt:msg-2">msg</a></dt>
+<dd>a message explaining the failure</dd>
+</dl>
+</section>
+<h2 id="stest.expect_equal"><a href="#stest.expect_equal">stest.expect_equal</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_equal(got, expected, msg='expectation failed')
+</code></pre>
+<h2>Description</h2>
+<p>Checks if a value is equal to an expectation and cause a test failure if it is not.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:got"><a href="#dt:got">got</a></dt>
+<dd>the value to check</dd>
+<dt id="dt:expected"><a href="#dt:expected">expected</a></dt>
+<dd>what to compare the value with</dd>
+<dt id="dt:msg-3"><a href="#dt:msg-3">msg</a></dt>
+<dd>a message explaining the failure</dd>
+</dl>
+</section>
+<h2 id="stest.expect_different"><a href="#stest.expect_different">stest.expect_different</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_different(got, unexpected, msg='expectation failed')
+</code></pre>
+<h2>Description</h2>
+<p>Checks if a value is different to an expectation.</p>
+<p>Cause a test failure if it is not.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:got-2"><a href="#dt:got-2">got</a></dt>
+<dd>the value to check</dd>
+<dt id="dt:unexpected"><a href="#dt:unexpected">unexpected</a></dt>
+<dd>what to compare the value with</dd>
+<dt id="dt:msg-4"><a href="#dt:msg-4">msg</a></dt>
+<dd>a message explaining the failure</dd>
+</dl>
+</section>
+<h2 id="stest.expect_log"><a href="#stest.expect_log">stest.expect_log</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_log(
+    fun,
+    args=[],
+    obj=None,
+    log_type='error',
+    msg=None,
+    regex='',
+    with_log_level=None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Call a function and verify that a particular log message is emitted.</p>
+<p>Returns the called function’s return value.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:fun"><a href="#dt:fun">fun</a></dt>
+<dd>the function to be called</dd>
+<dt id="dt:args"><a href="#dt:args">args</a></dt>
+<dd>the arguments with which to call <code>fun</code></dd>
+</dl>
+<p>All other arguments are identical to <a href="stest.html#stest.expect_log_mgr"><code>expect_log_mgr</code></a>.</p>
+</section>
+<h2 id="stest.expect_log_mgr"><a href="#stest.expect_log_mgr">stest.expect_log_mgr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_log_mgr(
+    obj=None,
+    log_type='error',
+    msg=None,
+    regex='',
+    with_log_level=None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Context manager, verifying that, on exit from the with-statement, a particular log message has been emitted.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:obj-3"><a href="#dt:obj-3">obj</a></dt>
+<dd>optional object from which a log is expected, default is None which accepts any object</dd>
+<dt id="dt:log_type"><a href="#dt:log_type">log_type</a></dt>
+<dd>optional log type which the emitted log must belong to, one of “error” (default), “unimpl”, “info”, “spec-viol” or “undefined”</dd>
+<dt id="dt:msg-5"><a href="#dt:msg-5">msg</a></dt>
+<dd>optional message emitted on failure</dd>
+<dt id="dt:regex"><a href="#dt:regex">regex</a></dt>
+<dd>optional regular expression object or a string containing a regular expression suitable for use by <code>re.search()</code>, which the emitted log must match</dd>
+<dt id="dt:with_log_level"><a href="#dt:with_log_level">with_log_level</a></dt>
+<dd>optional log level to apply inside the context</dd>
+</dl>
+<h2>Example</h2>
+<pre><code class="language-python">with stest.expect_log_mgr(log_type="spec-viol",
+                        msg="Check warning on read-only fields"):
+reg_compute_units.write(0xffff_ffff_ffff_ffff)
+</code></pre>
+</section>
+<h2 id="stest.expect_exception"><a href="#stest.expect_exception">stest.expect_exception</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_exception(fun, args, exc, regex='')
+</code></pre>
+<h2>Description</h2>
+<p>Call function fun with arguments args, and verify that it raises an exception of type exc. If fun does not raise exc, cause a failure.</p>
+</section>
+<h2 id="stest.expect_exception_mgr"><a href="#stest.expect_exception_mgr">stest.expect_exception_mgr</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.expect_exception_mgr(exc, regex='')
+</code></pre>
+<h2>Description</h2>
+<p>Context manager verifying that the body of with-statement throws an exception of the specified type.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:exc"><a href="#dt:exc">exc</a></dt>
+<dd>exception type</dd>
+<dt id="dt:regex-2"><a href="#dt:regex-2">regex</a></dt>
+<dd>optional regular expression object or a string containing a regular expression suitable for use by <code>re.search()</code>, which the string representation of raised exception must match</dd>
+</dl>
+<h2>Example</h2>
+<pre><code class="language-python">with stest.expect_exception_mgr(simics.SimExc_AttrNotWritable):
+dev.read_only_attribute = False
+</code></pre>
+</section>
+<h2 id="stest.deprecation_level"><a href="#stest.deprecation_level">stest.deprecation_level</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>stest.deprecation_level(level)
+</code></pre>
+<h2>Description</h2>
+<p>Allow to temporarily set deprecation level to ‘level’.</p>
+<p>Context manager for temporarily setting a deprecation level and restore it when exiting the context.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:level"><a href="#dt:level">level</a></dt>
+<dd>deprecation level in context</dd>
+</dl>
+<h2>Example</h2>
+<pre><code class="language-python">with stest.deprecation_level(2)
+stest.expect_equal(conf.sim.deprecation_level, 2)
+</code></pre>
+</section>
+<div class="chain">
+<a href="instrumentation.html">instrumentation</a>
+<a href="dev_util.html">dev_util</a>
+</div>

@@ -1,0 +1,129 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>flash_memory</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="hypersim_patterns.html">hypersim_patterns</a>
+<a href="systempanel.html">systempanel</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="flash_memory"><a href="#flash_memory">flash_memory</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>flash_memory</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import flash_memory
+</code></pre>
+</section>
+<h2 id="flash_memory.flash_add_model"><a href="#flash_memory.flash_add_model">flash_memory.flash_add_model</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>flash_memory.flash_add_model(product_no, config, complete_func)
+</code></pre>
+<h2>Description</h2>
+<p>Add a new flash model.</p>
+<p>Adds a new flash model. Instances of the new flash can then be created with the <a href="flash_memory.html#flash_memory.flash_create_memory"><code>flash_memory.flash_create_memory</code></a> and <a href="flash_memory.html#flash_memory.flash_create_memory_anon"><code>flash_memory.flash_create_memory_anon</code></a> functions.</p>
+<p>These are the arguments:</p>
+<dl>
+<dt id="dt:product_no"><a href="#dt:product_no"><code>product_no</code></a></dt>
+<dd>Product number; e.g., “28F___C3_”. Underscores act as wild cards and will match any character.</dd>
+<dt id="dt:config"><a href="#dt:config"><code>config</code></a></dt>
+<dd>Dictionary containing <code>attribute</code>: value pairs. These attributes are <code>generic-flash-memory</code> attributes; information on available attributes and how to configure them can be found in the reference manual.</dd>
+<dt id="dt:complete_fun"><a href="#dt:complete_fun"><code>complete_fun</code></a></dt>
+<dd>Function of type <code>complete_fun(product_no, config)</code> that will be called just before a flash memory is instantiated. <code>product_no</code> is the product number specified by the user. <code>config</code> is the same <code>config</code> dictionary as passed to the <code>flash_add_model</code> function. The <code>complete_fun</code> can modify the attribute values, add new attributes or remove attributes from the configuration, based on e.g. the <code>product_no</code>. The <code>complete_fun</code> should return either an error message (i.e. a string), or a tuple (<code>updated_config</code>, <code>size</code>) where <code>size</code> is the size of one flash chip, in bytes.</dd>
+</dl>
+<h2>RETURN VALUE</h2>
+<p>Returns true if the flash model was successfully added or False if it failed.</p>
+</section>
+<h2 id="flash_memory.flash_create_memory"><a href="#flash_memory.flash_create_memory">flash_memory.flash_create_memory</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>flash_memory.flash_create_memory(
+    name,
+    product_no,
+    interleave,
+    bus_width,
+    files=[],
+    queue=None,
+    accept_smaller_reads=1,
+    accept_smaller_writes=0,
+    big_endian=0
+)
+</code></pre>
+<h2>Description</h2>
+<p>Creates a list of objects representing a flash memory.</p>
+<p>Returns a list of pre_objects suitable as input for <a href="sim-api-configuration.html#SIM_add_configuration"><code>SIM_add_configuration</code></a> and the total size in bytes of the flash memory. The list and the size is returned as a tuple.</p>
+<p>The flash objects will be named, which makes them suitable for use in legacy components. New components should use the function <a href="flash_memory.html#flash_memory.flash_create_memory_anon"><code>flash_memory.flash_create_memory_anon</code></a> instead.</p>
+<dl>
+<dt id="dt:function-arguments-name"><a href="#dt:function-arguments-name">Function arguments: <code>name</code></a></dt>
+<dd>Base name for all objects (flash, ram, and image).</dd>
+<dt id="dt:product_no-2"><a href="#dt:product_no-2"><code>product_no</code></a></dt>
+<dd>Product name; e.g., “28F160C3T”.</dd>
+<dt id="dt:interleave"><a href="#dt:interleave"><code>interleave</code></a></dt>
+<dd>Byte interleaving; one of 1, 2, 4, and 8.</dd>
+<dt id="dt:bus_width"><a href="#dt:bus_width"><code>bus_width</code></a></dt>
+<dd>Bus width; one of 8, 16, 32, and 64.</dd>
+<dt id="dt:files"><a href="#dt:files"><code>files</code></a></dt>
+<dd>Same as the <code>file</code> attribute of <code>image</code> objects. Defaults to the empty list.</dd>
+<dt id="dt:queue"><a href="#dt:queue"><code>queue</code></a></dt>
+<dd>Queue object to use.</dd>
+<dt id="dt:accept_smaller_reads"><a href="#dt:accept_smaller_reads"><code>accept_smaller_reads</code></a></dt>
+<dd>If 1 (default), the flash device will accept reads smaller than the bus width. if 0, the flash device will complain when receiving smaller reads.</dd>
+<dt id="dt:accept_smaller_writes"><a href="#dt:accept_smaller_writes"><code>accept_smaller_writes</code></a></dt>
+<dd>If 1, the flash device will accept writes smaller than the bus width. If 0 (default), the flash device will complain when receiving smaller writes.</dd>
+<dt id="dt:big_endian"><a href="#dt:big_endian"><code>big_endian</code></a></dt>
+<dd>If set, the flash device will behave as a big endian device. If not set (default), it will behave as a little endian device.</dd>
+</dl>
+<h2>RETURN VALUE</h2>
+<p>Returns a tuple with <code>(object dict, total size in bytes)</code>.</p>
+</section>
+<h2 id="flash_memory.flash_create_memory_anon"><a href="#flash_memory.flash_create_memory_anon">flash_memory.flash_create_memory_anon</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>flash_memory.flash_create_memory_anon(
+    product_no,
+    interleave,
+    bus_width,
+    files=[],
+    queue=None,
+    accept_smaller_reads=1,
+    accept_smaller_writes=0,
+    big_endian=0
+)
+</code></pre>
+<h2>Description</h2>
+<p>Creates a list of objects representing a flash memory.</p>
+<p>Returns an list of pre_objects suitable as input for <a href="sim-api-configuration.html#SIM_add_configuration"><code>SIM_add_configuration</code></a> and the total size in bytes of the flash memory. The list and the size is returned as a tuple.</p>
+<p>The flash objects will be anonymous, which makes them suitable for use in new components. Legacy components should use the function <a href="flash_memory.html#flash_memory.flash_create_memory"><code>flash_memory.flash_create_memory</code></a> instead.</p>
+<dl>
+<dt id="dt:function-arguments-product_no"><a href="#dt:function-arguments-product_no">Function arguments: <code>product_no</code></a></dt>
+<dd>Product name; e.g., “28F160C3T”.</dd>
+<dt id="dt:interleave-2"><a href="#dt:interleave-2"><code>interleave</code></a></dt>
+<dd>Byte interleaving; one of 1, 2, 4, and 8.</dd>
+<dt id="dt:bus_width-2"><a href="#dt:bus_width-2"><code>bus_width</code></a></dt>
+<dd>Bus width; one of 8, 16, 32, and 64.</dd>
+<dt id="dt:files-2"><a href="#dt:files-2"><code>files</code></a></dt>
+<dd>Same as the <code>file</code> attribute of <code>image</code> objects. Defaults to the empty list.</dd>
+<dt id="dt:queue-2"><a href="#dt:queue-2"><code>queue</code></a></dt>
+<dd>Queue object to use.</dd>
+<dt id="dt:accept_smaller_reads-2"><a href="#dt:accept_smaller_reads-2"><code>accept_smaller_reads</code></a></dt>
+<dd>If 1 (default), the flash device will accept reads smaller than the bus width. if 0, the flash device will complain when receiving smaller reads.</dd>
+<dt id="dt:accept_smaller_writes-2"><a href="#dt:accept_smaller_writes-2"><code>accept_smaller_writes</code></a></dt>
+<dd>If 1, the flash device will accept writes smaller than the bus width. If 0 (default), the flash device will complain when receiving smaller writes.</dd>
+<dt id="dt:big_endian-2"><a href="#dt:big_endian-2"><code>big_endian</code></a></dt>
+<dd>If set, the flash device will behave as a big endian device. If not set (default), it will behave as a little endian device.</dd>
+</dl>
+<h2>RETURN VALUE</h2>
+<p>Returns a tuple with <code>(object list, total size in bytes)</code>.</p>
+</section>
+<div class="chain">
+<a href="hypersim_patterns.html">hypersim_patterns</a>
+<a href="systempanel.html">systempanel</a>
+</div>

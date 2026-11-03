@@ -1,0 +1,76 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.7.3 Using disk images</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="transfer-data-simics-agent.html">8.7.2 Using the Intel Simics Agent</a>
+<a href="transfer-data-ftp.html">8.7.4 Using the Service Node</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;
+<a href="transfer-data.html">8.7 Networking and getting data into the simulated system</a>
+&nbsp;/&nbsp;</div><h1 id="using-disk-images"><a href="#using-disk-images">8.7.3 Using disk images</a></h1>
+<p>There are other methods for transferring data in and out of the simulation. If
+the agent is not already present on the target machine, one of them must
+be used first to copy the agent software.</p>
+<ul>
+<li><em>USB</em> - from a USB disk image, a virtual USB disk can be created and connected
+to the target machine.</li>
+<li><em>SATA</em> - from a disk image, typically in CRAFF format, a virtual hard disk can
+be created and connected to the target machine.</li>
+</ul>
+<p>Here is an example of <em>transferring the agent</em> to the target using USB.</p>
+<ul>
+<li>
+<p>Follow the <a href="transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+</li>
+<li>
+<p>Create and connect a virtual USB disk using the <em>agent</em> disk images
+provided in <em>base package</em>.</p>
+<pre><code class="language-simics">simics&gt; <strong>$usb_img = "%simics%/targets/common/images/simics_agent_binaries.img"</strong>
+simics&gt; <strong>load-module usb-comp</strong>
+simics&gt; <strong>new-usb-disk-comp file = $usb_img name = usb_disk</strong>
+simics&gt; <strong>usb_disk.connect-to board</strong>
+Connecting usb_disk.usb_host to board.mb.sb.usb_port[10]
+</code></pre>
+</li>
+<li>
+<p>Start the simulation:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>Next we need to find the device in Linux so that it can be mounted.
+We do this by looking for
+<code>usb-Vtech_Turbo_Disk_tm__200435132207e9526048-0:0-part1</code>.
+under <code>/dev/disk/by-id</code> using the target console.</p>
+  <!--- readlink does not produce /dev/sdd1 in doc test, so no matching --->
+<pre><code class="language-simics"># <strong>readlink -f /dev/disk/by-id/usb-Vtech_Turbo_Disk_tm__200435132207e9526048-0:0-part1</strong>
+/dev/sdd1
+</code></pre>
+<p>We see that the device corresponding to the USB disk is <code>/dev/sdd1</code>.</p>
+</li>
+<li>
+<p>Now we can mount it the USB disk, and copy <code>/media/simics_agent_x86_linux64</code>
+to the target machine.</p>
+<pre><code class="language-simics"># <strong>mount /dev/sdd1 /media</strong>
+# <strong>find /media -name simics_agent_x86_linux64</strong>
+/media/simics_agent_x86_linux64
+# <strong>cp /media/simics_agent_x86_linux64 .</strong>
+# <strong>ls ./simics_agent_x86_linux64</strong>
+</code></pre>
+</li>
+</ul>
+
+<div class="chain">
+<a href="transfer-data-simics-agent.html">8.7.2 Using the Intel Simics Agent</a>
+<a href="transfer-data-ftp.html">8.7.4 Using the Service Node</a>
+</div>

@@ -1,0 +1,101 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pcie_map_helper_cpp</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-pcie-switch.html">pcie-switch</a>
+<a href="rm-class-perfanalyze-client.html">perfanalyze-client</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="pcie_map_helper_cpp"><a href="#pcie_map_helper_cpp">pcie_map_helper_cpp</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+PCIe map helper which is mapped at a PCIe memory space. When accessed, the transaction is forwarded to the forward target with PCIe type ATOM set
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pcie_map_helper_cpp.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-pcie_map_helper_cpp.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="commands-for-interface-transaction">
+<a href="#commands-for-interface-transaction">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:pcie_type"><a href="#dt:pcie_type">
+<i>pcie_type</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The PCIe type used when forwarding the transaction to the forward target</dd>
+<dt id="dt:forward_target"><a href="#dt:forward_target">
+<i>forward_target</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The object used to forward the transaction</dd>
+<dt id="dt:function_id"><a href="#dt:function_id">
+<i>function_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The function ID used when forwarding the transaction to the forward target</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.pcie-map-helper-c++.html">pcie-map-helper-c++</a>
+</section>
+<div class="chain">
+<a href="rm-class-pcie-switch.html">pcie-switch</a>
+<a href="rm-class-perfanalyze-client.html">perfanalyze-client</a>
+</div>

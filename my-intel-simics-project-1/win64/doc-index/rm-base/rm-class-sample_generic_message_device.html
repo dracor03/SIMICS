@@ -1,0 +1,125 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample_generic_message_device</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample_firewire_device.html">sample_firewire_device</a>
+<a href="rm-class-sample_i2c_device.html">sample_i2c_device</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample_generic_message_device"><a href="#sample_generic_message_device">sample_generic_message_device</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The is the <tt>sample_generic_message_device</tt> class which is an example of how generic message devices can be written inSimics.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, generic_message_device
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:link-optional"><a href="#dt:link-optional">link (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: generic_message_link
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample_generic_message_device.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample_generic_message_device.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:address"><a href="#dt:address">
+<i>address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address of device itself on the link.</dd>
+<dt id="dt:delay"><a href="#dt:delay">
+<i>delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Delay between each message in cycles.</dd>
+<dt id="dt:dest_address"><a href="#dt:dest_address">
+<i>dest_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Destination address of the message.</dd>
+<dt id="dt:frame_delay"><a href="#dt:frame_delay">
+<i>frame_delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Delay to send the message in ns.</dd>
+<dt id="dt:length"><a href="#dt:length">
+<i>length</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Length of the message to send.</dd>
+<dt id="dt:received_value"><a href="#dt:received_value">
+<i>received_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Last byte received from the link.</dd>
+<dt id="dt:send_value"><a href="#dt:send_value">
+<i>send_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Value to send to the link.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-generic-message-device.html">sample-generic-message-device</a>
+</section>
+<div class="chain">
+<a href="rm-class-sample_firewire_device.html">sample_firewire_device</a>
+<a href="rm-class-sample_i2c_device.html">sample_i2c_device</a>
+</div>

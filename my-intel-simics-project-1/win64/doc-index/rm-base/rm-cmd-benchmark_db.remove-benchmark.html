@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;benchmark_db&gt;.remove-benchmark</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.list-suites.html">&lt;benchmark_db&gt;.list-suites</a>
+<a href="rm-cmd-benchmark_db.remove-benchmark-from-suite.html">&lt;benchmark_db&gt;.remove-benchmark-from-suite</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="benchmark_db.remove-benchmark"></a>
+<h1 id="benchmark_db.remove-benchmark"><a href="#benchmark_db.remove-benchmark">&lt;benchmark_db&gt;.remove-benchmark</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;benchmark_db&gt;.remove-benchmark</b> <i>"benchmark-name"</i> [-force] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Remove the <i>benchmark-name</i> from the database. This also means that all runs on this benchmark will be removed, so only use this when the results are not interesting anymore. If there are runs associated to the benchmark, the <tt>-force</tt> flag must be used to remove both benchmark and runs. 
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.benchmark-database.html">benchmark-database</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.list-suites.html">&lt;benchmark_db&gt;.list-suites</a>
+<a href="rm-cmd-benchmark_db.remove-benchmark-from-suite.html">&lt;benchmark_db&gt;.remove-benchmark-from-suite</a>
+</div>

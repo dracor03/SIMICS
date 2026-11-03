@@ -1,0 +1,50 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8 Comments</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="exceptions-and-finishing.html">7 Exceptions and finishing</a>
+<a href="naming.html">9 Naming</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="comments"><a href="#comments">8 Comments</a></h1>
+<p>The general rules are the same for Python as in general programming:</p>
+<ul>
+<li>Comments should only contain information that cannot be easily inferred from the code. Clear code needs no comments.</li>
+<li>Explain <em>why</em>, not <em>what</em>. In other words, describe why the code was done the way it was rather than what it does.</li>
+<li>Comment data, not code. If variables and data structures are known, then the code manipulating them is easy to understand. The converse is not true.</li>
+<li>Describe invariants, both in code and in data structures. If invariants can be tested in code (using <code>assert</code> statements, for instance), then that is even better than describing it in comments. Because <code>assert</code> is a statement it should be followed by a space.</li>
+<li>Comment interfaces (in a general sense, not the Simics sense). For instance, a function should have a comment describing what it does and what it returns, unless obvious from the context.</li>
+<li>Do not keep history in comments. The code should be described as it is, not as it has been. Erase anything that is not directly related to the current state of the code.</li>
+<li>Do not keep dates or names of people in the code. It should not matter when or by whom code was written.</li>
+<li>Refer to documents (such as reference manuals) as precisely as possible. It must be possible to locate the referred text from the comment alone.</li>
+</ul>
+<p>Code should not be disabled by commenting it out - code that for some reason is
+disabled should either be removed entirely, or be left in with a suitable
+condition that explains why:</p>
+<pre><code>if debugging:
+    print("raising IRQ 15")
+</code></pre>
+<h2 id="api-documentation"><a href="#api-documentation">8.1 API documentation</a></h2>
+<p>Exported functions and types should be documented in a way that the Simics documentation <a href="../doc-guide/index.html"><code>tool</code></a> can parse:</p>
+<pre><code>def str_number(text):
+    """convert a string to a number.
+
+    Converts a string returned from [`cli.number_str`] back to an integer.
+
+    ## Return Value
+    A number representing the string.
+
+    ## EXCEPTIONS
+    **ValueError** is raised for invalid arguments.
+    """
+</code></pre>
+
+<div class="chain">
+<a href="exceptions-and-finishing.html">7 Exceptions and finishing</a>
+<a href="naming.html">9 Naming</a>
+</div>

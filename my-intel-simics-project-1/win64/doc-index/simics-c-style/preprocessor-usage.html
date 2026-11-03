@@ -1,0 +1,91 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Preprocessor usage</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="comments.html">4 Comments</a>
+<a href="naming.html">6 Naming</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for C</a>
+&nbsp;/&nbsp;</div><h1 id="preprocessor-usage"><a href="#preprocessor-usage">5 Preprocessor usage</a></h1>
+<p>If an <code>#else</code> or <code>#endif</code> is separated from its corresponding <code>#if</code> or <code>#else</code>
+by more than a trivial amount of lines, add a comment stating the condition for
+inclusion of the code below (for <code>#else</code>) or for the code above (for <code>#endif</code>):</p>
+<pre><code>#ifdef GREAT_CODE
+...
+#else  /* not GREAT_CODE */
+...
+#endif /* not GREAT_CODE */
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>This avoids needless editor trips to the top <code>#ifdef</code> just to see under what
+circumstances some lines are compiled.
+For the <code>#else</code>, inverting the original condition makes sense verbally (read
+“else, if not COND”).
+For the <code>#endif</code>, the corresponding <code>#else</code> or <code>#if</code> may not be visible so
+the only comment that makes sense is the one that describes the code ended by
+the <code>#endif</code>.
+This agrees with other code standards such as GNU.</p>
+</blockquote>
+<p>Use guards to prevent multiple inclusion of a header file:</p>
+<pre><code>#ifndef HEADER_FILE_H
+#define HEADER_FILE_H
+...
+#endif
+</code></pre>
+<p>Include sufficient amounts of the file path in the name of the guard for it to
+work even when multiple headers have the same name.
+For example, the file <code>src/weapons/nuclear/little-boy.h</code> could have the header
+guard <code>WEAPONS_NUCLEAR_LITTLE_BOY_H</code>.</p>
+<p>Use shallow (1-space) indentation to make preprocessor conditions more readable.
+Indent the whole directive, not just the word after the #:</p>
+<pre><code>#if defined HOPE &amp;&amp; defined GLORY
+ #include "honour.h"
+ typedef longsword_t weapon_t;
+ #if !defined SANITY
+  #define BERSERK 1
+ #else
+  #define BERSERK 0
+#else
+ #include "defeat.h"
+ typedef nuke_t weapon_t;
+#endif
+</code></pre>
+<p>If used carefully, this makes the above-mentioned comments less frequently
+needed, unless the conditionals span great distances.
+Small declarations (like the typedef in the example) may be indented similarly,
+but keep larger declarations and definitions (such as function definitions) in
+column 0.</p>
+<h2 id="macros"><a href="#macros">5.1 Macros</a></h2>
+<p>Macro names should be in upper case.
+Their formal arguments should be in lower case and parenthesised when used if
+they represent expressions.</p>
+<p>If a macro contains multiple statements, surround them with
+<code>do { ... } while (0)</code>.
+Macros intended to return a value should have parentheses around the expression
+if needed to allow them to be used in any expression context.
+Macros that expand to constants need no parentheses.</p>
+<p>Always right-justify the backslashes in multi-line macros, to make them easier
+to read (<code>C-c C-\</code> in Emacs).</p>
+<p>Examples:</p>
+<pre><code>#define THE_ANSWER_TO_EVERYTHING 42
+
+#define COMPOUND_SCORE(p) ((p)-&gt;score + (p)-&gt;bonus)
+
+#define FROBBLE(n, type)                \
+do {                                    \
+        type _x;                        \
+        gurgle_ ## type(&amp;_x, (n) + 1);  \
+        whistle(_x);                    \
+} while (0)
+</code></pre>
+<p>Always prefer using inline functions rather than macros if possible. Be careful when declaring variables inside macros; give them names that are unlikely to be used by actual parameters, to avoid accidental capture.</p>
+
+<div class="chain">
+<a href="comments.html">4 Comments</a>
+<a href="naming.html">6 Naming</a>
+</div>

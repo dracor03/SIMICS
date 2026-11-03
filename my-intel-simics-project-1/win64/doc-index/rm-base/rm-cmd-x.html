@@ -1,0 +1,61 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>x</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-write-reg.html">write-reg</a>
+<a href="rm-all-cmds.html">3.3 Command Index</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="x"></a>
+<a name="examine-memory"></a>
+<a name="image.x"></a>
+<a name="memory_space.x"></a>
+<a name="memory_space.examine-memory"></a>
+<a name="processor_info.x"></a>
+<a name="processor_info.examine-memory"></a>
+<h1 id="x"><a href="#x">x</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>x</b> [<i>object</i>] <i>address</i> [<i>size</i>] [-c] [<i>group-by</i>] [-l|-b] <br><b>&lt;image&gt;.x</b> [<i>address</i>] [<i>size</i>] [-c] [<i>group-by</i>] [-l|-b] <br><b>&lt;memory_space&gt;.x</b> <i>address</i> [<i>size</i>] [-c] [<i>group-by</i>] [-l|-b] <br><b>&lt;processor_info&gt;.x</b> <i>address</i> [<i>size</i>] [-c] [<i>group-by</i>] [-l|-b] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Display the contents of a memory space or image, starting at <i>address</i>. The <i>object</i> parameter can be an image, memory-space or processor object, which implicitly uses the memory space of that processor. There are also namespace versions of the command; namely, the image <code>&lt;image&gt;.x</code> command and the memory-space <code>&lt;memory_space&gt;.x</code> command. The global version of the command operates on the memory of the current frontend processor by default.
+<p>
+If the memory is accessed via a processor, the type of <i>address</i> is specified by a prefix. For physical addresses use <tt>p:&lt;address&gt;</tt>; for virtual addresses, <tt>v:&lt;address&gt;</tt> on non-x86 targets. On x86, use <tt>&lt;segment-register&gt;:&lt;offset&gt;</tt> or <tt>l:&lt;address&gt;</tt> for x86 linear addresses. If no prefix is given, the address is assumed to be virtual. On x86 the default is <tt>ds:&lt;address&gt;</tt> (data segment addressing).
+</p><p>
+The access will be made in inquiry mode, which means it will have no side-effects on the processor or the accessed object. Use the <code>&lt;memory_space&gt;.read</code> command to do non-inquiry accesses.
+</p><p>
+The <i>size</i> argument specifies the number of bytes to examine. When reading virtual memory, only addresses which can be found in the TLB or hardware page tables (if any) are shown. Unmapped addresses are shown presented "<tt>--</tt>", undefined physical addresses as "<tt>**</tt>".
+</p><p>
+By default the memory contents, from low address to high, is presented from left to right, grouped into 16-bit words. In this format the values shown can be interpreted as big-endian words. The grouping can be modified by the <i>group-by</i> argument and supports 8, 16, 32, 64 and 128 bit words.
+</p><p>
+The <tt>-l</tt> and <tt>-b</tt> flags are used to select little-endian or big-endian byte order, respectively. If neither is given, the big-endian byte order is used as the default.
+</p><p>
+The <tt>-c</tt> flag compresses the output by not displaying sequences of zeros.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-disassemble.html">disassemble</a>, 
+<a href="rm-cmd-get.html">get</a>, 
+<a href="rm-cmd-set.html">set</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-write-reg.html">write-reg</a>
+<a href="rm-all-cmds.html">3.3 Command Index</a>
+</div>

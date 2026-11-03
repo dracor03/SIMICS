@@ -1,0 +1,1806 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Model Specific Data Types</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-types-transactions.html">Transactions</a>
+<a href="dev-api-types-instrumentation.html">Instrumentation Data Types</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-data-types.html">Device API Data Types</a>
+&nbsp;/&nbsp;</div>
+<h1>Model Specific Data Types</h1>
+<h2 id="arm_cpu_state_t"><a href="#arm_cpu_state_t">arm_cpu_state_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_cpu_state_t — structure that can hold the state of an ARM processor</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef struct arm_cpu_state {
+        bool fmo_set; /* scr_el3.irq */
+        bool imo_set;
+        bool irq_set; /* scr_el3.irq */
+        bool fiq_set; /* scr_el3.fiq */
+        bool ns;
+        int el;
+        uint32 mpidr;
+} arm_cpu_state_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.arm_cpu_state_t(fmo_set=False, imo_set=False, irq_set=False,
+        fiq_set=False, ns=False, el=0, mpidr=0)
+</code></pre>
+</section>
+<h2 id="arm_device_type_t"><a href="#arm_device_type_t">arm_device_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_device_type_t — ARM device memory types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        Arm_DeviceType_nGnRnE = 0x0,
+        Arm_DeviceType_nGnRE  = 0x1,
+        Arm_DeviceType_nGRE   = 0x2,
+        Arm_DeviceType_GRE    = 0x3,
+        Arm_DeviceType_Unknown
+} arm_device_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Arm_DeviceType_Unknown
+simics.Arm_DeviceType_nGnRnE
+simics.Arm_DeviceType_GRE
+simics.Arm_DeviceType_nGnRE
+simics.Arm_DeviceType_nGRE
+</code></pre>
+<h2>Description</h2>
+<p>Arm device memory types. Corresponds to the DeviceType pseudo code enumeration in the Armv8 A-profile Architecture Reference Manual.</p>
+</section>
+<h2 id="arm_dti_ats_fault_type_t"><a href="#arm_dti_ats_fault_type_t">arm_dti_ats_fault_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_dti_ats_fault_type_t — ARM DTI_ATS_TRANS_FAULT fields</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        ARM_DTI_ATS_Fault_Invalid_Translation = 0,
+        ARM_DTI_ATS_Fault_Completer_Abort = 1,
+        ARM_DTI_ATS_Fault_Unsupported_Request = 2,
+        ARM_DTI_ATS_Fault_Reserved = 3,
+} arm_dti_ats_fault_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.ARM_DTI_ATS_Fault_Invalid_Translation
+simics.ARM_DTI_ATS_Fault_Unsupported_Request
+simics.ARM_DTI_ATS_Fault_Reserved
+simics.ARM_DTI_ATS_Fault_Completer_Abort
+</code></pre>
+<h2>Description</h2>
+<p>Translation fault encodings (ARM IHI 0088E 5.2.3).</p>
+</section>
+<h2 id="arm_dti_ats_mst_msg_type_t"><a href="#arm_dti_ats_mst_msg_type_t">arm_dti_ats_mst_msg_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_dti_ats_mst_msg_type_t — ARM DTI-ATS downstream message type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        ARM_DTI_ATS_MST_CONDIS_REQ = 0x0,
+        ARM_DTI_ATS_MST_TRANS_REQ = 0x2,
+        ARM_DTI_ATS_MST_PAGE_RESPACK = 0x4,
+        ARM_DTI_ATS_MST_PAGE_REQ = 0x8,
+        ARM_DTI_ATS_MST_INV_COMP = 0xB,
+        ARM_DTI_ATS_MST_INV_ACK = 0xC,
+        ARM_DTI_ATS_MST_SYNC_ACK = 0xD,
+} arm_dti_ats_mst_msg_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.ARM_DTI_ATS_MST_INV_ACK
+simics.ARM_DTI_ATS_MST_SYNC_ACK
+simics.ARM_DTI_ATS_MST_TRANS_REQ
+simics.ARM_DTI_ATS_MST_CONDIS_REQ
+simics.ARM_DTI_ATS_MST_PAGE_REQ
+simics.ARM_DTI_ATS_MST_PAGE_RESPACK
+simics.ARM_DTI_ATS_MST_INV_COMP
+</code></pre>
+<h2>Description</h2>
+<p>DTI-ATS downstream message type encodings.</p>
+</section>
+<h2 id="arm_dti_ats_operation_t"><a href="#arm_dti_ats_operation_t">arm_dti_ats_operation_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_dti_ats_operation_t — ARM DTI_ATS_INV_REQ.OPERATION</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        ARM_DTI_ATS_ATCI_NOPASID = 0x31,
+        ARM_DTI_ATS_ATCI_PASID_GLOBAL = 0x33,
+        ARM_DTI_ATS_ATCI_PASID = 0x39,
+} arm_dti_ats_operation_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.ARM_DTI_ATS_ATCI_PASID_GLOBAL
+simics.ARM_DTI_ATS_ATCI_NOPASID
+simics.ARM_DTI_ATS_ATCI_PASID
+</code></pre>
+<h2>Description</h2>
+<p>DTI-ATS invalidation operation encodings (ARM IHI 0088E 5.3.1).</p>
+</section>
+<h2 id="arm_dti_ats_page_resp_code_t"><a href="#arm_dti_ats_page_resp_code_t">arm_dti_ats_page_resp_code_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_dti_ats_page_resp_code_t — ARM DTI_ATS_PAGE_RESP.RESP</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        ARM_DTI_ATS_Page_Resp_Failure = 0,
+        ARM_DTI_ATS_Page_Resp_Invalid_Request = 1,
+        ARM_DTI_ATS_Page_Resp_Success = 2,
+        ARM_DTI_ATS_Page_Resp_Reserved = 3,
+} arm_dti_ats_page_resp_code_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.ARM_DTI_ATS_Page_Resp_Reserved
+simics.ARM_DTI_ATS_Page_Resp_Success
+simics.ARM_DTI_ATS_Page_Resp_Invalid_Request
+simics.ARM_DTI_ATS_Page_Resp_Failure
+</code></pre>
+<h2>Description</h2>
+<p>DTI-ATS page response encodings (ARM IHI 0088E 5.4.3).</p>
+</section>
+<h2 id="arm_dti_ats_slv_msg_type_t"><a href="#arm_dti_ats_slv_msg_type_t">arm_dti_ats_slv_msg_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_dti_ats_slv_msg_type_t — ARM DTI-ATS upstream message type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        ARM_DTI_ATS_SLV_CONDIS_ACK = 0x0,
+        ARM_DTI_ATS_SLV_TRANS_FAULT = 0x1,
+        ARM_DTI_ATS_SLV_TRANS_RESP = 0x2,
+        ARM_DTI_ATS_SLV_PAGE_ACK = 0x8,
+        ARM_DTI_ATS_SLV_PAGE_RESP = 0x9,
+        ARM_DTI_ATS_SLV_INV_REQ = 0xC,
+        ARM_DTI_ATS_SLV_SYNC_REQ = 0xD,
+} arm_dti_ats_slv_msg_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.ARM_DTI_ATS_SLV_SYNC_REQ
+simics.ARM_DTI_ATS_SLV_PAGE_ACK
+simics.ARM_DTI_ATS_SLV_TRANS_FAULT
+simics.ARM_DTI_ATS_SLV_CONDIS_ACK
+simics.ARM_DTI_ATS_SLV_INV_REQ
+simics.ARM_DTI_ATS_SLV_PAGE_RESP
+simics.ARM_DTI_ATS_SLV_TRANS_RESP
+</code></pre>
+<h2>Description</h2>
+<p>DTI-ATS upstream message type encodings.</p>
+</section>
+<h2 id="arm_dti_ats_trans_rng_t"><a href="#arm_dti_ats_trans_rng_t">arm_dti_ats_trans_rng_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_dti_ats_trans_rng_t — ARM DTI_ATS_TRANS_RESP.TRANS_RNG</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        ARM_DTI_ATS_Trans_Rng_4KB = 0x0,
+        ARM_DTI_ATS_Trans_Rng_16KB = 0x1,
+        ARM_DTI_ATS_Trans_Rng_64KB = 0x2,
+        ARM_DTI_ATS_Trans_Rng_2MB = 0x3,
+        ARM_DTI_ATS_Trans_Rng_32MB = 0x4,
+        ARM_DTI_ATS_Trans_Rng_512MB = 0x5,
+        ARM_DTI_ATS_Trans_Rng_1GB = 0x6,
+        ARM_DTI_ATS_Trans_Rng_16GB = 0x7,
+        ARM_DTI_ATS_Trans_Rng_4TB = 0x8,
+        ARM_DTI_ATS_Trans_Rng_128TB = 0x9,
+} arm_dti_ats_trans_rng_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.ARM_DTI_ATS_Trans_Rng_4KB
+simics.ARM_DTI_ATS_Trans_Rng_16KB
+simics.ARM_DTI_ATS_Trans_Rng_2MB
+simics.ARM_DTI_ATS_Trans_Rng_1GB
+simics.ARM_DTI_ATS_Trans_Rng_512MB
+simics.ARM_DTI_ATS_Trans_Rng_64KB
+simics.ARM_DTI_ATS_Trans_Rng_4TB
+simics.ARM_DTI_ATS_Trans_Rng_32MB
+simics.ARM_DTI_ATS_Trans_Rng_16GB
+simics.ARM_DTI_ATS_Trans_Rng_128TB
+</code></pre>
+<h2>Description</h2>
+<p>DTI-ATS translation range encodings (ARM IHI 0088E 5.2.2).</p>
+</section>
+<h2 id="arm_mem_attr_t"><a href="#arm_mem_attr_t">arm_mem_attr_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_mem_attr_t — ARM memory cacheability</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        Arm_MemAttr_NC = 0x0, // Non-cacheable
+        Arm_MemAttr_WT = 0x2, // Write-through
+        Arm_MemAttr_WB = 0x3, // Write-back
+        Arm_MemAttr_Unknown
+} arm_mem_attr_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Arm_MemAttr_WT
+simics.Arm_MemAttr_Unknown
+simics.Arm_MemAttr_WB
+simics.Arm_MemAttr_NC
+</code></pre>
+<h2>Description</h2>
+<p>Memory cacheability. Corresponds to the MemAttr pseudo code constants in the Armv8 A-profile Architecture Reference Manual.</p>
+</section>
+<h2 id="arm_mem_hint_t"><a href="#arm_mem_hint_t">arm_mem_hint_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_mem_hint_t — ARM cache allocation hint</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        Arm_MemHint_No  = 0x0, // No Read-Allocate, No Write-Allocate
+        Arm_MemHint_WA  = 0x1, // No Read-Allocate, Write-Allocate
+        Arm_MemHint_RA  = 0x2, // Read-Allocate, No Write-Allocate
+        Arm_MemHint_RWA = 0x3, // Read-Allocate, Write-Allocate
+        Arm_MemHint_Unknown
+} arm_mem_hint_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Arm_MemHint_No
+simics.Arm_MemHint_RA
+simics.Arm_MemHint_RWA
+simics.Arm_MemHint_Unknown
+simics.Arm_MemHint_WA
+</code></pre>
+<h2>Description</h2>
+<p>Cache allocation hint. Corresponds to the MemHint pseudo code constants in the Armv8 A-profile Architecture Reference Manual.</p>
+</section>
+<h2 id="arm_mem_instr_origin_t"><a href="#arm_mem_instr_origin_t">arm_mem_instr_origin_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_mem_instr_origin_t — list of special memory operations that can be sent by a ARM processor</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        /* Normal load or store instructions */
+        Instr_Normal_Arm = 0,
+
+        /* Unprivileged memory access instructions. */
+        Instr_Unprivileged_Load,
+        Instr_Unprivileged_Store,
+
+        /* Other loads/stores or cache affecting instructions */
+        Instr_ldrex,
+        Instr_strex,
+        Instr_ldxp,
+        Instr_stxp,
+
+        /* Address translation instruction */
+        Instr_At,
+
+        /* Atomic read-modify-write instructions */
+        Instr_Atomic,
+
+        /* Cache maintenance instructions */
+        Instr_Cache_Maintenance,
+
+        /* Instruction with non-faulting memory access */
+        Instr_Non_Faulting,
+
+        /* Number of different of enum values, not a value in itself. */
+        Instr_Count
+} arm_mem_instr_origin_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Instr_ldxp
+simics.Instr_ldrex
+simics.Instr_strex
+simics.Instr_Normal_Arm
+simics.Instr_Cache_Maintenance
+simics.Instr_Non_Faulting
+simics.Instr_Unprivileged_Store
+simics.Instr_stxp
+simics.Instr_At
+simics.Instr_Atomic
+simics.Instr_Unprivileged_Load
+simics.Instr_Count
+</code></pre>
+</section>
+<h2 id="arm_mem_transient_t"><a href="#arm_mem_transient_t">arm_mem_transient_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_mem_transient_t — ARM transcience hint</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        Arm_Transient_True,
+        Arm_Transient_False,
+        Arm_Transient_Unknown
+} arm_mem_transient_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Arm_Transient_Unknown
+simics.Arm_Transient_False
+simics.Arm_Transient_True
+</code></pre>
+<h2>Description</h2>
+<p>Transcience hint. Corresponds to the boolean used for transience by the pseudo code in the Armv8 A-profile Architecture Reference Manual.</p>
+</section>
+<h2 id="arm_mem_type_t"><a href="#arm_mem_type_t">arm_mem_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_mem_type_t — ARM memory types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        Arm_MemType_Normal,
+        Arm_MemType_Device
+} arm_mem_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Arm_MemType_Normal
+simics.Arm_MemType_Device
+</code></pre>
+<h2>Description</h2>
+<p>Arm memory types. Corresponds to the MemType pseudo code enumeration in the Armv8 A-profile Architecture Reference</p>
+</section>
+<h2 id="arm_memory_attributes_encoding_t"><a href="#arm_memory_attributes_encoding_t">arm_memory_attributes_encoding_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_memory_attributes_encoding_t — ARM memory attributes encoding</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef union {
+        struct {
+                uint64 memory_type:2;            // arm_mem_type_t
+                uint64 device_type:3;            // arm_device_type_t
+                uint64 inner_cacheability:3;     // arm_mem_attr_t
+                uint64 inner_allocation_hint:3;  // arm_mem_hint_t
+                uint64 inner_transcience_hint:2; // arm_mem_transient_t
+                uint64 outer_cacheability:3;     // arm_mem_attr_t
+                uint64 outer_allocation_hint:3;  // arm_mem_hint_t
+                uint64 outer_transcience_hint:2; // arm_mem_transient_t
+                uint64 shareable:1;              // bool
+                uint64 outer_shareable:1;        // bool
+        } u;
+        uint64 u64;
+} arm_memory_attributes_encoding_t;
+</code></pre>
+<h2>Description</h2>
+<p>This type should be used to encode or decode the uint64 value contained in an arm_memory_attributes atom. The comment beside each field is the type that should be used to interpret the field value.</p>
+</section>
+<h2 id="arm_memory_transaction_t"><a href="#arm_memory_transaction_t">arm_memory_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_memory_transaction_t — memory transaction specific to the Arm architecture</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef struct arm_memory_transaction {
+        generic_transaction_t s;
+
+        processor_mode_t mode;
+        int rotate;
+        arm_mem_instr_origin_t instr_origin;
+} arm_memory_transaction_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.arm_memory_transaction_t(s = generic_transaction_t(),
+        mode = Sim_CPU_Mode_User, instr_origin = Normal_Load_Store,
+        rotate = 0)
+</code></pre>
+<h2>Description</h2>
+<p>This is the ARM specific memory transaction data structure. The generic data is stored in the <code>s</code> field.</p>
+<p>The <code>mode</code> field specifies the processor mode the MMU should assume when processing the transaction. This is the same as the current mode of the processor except for unprivileged load and store instructions when it is always <code>Sim_CPU_Mode_User</code>.</p>
+<p>The <code>rotate</code> field is non-zero if this transaction is from one of the AArch32 instructions for which an unaligned address is interpreted as an aligned load with the value rotated so that the addressed byte becomes the least significant byte if neither <code>SCTLR.U</code> nor <code>SCTLR.A</code> is set.</p>
+<p>The <code>instr_origin</code> field specifies the type of instruction that initiated this memory transaction.</p>
+</section>
+<h2 id="arm_smmu_attributes_t"><a href="#arm_smmu_attributes_t">arm_smmu_attributes_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_smmu_attributes_t — ARM smmu attributes</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef union {
+        struct {
+                uint64 sid:32;    // IMPLEMENTATION DEFINED size, between 0 and 32 bits
+                uint64 ssid:20;   // IMPLEMENTATION DEFINED size, between 0 and 20 bits
+                uint64 secsid:1;  // bool
+                uint64 ssidv:1;   // bool
+                uint64 atst:1;    // bool
+        } u;
+       uint64 u64;
+} arm_smmu_attributes_t;
+</code></pre>
+<h2>Description</h2>
+<p>This type should be used to encode or decode the uint64 value contained in an arm_smmu_attributes atom. The comment beside each field is the type that should be used to interpret the field value.</p>
+</section>
+<h2 id="arm_smmu_qtw_access_type_t"><a href="#arm_smmu_qtw_access_type_t">arm_smmu_qtw_access_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_smmu_qtw_access_type_t — Classification of the SMMU QTW/DVM access</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        Arm_SMMU_QTW_STE_Fetch,
+        Arm_SMMU_QTW_CD_Fetch,
+        Arm_SMMU_QTW_Page_Table_Walk,
+        Arm_SMMU_QTW_Cmd_Queue_Walk,
+        Arm_SMMU_QTW_DVM,
+        Arm_SMMU_QTW_Event_Queue_Write,
+        Arm_SMMU_QTW_PRI_Queue_Write,
+        Arm_SMMU_QTW_MSI_Write,
+        Arm_SMMU_QTW_HTTU_Write,
+} arm_smmu_qtw_access_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Arm_SMMU_QTW_Page_Table_Walk
+simics.Arm_SMMU_QTW_PRI_Queue_Write
+simics.Arm_SMMU_QTW_CD_Fetch
+simics.Arm_SMMU_QTW_HTTU_Write
+simics.Arm_SMMU_QTW_MSI_Write
+simics.Arm_SMMU_QTW_DVM
+simics.Arm_SMMU_QTW_Event_Queue_Write
+simics.Arm_SMMU_QTW_STE_Fetch
+simics.Arm_SMMU_QTW_Cmd_Queue_Walk
+</code></pre>
+<h2>Description</h2>
+<p>Classifies the SMMU QTW/DVM access that produced a transaction. Provides finer granularity than the hardware arid_qtw/awid_qtw signals define.</p>
+</section>
+<h2 id="arm_translation_regime_t"><a href="#arm_translation_regime_t">arm_translation_regime_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>arm_translation_regime_t — ARM MMU translation regime</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/arm.h&gt; // in C
+import "simics/arch/arm.dml"; // in DML
+
+typedef enum {
+        Arm_TR_EL3,  /* EL3         */
+        Arm_TR_EL2,  /* EL2   PL2   */
+        Arm_TR_EL20, /* EL2&amp;0       */
+        Arm_TR_EL10, /* EL1&amp;0 PL1&amp;0 */
+} arm_translation_regime_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Arm_TR_EL3
+simics.Arm_TR_EL2
+simics.Arm_TR_EL20
+simics.Arm_TR_EL10
+</code></pre>
+<h2>Description</h2>
+<p>Arm MMU translation regimes. Named after the AArch64 translation regimes, but also used for the AArch32 ones.</p>
+</section>
+<h2 id="decoder_t"><a href="#decoder_t">decoder_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>decoder_t — type used with user decoder</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/decoder.h&gt; // in C
+import "simics/model-iface/decoder.dml"; // in DML
+
+typedef struct {
+        void *user_data;
+        int (*NOTNULL decode)(uint8 *code,
+                              int valid_bytes,
+                              conf_object_t *cpu,
+                              instruction_info_t *ii,
+                              void *user_data);
+        tuple_int_string_t (*NOTNULL disassemble)(uint8 *code,
+                                                  int valid_bytes,
+                                                  conf_object_t *cpu,
+                                                  void *user_data);
+        int (*NOTNULL flush)(instruction_info_t *ii,
+                             void *user_data);
+} decoder_t;
+</code></pre>
+<h2>Description</h2>
+<p>The <code>decode</code> function is called to decode an instruction pointed to by <code>code</code>.  The first byte corresponds to the lowest address of the instruction in the simulated memory. <code>valid_bytes</code> tells how many bytes can be read. The CPU is given in the <code>cpu</code> parameter.  When the decoder has successfully decoded an instruction, it should set the <code>ii_ServiceRoutine</code>, the <code>ii_Arg</code>, and the <code>ii_Type</code> members of the <a href="dev-api-types-model-specific.html#instruction_info_t"><code>instruction_info_t</code></a> structure, and returns the number of bytes used in the decoding.  If it does not apply to the given instruction, it should return zero. If the decoder needs more data than <code>valid_bytes</code> it should return a negative number corresponding to the total number of bytes it will need to continue the decoding. The underlying architecture limits the number of bytes that can be requested, e.g. no more than 4 bytes can be requested on most RISC architectures. Simics will call the decoder again when more bytes are available. This process is repeated until the decoder accepts or rejects the instruction.  A decoder should never request more data than it needs. For example, if an instructions can be rejected by looking at the first byte, the decoder should never ask for more bytes.</p>
+<p>The <code>disassemble</code> function is called to disassemble an instruction.  It uses the same <code>code</code>, <code>valid_bytes</code>, and <code>cpu</code> parameters as the <code>decode</code> function. If the disassembly is valid, then the string part of the returned <code>tuple_int_string_t</code> struct should be a MALLOCed string with the disassembly and the integer part should be its length in bytes.  The caller is responsible for freeing the disassembly string. The string member should be NULL and the integer part should be zero if the disassembly is not valid.  If the disassemble function needs more data than <code>valid_bytes</code> it should return a negative number in the integer part in the same way as the <code>decode</code> function, and set the string part to NULL.</p>
+<p>The <code>flush</code> function is called to free any memory allocated when decoding an instruction and any user data associated with the instruction.  It should return zero if it does not recognize the instruction, and non-zero if it has accepted it. Usually, the way to recognize if a decoded instruction is the right one to flush is to compare <code>ii-&gt;ii_ServiceRoutine</code> with the function that was set in the <code>decode</code> function. Note that the <code>cpu</code> parameter is the processor that caused the flush. It is more or less an arbitrary processor and should be ignored.</p>
+<p>In addition to the function pointers, the <code>decoder_t</code> structure contains a <code>user_data</code> pointer that is passed to all the functions.  This can be used for passing any data to the decoder functions.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-model-specific.html#service_routine_t"><code>service_routine_t</code></a>,<a href="dev-api-types-model-specific.html#instruction_info_t"><code>instruction_info_t</code></a>, <a href="model-to-simulator-interfaces.html#decoder_interface_t"><code>decoder</code></a> interface.</p>
+</section>
+<h2 id="instruction_info_t"><a href="#instruction_info_t">instruction_info_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>instruction_info_t — type used with user decoder</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/decoder.h&gt; // in C
+import "simics/model-iface/decoder.dml"; // in DML
+
+typedef struct instruction_info {
+        service_routine_t  ii_ServiceRoutine;
+        uint64             ii_Arg;
+        unsigned int       ii_Type;
+        lang_void         *ii_UserData;
+        logical_address_t  ii_LogicalAddress;
+        physical_address_t ii_PhysicalAddress;
+} instruction_info_t;
+</code></pre>
+<h2>Description</h2>
+<p><code>ii_ServiceRoutine</code> is a pointer to a function that will be called by Simics every time the instruction is executed. It has the type <a href="dev-api-types-model-specific.html#service_routine_t"><code>service_routine_t</code></a>.</p>
+<p>Note that in a shared memory multiprocessor, the CPU used in decoding may differ from the CPU that executes the instruction, since the decoded instructions may be cached.</p>
+<p><code>ii_Arg</code> is the argument <code>arg</code> that will be passed on to the service routine function. Op code bit-fields for the instruction such as register numbers or intermediate values can be stored here. The <code>ii_UserData</code> field can also be used to pass information to the service routine if more data is needed.</p>
+<p><code>ii_Type</code> is either <code>UD_IT_SEQUENTIAL</code> or <code>UD_IT_CONTROL_FLOW</code>.  A sequential type means that the instruction does not perform any branches and the update of the program counter(s) is handled by Simics. In a control flow instruction on the other hand it is up to the user to set the program counter(s).</p>
+<p><code>ii_LogicalAddress</code> and <code>ii_PhysicalAddress</code> holds the logical and physical addresses of the instruction to be decoded.</p>
+<h2>See also</h2>
+<p><a href="dev-api-types-model-specific.html#service_routine_t"><code>service_routine_t</code></a>,<a href="dev-api-types-model-specific.html#decoder_t"><code>decoder_t</code></a>, <a href="model-to-simulator-interfaces.html#decoder_interface_t"><code>decoder</code></a> interface.</p>
+</section>
+<h2 id="interrupt_ack_fn_t"><a href="#interrupt_ack_fn_t">interrupt_ack_fn_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>interrupt_ack_fn_t — function type used with acked interrupts.</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/interrupt-ack.h&gt; // in C
+import "simics/devs/interrupt-ack.dml"; // in DML
+
+typedef int (*interrupt_ack_fn_t)(conf_object_t *NOTNULL);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>interrupt_ack_fn_t</code> function is called by an interrupt target to ack an interrupt. Returns the interrupt vector.</p>
+</section>
+<h2 id="mips_memory_transaction_t"><a href="#mips_memory_transaction_t">mips_memory_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>mips_memory_transaction_t — memory transaction type used with MIPS cores</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/mips.h&gt; // in C
+import "simics/arch/mips.dml"; // in DML
+
+typedef struct mips_memory_transaction {
+
+        /* generic transaction */
+        generic_transaction_t s;
+
+        /* Cache coherency, values as the C field in EntryLo0 and EntryLo1. */
+        unsigned int cache_coherency:3;
+} mips_memory_transaction_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.mips_memory_transaction_t(s = generic_transaction_t(),
+        cache_coherency = 0)
+</code></pre>
+<h2>Description</h2>
+<p>This is the MIPS specific memory transaction data structure. The generic data is stored in the <code>s</code> field.</p>
+<p>The <code>cache_coherency</code> field specifies the cache coherency attribute of the memory transaction, as defined by the C field of the EntryLo0 and EntryLo1 coprocessor 0 registers.</p>
+</section>
+<h2 id="nios_memory_transaction_t"><a href="#nios_memory_transaction_t">nios_memory_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>nios_memory_transaction_t — memory transaction specific to the Nios architecture</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/nios.h&gt; // in C
+import "simics/arch/nios.dml"; // in DML
+
+typedef struct nios_memory_transaction {
+        /* generic transaction */
+        generic_transaction_t s;
+} nios_memory_transaction_t;
+</code></pre>
+<h2>Description</h2>
+<p>The <code>s</code> field contains generic information about memory operations (see <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a>).</p>
+</section>
+<h2 id="pci_memory_transaction_t"><a href="#pci_memory_transaction_t">pci_memory_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pci_memory_transaction_t — generic transaction initiated by PCI devices</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef struct pci_memory_transaction {
+        generic_transaction_t INTERNAL_FIELD(s);
+        uint32 INTERNAL_FIELD(original_size);
+
+        int INTERNAL_FIELD(bus_address);
+
+        int INTERNAL_FIELD(bus_number);
+        int INTERNAL_FIELD(device_number);
+        int INTERNAL_FIELD(function_number);
+
+        uint32 INTERNAL_FIELD(tlp_prefix);
+} pci_memory_transaction_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.pci_memory_transaction_t(_internal_s = generic_transaction_t(),
+        _internal_original_size = 0, _internal_bus_address = 0,
+        _internal_bus_number = 0, _internal_device_number = 0,
+        _internal_function_number = 0, _internal_tlp_prefix = 0)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>pci_memory_transaction_t</code> is used for memory accesses initiated by PCI devices.</p>
+<blockquote class="markdown-alert-note">
+<p>All struct fields are internal and should never be used directly.</p>
+</blockquote>
+<p>A <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a> can be converted to a <code>pci_memory_transaction_t</code> via the <a href="dev-api-memory-transactions.html#SIM_arm_mem_trans_from_generic"><code>SIM_pci_mem_trans_from_generic</code></a> function. Never explicitly cast one struct to the other, always use the Simics API functions.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-memory-transactions.html#SIM_arm_mem_trans_from_generic"><code>SIM_pci_mem_trans_from_generic</code></a>, <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a></p>
+</section>
+<h2 id="pcie_ide_secured_t"><a href="#pcie_ide_secured_t">pcie_ide_secured_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_ide_secured_t — PCIe IDE Secured TLP</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef struct {
+    bool t;  // Trusted Execution
+    bool k;  // Key set
+    bool m;  // MAC included
+    bool p;  // PCRC included
+    uint8 sub_stream;
+    uint8 stream_id;
+    uint8 pr_sent_counter;
+} pcie_ide_secured_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.pcie_ide_secured_t(t=False, k=False, m=False, p=False, sub_stream=0,
+        stream_id=0, pr_sent_counter=0)
+</code></pre>
+<h2>Description</h2>
+<p>This type is used contain PCIe IDE Secured TLP.</p>
+</section>
+<h2 id="pcie_link_flit_mode_t"><a href="#pcie_link_flit_mode_t">pcie_link_flit_mode_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_link_flit_mode_t — PCIe link Flit Mode</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef struct {
+        bool enable_flit_mode;
+} pcie_link_flit_mode_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.pcie_link_flit_mode_t(enable_flit_mode=False)
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to indicate to a peer that it wants to use Flit Mode if the peer supports it. The peer sets the enable_flit_mode field to true in the struct to agree that Flit mode should be used.</p>
+</section>
+<h2 id="pcie_link_l0p_support_t"><a href="#pcie_link_l0p_support_t">pcie_link_l0p_support_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_link_l0p_support_t — PCIe link L0p support</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef struct {
+        bool enable_l0p_support;
+} pcie_link_l0p_support_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.pcie_link_l0p_support_t(enable_l0p_support=False)
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to indicate to a peer that it supports the L0p link state. The peer sets the enable_l0p_support field to true in the struct to agree that the L0p link state should be used.</p>
+</section>
+<h2 id="pcie_link_negotiation_t"><a href="#pcie_link_negotiation_t">pcie_link_negotiation_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_link_negotiation_t — PCIe link negotiation attributes</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef struct {
+        pcie_link_speed_t maximum_link_speed;
+        pcie_link_width_t maximum_link_width;
+        pcie_link_speed_t negotiated_link_speed;
+        pcie_link_width_t negotiated_link_width;
+} pcie_link_negotiation_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.pcie_link_negotiation_t(maximum_link_speed=PCIE_Link_Speed_Undefined,
+        maximum_link_width=PCIE_Link_Width_Undefined,
+        negotiated_link_speed=PCIE_Link_Speed_Undefined,
+        negotiated_link_width=PCIE_Link_Width_Undefined)
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to send desired (maximum) link attributes to a peer who then sets the negotiated link speed and width based on the supported values of both peers.</p>
+</section>
+<h2 id="pcie_link_speed_t"><a href="#pcie_link_speed_t">pcie_link_speed_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_link_speed_t — PCIe link speeds</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef enum {
+        PCIE_Link_Speed_Undefined = 0,
+        PCIE_Link_Speed_2_5       = 1,
+        PCIE_Link_Speed_5         = 2,
+        PCIE_Link_Speed_8         = 4,
+        PCIE_Link_Speed_16        = 8,
+        PCIE_Link_Speed_32        = 16,
+        PCIE_Link_Speed_64        = 32,
+        PCIE_Link_Speed_128       = 64,
+} pcie_link_speed_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.PCIE_Link_Speed_64
+simics.PCIE_Link_Speed_8
+simics.PCIE_Link_Speed_128
+simics.PCIE_Link_Speed_2_5
+simics.PCIE_Link_Speed_16
+simics.PCIE_Link_Speed_32
+simics.PCIE_Link_Speed_5
+simics.PCIE_Link_Speed_Undefined
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to indicate PCIe link speeds.</p>
+</section>
+<h2 id="pcie_link_width_t"><a href="#pcie_link_width_t">pcie_link_width_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_link_width_t — PCIe link widths</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef enum {
+        PCIE_Link_Width_Undefined  = 0,
+        PCIE_Link_Width_x1         = 1,
+        PCIE_Link_Width_x2         = 2,
+        PCIE_Link_Width_x4         = 4,
+        PCIE_Link_Width_x8         = 8,
+        PCIE_Link_Width_x16        = 16,
+} pcie_link_width_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.PCIE_Link_Width_x1
+simics.PCIE_Link_Width_x8
+simics.PCIE_Link_Width_x4
+simics.PCIE_Link_Width_x16
+simics.PCIE_Link_Width_Undefined
+simics.PCIE_Link_Width_x2
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to indicate PCIe link widths.</p>
+</section>
+<h2 id="pcie_msg_vdm_frs_reason_t"><a href="#pcie_msg_vdm_frs_reason_t">pcie_msg_vdm_frs_reason_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_msg_vdm_frs_reason_t — Reasons field for FRS</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef enum {
+        /* DRS Message Received: The Downstream Port indicated by the Message
+           Requester ID received a DRS Message and has the DRS Signaling Control
+           field in the Link Control Register set to DRS to FRS Signaling
+           Enabled. */
+        PCIE_MSG_VDM_FRS_DRS_Message_Received = 0x01,
+
+        /* D3Hot to D0 Transition Completed: A D3Hot to D0 transition has
+           completed, and the Function indicated by the Message Requester ID is
+           now Configuration-Ready and has returned to the D0uninitialized or
+           D0active state depending on the setting of the No_Soft_Reset bit. */
+        PCIE_MSG_VDM_FRS_D3Hot_to_D0_Completed = 0x02,
+
+        /* FLR Completed: An FLR has completed, and the Function indicated by
+           the Message Requester ID is now Configuration-Ready. */
+        PCIE_MSG_VDM_FRS_FLR_Completed = 0x03,
+
+        /* VF Enabled: The Message Requester ID indicates a Physical Function
+           (PF) - All Virtual Functions (VFs) associated with that PF are now
+           Configuration-Ready. */
+        PCIE_MSG_VDM_FRS_VF_Enabled = 0x08,
+
+        /* VF Disabled: The Message Requester ID indicates a PF - All VFs
+           associated with that PF have been disabled and the SR-IOV data
+           structures in that PF may now be accessed. */
+        PCIE_MSG_VDM_FRS_VF_Disabled = 0x09,
+} pcie_msg_vdm_frs_reason_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.PCIE_MSG_VDM_FRS_FLR_Completed
+simics.PCIE_MSG_VDM_FRS_D3Hot_to_D0_Completed
+simics.PCIE_MSG_VDM_FRS_VF_Enabled
+simics.PCIE_MSG_VDM_FRS_DRS_Message_Received
+simics.PCIE_MSG_VDM_FRS_VF_Disabled
+</code></pre>
+<h2>Description</h2>
+<p>Reason field encoded in a Function Readiness Status (FRS) message. Indicates why the Function Readiness Status message was sent.</p>
+</section>
+<h2 id="pcie_msg_vdm_subtype_t"><a href="#pcie_msg_vdm_subtype_t">pcie_msg_vdm_subtype_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_msg_vdm_subtype_t — PCIe message VDM subtype</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef enum {
+        PCIE_VDM_Hierarchy_Id = 0x01,
+        PCIE_VDM_Device_Readiness_Status = 0x08,
+        PCIE_VDM_Function_Readiness_Status = 0x09,
+} pcie_msg_vdm_subtype_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.PCIE_VDM_Device_Readiness_Status
+simics.PCIE_VDM_Function_Readiness_Status
+simics.PCIE_VDM_Hierarchy_Id
+</code></pre>
+<h2>Description</h2>
+<p>This atom can be included in Vendor-Defined Type 1 Messages (transactions that have the <code>pcie_type</code> atom set to <code>PCIE_Type_Msg</code>, <code>pcie_message_type</code> atom set to <code>PCIE_Vendor_Defined_Type_1</code> and <code>pcie_msg_vdm_vendor_id</code> atom set to 0x0001) to indicate the subtype of th PCI-SIG VDM 1 message.</p>
+</section>
+<h2 id="pcie_msg_vdm_vendor_id_t"><a href="#pcie_msg_vdm_vendor_id_t">pcie_msg_vdm_vendor_id_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_msg_vdm_vendor_id_t — PCIE VDM message vendor id</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef uint16 pcie_msg_vdm_vendor_id_t;
+</code></pre>
+<h2>Description</h2>
+<p>This atom can be included in Vendor-Defined Type 1 Messages (transactions that have the <code>pcie_type</code> atom set to <code>PCIE_Type_Msg</code> and <code>pcie_message_type</code> atom set to <code>PCIE_Vendor_Defined_Type_0</code> or <code>PCIE_Vendor_Defined_Type_1</code>) to indicate the vendor id of the VDM message.</p>
+</section>
+<h2 id="pcie_pasid_info_t"><a href="#pcie_pasid_info_t">pcie_pasid_info_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_pasid_info_t — PCIe PASID information</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef union {
+    struct {
+        uint32 pasid:20;    // PASID
+        uint32 exe:1;       // Execute Requested
+        uint32 priv:1;      // Privileged Mode Requested
+    } field;
+    uint32 u32;
+} pcie_pasid_info_t;
+</code></pre>
+<h2>Description</h2>
+<p>This type contain the PASID Information in the pcie_pasid transaction atom.</p>
+</section>
+<h2 id="pcie_prs_page_group_response_t"><a href="#pcie_prs_page_group_response_t">pcie_prs_page_group_response_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_prs_page_group_response_t — PCIe PRS page response data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef union {
+        struct {
+                uint16 prgi:9;  // Page request group
+                uint16 rsvd:3;
+                uint16 response_code:4;  // Response code
+        } field;
+        uint16 u16;
+} pcie_prs_page_group_response_t;
+</code></pre>
+<h2>Description</h2>
+<p>This type is used contain PCIe PRS page response data.</p>
+</section>
+<h2 id="pcie_prs_page_request_t"><a href="#pcie_prs_page_request_t">pcie_prs_page_request_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_prs_page_request_t — PCIe PRS page request data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef union {
+        struct {
+                uint64 r:1;     // Read access
+                uint64 w:1;     // Write access
+                uint64 l:1;     // Last
+                uint64 prgi:9;  // Page request group
+                uint64 page_addr: 52;
+        } field;
+        uint64 u64;
+} pcie_prs_page_request_t;
+</code></pre>
+<h2>Description</h2>
+<p>This type is used contain PCIe PRS page request data.</p>
+</section>
+<h2 id="pcie_prs_response_code_t"><a href="#pcie_prs_response_code_t">pcie_prs_response_code_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pcie_prs_response_code_t — PCIe PRS Response Message Code</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/pci.h&gt; // in C
+import "simics/devs/pci.dml"; // in DML
+
+typedef enum {
+        PCIE_PRS_Response_Success = 0,
+        PCIE_PRS_Response_Invalid_Request = 1,
+        PCIE_PRS_Response_Failure = 15,
+} pcie_prs_response_code_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.PCIE_PRS_Response_Invalid_Request
+simics.PCIE_PRS_Response_Failure
+simics.PCIE_PRS_Response_Success
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to indicate PCIe PRS Response Message Code.</p>
+</section>
+<h2 id="ppc_mem_instr_origin_t"><a href="#ppc_mem_instr_origin_t">ppc_mem_instr_origin_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>ppc_mem_instr_origin_t — PPC special memory operations</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/ppc.h&gt; // in C
+import "simics/arch/ppc.dml"; // in DML
+
+typedef enum {
+        /* Normal load or store instructions */
+        Normal_Load_Store = 0,
+
+        /* No data touched by the load/store will be placed in cache */
+	    Caching_Inhibited,
+
+        Instr_Multiple,         /* load/store multiple */
+        Instr_String,           /* load/store string */
+
+        Instr_Altivec_Element,  /* Altivec load/store element */
+
+        /* Data cache manipulations */
+        Instr_dcbt,             /* data cache block touch */
+        Instr_dcbst,            /* data cache block store */
+        Instr_dcbtst,           /* data cache block touch for store */
+        Instr_dcbi,             /* data cache block invalidate */
+        Instr_dcbf,             /* data cache block flush */
+        Instr_dcbfl,            /* data cache block flush local */
+        Instr_dcba,             /* data cache block allocate */
+        Instr_dcbz,             /* data cache block to zero */
+
+        /* Instruction cache manipulations */
+        Instr_icbi,             /* instruction cache block invalidate */
+
+        /* Data stream (Altivec) manipulations */
+        Instr_dst,              /* data stream touch */
+        Instr_dstt,             /* data stream touch transient */
+        Instr_dstst,            /* data stream touch for store */
+        Instr_dststt,           /* data stream touch for store transient */
+
+        /* e500 cache lock apu instructions */
+        Instr_dcblc_l1,         /* data cache block lock clear (L1) */
+        Instr_dcblc_l2,         /* data cache block lock clear (L2) */
+        Instr_dcbtls_l1,        /* data cache block touch and lock set (L1)*/
+        Instr_dcbtls_l2,        /* data cache block touch and lock set (L1)*/
+        Instr_dcbtstls_l1,      /* data cache block touch for store and lock
+                                   set (L1)*/
+        Instr_dcbtstls_l2,      /* data cache block touch for store and lock
+                                   set (L1)*/
+        Instr_icblc_l1,         /* instruction cache block clear (L1) */
+        Instr_icblc_l2,         /* instruction cache block clear (L2) */
+        Instr_icbtls_l1,        /* instruction cache block touch and lock
+                                   set (L1) */
+        Instr_icbtls_l2,        /* instruction cache block touch and lock
+                                   set (L1) */
+
+        /* Other loads/stores or cache affecting instructions */
+        Instr_lwarx,
+        Instr_stwcx,
+        Instr_ldarx,
+        Instr_stdcx,
+        Instr_lq,
+        Instr_stq,
+
+        /* Other cache affecting instructions */
+        Instr_sync,
+        Instr_eieio,
+        Instr_ecowx,
+        Instr_eciwx,
+        Instr_tlbie,
+        Instr_tlbsync,
+        Instr_isync,
+
+        Instr_lfdp,             /* Load Floating point Double Pair */
+        Instr_stfdp,            /* Store Floating point Double Pair */
+
+        Instr_spe,
+
+        Instr_dcbal,            /* Obsolete - use Instr_dcba. */
+
+        /* e500 cache lock apu instructions, platform cache versions */
+        Instr_dcblc_pc,         /* data cache block lock clear */
+        Instr_dcbtls_pc,        /* data cache block touch and lock set*/
+        Instr_dcbtstls_pc,      /* data cache block touch for store and lock
+                                   set */
+        Instr_icblc_pc,         /* instruction cache block clear */
+        Instr_icbtls_pc,        /* instruction cache block touch and lock
+                                   set */
+        Instr_Fpu               /* Load/store from FPU unit */
+} ppc_mem_instr_origin_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Instr_dcba
+simics.Instr_lq
+simics.Instr_spe
+simics.Instr_icblc_l1
+simics.Instr_dcbt
+simics.Instr_eieio
+simics.Instr_String
+simics.Instr_dst
+simics.Instr_ldarx
+simics.Instr_dcblc_pc
+simics.Instr_icbi
+simics.Instr_dstst
+simics.Instr_dcbtst
+simics.Instr_sync
+simics.Instr_stfdp
+simics.Instr_icblc_pc
+simics.Instr_dcblc_l1
+simics.Instr_dcblc_l2
+simics.Caching_Inhibited
+simics.Instr_dcbtstls_l1
+simics.Instr_ecowx
+simics.Normal_Load_Store
+simics.Instr_dststt
+simics.Instr_dcbi
+simics.Instr_Altivec_Element
+simics.Instr_icblc_l2
+simics.Instr_tlbsync
+simics.Instr_dcbtls_l1
+simics.Instr_icbtls_l2
+simics.Instr_lwarx
+simics.Instr_lfdp
+simics.Instr_dcbfl
+simics.Instr_dcbtls_l2
+simics.Instr_dcbz
+simics.Instr_stdcx
+simics.Instr_dcbst
+simics.Instr_icbtls_pc
+simics.Instr_stwcx
+simics.Instr_stq
+simics.Instr_Fpu
+simics.Instr_dcbtstls_l2
+simics.Instr_tlbie
+simics.Instr_dcbal
+simics.Instr_dcbtls_pc
+simics.Instr_eciwx
+simics.Instr_Multiple
+simics.Instr_icbtls_l1
+simics.Instr_dstt
+simics.Instr_dcbf
+simics.Instr_isync
+simics.Instr_dcbtstls_pc
+</code></pre>
+<h2>Description</h2>
+<p>List of special memory operations that can be send by a PPC processor.</p>
+</section>
+<h2 id="ppc_memory_transaction_t"><a href="#ppc_memory_transaction_t">ppc_decoration_type_t, ppc_decoration_t, ppc_memory_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>ppc_decoration_type_t, ppc_decoration_t, ppc_memory_transaction_t — memory transaction used with ppc</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/ppc.h&gt; // in C
+import "simics/arch/ppc.dml"; // in DML
+
+typedef enum {
+        Decoration_None,
+        Decoration_Notify,
+        Decoration_Load,
+        Decoration_Store
+} ppc_decoration_type_t;
+
+typedef struct {
+        ppc_decoration_type_t type;
+        uint64 data;
+} ppc_decoration_t;
+
+typedef struct ppc_memory_transaction {
+
+        /* generic transaction */
+        generic_transaction_t s;
+
+        processor_mode_t mode;
+        ppc_mem_instr_origin_t instr_origin;
+        logical_address_t ea_origin;
+        uint8 wimg;
+        uint8 alignment;
+
+        /* cache operations may flag this to cause prefetches to be no-ops */
+        uint8 inhibit_exception;
+
+        /* External PID */
+        uint8 external_pid;
+
+        /* Decorated storage */
+        ppc_decoration_t decoration;
+} ppc_memory_transaction_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Decoration_Store
+simics.Decoration_None
+simics.Decoration_Notify
+simics.Decoration_Load
+class simics.ppc_decoration_t
+class simics.ppc_memory_transaction_t(s = generic_transaction_t(),
+        mode = Sim_CPU_Mode_User, instr_origin = Normal_Load_Store,
+        ea_origin = 0, wimg = 0, alignment = 0, inhibit_exception = 0,
+        external_pid = 0, decoration = ppc_decoration_t())
+</code></pre>
+<h2>Description</h2>
+<p>This is the PPC specific memory transaction data structure. The generic data is stored in the <code>s</code> field.</p>
+<p>The current processor mode when generating this transaction is stored in the <code>mode</code> field.</p>
+<p>The type of instruction generating the memory transactions is provided by the <code>instr_origin</code> field. Note that it is mainly provided for special memory accesses like cache block operations..</p>
+<p>The <code>wimg</code> field is filled in by the MMU with the corresponding WIMG bits during the translation.</p>
+<p>The <code>alignment</code> field contains the size on which the transaction is required to be aligned.</p>
+<p>The <code>inhibit_exception</code> field is set for operations that should be ignored if triggering an exception.</p>
+<p>The <code>external_pid</code> field is only used internally for some Book-E cores. It is undefined for cores which do not have this feature.</p>
+<p><code>decoration</code> contains decoration data.</p>
+<p>The <code>type</code> field specifies whether the transaction is decorated or not, and if it is, the decoration type.</p>
+<p>The <code>data</code> field holds the decoration data supplied by the instruction. It is only valid if <code>type</code> is not <code>Decoration_None</code>.</p>
+<h2>Note</h2>
+<p>Not all processors implement decorated storage.</p>
+</section>
+<h2 id="riscv_cpu_mode_t"><a href="#riscv_cpu_mode_t">riscv_cpu_mode_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>riscv_cpu_mode_t — list of privilege levels of the RISC-V core</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/risc-v.h&gt; // in C
+import "simics/arch/risc-v.dml"; // in DML
+
+typedef enum {
+        Riscv_Mode_User            = 0x0,
+        Riscv_Mode_Supervisor      = 0x1,
+        Riscv_Mode_Reserved        = 0x2,
+        Riscv_Mode_Machine         = 0x3,
+
+        Riscv_Mode_Guest_User       = 0x10,
+        Riscv_Mode_Guest_Supervisor = 0x11
+} riscv_cpu_mode_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Riscv_Mode_Supervisor
+simics.Riscv_Mode_User
+simics.Riscv_Mode_Guest_User
+simics.Riscv_Mode_Machine
+simics.Riscv_Mode_Guest_Supervisor
+simics.Riscv_Mode_Reserved
+</code></pre>
+</section>
+<h2 id="riscv_io_error_t"><a href="#riscv_io_error_t">riscv_io_error_t, riscv_io_error_ret_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>riscv_io_error_t, riscv_io_error_ret_t — values and structures used to signal back transaction errors to RISC-V cores</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/risc-v.h&gt; // in C
+import "simics/arch/risc-v.dml"; // in DML
+
+typedef enum {
+        Riscv_No_IO_Error               = 0x00,
+        Riscv_Throw_Access_Fault        = 0x01,
+        Riscv_Clint_Wrong_Sized_Access  = 0x10,
+        Riscv_WG_Access_WID_Not_Allowed = 0x20,
+} riscv_io_error_t;
+
+typedef struct
+{
+        uint64 val;
+} riscv_io_error_ret_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Riscv_Clint_Wrong_Sized_Access
+simics.Riscv_No_IO_Error
+simics.Riscv_Throw_Access_Fault
+simics.Riscv_WG_Access_WID_Not_Allowed
+class simics.riscv_io_error_ret_t
+</code></pre>
+<h2>Description</h2>
+<p>The ATOM <code>riscv_io_error_ret</code> is added to all transactions originating from RISC-V cores. The values defined by <code>riscv_io_error_t</code> can be used to signal various access errors back to the the core.</p>
+<p>To report, write an error value to the address pointed to by the ATOM riscv_io_error_ret.</p>
+</section>
+<h2 id="service_routine_t"><a href="#service_routine_t">service_routine_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>service_routine_t — type used with user decoder</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/decoder.h&gt; // in C
+import "simics/model-iface/decoder.dml"; // in DML
+
+typedef exception_type_t (*service_routine_t)(conf_object_t *cpu,
+                                              uint64 arg,
+                                              lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>The service routine function should return an exception when it is finished to signal its status. If no exception occurs <code>Sim_PE_No_Exception</code> should be returned.</p>
+<p>See <a href="dev-api-types-generic.html#exception_type_t"><code>exception_type_t</code></a> in for the different exceptions available.</p>
+<p>A special return value, <code>Sim_PE_Default_Semantics</code>, can be returned; this signals Simics to run the default semantics for the instruction. This is useful if the semantics of an instruction should be changed but the user routine does not want to handle it all the time.</p>
+<h2>See also</h2>
+<p><a href="dev-api-types-model-specific.html#instruction_info_t"><code>instruction_info_t</code></a>, <a href="dev-api-types-model-specific.html#decoder_t"><code>decoder_t</code></a>, <a href="model-to-simulator-interfaces.html#decoder_interface_t"><code>decoder</code></a> interface.</p>
+</section>
+<h2 id="usb_transfer_t"><a href="#usb_transfer_t">usb_transfer_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>usb_transfer_t — type used for data transfer over USB</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/usb.h&gt; // in C
+import "simics/devs/usb.dml"; // in DML
+
+typedef struct {
+        /* Endpoint/function specific information */
+        uint8                 function_address;
+        uint8                 endpoint_number;
+        /* Type specific information */
+        usb_type_t            type;
+#ifndef PYWRAP
+        union {
+                usb_device_request_t   control_request;
+                nano_secs_t            periodic_time;
+        } u;
+#endif /* PYWRAP */
+        /* Data specific */
+        usb_direction_t       direction;
+        int                   size;
+        dbuffer_t             *buf;
+        /* Status */
+        usb_status_t          status;
+} usb_transfer_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.usb_transfer_t
+</code></pre>
+<h2>Description</h2>
+<p>All USB related data types are Simics internal, and should not be used by user-defined classes.  The data types may change in future versions of Simics.</p>
+<p>The <a href="dev-api-types-model-specific.html#usb_transfer_t"><code>usb_transfer_t</code></a> type is independent of USB host and USB device implementations and is used for sending data over USB.</p>
+<p>There are two fields to identify the pipe: <code>function_address</code> is the function/device address for the target USB device; <code>endpoint_number</code> specifies the endpoint number.</p>
+<p>The type of transfer is defined using the <code>type</code> field. The type is either control, bulk, interrupt, or isochronous. The <code>u.control_request</code> field is only valid for control transfers. It contains the information that would be in the setup packet of a control transfer. The <code>u.periodic_time</code> field is only valid for periodic transfers, i.e., interrupt and isochronous transfers. It specifies the minimum response time for a transfer expected by the USB host. A USB device do not need to fulfill the expectation. It is merely a way to tell the USB device how to keep the timing specified in the periodic list scheduling.</p>
+<p>The <code>usb_direction</code> field specifies the direction of the data in the USB transfer. Only the actual data packet is used to specify the direction, even if a real transfer consists of a mix of SETUP/OUT/IN/STATUS packets. <code>USB_Direction_None</code> means that the transfer does not contain any data, for example, in <code>Set_Address</code> control transfers. <code>size</code> is the number of bytes the USB host can receive for IN transfers and the number of bytes sent for OUT transfers. <code>buf</code> contains the IN or OUT data. Note that <em>buf</em> can contain data for several data packets concatenated together. The endpoint descriptors in USB host and USB device define the maximum packet size for the pipe, but there is no limitation in Simics.</p>
+<p>The <code>status</code> field contains the status for the transfer. The status is typically only set by the USB device. The USB host does not set the status field when it has completed an IN transfer.</p>
+</section>
+<h2 id="x86_access_type_t"><a href="#x86_access_type_t">x86_access_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_access_type_t — type used with x86 accesses</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86-memop.h&gt; // in C
+import "simics/arch/x86-memop.dml"; // in DML
+
+typedef enum x86_access_type {
+        FOR_X86_ACCESS_TYPES(X86_ACCESS_TYPE_ENUM)
+} x86_access_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.X86_Prefetch_3DNow
+simics.X86_Pd
+simics.X86_Fpu_Env
+simics.X86_Invept_Descriptor
+simics.X86_Clflush
+simics.X86_Vmx_EPTP_List
+simics.X86_Shadow_Stack
+simics.X86_Pte
+simics.X86_Vmx_Msr
+simics.X86_Vmx_IO_Bitmap
+simics.X86_Prefetch_T2
+simics.X86_Idt
+simics.X86_Mtt_Metadata
+simics.X86_Prefetch_NTA
+simics.X86_Microcode_Update
+simics.X86_Prefetch_T1
+simics.X86_Pml5e
+simics.X86_Other
+simics.X86_Pdp_Pae
+simics.X86_Prefetchw_3DNow
+simics.X86_Pdpte
+simics.X86_Vmx_Pasid_Translation
+simics.X86_Stack
+simics.X86_Vmx_VE_Info
+simics.X86_Instruction
+simics.X86_Task_Segment
+simics.X86_Pml5
+simics.X86_Smm_State
+simics.X86_Pml4e
+simics.X86_Sse
+simics.X86_Vanilla
+simics.X86_Far_Call_Parameter
+simics.X86_Invvpid_Descriptor
+simics.X86_Pml4
+simics.X86_Non_Temporal
+simics.X86_Vmcs
+simics.X86_Ldt
+simics.X86_Pde
+simics.X86_Access_Simple
+simics.X86_Pml_Log
+simics.X86_Prefetch_T0
+simics.X86_Vmx_Vapic
+simics.X86_Gdt
+simics.X86_Pdp
+simics.X86_Access_Type_Last
+simics.X86_Processor_Trace
+simics.X86_Atomic_Info
+simics.X86_Task_Switch
+simics.X86_Stack_Explicit
+simics.X86_Cmpxchg16b
+simics.X86_Pebs
+simics.X86_Fpu_State
+simics.X86_Loadall
+simics.X86_Pt
+simics.X86_Sppt
+simics.X86_Vmx_Msr_Bitmaps
+simics.X86_Fpu
+simics.X86_Prefetch_Other
+</code></pre>
+<h2>Description</h2>
+<p>See online help for expanded output of this type: <code>api-help x86_access_type_t</code></p>
+</section>
+<h2 id="x86_exception_source_t"><a href="#x86_exception_source_t">x86_exception_source_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_exception_source_t — x86 exception sources</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86.h&gt; // in C
+import "simics/arch/x86.dml"; // in DML
+
+typedef enum {
+        X86_Exc_Hardware,
+        X86_Exc_Software,
+        X86_Exc_External,
+        X86_Exc_Software_Debug,
+        X86_Exc_Software_Priv,
+        X86_Exc_Triple_Fault,
+        X86_Exc_NMI,
+        X86_Exc_Other_Event
+} x86_exception_source_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.X86_Exc_External
+simics.X86_Exc_NMI
+simics.X86_Exc_Software
+simics.X86_Exc_Other_Event
+simics.X86_Exc_Software_Debug
+simics.X86_Exc_Hardware
+simics.X86_Exc_Triple_Fault
+simics.X86_Exc_Software_Priv
+</code></pre>
+<h2>Description</h2>
+<p>Defines different exception sources for a given exception/interrupt.</p>
+</section>
+<h2 id="x86_memory_transaction_t"><a href="#x86_memory_transaction_t">x86_memory_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_memory_transaction_t — generic_transaction used with x86 accesses</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86-memop.h&gt; // in C
+import "simics/arch/x86-memop.dml"; // in DML
+
+typedef struct x86_memory_transaction {
+        generic_transaction_t s;                /* Superclass */
+        linear_address_t      linear_address;
+        physical_address_t    guest_physical_address;
+        uint16                segnum;           /* segment number */
+        uint16                access_linear:1;  /* Linear access */
+        uint16                io:1;             /* I/O (port) access */
+        uint16                fault_as_if_write:1;
+        uint16                guest_phys_valid:1;
+        processor_mode_t      mode;
+        x86_access_type_t     access_type;
+        x86_memory_type_t     pat_type;
+        x86_memory_type_t     mtrr_type;
+        x86_memory_type_t     effective_type;
+        int                   sequence_number; /* used for -stall */
+        linear_address_t      original_linear_address;
+} x86_memory_transaction_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.x86_memory_transaction_t(s = generic_transaction_t(),
+        linear_address = 0, guest_physical_address = 0, segnum = 0,
+        access_linear = 0, io = 0, fault_as_if_write = 0,
+        guest_phys_valid = 0, mode = Sim_CPU_Mode_User,
+        access_type = X86_Other, pat_type = X86_None, mtrr_type = X86_None,
+        effective_type = X86_None, sequence_number = 0)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>s</code> field contains generic information about memory operations (see <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a>).</p>
+<p>The <code>mode</code> is the current mode (user or supervisor) of the cpu.</p>
+<p>The <code>linear_address</code> contains the address for transactions with linear addresses.</p>
+<p>The <code>access_linear</code> flag is set for all transactions with linear addresses.</p>
+<p>The <code>io</code> flag is set on port accesses (from IN and OUT instructions). It is cleared for regular memory accesses, and also for memory mapped I/O.</p>
+<p>The <code>fault_as_if_write</code> flag indicates that an access should set the page fault access bits as a write even if the access is a read.</p>
+<p>The <code>access_type</code> field in the type <a href="dev-api-types-model-specific.html#x86_access_type_t"><code>x86_access_type_t</code></a> contains the kind of the transaction.</p>
+<p>The effective memory type for the access is contained in <code>effective_type</code>. The MMU calculates the effective memory type and uses the <code>pat_type</code> and <code>mtrr_type</code> members as temporary storage and input to that calculation. The <code>pat_type</code> and <code>mtrr_type</code> members should not be used by code outside of the MMU. All these fields use the type <a href="dev-api-types-model-specific.html#x86_memory_type_t"><code>x86_memory_type_t</code></a>.</p>
+<p>The <code>original_linear_address</code> holds the linear address before a linear-address masking is applied.</p>
+</section>
+<h2 id="x86_memory_type_t"><a href="#x86_memory_type_t">x86_memory_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_memory_type_t — type used with x86 accesses</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86-memop.h&gt; // in C
+import "simics/arch/x86-memop.dml"; // in DML
+
+typedef enum {
+        X86_None,
+        X86_Strong_Uncacheable,    /* UC */
+        X86_Uncacheable,           /* UC- */
+        X86_Write_Combining,       /* WC */
+        X86_Write_Through,         /* WT */
+        X86_Write_Back,            /* WB */
+        X86_Write_Protected        /* WP */
+} x86_memory_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.X86_Uncacheable
+simics.X86_Write_Protected
+simics.X86_Write_Back
+simics.X86_Write_Through
+simics.X86_Strong_Uncacheable
+simics.X86_Write_Combining
+simics.X86_None
+</code></pre>
+</section>
+<h2 id="x86_processor_mode_t"><a href="#x86_processor_mode_t">x86_processor_mode_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_processor_mode_t — x86 processor mode</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86.h&gt; // in C
+import "simics/arch/x86.dml"; // in DML
+
+typedef enum {
+        X86_Processor_Mode_Privileged,
+        X86_Processor_Mode_User,
+        X86_Processor_Mode_Current
+} x86_processor_mode_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.X86_Processor_Mode_Privileged
+simics.X86_Processor_Mode_Current
+simics.X86_Processor_Mode_User
+</code></pre>
+</section>
+<h2 id="x86_register_id_t"><a href="#x86_register_id_t">x86_register_id_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_register_id_t — used to refer to the different registers on x86</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86.h&gt; // in C
+import "simics/arch/x86.dml"; // in DML
+
+typedef enum {
+        X86_Reg_Id_Rax = 0,
+        X86_Reg_Id_Rcx = 1,
+        X86_Reg_Id_Rdx = 2,
+        X86_Reg_Id_Rbx = 3,
+        X86_Reg_Id_Rsp = 4,
+        X86_Reg_Id_Rbp = 5,
+        X86_Reg_Id_Rsi = 6,
+        X86_Reg_Id_Rdi = 7,
+
+        X86_Reg_Id_R8  = 8,
+        X86_Reg_Id_R9  = 9,
+        X86_Reg_Id_R10 = 10,
+        X86_Reg_Id_R11 = 11,
+        X86_Reg_Id_R12 = 12,
+        X86_Reg_Id_R13 = 13,
+        X86_Reg_Id_R14 = 14,
+        X86_Reg_Id_R15 = 15,
+
+        X86_Reg_Id_Xmm0  = 16,
+        X86_Reg_Id_Xmm1  = 17,
+        X86_Reg_Id_Xmm2  = 18,
+        X86_Reg_Id_Xmm3  = 19,
+        X86_Reg_Id_Xmm4  = 20,
+        X86_Reg_Id_Xmm5  = 21,
+        X86_Reg_Id_Xmm6  = 22,
+        X86_Reg_Id_Xmm7  = 23,
+
+        X86_Reg_Id_Xmm8  = 24,
+        X86_Reg_Id_Xmm9  = 25,
+        X86_Reg_Id_Xmm10 = 26,
+        X86_Reg_Id_Xmm11 = 27,
+        X86_Reg_Id_Xmm12 = 28,
+        X86_Reg_Id_Xmm13 = 29,
+        X86_Reg_Id_Xmm14 = 30,
+        X86_Reg_Id_Xmm15 = 31,
+
+        X86_Reg_Id_Mm0 = 32,
+        X86_Reg_Id_Mm1 = 33,
+        X86_Reg_Id_Mm2 = 34,
+        X86_Reg_Id_Mm3 = 35,
+        X86_Reg_Id_Mm4 = 36,
+        X86_Reg_Id_Mm5 = 37,
+        X86_Reg_Id_Mm6 = 38,
+        X86_Reg_Id_Mm7 = 39,
+
+        X86_Reg_Id_PC  = 40,    /* this is RIP */
+
+        X86_Reg_Id_CF  = 41,    /* integer condition code flags */
+        X86_Reg_Id_DST = 42,    /* DST field used to cache PF flag */
+        X86_Reg_Id_AF  = 43,
+        X86_Reg_Id_ZF  = 44,
+        X86_Reg_Id_SF  = 45,
+        X86_Reg_Id_OF  = 46,
+        X86_Reg_Id_DF  = 47,
+
+        X86_Reg_Id_EFLAGS = 48, /* the whole 32 bits eflags */
+
+        X86_Reg_Id_C0 = 49,     /* floating point cc flags */
+        X86_Reg_Id_C1 = 50,
+        X86_Reg_Id_C2 = 51,
+        X86_Reg_Id_C3 = 52,
+        X86_Reg_Id_Top = 53,    /* floating point stack top */
+        X86_Reg_Id_Not_Used,    /* dummy number that can be used */
+
+        X86_Reg_Id_Local_Max    /* keep this one last */
+} x86_register_id_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.X86_Reg_Id_Rsp
+simics.X86_Reg_Id_Xmm2
+simics.X86_Reg_Id_EFLAGS
+simics.X86_Reg_Id_Not_Used
+simics.X86_Reg_Id_Xmm11
+simics.X86_Reg_Id_R9
+simics.X86_Reg_Id_Xmm5
+simics.X86_Reg_Id_Mm1
+simics.X86_Reg_Id_Rdx
+simics.X86_Reg_Id_C2
+simics.X86_Reg_Id_Local_Max
+simics.X86_Reg_Id_Xmm6
+simics.X86_Reg_Id_Xmm8
+simics.X86_Reg_Id_Xmm10
+simics.X86_Reg_Id_Mm6
+simics.X86_Reg_Id_R15
+simics.X86_Reg_Id_OF
+simics.X86_Reg_Id_ZF
+simics.X86_Reg_Id_Rax
+simics.X86_Reg_Id_Xmm14
+simics.X86_Reg_Id_Xmm9
+simics.X86_Reg_Id_DF
+simics.X86_Reg_Id_Rdi
+simics.X86_Reg_Id_R12
+simics.X86_Reg_Id_Xmm0
+simics.X86_Reg_Id_Xmm3
+simics.X86_Reg_Id_R11
+simics.X86_Reg_Id_R8
+simics.X86_Reg_Id_Rbx
+simics.X86_Reg_Id_Rcx
+simics.X86_Reg_Id_Xmm4
+simics.X86_Reg_Id_C0
+simics.X86_Reg_Id_Mm0
+simics.X86_Reg_Id_Top
+simics.X86_Reg_Id_DST
+simics.X86_Reg_Id_Xmm13
+simics.X86_Reg_Id_C3
+simics.X86_Reg_Id_Rbp
+simics.X86_Reg_Id_Xmm7
+simics.X86_Reg_Id_Mm3
+simics.X86_Reg_Id_Mm2
+simics.X86_Reg_Id_Xmm12
+simics.X86_Reg_Id_Mm7
+simics.X86_Reg_Id_Xmm15
+simics.X86_Reg_Id_R14
+simics.X86_Reg_Id_Mm5
+simics.X86_Reg_Id_Rsi
+simics.X86_Reg_Id_PC
+simics.X86_Reg_Id_Xmm1
+simics.X86_Reg_Id_SF
+simics.X86_Reg_Id_CF
+simics.X86_Reg_Id_Mm4
+simics.X86_Reg_Id_AF
+simics.X86_Reg_Id_R10
+simics.X86_Reg_Id_C1
+simics.X86_Reg_Id_R13
+</code></pre>
+<h2>Description</h2>
+<p>For x86 the <code>x86_register_id_t</code> can be used to refer to the different registers.</p>
+</section>
+<h2 id="x86_sync_instruction_type_t"><a href="#x86_sync_instruction_type_t">x86_sync_instruction_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_sync_instruction_type_t — type of synchronisation instruction for x86</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86.h&gt; // in C
+import "simics/arch/x86.dml"; // in DML
+
+typedef enum {
+        X86_SFence = 1,
+        X86_LFence = 2,
+        X86_MFence = 3
+} x86_sync_instruction_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.X86_LFence
+simics.X86_SFence
+simics.X86_MFence
+</code></pre>
+<h2>Description</h2>
+<p>Type of synchronisation instruction for x86. Used in the <a href="../rm-base/rm-haps.html#Core_Sync_Instruction"><code>Core_Sync_Instruction</code></a> hap.</p>
+</section>
+<h2 id="xtensa_memory_transaction_t"><a href="#xtensa_memory_transaction_t">xtensa_memory_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>xtensa_memory_transaction_t — old memory operation type used with xtensa cores</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/xtensa.h&gt; // in C
+import "simics/arch/xtensa.dml"; // in DML
+
+typedef struct xtensa_memory_transaction {
+        /* generic transaction */
+        generic_transaction_t s;
+} xtensa_memory_transaction_t;
+</code></pre>
+<h2>Description</h2>
+<p>The <code>s</code> field contains generic information about memory operations (see <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a>).</p>
+</section>
+<div class="chain">
+<a href="dev-api-types-transactions.html">Transactions</a>
+<a href="dev-api-types-instrumentation.html">Instrumentation Data Types</a>
+</div>

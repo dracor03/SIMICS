@@ -1,0 +1,214 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>B Provisional language features</title>
+<link rel="stylesheet" href="simics.css">
+<script>function postUrl() {
+    window.parent.postMessage({ content_url: window.location.href }, "*");
+}
+if (window.parent != null && window.parent != window) {
+    postUrl();
+    window.addEventListener("hashchange", function () {
+        postUrl();
+    });
+} else {
+    // Check if we are part of a Simics doc site and redirect if we are
+    fetch("../simics-doc-site-marker", { method: "HEAD" }).then(response => {
+        if (response.ok) {
+            window.location = "..#" + window.location.href;
+        } else {
+            console.info("Not part of a Simics documentation site");
+        }
+    }).catch(error => {
+        console.warn("Failed to check if this is a Simics documentation site:",
+            error);
+    });
+}</script>
+</head>
+<div class="chain">
+<a href="messages.html">A Messages</a>
+<a href="deprecations-auto.html">C Managing deprecated language features</a>
+</div>
+<div class="path">
+<a href="index.html">Device Modeling Language 1.4 Reference Manual</a>
+&nbsp;/&nbsp;</div>
+<h1 id="provisional-language-features"><a href="#provisional-language-features">B Provisional language features</a></h1>
+<p>Sometimes, we may choose to extend the DML compiler with a feature before it is
+ready to be fully incorporated into the language. This can happen for different
+reasons, e.g. if the design is not fully evaluated or if the feature is
+backward incompatible. Currently, all provisional features are enabled on a
+per-file basis, by adding <code>provisional <em>feature_name</em>,
+<em>other_feature_name</em>;</code> just after the <code>dml 1.4;</code> statement.</p>
+<p>Provisional features can come in two flavours:</p>
+<ul>
+<li>
+<p><em>Stable</em> provisional features have a proven design and are
+expected to remain pretty stable over time. Details in semantics may
+still change between versions, but if we decide to make a
+significant incompatible change to a supported provisional, then we
+will create a second version of the provisional, under a new name,
+and keep both versions in parallel for some time. It can make sense
+to use supported provisional features in production code.</p>
+</li>
+<li>
+<p><em>Unstable</em> provisional features are expected to undergo significant
+incompatible changes over time, and are generally exposed to allow a
+dedicated team of modelers to evaluate an early design. It can be used
+to play around with, but should not be used in production code without
+first communicating with the DML team.</p>
+</li>
+</ul>
+<h2 id="list-of-stable-provisional-features"><a href="#list-of-stable-provisional-features">B.1 List of stable provisional features</a></h2>
+<dl>
+  <dt id="dt:explicit_param_decls"><a href="#dt:explicit_param_decls"><tt>explicit_param_decls</tt></a></dt>
+  <dd>
+<a id="explicit_param_decls">
+This feature extends the DML syntax for parameter definitions to
+distinguish between an intent to declare a new parameter, and an intent to
+override an existing parameter (including when providing a definition
+for an abstract parameter). This distinction allows DML to capture
+misspelled parameter overrides as compile errors.
+<p>The following new forms are introduced to mark the intent of
+declaring a new parameter:</p>
+<ul>
+<li>
+<p>For typed parameters, <code>param NAME: TYPE = value;</code> is essentially a shorthand for</p>
+<pre><code>param NAME: TYPE;
+param NAME = value;
+</code></pre>
+<p>and similarly, <code>param NAME: TYPE default value;</code> is essentially a shorthand for</p>
+<pre><code>param NAME: TYPE;
+param NAME default value;
+</code></pre>
+</li>
+<li>
+<p>For untyped parameters, <code>param NAME := value;</code> is essentially a shorthand for</p>
+<pre><code>param NAME;
+param NAME = value;
+</code></pre>
+<p>and similarly <code>param :default value;</code> is essentially a shorthand for</p>
+<pre><code>param NAME;
+param NAME default value;
+</code></pre>
+</li>
+</ul>
+<p>If one of these forms is used for overriding an existing
+parameter, then DMLC will signal an error, because the declaration
+was not intended as an override. DMLC will also signal an error if
+a plain <code>param NAME = value;</code> or <code>param NAME default value;</code>
+declaration appears that does not override a pre-existing
+parameter.</p>
+<p>In some rare cases, you may need to declare a parameter without
+knowing if it’s an override or a new parameter. In this case, one
+can accompany a <code>param NAME = value;</code> or <code>param NAME default value;</code> declaration with a <code>param NAME;</code> declaration in the same
+scope/rank. This marks that the parameter assignment may be either
+an override or a new parameter, and no error will be printed.</p>
+<p>Enabling the <code>explicit_param_decls</code> feature in a file only affects
+the parameter definitions specified in that file.</p>
+</a></dd><a id="explicit_param_decls">
+  <dt id="dt:simics_util_vect"><a href="#dt:simics_util_vect"><tt>simics_util_vect</tt></a></dt>
+  </a><dd><a id="explicit_param_decls">
+</a><a id="simics_util_vect">
+This feature enables the `vect` type, based on the
+`VECT` macro from the Simics C API (`simics/util/vect.h`).
+<p>This is a simple wrapping that behaves inconsistently in many
+ways, and we plan to eventually introduce a cleaner mechanism for
+vectors; the <code>simics_util_vect</code> is supported as an interim solution until we
+have that in place.</p>
+<p>The syntax is <code>BASETYPE vect</code>, e.g. <code>typedef int vect int_vect_t;</code>
+to define a type for vectors of the <code>int</code> type.</p>
+<p>Some caveats:</p>
+<ul>
+<li>
+<p><code>vect</code> types typically need to be <code>typedef</code>:ed before they are
+used.  This is because <code>int vect</code> is blindly expanded into
+<code>VECT(int)</code> in C, which in turn expands into a <code>struct</code>
+definition, meaning that saying <code>VECT(int)</code> twice yields two
+incompatible types. This means, for instance, that <code>typeof</code> in
+DML doesn’t work properly for <code>vect</code> types unless <code>typedef</code>:ed</p>
+</li>
+<li>
+<p>Importing <code>"internal.dml"</code> exposes various C macros from
+<code>vect.h</code> to DML: <code>VINIT</code>, <code>VELEMSIZE</code>, <code>VRESIZE</code>,
+<code>VRESIZE_FREE</code>, <code>VADD</code>, <code>VREMOVE</code>, <code>VDELETE_ORDER</code>, <code>VINSERT</code>,
+<code>VSETLAST</code>, <code>VLEN</code>, <code>VVEC</code>, <code>VGROW</code>, <code>VSHRINK</code>, <code>VFREE</code>,
+<code>VTRUNCATE</code>, <code>VCLEAR</code>, and <code>VCOPY</code>.</p>
+</li>
+<li>
+<p>DML natively supports indexing syntax, which is translated to
+<code>VGET</code> (or <code>VSET</code> for assignment). For instance:</p>
+<pre><code>typedef int vect int_vect_t;
+method first_element(int_vect_t v) -&gt; (int) {
+    assert VLEN(v) &gt; 0;
+    return v[0];
+}
+</code></pre>
+</li>
+</ul>
+<p>Enabling the <code>simics_util_vect</code> feature in a file only affects
+the <code>vect</code> declarations in that file.</p>
+</a><p><a id="simics_util_vect">When the <code>simics_util_vect</code> feature is disabled, usage of <code>vect</code> is an
+error if the </a><a href="deprecations-auto.html#vect-needs-provisional"><code>vect-needs-provisional</code>
+breaking change</a> is enabled.</p>
+</dd>
+</dl>
+<h2 id="list-of-unstable-provisional-features"><a href="#list-of-unstable-provisional-features">B.2 List of unstable provisional features</a></h2>
+<dl>
+  <dt id="dt:explicit_method_decls"><a href="#dt:explicit_method_decls"><tt>explicit_method_decls</tt></a></dt>
+  <dd>
+<p>This feature extends the DML syntax for methods to distinguish between an
+intent to declare a new method, and an intent to override an existing
+method/provide a definition for an abstract method.
+This distinction allows DML to capture misspelled parameter overrides as
+compile errors.</p>
+<p>The following new forms are introduced to mark the intent of declaring
+and defining a new method:</p>
+<pre><code>[shared] method m(...) [-&gt; (...)] [throws] :{ ... }
+[shared] method m(...) [-&gt; (...)] [throws] :default { ... }
+</code></pre>
+<p>DMLC rejects a declaration of any of these forms if the method has already
+been declared, because these forms signify that the declaration was not
+intended as an override.</p>
+<p><code>explicit_metod_decls</code> also changes the meaning of the traditional form
+of method definitions (e.g. <code>method m() {}</code> or <code>method m() default {}</code>)
+such that DMLC will reject them if the method has not been declared
+previously (either abstractly or with an overridable definition.)</p>
+<p>In some rare cases, you may need to declare a method without
+knowing if it’s an override or a new declaration. In this case, one
+can accompany an overriding definition (e.g. <code>method m() {}</code>
+or <code>method() default {}</code>) with an abstract method declaration (e.g.
+<code>method m();</code>) in the same scope/rank. This marks that the method
+definition may either be for a previously declared method or a new method
+entirely, and no error will be printed. Note that this pattern can only
+be employed for non-<code>shared</code> method definitions, as abstract <code>shared</code>
+declarations have unique meaning and restrictions placed on them.</p>
+<p>Enabling the <code>explicit_method_decls</code> feature in a file only affects
+the method definitions specified in that file; in other words, it will not
+require other files to use the <code>:{</code> syntax in order to declare novel
+methods.</p>
+</dd>
+  <dt id="dt:explicit_object_extensions"><a href="#dt:explicit_object_extensions"><tt>explicit_object_extensions</tt></a></dt>
+  <dd>
+<a id="explicit_object_extensions">
+<p>This feature extends the DML syntax for object declarations to distinguish
+between an intent to introduce a new object to the model structure, and an
+intent to extend the definition of an existing object.</p>
+<p>The following form is introduced to mark the intent to extend an object:</p>
+<pre>in <em>object-type</em> <em>name</em> <em>...</em> { <em>...</em> }
+</pre>
+<p>E.g.</p>
+<pre>in bank some_bank { ... }
+</pre>
+<p>If this form is used while there is no other non-extension declaration of
+the named object, then DMLC will signal an error because the definition
+was not intended to introduce the object to the model structure.</p>
+<p>DMLC will also signal an error if there is more than one non-extension
+declaration of the object among the files enabling
+<code>explicit_object_extensions</code>.</p>
+</a></dd><a id="explicit_object_extensions">
+</a></dl><a id="explicit_object_extensions">
+</a>
+<div class="chain">
+<a href="messages.html">A Messages</a>
+<a href="deprecations-auto.html">C Managing deprecated language features</a>
+</div>

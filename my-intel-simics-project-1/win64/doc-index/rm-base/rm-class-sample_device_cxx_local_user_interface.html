@@ -1,0 +1,76 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample_device_cxx_local_user_interface</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample_device_cxx_interface_with_subsubclassed_lookup.html">sample_device_cxx_interface_with_subsubclassed_lookup</a>
+<a href="rm-class-sample_device_cxx_log_stream.html">sample_device_cxx_log_stream</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample_device_cxx_local_user_interface"><a href="#sample_device_cxx_local_user_interface">sample_device_cxx_local_user_interface</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Sample C++ device using an auto-generated wrapper from a local C interface header
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, sample_local_user
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample_device_cxx_local_user_interface.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample_device_cxx_local_user_interface.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:simple_method_count"><a href="#dt:simple_method_count">
+<i>simple_method_count</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>How many times simple_method has been called</dd>
+<dt id="dt:last_arg"><a href="#dt:last_arg">
+<i>last_arg</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Most recent argument to simple_method()</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-device-c++.html">sample-device-c++</a>
+</section>
+<div class="chain">
+<a href="rm-class-sample_device_cxx_interface_with_subsubclassed_lookup.html">sample_device_cxx_interface_with_subsubclassed_lookup</a>
+<a href="rm-class-sample_device_cxx_log_stream.html">sample_device_cxx_log_stream</a>
+</div>

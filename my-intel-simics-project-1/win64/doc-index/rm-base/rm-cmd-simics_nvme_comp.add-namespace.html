@@ -1,0 +1,38 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;simics_nvme_comp&gt;.add-namespace</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-simics-uefi.status.html">&lt;simics-uefi&gt;.status</a>
+<a href="rm-cmd-simics_nvme_comp.info.html">&lt;simics_nvme_comp&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="simics_nvme_comp.add-namespace"></a>
+<a name="simics_nvme_comp.add_namespace"></a>
+<h1 id="simics_nvme_comp.add-namespace"><a href="#simics_nvme_comp.add-namespace">&lt;simics_nvme_comp&gt;.add-namespace</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;simics_nvme_comp&gt;.add-namespace</b> [<i>size</i>] [<i>"file"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Add an active namespace to the NVMe drive. Either a <i>file</i>, containing for example a file system can be provided, and/or a <i>size</i> of the namespace. If no size if provided, the size of the namespace will be the size of the provided file. If the size is smaller than the file, an error will be returned. If no file is provided, the namespace will be empty with the size provided.
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics-nvme-comp.html">simics-nvme-comp</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-simics-uefi.status.html">&lt;simics-uefi&gt;.status</a>
+<a href="rm-cmd-simics_nvme_comp.info.html">&lt;simics_nvme_comp&gt;.info</a>
+</div>

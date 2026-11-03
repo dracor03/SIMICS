@@ -1,0 +1,74 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;tracer_tool&gt;.add-instrumentation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-tracer_tool.add-filter.html">&lt;tracer_tool&gt;.add-filter</a>
+<a href="rm-cmd-tracer_tool.add-log-message.html">&lt;tracer_tool&gt;.add-log-message</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="tracer_tool.add-instrumentation"></a>
+<h1 id="tracer_tool.add-instrumentation"><a href="#tracer_tool.add-instrumentation">&lt;tracer_tool&gt;.add-instrumentation</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;tracer_tool&gt;.add-instrumentation</b> ([ <i>processors</i> ... ] | list of <i>processors</i>) [<i>parent</i>] [-connect-all] [<i>"group"</i>] [-trace-data] [-trace-instructions] [-trace-exceptions] [-print-virtual-address] [-print-physical-address] [-print-linear-address] [-print-opcode] [-print-access-type] [-print-memory-type] [-print-register-changes] [-print-old-value] [-print-execution-mode] [-use-cpu-number] [-remove-duplicates] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Connects the tool to one or several processors as given by the <i>processors</i> argument.The <i>parent</i> argument specifies an hierarchical object and all processors below this object matching the provider requirements will be added to the tool.The <tt>-connect-all</tt> flag can be given to add a connection to all supported processors in the configuration. <br>
+<br>
+The optional argument <i>group</i> lets a user specify a named instrumentation group to use for the connection. (See <code>add-instrumentation-group</code> for details on named groups.)<br>
+<br>
+Each new connection to the tracer tool can be configured with flags. The flags are described below.
+<p>
+The following three flags control what type of tracing is done:
+</p><p>
+<tt>-trace-data</tt> : Enabling tracing of data operations. <br>
+<tt>-trace-instructions</tt> : Enabling tracing of instruction. <br>
+<tt>-trace-exceptions</tt> : Enabling tracing of exceptions.
+</p><p>
+The following flags allow controlling the output:
+</p><p>
+<br>
+<tt>-print-register-changes</tt> : Print register changes after traced instruction and/or traced exception. Registers that normally change with every instruction, like program counter or cycles counter, are not listed. <br>
+<tt>-print-old-value</tt> : Print the previous register value together with register changes. <br>
+<tt>-print-virtual-address</tt> : Print the virtual address of an entry. <br>
+<tt>-print-physical-address</tt> : Print the physical address of an entry. <br>
+<tt>-print-linear-address</tt> : Print the linear address of an entry (only x86). <br>
+<tt>-print-opcode</tt> : Print the opcode of an instruction entry. <br>
+<tt>-print-access-type</tt> : Print the access type (only x86). <br>
+<tt>-print-memory-type</tt> : Print the memory type (only x86). <br>
+<tt>-print-execution-mode</tt> : Print the execution mode (only x86). See description of recognized modes below. <br>
+<tt>-use-cpu-number</tt> : Print the CPU number instead of its name. <br>
+<tt>-remove-duplicates</tt> : Remove duplicated lines from the output.
+</p><p>
+If none of the <tt>-print...</tt> or <tt>-trace..</tt> flags are given all of those will be enabled by default except <tt>-print-register-changes</tt>, i.e., trace and print everything except register changes.
+</p><p>
+If only <tt>-print-register-changes</tt> are given everything including register changes will be enabled.
+</p><p>
+The <tt>-print-execution-mode</tt> recognizes the following modes of execution. Note that several modes can be recognized simultaneously. <br>
+<tt>AC</tt> : The processor is executing inside an Authenticated Code Module (ACM). <br>
+<tt>SEAM</tt> : The processor is executing inside Secure Arbitration Mode (SEAM) mode. <br>
+<tt>SGX</tt> : The processor is executing inside an Intel® Software Guard Extensions (Intel® SGX) enclave. <br>
+<tt>SMM</tt> : The processor is executing inside System Management Mode (SMM) mode. <br>
+<tt>VMX root</tt> : The processor is executing inside Virtual Machine Extensions (VMX) root mode. <br>
+<tt>VMX non-root</tt> : The processor is executing inside Virtual Machine Extensions (VMX) non-root mode. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.instrumentation-tracer-tool.html">instrumentation-tracer-tool</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-tracer_tool.add-filter.html">&lt;tracer_tool&gt;.add-filter</a>
+<a href="rm-cmd-tracer_tool.add-log-message.html">&lt;tracer_tool&gt;.add-log-message</a>
+</div>

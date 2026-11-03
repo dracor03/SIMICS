@@ -1,0 +1,461 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>46 Connecting to the External World</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="memory-and-timing.html">45 Memory Tracing and Timing</a>
+<a href="time-synchronization-library.html">47 Time Synchronization Library</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="extension-builder.html">VII Extending Simics</a>
+&nbsp;/&nbsp;</div><h1 id="connecting-to-the-external-world"><a href="#connecting-to-the-external-world">46 Connecting to the External World</a></h1>
+<p>This section discusses how Simics extensions can support communication with real
+hardware or external tools such as debuggers, test generators, Integrated
+Development Environments (IDEs) and other simulators.</p>
+<p>For example, Simics itself supports communication with the external world in a
+number of ways:</p>
+<ul>
+<li>
+<p>User interaction via keyboard and mouse</p>
+</li>
+<li>
+<p>Integration with debuggers and IDEs such as:</p>
+<ul>
+<li>GNU’s GDB</li>
+<li>Wind River’s WorkBench</li>
+</ul>
+</li>
+<li>
+<p>Connection to the real Ethernet network</p>
+</li>
+<li>
+<p>Access to raw hard disk</p>
+</li>
+<li>
+<p>Connecting to a real 1553 bus</p>
+</li>
+</ul>
+<p>The following sub-chapters discuss how to make these types of extensions
+deterministic, portable and use the appropriate APIs for various circumstances.
+Chapter <a class="reference" href="other-applications.html">48</a> also discusses how to link external libraries
+with Simics extensions, or how to link Simics into another application.</p>
+<h2 id="recording-external-input"><a href="#recording-external-input">46.1 Recording External Input</a></h2>
+<p>Being able to connect the simulated world with the real one is useful in many
+situations, for example to get keyboard input into a simulated console or to be
+able to access real file servers from a simulated system. At the same time, one
+of the most important and powerful characteristics of Simics, the determinism,
+is at risk. A deterministic simulation can be rerun over and over again with the
+same result. This greatly simplifies debugging of hard-to-catch bugs, since once
+an incorrect behavior is triggered in Simics, it can always be reproduced by
+rerunning the simulation.</p>
+<p>To keep the determinism even when there are real world connections, Simics has
+support for recording all incoming asynchronous input. The recording is done in
+the bridges between the simulation and the real world. The devices in the
+simulated system are not aware of the recording, and model developers do not
+have to implement recording support. It is only when creating connections to the
+real world that recording has to be considered.</p>
+<h3 id="recording-and-simulator-interaction"><a href="#recording-and-simulator-interaction">46.1.1 Recording and Simulator Interaction</a></h3>
+<p>Simics supports recording data from the simulated system using the
+<code>start-recording</code> command. Simics cannot record user interaction with the
+simulator itself, for example from a debugger connection. This means that when a
+session is replayed, by using the <code>start-playback</code> command, such interaction has
+to be reproduced as well. But this also enables the user to try alternative
+futures by manually changing some value and rerun the same session. It is
+possible that Simics in the future will provide ways to record and replay
+interactions with the simulator itself as well.</p>
+<h3 id="interfacing-the-recorder"><a href="#interfacing-the-recorder">46.1.2 Interfacing the Recorder</a></h3>
+<p>The <code>recorder</code> class provides the needed functionality for recording and
+replaying input. A typically configured system in Simics has one recorder object
+for each cell, since the recorder itself only can be accessed from the thread
+that it belongs to. The recorder is used to support replay after loading a
+snapshot and session checkpoints, and any extension that interfaces to the
+outside world should record asynchronous inputs using the recorder.</p>
+<p>To implement recording support in a class (the extension) that bridges the real
+and the simulated worlds, the extension should first have an attribute called
+<code>recorder</code> that takes an object. The object assigned through this interface will
+implement the <code>recorder_v2</code> interface and is typically the standard Simics
+recorder object. The extension also has to implement the <code>recorded</code> interface,
+and its <code>input</code> method.</p>
+<p>When a machine configuration is created in Simics, the configuration system will
+automatically create one recorder for each cell, and assign this recorder to all
+objects with a <code>recorder</code> attribute. If an extension is created as part of a
+component-based system setup, the recorder will thus be automatically set. If an
+extension is created outside of the component system, it is necessary to
+manually assign the recorder attribute.</p>
+<p>When the extension class receives asynchronous input, it should always send it
+through the recorder, no matter if recording is enabled or not. It is actually
+only the recorder itself that knows if recording or playback is active. The
+extension does not have to care, and the code flow is identical in all runs. The
+extension implementation should simply send all received input to the recorder
+using the <code>record</code> method.</p>
+<p>The <code>record</code> method gets the extension object itself as an argument, and will
+immediately call the extension using the <code>input</code> method in the <code>recorded</code>
+interface of the extension. The simulation work related to handling the input
+has to be done in the <code>input</code> method. When input is replayed, the extension will
+only get a sequence of calls to <code>input</code>, based on the recorded data.</p>
+<p>For the few cases when a real network connection has to know if the input it
+receives is a recording or live data, it can query the recorder using the
+<code>playback</code> method in the <code>recorder_v2</code> interface.</p>
+<h2 id="external-connection-servers"><a href="#external-connection-servers">46.2 External connection servers</a></h2>
+<p>Simics includes a module called <code>external-connection</code> that
+encapsulates the platform specific code needed to set up a server that
+listens for connections on a TCP/IP socket, a UNIX domain socket or a
+Windows named pipe. This can be used by Simics models that need to
+implement such servers. Instead of having to write the platform
+specific code, it is sufficient to implement the
+<code>external_connection_events</code> Simics interface and use the
+<code>external_connection_ctl</code> Simics interface that is implemented by the
+classes in the <code>external-connection</code> module. The classes in the
+<code>external-connection</code> module are implemented in terms of the Simics
+API functions described in section <a class="reference" href="#socket-programming-in-simics">46.4</a>.</p>
+<p>The following section gives an overview of how to use the
+<code>external-connection</code> module. See the documentation of the interfaces
+<code>external_connection_ctl</code> and <code>external_connection_events</code> for more
+details. The <code>echo</code> device distributed in the Simics-Base package
+provides an example of how to use the <code>external-connection</code> module.</p>
+<h3 id="setup"><a href="#setup">46.2.1 Setup</a></h3>
+<p>Since this is based on Simics interfaces, it is model language
+agnostic. The model can be written in C, C++, DML or Python. As an
+example, assume that the class $\kappa$ in the Simics module $\Sigma$
+should act as a server. To set this up, $\kappa$ must first implement
+the <code>external_connection_events</code> interface. When creating the Simics
+configuration, assume that an object $\omega$ of class $\kappa$ is
+added. To set up servers, add objects of any of the
+<code>external-connection</code> classes and set their <code>client</code> attribute to
+point to $\omega$. In general it is possible to add any number of
+server objects of any of these classes, depending on which connection
+types one wants to allow. The $\kappa$ model is agnostic to the number
+of server objects and their types, since the communication is done via
+Simics interfaces.</p>
+<p>The <code>external-connection</code> module contains these classes:</p>
+<ul>
+<li>
+<p><em>tcp-server</em> that listens on a TCP port, specified by the <code>port</code>
+attribute. The attribute can be set to <code>0</code> to open an arbitrary
+available port.</p>
+</li>
+<li>
+<p><em>unix-socket-server</em> that listens to a UNIX domain socket, specified
+by the <code>socket_name</code> attribute. This class is only available on a
+Linux host.</p>
+</li>
+<li>
+<p><em>named-pipe-server</em> that listens to a Windows named pipe, specified
+by the <code>pipe_name</code> attribute. This class is only available on a
+Windows host.</p>
+</li>
+</ul>
+<p>Several objects of these classes can be created, all pointing to
+$\omega$, if one wants to listen to multiple ports/sockets/pipes.</p>
+<p>In general, Simics configurations should prefer the UNIX socket or
+Windows named pipe servers, since they are more secure. The TCP server
+object opens a port on the host, accessible to anyone on the host and
+on the local or global network, unless there are firewalls in place,
+so this case should only be used in a secure environment.</p>
+<h3 id="connection-flow"><a href="#connection-flow">46.2.2 Connection flow</a></h3>
+<p>When a connection is made, $\omega$ will receive a call in Global
+Context to the method <code>on_accept</code>. This should be followed by a call
+to the <code>accept</code> method on the specified server object, providing the
+same ID that was given to <code>on_accept</code>, to allow the server to identify
+the connection. A client-chosen cookie must also be provided, which
+subsequently identifies the connection and is used in other method
+calls. The cookie can be <code>NULL</code>, which means that $\omega$ does not
+accept the connection and the server will close it. Blocking read is
+normally set to <code>false</code>, see [x](#Read/write semantics).</p>
+<p>Note that when <code>on_accept</code> is called, the connection is typically
+already open at the OS level (e.g. in the UNIX socket case, the
+<code>accept</code> system call has already been made).</p>
+<p>The call to <code>accept</code> should be followed by a call to <code>notify</code>, to
+indicate to the server that the model wants to be notified when input
+is available or when it is possible to write output. Typically,
+<code>notify</code> should be called immediately in <code>on_accept</code>, to make sure no
+input is lost due to full OS buffers.</p>
+<p>If read notifications have been turned on using <code>notify</code>, then
+$\omega$ will receive an <code>on_input</code> call when input is available. This
+call is made either in Global or Threaded Context, depending on the
+parameters to <code>notify</code>.</p>
+<p>If write notifications have been turned on using <code>notify</code>, then
+$\omega$ will receive a <code>can_write</code> call when output can be
+written. This call is made either in Global or Threaded Context,
+depending on the parameters to <code>notify</code>.</p>
+<h3 id="read-write-protocol"><a href="#read-write-protocol">46.2.3 Read/write protocol</a></h3>
+<p>The most common and easiest to use read/write flow is to set up read
+notification using <code>notify</code> but no write notification. Instead the
+<code>write_async</code> method can be used to tell the server to queue up the
+specified data. The server will then send the data as soon as possible
+in a separate thread. As a contrast, the <code>write</code> method will block
+until the specified data has been sent.</p>
+<p>From the <code>on_input</code> callback, the model can use the <code>read</code> method to
+read data from the connection into the specified model-allocated
+buffer. If blocking reads were turned on in the call to <code>accept</code>, the
+call will block until the buffer is full, otherwise it will read as
+much data as is available on the connection (that fits into the
+buffer).</p>
+<p>If any problem occurs on the connection during read or write, the
+server will set an error flag, which can be obtained using the
+<code>has_error</code> method. Note that when <code>write_async</code> is used, this can
+happen at any time since the writing proceeds in a separate thread.</p>
+<h2 id="threading-considerations"><a href="#threading-considerations">46.3 Threading considerations</a></h2>
+<p>As mentioned above, as soon as the <code>write_async</code> method is used, the
+model is multi-threaded to a certain extent. More importantly, to
+obtain good performance, the model should typically set up threaded
+read notifications by calling <code>notify</code> with the <code>exec_mode</code> parameter
+set to <code>Sim_EM_Thread</code>.</p>
+<p>This corresponds to calling <code>SIM_notify_on_socket</code> or
+<code>SIM_notify_on_object</code> with the <code>run_in_thread</code> parameter set to 1.
+As mentioned in the documentation of those API functions, this implies
+that the <code>on_input</code> or <code>can_write</code> method will be called in a separate
+thread (potentially concurrently multiple times) and hence should not
+access the model data structures without appropriate care. Also note that
+these methods are in Threaded Context
+and are limited in what parts of the Simics API they can access. See
+the section “API Execution Contexts” in the <em>API Reference Manual</em> for
+more information about execution contexts.</p>
+<h2 id="socket-programming-in-simics"><a href="#socket-programming-in-simics">46.4 Socket Programming in Simics</a></h2>
+<p>When integrating Simics with another tool it is not uncommon that some kind of
+communication between the two is needed in run time. A common way to communicate
+between processes is to use <em>sockets</em>. On Linux hosts the Berkeley (BSD) socket
+API is used and on Windows the similar <em>Winsock</em> interface exists. While
+creating sockets using the <code>socket()</code> call and reading/writing data on the
+socket is similar on all systems, it is often difficult to wait for events on
+several sockets in different independent parts of a program simultaneously
+without using threads. Simics simplifies this in an operating system independent
+way by offering a single interface for waiting on sockets events:</p>
+<pre><code>void
+SIM_notify_on_socket(socket_t sock, notify_mode_t mode, int run_in_thread,
+                     void (*callback)(lang_void *data), lang_void *data);
+</code></pre>
+<p>The <code>SIM_notify_on_socket()</code> function tells Simics to wait for some activity on
+a specified socket <code>sock</code>, previously created using the system API function
+<code>socket()</code>. Once the socket requires attention, for example that there is data
+available to read, the user function identified by <code>callback</code> is called by
+Simics with <code>data</code> as argument.</p>
+<p>To be able to wait for events on sockets while at the same time have the
+simulation executing, Simics keeps a separate polling thread that is only used
+to wait for external events. It is possible to tell Simics to always run the
+user-installed callback in this polling thread as soon as the socket event
+occurs by supplying a non-zero <code>run_in_thread</code>, but in most cases it is better
+to run the user callback in a simulation thread once it is safe to do so. A
+callback run in the polling thread may not access the Simics API for example,
+with the exception of <code>SIM_thread_safe_callback()</code>.</p>
+<p>There are more details on <code>SIM_notify_on_socket()</code> in the <em>API Reference
+Manual</em>.</p>
+<p>In addition to socket notifications, Simics also provides two host dependent
+functions that simplify the task of waiting on external input. On Windows hosts
+it is possible to wait for <em>waitable objects</em> and on Linux systems on file
+descriptors. See the reference documentation for <code>SIM_notify_on_object()</code> and
+<code>SIM_notify_on_descriptor()</code>.</p>
+<h2 id="writing-portable-code"><a href="#writing-portable-code">46.5 Writing Portable Code</a></h2>
+<p>Simics device models are typically portable since they only use the Simics
+device API. However, extensions which communicates with the external world may
+need to use the operating system more directly. This means extensions need to
+consider portability across operating systems and host architectures, if this is
+desired.</p>
+<p>Some general guidelines:</p>
+<dl>
+<dt id="dt:system-calls"><a href="#dt:system-calls">System calls</a></dt>
+<dd>Before choosing system calls make sure
+they exists on all hosts and that they are compatible.</dd>
+<dt id="dt:file-paths"><a href="#dt:file-paths">File paths</a></dt>
+<dd>See <code>SIM_native_path()</code> and
+<code>SIM_lookup_file()</code> for some help functions that handle directory separators
+in a portable way.</dd>
+<dt id="dt:socket-communication"><a href="#dt:socket-communication">Socket communication</a></dt>
+<dd>See chapter
+<a class="reference" href="#socket-programming-in-simics">46.4</a> on how to get a callback when there is
+something to read on a socket.</dd>
+<dt id="dt:periodic-events"><a href="#dt:periodic-events">Periodic events</a></dt>
+<dd>See <code>SIM_realtime_event()</code> on how to
+get a delayed (possibly periodic) callback.</dd>
+</dl>
+<h2 id="writing-debugger-connections"><a href="#writing-debugger-connections">46.6 Writing Debugger Connections</a></h2>
+<p>Simics can be controlled and inspected from multiple sources, such as the Simics
+command line, or the GNU Debugger (GDB).</p>
+<p>Additional ways to control Simics can be added, and this section explains what
+needs to be considered to make this work correctly. A good example can be found
+in the source code for the <code>gdb-remote</code> module, which is included in the Simics
+Base package. It implements the debugger connection for the GNU Debugger.</p>
+<p>It is recommended that a new (debugger) connection is implemented in a new
+module.</p>
+<p>The following chapters describe some of the things you need to take into account
+if you want to implement support for a new way to control Simics, with focus on
+supporting a new debugger.</p>
+<h3 id="connect-and-disconnect"><a href="#connect-and-disconnect">46.6.1 Connect and Disconnect</a></h3>
+<p>It is recommended that the new module defines a new global command in its
+<code>simics_start.py</code> that starts listening to incoming connection requests,
+connects to an already running external program, or launches an external
+debugger and then connects to it.</p>
+<p>In <code>gdb-remote/simics_start.py</code>, the command <code>new-gdb-remote</code> is defined, which
+starts listening to new connections from an external GDB session.</p>
+<p>If your debugger connection is done using sockets (e.g., if it uses TCP/IP), you
+should read chapter <a class="reference" href="#socket-programming-in-simics">46.4</a>.</p>
+<h3 id="starting-and-stopping-the-simulation"><a href="#starting-and-stopping-the-simulation">46.6.2 Starting and Stopping the Simulation</a></h3>
+<p>When the user wants to start the simulation, you need to call <code>SIM_continue</code>.
+This needs to be done from <em>Global Context</em>, which means that you cannot do it
+in a callback from <code>SIM_notify_on_socket</code>, a hap callback, or similar. Instead,
+you need to call <code>SIM_register_work</code>, and from its callback function, you can
+call <code>SIM_continue</code>.</p>
+<p>Note that <code>SIM_continue</code> will not return until the simulation stops for any
+reason. This is not a problem if you call it from <code>SIM_register_work</code> and use
+the <code>Core_Simulation_Stopped</code> hap to detect when the simulation stops (see below
+for more information).</p>
+<p>Regardless of which API function you are calling, you need to pay careful
+attention to which execution context they are allowed to be called from.</p>
+<p>You typically want to stop simulating as a result of hitting a breakpoint, after
+a certain amount of time or number of instructions (steps), the user of the
+external debugging interactively asking to break the simulation, or similar.</p>
+<p>To break simulation when executing, reading, or writing some particular address,
+you should use <code>SIM_breakpoint</code>. Note that you usually want to use the
+<code>Sim_Breakpoint_Simulation</code> flag for breakpoints set this way. After installing
+a callback function using <code>SIM_hap_add_callback_index</code>, that callback should
+call <code>SIM_break_simulation</code> to actually stop the simulation.</p>
+<p>Time breakpoints are best implemented using <em>events</em>. Post an event at the
+appropriate point in time using <code>SIM_event_post_time</code>, <code>SIM_event_post_cycle</code>,
+or <code>SIM_event_post_step</code> and call <code>SIM_break_simulation</code> from the event handler.
+For more information, see the two Events sections of the chapters <em>Modeling with
+C</em> and <em>Modeling with Python</em>, <a class="reference" href="writing-module-with-c.html#events">15.7</a> and
+<a class="reference" href="writing-module-with-pyobj.html#events">16.1.10</a> respectively.</p>
+<p>If you need to get a callback once the simulation really has stopped, install a
+handler on the <code>Core_Simulation_Stopped</code> hap. Note that Simics may stop
+simulating for a host of reasons that may not be related to your module. For
+example, the user may have asked Simics to stop from another user interface, or
+Simics may have hit an error that prevents it from continuing.</p>
+<p>See the documentation for these functions in the <em>API Reference Manual</em> for
+further details.</p>
+<h3 id="contexts-and-process-tracking"><a href="#contexts-and-process-tracking">46.6.3 Contexts and Process Tracking</a></h3>
+<p>To support debugging or inspection of a particular process or task on the
+simulated machine, your debugger support module will have to make use of <em>OS
+awareness</em>, which is the collection of techniques used to keep track of
+information about the simulated operating system.</p>
+<p><em>Process tracking</em>, one of the OS awareness techniques, is what Simics uses to
+track which processes are currently alive in the simulated machine, and to
+switch the current active context as CPUs start and stop running code belonging
+to different processes. See the <em>Analyzer User’s Guide</em> for more information
+about process trackers and OS awareness.</p>
+<p>To make your debugger module make use of information from the process trackers,
+you will need to set breakpoints on the correct context objects and enable or
+disable your debugger as the system starts or stops running the processes you
+care about.</p>
+<p>For example, to support single-stepping one instruction in a particular process,
+you need to listen to the different haps triggered by the process trackers.
+These are called <code>Core_Context_*</code> and are described in the <em>Simics Reference
+Manual</em>.</p>
+<h2 id="synchronizing-virtual-time"><a href="#synchronizing-virtual-time">46.7 Synchronizing Virtual Time</a></h2>
+<p>Connections to systems outside the simulation might have real-time requirements.
+For example, an external test generator might time-out if the required response
+has not been received with a certain time period.</p>
+<p>Depending on the target system being modelled within Simics, the modelled target
+might execute much slower or much faster than real-time (wall-clock). For more
+information regarding Simics simulation performance consult the “Performance”
+section in the <em>Simics User’s Guide</em>.</p>
+<p>This section discusses some techniques on how to adapt the external world
+application to work with Simics concept of virtual time instead of wall-clock
+time. An alternative, when not only time has to be synchronized but also
+messages exchanged, is to use the <em>Time Synchronization Library</em> described in
+its own chapter.</p>
+<p>The easiest way to handle virtual time is to run all the applications inside the
+simulation and not have any external systems. For example, a test generator can
+run on its own simulated machine within the simulation and connect to the system
+under test through a virtual network connection. To get the results of the tests
+out of the simulation you can use a more tolerant real world connection at the
+end of the test. For example, by using a real network connection or writing the
+results to a console. This way you avoid the issues involved in adapting the
+application to work with virtual time.</p>
+<h3 id="the-time-server-and-the-time-client"><a href="#the-time-server-and-the-time-client">46.7.1 The Time Server and the Time Client</a></h3>
+<p>When interfacing Simics, timing may in some cases pose a problem. For example,
+test programs may specify a timeout, but since Simics can run both faster and
+slower than real time, the test may either timeout when it should not, or not
+timeout when it actually should.</p>
+<p>The time server solves this by exporting the virtual time (“Simics time”) to the
+outer world. Clients can communicate with the time server through TCP/IP, using
+the time client library that provides a C-interface to the time server.</p>
+<h4 id="time-client-library"><a href="#time-client-library">46.7.1.1 Time Client Library</a></h4>
+<p>The client library provides non-threaded C primitives for all features of the
+time server protocol. Using the time client library, interfacing to the time
+server is as easy as a C function call.</p>
+<p>The following primitives exists:</p>
+<pre><code>    typedef enum {
+            Simtime_No_Error,
+            Simtime_Socket_Error,         // errno contains last error
+            Simtime_Timeout,              // global timeout (as specified in
+                                          // simtime_connect)
+            Simtime_Receive_Buffer_Full,  // the received message did not fit
+                                          // in the buffer. It's probably a bug
+                                          // in the time client library if it
+                                          // happens
+            Simtime_Parse_Error           // received message could not be
+                                          // parsed
+    } simtime_error_t;
+
+
+    simtime_error_t simtime_query_time(simtime_context_t *ctx,
+                                       double *time);
+
+    simtime_error_t simtime_sleep(simtime_context_t *ctx,
+                                  double seconds,
+                                  double *time);
+
+    simtime_error_t simtime_periodic_ping(simtime_context_t *ctx,
+                                          double interval,
+                                          double how_long,
+                                          simtime_callback_t cb,
+                                          void *user_data);
+</code></pre>
+<p><code>simtime_query_time</code> will return the current virtual time. It is not expected to
+block very long (the time server will respond immediately when it receives the
+query).</p>
+<p>Although tempting, <code>simtime_query_time</code> should not be used in a tight polling
+loop, as it will degrade Simics performance quite noticeably.</p>
+<p>Depending on what the timing code looks like, one of the other primitives should
+be used instead.</p>
+<p>The <code>simtime_sleep</code> function will block for a specified number of virtual
+seconds. Note that this function will never return if Simics is not simulating,
+unless a global timeout is specified (see the <code>simtime_connect</code> function). This
+is obviously because the virtual time is not progressing when the simulation is
+not running.</p>
+<p>If the timeout is not known beforehand, it may not be possible to use
+<code>simtime_sleep</code>. In this case, <code>simtime_periodic_ping</code> might be the solution. It
+will cause Simics to send periodic pings to the client. The interval between
+each ping is in real seconds, i.e. host time, not Simics time. It is also
+possible to specify a duration, also in real seconds, after which Simics will
+stop sending ping messages. If <code>duration</code> is negative or zero, Simics will
+continue to send ping messages until told to stop (non-zero return value from
+ping message callback function).</p>
+<p>For every ping message, the callback function <code>cb</code> will be called:</p>
+<pre><code>    typedef int (*simtime_callback_t)(void *data,
+                                      simtime_context_t *ctx,
+                                      int seq_no, double time);
+</code></pre>
+<p><code>seq_no</code> contains the sequence number of the received ping message and <code>time</code>
+contains the current virtual time.</p>
+<p>If the callback function returns a value other than zero, the periodic pings
+will be aborted, even though <code>duration</code> real seconds has not yet passed.</p>
+<p>Note that <code>simtime_periodic_ping</code> will not return until <code>duration</code> real seconds
+has passed, or until the callback function returns a non-zero value. Also note
+that no simtime API calls should be made from the callback.</p>
+<p>Before any of the above primitives can be used, a connection to the time server
+has to be established:</p>
+<pre><code>    simtime_context_t *simtime_connect(const char *host,
+                                       int port,
+                                       int global_timeout);
+    void simtime_disconnect(simtime_context_t *ctx);
+</code></pre>
+<p>The time client will connect to a time server on <code>host</code> at port <code>port</code>. If
+<code>global_timeout</code> is larger than zero, all calls to simtime will timeout after
+<code>global_timeout</code> real seconds. This is useful to detect, for example, a crashed
+Simics session. But note that a call to e.g., <code>simtime_sleep</code> may take very long
+real time, depending on how fast Simics is simulating (and, of course, how long
+the sleep time is).</p>
+<p>To disconnect from the time server, call the function <code>simtime_disconnect</code>.</p>
+<p>If the client is threaded, care must be taken to not make more than one API call
+at a time. The time client library is not designed to handle simultaneous calls.</p>
+
+<div class="chain">
+<a href="memory-and-timing.html">45 Memory Tracing and Timing</a>
+<a href="time-synchronization-library.html">47 Time Synchronization Library</a>
+</div>

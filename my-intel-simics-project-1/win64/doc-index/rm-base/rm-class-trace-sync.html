@@ -1,0 +1,138 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>trace-sync</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-time-server.html">time-server</a>
+<a href="rm-class-tracer_tool.html">tracer_tool</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="trace-sync"><a href="#trace-sync">trace-sync</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Provides a workaround for a hardware bug present in Intel® Core™2 processors and later.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, temporal_state, recorded
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-trace-sync.enable.html">disable</a>
+ – disable core2 hardware bug workaround</li>
+<li>
+<a href="rm-cmd-trace-sync.enable.html">enable</a>
+ – enable core2 hardware bug workaround</li>
+<li>
+<a href="rm-cmd-trace-sync.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-trace-sync.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:recorder"><a href="#dt:recorder">
+<i>recorder</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Recorder object used to store time synchronizations.</dd>
+<dt id="dt:cpu"><a href="#dt:cpu">
+<i>cpu</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>CPU being synchronized.</dd>
+<dt id="dt:enabled"><a href="#dt:enabled">
+<i>enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enable collection of trace information.</dd>
+<dt id="dt:trace_length"><a href="#dt:trace_length">
+<i>trace_length</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Length of traces being collected.</dd>
+<dt id="dt:trace_period"><a href="#dt:trace_period">
+<i>trace_period</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Trace sampling period.</dd>
+<dt id="dt:mismatches"><a href="#dt:mismatches">
+<i>mismatches</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of traces that did not match.</dd>
+<dt id="dt:matches"><a href="#dt:matches">
+<i>matches</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of traces that did match.</dd>
+<dt id="dt:recent_mismatches"><a href="#dt:recent_mismatches">
+<i>recent_mismatches</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of recent traces that did not match.</dd>
+<dt id="dt:corrections"><a href="#dt:corrections">
+<i>corrections</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Amount of corrections performed.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.trace-sync.html">trace-sync</a>
+</section>
+<div class="chain">
+<a href="rm-class-time-server.html">time-server</a>
+<a href="rm-class-tracer_tool.html">tracer_tool</a>
+</div>

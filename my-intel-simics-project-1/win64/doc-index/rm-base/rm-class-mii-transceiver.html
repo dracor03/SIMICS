@@ -1,0 +1,275 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>mii-transceiver</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-mii-management-bus.html">mii-management-bus</a>
+<a href="rm-class-mmc_card.html">mmc_card</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="mii-transceiver"><a href="#mii-transceiver">mii-transceiver</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+mii-transceiver is an IEEE 802.3 physical layer device with MII interface
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, ethernet_common, mii_management, mii, ieee_802_3_phy, ieee_802_3_phy_v2, ieee_802_3_phy_v3
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-mdc"><a href="#dt:port-mdc">port.MDC</a></dt>
+<dd>
+<a href="rm-class-mii-transceiver.html#mii-transceiver.MDC">mii-transceiver.MDC</a>
+ – MDIO clock signal</dd>
+<dt id="dt:port-mdio"><a href="#dt:port-mdio">port.MDIO</a></dt>
+<dd>
+<a href="rm-class-mii-transceiver.html#mii-transceiver.MDIO">mii-transceiver.MDIO</a>
+ – MDIO data signal</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-mii-transceiver.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-mii-transceiver.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:link"><a href="#dt:link">
+<i>link</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>The Ethernet link that the network device is connected to.</dd>
+<dt id="dt:mac_address"><a href="#dt:mac_address">
+<i>mac_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|[i{6}]|n</code>
+<br>Ethernet (MAC) address of the network interface.</dd>
+<dt id="dt:model_crc"><a href="#dt:model_crc">
+<i>model_crc</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Deprecated. Do not use.</dd>
+<dt id="dt:tx_bandwidth"><a href="#dt:tx_bandwidth">
+<i>tx_bandwidth</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The transmit bandwidth of the network interface in bits per second. The network interface will limit the rate at which it sends packets to remain below this bandwidth. Set to 0 for unlimited bandwidth.</dd>
+<dt id="dt:tx_next_time"><a href="#dt:tx_next_time">
+<i>tx_next_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>The earliest time at which that the network interface may send another packet. Used for transmit bandwidth limitation.</dd>
+<dt id="dt:network"><a href="#dt:network">
+<i>network</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Obsolete attribute. Use link instead.</dd>
+<dt id="dt:inject_packet"><a href="#dt:inject_packet">
+<i>inject_packet</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>d</code>
+<br>Attribute used to send a packet to the network device. Writing this attribute at any time injects a new packet into the device (without involving the network simulation). Injecting a packet copies the packet data, allowing the caller to reuse or dispose of the buffer used for creating the packet, after the attribute is written.</dd>
+<dt id="dt:add_crc_on_inject"><a href="#dt:add_crc_on_inject">
+<i>add_crc_on_inject</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Frames injected using the 'inject_packet' will get a correctly calculated CRC added at the end when this attribute is set to 1 (default). When set to 0, the user has to supply a CRC field with the injected frame. Note that you must always provide room for the CRC field, even when this attribute is set to 1.</dd>
+<dt id="dt:mdio_target"><a href="#dt:mdio_target">
+<i>mdio_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o|[os]</code>
+<br>Describes where the outgoing MDIO signal should be connected</dd>
+<dt id="dt:serial_num_cycles"><a href="#dt:serial_num_cycles">
+<i>serial_num_cycles</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>MII Management Interface serial communication state.</dd>
+<dt id="dt:serial_data_in"><a href="#dt:serial_data_in">
+<i>serial_data_in</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>MII Management Interface serial communication state.</dd>
+<dt id="dt:serial_data_out"><a href="#dt:serial_data_out">
+<i>serial_data_out</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>MII Management Interface serial communication state.</dd>
+<dt id="dt:serial_clock"><a href="#dt:serial_clock">
+<i>serial_clock</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>MII Management Interface serial communication state.</dd>
+<dt id="dt:serial_port_status"><a href="#dt:serial_port_status">
+<i>serial_port_status</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>MII Management Interface serial communication state.</dd>
+<dt id="dt:mac"><a href="#dt:mac">
+<i>mac</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Set to a media access controller (MAC) object, implementing the ieee_802_3_mac_v3 or ieee_802_3_mac interface.</dd>
+<dt id="dt:link_status"><a href="#dt:link_status">
+<i>link_status</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The status of the link - 0 when completely unconnected, 1 when connected but down, and 2 when connected and up.</dd>
+<dt id="dt:duplex_mode"><a href="#dt:duplex_mode">
+<i>duplex_mode</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Set to 1 for full duplex (0 for half duplex).</dd>
+<dt id="dt:link_speed"><a href="#dt:link_speed">
+<i>link_speed</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The link speed (usually 10 or 100 Mbit/s).</dd>
+<dt id="dt:address"><a href="#dt:address">
+<i>address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>PHY identifier sent in calls to ieee_802_3_mac interface methods.</dd>
+<dt id="dt:registers"><a href="#dt:registers">
+<i>registers</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{32}]</code>
+<br>The MII management register set as described in IEEE 802.3.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.mii-transceiver.html">mii-transceiver</a>
+</section>
+<h2 id="mii-transceiver.MDC"><a href="#mii-transceiver.MDC">mii-transceiver.MDC</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+MDIO clock signal
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="mii-transceiver.MDIO"><a href="#mii-transceiver.MDIO">mii-transceiver.MDIO</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+MDIO data signal
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-mii-management-bus.html">mii-management-bus</a>
+<a href="rm-class-mmc_card.html">mmc_card</a>
+</div>

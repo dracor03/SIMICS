@@ -1,0 +1,84 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>apic-bus</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-apic.html">apic</a>
+<a href="rm-class-apic_bus_v2.html">apic_bus_v2</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="apic-bus"><a href="#apic-bus">apic-bus</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>apic-bus</tt> class handles traffic on the APIC bus. Zero or more I/O-APICs and at least one APIC can be connected to each apic-bus instance.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, apic_bus, apic_bus_v2, io_memory, interrupt_ack, apic_to_apic_bus
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-apic-bus.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-apic-bus.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:apics"><a href="#dt:apics">
+<i>apics</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>(<i>apic</i>*). List of all APICs on the bus. The list index must match the APIC ID. The connected objects must implement the apic interface.</dd>
+<dt id="dt:ioapic"><a href="#dt:ioapic">
+<i>ioapic</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o|[o+]</code>
+<br>The I/O-APICs (an object or a list of objects implementing the ioapic interface) connected to the bus.</dd>
+<dt id="dt:pic"><a href="#dt:pic">
+<i>pic</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o</code>
+<br>8259A compatible interrupt controller that is asked for a vector if an interrupt is received from an I/O-APIC with the ExtINT delivery mode. Must implement the interrupt_cpu interface.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.apic.html">apic</a>
+</section>
+<div class="chain">
+<a href="rm-class-apic.html">apic</a>
+<a href="rm-class-apic_bus_v2.html">apic_bus_v2</a>
+</div>

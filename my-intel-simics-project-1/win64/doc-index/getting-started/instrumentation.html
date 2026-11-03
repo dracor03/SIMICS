@@ -1,0 +1,192 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.11 Instrumentation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="code-coverage-of-target-software.html">8.10 Code Coverage of Target Software</a>
+<a href="cache-model.html">8.12 Using a cache model</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="instrumentation"><a href="#instrumentation">8.11 Instrumentation</a></h1>
+<p>The instrumentation framework in the Intel Simics simulator has powerful ways to
+inspect the simulation. It is built on four core concepts:</p>
+<ul>
+<li><strong>Providers</strong>. Instrumentation providers provide information about what is
+happening in the model and are usually things like processors and devices. Any
+part of the simulated system can provide access for instrumentation tools.
+Each model can implement instrumentation in their own way, and target modelers
+can add instrumentation to any model that they build.</li>
+<li><strong>Tools</strong>. Instrumentation tools take the data from the providers and turn it
+into useful information. Tools are provided as part of the simulator and can
+also be created by a user.</li>
+<li><strong>Connections</strong>. Connections connect providers to tools and can be
+individually enabled and disabled to control when data is sent from a provider
+to a tool.</li>
+<li><strong>Filters</strong>. Filters control the collection of data (by enabling and disabling
+connections) and are used to restrict data collection based on model state
+like the currently running process, the current processor mode, and similar.</li>
+</ul>
+<p>At the CLI, it is the tools and filters that are manipulated. To see a list of
+available tools:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-instrumentation-tools substr = bank</strong>
+┌──────────────────────┬──────────────────┬──────────────────────────────┐
+│ Tool create command  │    Tool class    │         Description          │
+├──────────────────────┼──────────────────┼──────────────────────────────┤
+│new-bank-coverage-tool│bank_coverage_tool│register bank coverage tool   │
+│new-bank-patch-tool   │bank_patch_tool   │device access miss repair tool│
+└──────────────────────┴──────────────────┴──────────────────────────────┘
+</code></pre>
+<p>Here is an example of using instrumentation to compare user and supervisor mode
+instruction occurrences.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>Boot the target machine.</p>
+</li>
+<li>
+<p>Create two histogram tools and connect them to all processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-instruction-histogram name = user_instr -connect-all</strong>
+Created user_instr (connected to 1 processor)
+simics&gt; <strong>new-instruction-histogram name = kernel_instr -connect-all</strong>
+Created kernel_instr (connected to 1 processor)
+</code></pre>
+</li>
+<li>
+<p>Create filters and add them to the tools.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-cpu-mode-filter name = usermode mode = user</strong>
+Created filter usermode with mode user
+simics&gt; <strong>new-cpu-mode-filter name = kernelmode mode = supervisor</strong>
+Created filter kernelmode with mode supervisor
+simics&gt; <strong>user_instr.add-filter filter = usermode</strong>
+Added filter to 1 connections
+simics&gt; <strong>kernel_instr.add-filter filter = kernelmode</strong>
+Added filter to 1 connections
+</code></pre>
+</li>
+<li>
+<p>Run the simulation to collect data from the providers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 4 s</strong>
+</code></pre>
+</li>
+<li>
+<p>Display the resulting histograms.</p>
+<pre><code class="language-simics">simics&gt; <strong>user_instr.histogram max = 15</strong>
+┌─────────┬────────┬─────────┬───────┬───────────┐
+│  Row #  │mnemonic│  Count  │Count% │Accumulated│
+│         │        │         │       │  Count%   │
+├─────────┼────────┼─────────┼───────┼───────────┤
+│        1│mov     │ 74431950│ 27.92%│     27.92%│
+│        2│cmp     │ 20333464│  7.63%│     35.55%│
+│        3│je      │ 18982710│  7.12%│     42.67%│
+│        4│test    │ 18797112│  7.05%│     49.72%│
+│        5│add     │ 12986951│  4.87%│     54.59%│
+│        6│jne     │ 12782328│  4.79%│     59.39%│
+│        7│push    │ 10515298│  3.94%│     63.33%│
+│        8│lea     │ 10361459│  3.89%│     67.22%│
+│        9│pop     │ 10205940│  3.83%│     71.05%│
+│       10│movzx   │  9693122│  3.64%│     74.68%│
+│       11│sub     │  7820308│  2.93%│     77.62%│
+│       12│and     │  4972726│  1.87%│     79.48%│
+│       13│xor     │  4508248│  1.69%│     81.17%│
+│       14│jmp     │  3906701│  1.47%│     82.64%│
+│       15│movdqa  │  3689700│  1.38%│     84.02%│
+├─────────┼────────┼─────────┼───────┼───────────┤
+│# 15/168 │        │         │       │           │
+│Sum (all)│        │266583848│100.00%│           │
+│Sum shown│        │223988017│ 84.02%│           │
+└─────────┴────────┴─────────┴───────┴───────────┘
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>kernel_instr.histogram max = 15</strong>
+┌─────────┬────────┬──────────┬───────┬───────────┐
+│  Row #  │mnemonic│  Count   │Count% │Accumulated│
+│         │        │          │       │  Count%   │
+├─────────┼────────┼──────────┼───────┼───────────┤
+│        1│mov     │2747417440│ 35.53%│     35.53%│
+│        2│cmp     │ 740447387│  9.57%│     45.10%│
+│        3│add     │ 530128799│  6.86%│     51.96%│
+│        4│sub     │ 506635388│  6.55%│     58.51%│
+│        5│lea     │ 495702616│  6.41%│     64.92%│
+│        6│movzx   │ 487324022│  6.30%│     71.22%│
+│        7│shr     │ 332129405│  4.29%│     75.52%│
+│        8│ja      │ 287604576│  3.72%│     79.23%│
+│        9│jb      │ 191377121│  2.47%│     81.71%│
+│       10│imul    │ 172981917│  2.24%│     83.95%│
+│       11│jne     │ 144473609│  1.87%│     85.81%│
+│       12│sar     │ 129264054│  1.67%│     87.49%│
+│       13│and     │ 127789648│  1.65%│     89.14%│
+│       14│xor     │ 122961175│  1.59%│     90.73%│
+│       15│shl     │ 103638197│  1.34%│     92.07%│
+├─────────┼────────┼──────────┼───────┼───────────┤
+│# 15/121 │        │          │       │           │
+│Sum (all)│        │7733208915│100.00%│           │
+│Sum shown│        │7119875354│ 92.07%│           │
+└─────────┴────────┴──────────┴───────┴───────────┘
+</code></pre>
+</li>
+</ul>
+<p>Here is another example of using instrumentation to show exception occurrences.</p>
+<ul>
+<li>
+<p>Launch the simulator with the <code>qsp-x86/firststeps</code> target.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>Create the histogram tool and connect it to all processors.</p>
+<pre><code class="language-simics">simics&gt; <strong>new-exception-histogram name = exc_hist -connect-all</strong>
+Created exc_hist (connected to 1 processor)
+</code></pre>
+</li>
+<li>
+<p>Run the simulation to collect data from the providers.</p>
+<pre><code class="language-simics">simics&gt; <strong>run 60 s</strong>
+</code></pre>
+</li>
+<li>
+<p>Display the resulting histogram.</p>
+<pre><code class="language-simics">simics&gt; <strong>exc_hist.histogram</strong>
+┌─────┬────────────────────────────┬──────┬───────┬───────────┐
+│Row #│         Exception          │Count │Count% │Accumulated│
+│     │                            │      │       │  Count%   │
+├─────┼────────────────────────────┼──────┼───────┼───────────┤
+│    1│Page_Fault_Exception        │297468│ 94.43%│     94.43%│
+│    2│Interrupt_33                │ 12871│  4.09%│     98.52%│
+│    3│Interrupt_42                │  2564│  0.81%│     99.33%│
+│    4│Interrupt_37                │   971│  0.31%│     99.64%│
+│    5│Interrupt_64                │   754│  0.24%│     99.88%│
+│    6│Interrupt_34                │   157│  0.05%│     99.93%│
+│    7│General_Protection_Exception│    60│  0.02%│     99.95%│
+│    8│NMI                         │    51│  0.02%│     99.97%│
+│    9│Interrupt_48                │    40│  0.01%│     99.98%│
+│   10│Interrupt_236               │    30│  0.01%│     99.99%│
+│   11│Interrupt_39                │    22│  0.01%│    100.00%│
+│   12│Interrupt_35                │     9│  0.00%│    100.00%│
+│   13│INT3                        │     1│  0.00%│    100.00%│
+│   14│Interrupt_36                │     1│  0.00%│    100.00%│
+├─────┼────────────────────────────┼──────┼───────┼───────────┤
+│Sum  │                            │314999│100.00%│           │
+└─────┴────────────────────────────┴──────┴───────┴───────────┘
+</code></pre>
+</li>
+</ul>
+<p>Source code for instrumentation tools is in</p>
+<pre><code>    src/extensions/instruction-histogram
+    src/extensions/exception-histogram
+    src/extensions/cpu-mode-filter
+</code></pre>
+<p>in the base package.</p>
+
+<div class="chain">
+<a href="code-coverage-of-target-software.html">8.10 Code Coverage of Target Software</a>
+<a href="cache-model.html">8.12 Using a cache model</a>
+</div>

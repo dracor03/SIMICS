@@ -1,0 +1,59 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.3 Setting up Windows Target for Debug</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="target-ip-address.html">2.2 Target System IP Address</a>
+<a href="connect-windbg.html">2.4 Connect Windows Kernel Debugger to the Target</a>
+</div>
+<div class="path">
+<a href="index.html">Windows Kernel Debugging</a>
+&nbsp;/&nbsp;
+<a href="network-debugging.html">2 Windows Kernel Debugging Over a Network</a>
+&nbsp;/&nbsp;</div><h1 id="setting-up-windows-target-for-debug"><a href="#setting-up-windows-target-for-debug">2.3 Setting up Windows Target for Debug</a></h1>
+<p>Once the required information has been collected, it is possible to set up the Windows target to allow debug.</p>
+<h2 id="configure-communications"><a href="#configure-communications">2.3.1 Configure Communications</a></h2>
+<p>In an elevated command prompt on the target system, issue the following command to tell the Windows on-target debug agent how to connect to the debugger outside of Simics:</p>
+<pre><code>&gt; BCDEDIT /DBGSETTINGS NET HOSTIP:&lt;DebugHostIP&gt; BUSPARAMS:&lt;B.D.F&gt;PORT:&lt;Port&gt; KEY:1.2.3.4
+  
+</code></pre>
+<p>where:</p>
+<ul>
+<li><strong><code>&lt;DebugHostIP&gt;</code></strong> is the service node/gateway IP. It is used to communicate with the outside world.</li>
+<li><strong><code>&lt;B.D.F&gt;</code></strong> is the BDF of the network card, as shown in section <a class="reference" href="target-network-card.html#check-network-device-pcie-address">2.1.2</a>.</li>
+<li><strong><code>&lt;Port&gt;</code></strong> is a port you need to choose for the connection, typically somewhere above 50000. Say <strong>50010</strong> as a default.</li>
+<li>The Key is a value used to secure the connection. Make sure to use the same value everywhere it is required. You can use <strong>1.2.3.4</strong> to keep things simple.</li>
+</ul>
+<p>In the setup used for the example:</p>
+<pre><code>&gt; BCDEDIT /DBGSETTINGS NET HOSTIP:10.10.0.1 BUSPARAMS:0.25.0 PORT:50010KEY:1.2.3.4
+  
+</code></pre>
+<h2 id="configure-debug"><a href="#configure-debug">2.3.2 Configure Debug</a></h2>
+<p>There are several possible debug targets in a Windows set up. To cover them all, open an elevated command prompt window on the target system, and enter the following commands:</p>
+<pre><code>&gt; BCDEDIT /SET '{BOOTMGR}' BOOTDEBUG ON
+&gt; BCDEDIT /SET BOOTDEBUG ON
+&gt; BCDEDIT /SET DEBUG ON
+  
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>When boot debug is enabled, Windows will wait for a while during the boot to see if a WinDbg is connecting, and then proceed with the boot. Thus, enabling boot debug will make the boot take a little longer (a few virtual minutes of wait time).</p>
+</blockquote>
+<h2 id="shutdown-save-state-and-reboot"><a href="#shutdown-save-state-and-reboot">2.3.3 Shutdown, Save State, and Reboot</a></h2>
+<p>These changes do not take effect until the target system is rebooted. To make it easy to get into debug:</p>
+<ul>
+<li>Shutdown the target system,</li>
+<li>When the shutdown is complete (it is not given that Simics stops at this point, since power-off is an allowed operation in a virtual platform), stop Simics.</li>
+<li>Save the complete disk state to use this as your base disk, or save a diff to apply in the reboot.</li>
+</ul>
+<p>For the <code>QSP-x86</code> system, a complete image save is done in a way like this:</p>
+<pre><code>simics&gt; board.disk0.hd_image.save -save-craff win10-debug.craff
+</code></pre>
+<p>Start a new Simics session using this new disk image as the boot image.</p>
+
+<div class="chain">
+<a href="target-ip-address.html">2.2 Target System IP Address</a>
+<a href="connect-windbg.html">2.4 Connect Windows Kernel Debugger to the Target</a>
+</div>

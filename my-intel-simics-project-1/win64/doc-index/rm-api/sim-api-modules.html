@@ -1,0 +1,165 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Modules</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-memory.html">Memory</a>
+<a href="sim-api-object-locks.html">Object Locks</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Modules</h1>
+<h2 id="SIM_add_module_dir"><a href="#SIM_add_module_dir">SIM_add_module_dir</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_add_module_dir — add loadable module search path</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_add_module_dir(const char *path);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_add_module_dir(...)
+</code></pre>
+<h2>Description</h2>
+<p>Add given path to the list of paths where Simics searches for loadable modules. The function <a href="sim-api-modules.html#SIM_module_list_refresh"><code>SIM_module_list_refresh</code></a> has to be called after calling this function, for the change to take effect.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_get_all_failed_modules"><a href="#SIM_get_all_failed_modules">SIM_get_all_failed_modules</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_all_failed_modules — return a list of all modules that failed to load</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_all_failed_modules();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_all_failed_modules(...)
+</code></pre>
+<h2>Description</h2>
+<p>A failed module is a module that is not loadable by the current version of Simics. The list returned contains information about why the module failed. Each list entry is another list with module specific information. The layout of this sub-list is described below. The list may change in future Simics versions.</p>
+<ul>
+<li><em>name</em> - Module name (string).</li>
+<li><em>path</em> - File system path to the module (string).</li>
+<li><em>duplicate</em> - Flag indicating a duplicate module (boolean).</li>
+<li><em>linker</em> - Flag indicating a linker error (boolean).</li>
+<li><em>version</em> - Simics ABI version that the module was built for (integer).</li>
+<li><em>build_id</em> - Simics build number when the module was built (integer).</li>
+<li><em>build_date</em> - When the module was built, in seconds from epoch (integer).</li>
+<li><em>user version</em> - User version of the module (string).</li>
+<li><em>error</em> - Error message, typically from the linker (string or nil).</li>
+</ul>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-modules.html#SIM_get_all_modules"><code>SIM_get_all_modules</code></a></p>
+</section>
+<h2 id="SIM_get_all_modules"><a href="#SIM_get_all_modules">SIM_get_all_modules</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_all_modules — return a list of all modules</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_all_modules();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_all_modules(...)
+</code></pre>
+<h2>Description</h2>
+<p>The list returned contains information about all modules that can be loaded into Simics. Each list entry is another list with module specific information. The layout of this sub-list is described below. The list may grow in future Simics version, but the currently defined fields will not change.</p>
+<ul>
+<li><em>name</em> - Module name (string).</li>
+<li><em>path</em> - File system path to the module (string).</li>
+<li><em>loaded</em> - Flag indicating that the module is already loaded (boolean).</li>
+<li><em>version</em> - Oldest Simics ABI version that the module was built for (integer).</li>
+<li><em>user version</em> - User version of the module (string).</li>
+<li><em>build-id</em> - Simics build-id that indicates in which Simics build this module was created (integer).</li>
+<li><em>build-date</em> - Build date of the module, in seconds (integer).</li>
+<li><em>classes</em> - Classes this module claims to implement.</li>
+<li><em>thread-safe</em> - If the module is thread-safe.</li>
+<li><em>components</em> - Components this module claims to implement.</li>
+<li><em>user path</em> - Module was loaded from path provided by user.</li>
+</ul>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-modules.html#SIM_get_all_failed_modules"><code>SIM_get_all_failed_modules</code></a></p>
+</section>
+<h2 id="SIM_load_module"><a href="#SIM_load_module">SIM_load_module</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_load_module — load a module</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_load_module(const char *NOTNULL module);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_load_module(...)
+</code></pre>
+<h2>Description</h2>
+<p>Load a Simics module. Normally, modules are loaded automatically as needed for the configuration classes they implement, and there is rarely any need to call this function explicitly.</p>
+<p>The <code>module</code> argument is the name of the module (not file name) to be loaded.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_License</strong> Thrown if the module requires a non-existing license feature.</p>
+<p><strong>SimExc_General</strong> Thrown if the module failed to load for other reasons.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_module_list_refresh"><a href="#SIM_module_list_refresh">SIM_module_list_refresh</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_module_list_refresh — refresh list of loadable modules</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_module_list_refresh();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_module_list_refresh(...)
+</code></pre>
+<h2>Description</h2>
+<p>Simics maintains a list of all modules that can be loaded successfully. If a module is changed or added, the list has to be refreshed before Simics can load this module.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-memory.html">Memory</a>
+<a href="sim-api-object-locks.html">Object Locks</a>
+</div>

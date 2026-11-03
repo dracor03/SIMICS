@@ -1,0 +1,101 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Stalling</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-caches.html">Simulator Translation Caches</a>
+<a href="sim-api-events.html">Time and Events</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Stalling</h1>
+<h2 id="SIM_stall_count"><a href="#SIM_stall_count">SIM_stall_count</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_stall_count — get number of cycles a processor has been stalled</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+cycles_t
+SIM_stall_count(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_stall_count(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_stall_count</code> returns the total number of cycles the processor associated to <code>obj</code> has been stalled.</p>
+<h2>Return Value</h2>
+<p>Returns the total number of cycles the processor associated with <code>obj</code> has been stalled.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_stall_cycle"><a href="#SIM_stall_cycle">SIM_stall_cycle, SIM_stall</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_stall_cycle, SIM_stall — stall execution a specified number of cycles</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_stall_cycle(conf_object_t *NOTNULL obj, cycles_t cycles);
+
+void
+SIM_stall(conf_object_t *NOTNULL obj, double seconds);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_stall_cycle(...)
+simics.SIM_stall(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_stall_cycle</code> and <code>SIM_stall</code> set the stall duration of the processor <code>obj</code>. The stall duration is given in clock cycles or seconds and is how long <code>obj</code> will stall before resuming its normal activity. If <code>obj</code> was already stalling, the time remaining is changed. A zero stall duration is a request to cease stalling immediately.</p>
+<p>The specified duration is interpreted as relative the local time of <code>obj</code>.</p>
+<p><code>obj</code> must implement the <a href="model-to-simulator-interfaces.html#stall_interface_t"><code>stall</code></a> and <a href="model-to-simulator-interfaces.html#cycle_interface_t"><code>cycle</code></a> interfaces.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if <em>cycles</em> or <em>seconds</em> is negative.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-stalling.html#SIM_stalled_until"><code>SIM_stalled_until</code></a>, <a href="sim-api-stalling.html#SIM_stall_count"><code>SIM_stall_count</code></a></p>
+</section>
+<h2 id="SIM_stalled_until"><a href="#SIM_stalled_until">SIM_stalled_until</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_stalled_until — query how many cycles that remains of stall</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+cycles_t
+SIM_stalled_until(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_stalled_until(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_stalled_until</code> returns how many more cycles the processor will stall before the associated processor starts to execute instructions again.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-caches.html">Simulator Translation Caches</a>
+<a href="sim-api-events.html">Time and Events</a>
+</div>

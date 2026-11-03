@@ -1,0 +1,78 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>probes.probes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="probes.probe_type_classes.html">probes.probe_type_classes</a>
+<a href="table.html">table</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;
+<a href="probes.html">probes</a>
+&nbsp;/&nbsp;</div><h1 id="probes.probes"><a href="#probes.probes">probes.probes</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>probes.probes</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import probes.probes
+</code></pre>
+</section>
+<h2 id="probes.probes.get_all_probe_kinds"><a href="#probes.probes.get_all_probe_kinds">probes.probes.get_all_probe_kinds</a></h2>
+<p>Alias of <a href="probes.html#probes.get_all_probe_kinds"><code>probes.get_all_probe_kinds</code></a>.</p>
+<h2 id="probes.probes.get_all_probes"><a href="#probes.probes.get_all_probes">probes.probes.get_all_probes</a></h2>
+<p>Alias of <a href="probes.html#probes.get_all_probes"><code>probes.get_all_probes</code></a>.</p>
+<h2 id="probes.probes.get_probe_by_object"><a href="#probes.probes.get_probe_by_object">probes.probes.get_probe_by_object</a></h2>
+<p>Alias of <a href="probes.html#probes.get_probe_by_object"><code>probes.get_probe_by_object</code></a>.</p>
+<h2 id="probes.probes.get_probes"><a href="#probes.probes.get_probes">probes.probes.get_probes</a></h2>
+<p>Alias of <a href="probes.html#probes.get_probes"><code>probes.get_probes</code></a>.</p>
+<h2 id="probes.probes.get_probes_data"><a href="#probes.probes.get_probes_data">probes.probes.get_probes_data</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.probes.get_probes_data()
+</code></pre>
+<h2>Description</h2>
+<p>Get the enabled probes backend, if any.</p>
+</section>
+<h2 id="probes.probes.is_singleton"><a href="#probes.probes.is_singleton">probes.probes.is_singleton</a></h2>
+<p>Alias of <a href="probes.html#probes.is_singleton"><code>probes.is_singleton</code></a>.</p>
+<h2 id="probes.probes.register_probe"><a href="#probes.probes.register_probe">probes.probes.register_probe</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.probes.register_probe(kind, keys)
+</code></pre>
+<h2>Description</h2>
+<p>Unsupported, may change.</p>
+</section>
+<h2 id="probes.probes.register_probe_delete_cb"><a href="#probes.probes.register_probe_delete_cb">probes.probes.register_probe_delete_cb</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.probes.register_probe_delete_cb(cb)
+</code></pre>
+<h2>Description</h2>
+<p>Request a callback when a probe is deleted.</p>
+<p>Register a function which will be called when a probe is deleted from the system. The function only takes a single argument; the ProbeProxy instances that is about to be deleted.</p>
+<h2>See Also</h2>
+<p><a href="probes.html#probes.unregister_probe_delete_cb"><code>probes.unregister_probe_delete_cb</code></a></p>
+</section>
+<h2 id="probes.probes.unregister_probe_delete_cb"><a href="#probes.probes.unregister_probe_delete_cb">probes.probes.unregister_probe_delete_cb</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.probes.unregister_probe_delete_cb(cb)
+</code></pre>
+<h2>Description</h2>
+<p>Cancel a callback for probe deletion.</p>
+<p>Unregister a function callback when probes are deleted. Typically needed when a python module itself is removed.</p>
+<h2>See Also</h2>
+<p><a href="probes.html#probes.register_probe_delete_cb"><code>probes.register_probe_delete_cb</code></a></p>
+</section>
+<div class="chain">
+<a href="probes.probe_type_classes.html">probes.probe_type_classes</a>
+<a href="table.html">table</a>
+</div>

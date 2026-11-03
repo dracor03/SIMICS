@@ -1,0 +1,186 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample_core_timing_tool</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample_core_timing_connection.html">sample_core_timing_connection</a>
+<a href="rm-class-simple_pcie_root_port.html">simple_pcie_root_port</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample_core_timing_tool"><a href="#sample_core_timing_tool">sample_core_timing_tool</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Sample x86 performance tool.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, instrumentation_tool
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.add-instruction-class.html">add-instruction-class</a>
+ – add instruction class with ipc and cdyn adjustments</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.add-instrumentation.html">add-instrumentation</a>
+ – add instrumentation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.delete.html">delete</a>
+ – deletes instrumentation tool</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.disable-instrumentation.html">disable-instrumentation</a>
+ – disable instrumentation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.enable-instrumentation.html">enable-instrumentation</a>
+ – enable instrumentation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.list-instruction-classes.html">list-instruction-classes</a>
+ – list instruction classes</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.list-metrics.html">list-metrics</a>
+ – list metrics of the simple performance model</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.list-performance-metrics.html">list-performance-metrics</a>
+ – list performance metrics from the model</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.list-providers.html">list-providers</a>
+ – list-provider objects</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.remove-instruction-class.html">remove-instruction-class</a>
+ – remove instruction class</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.remove-instrumentation.html">remove-instrumentation</a>
+ – remove instrumentation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.set-activity-per-read.html">set-activity-per-read</a>
+ – set extra activity per read operation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.set-activity-per-write.html">set-activity-per-write</a>
+ – set extra activity per write operation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.set-background-activity-per-cycle.html">set-background-activity-per-cycle</a>
+ – set background activity per cycle</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.set-base-activity-per-instruction.html">set-base-activity-per-instruction</a>
+ – set activity per instruction</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.set-base-cycles-per-instruction.html">set-base-cycles-per-instruction</a>
+ – set base cycles per instruction</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.set-cycles-per-read.html">set-cycles-per-read</a>
+ – set extra cycles per read operation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.set-cycles-per-write.html">set-cycles-per-write</a>
+ – set extra cycles per write operation</li>
+<li>
+<a href="rm-cmd-sample_core_timing_tool.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:connections"><a href="#dt:connections">
+<i>connections</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[o*]</code>
+<br>Example attribute, returns the connections</dd>
+<dt id="dt:instruction_classes"><a href="#dt:instruction_classes">
+<i>instruction_classes</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[sff]*]</code>
+<br>List of instruction classes. Each class consists of a string to look for, fraction of extra cycles per instance and extra activity per instance</dd>
+<dt id="dt:background_activity"><a href="#dt:background_activity">
+<i>background_activity</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Background activity per cycle</dd>
+<dt id="dt:base_cycles"><a href="#dt:base_cycles">
+<i>base_cycles</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Baseline cycles per instruction</dd>
+<dt id="dt:base_activity"><a href="#dt:base_activity">
+<i>base_activity</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Baseline activity per instruction</dd>
+<dt id="dt:read_cycles"><a href="#dt:read_cycles">
+<i>read_cycles</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Extra cycles per explicit read access</dd>
+<dt id="dt:write_cycles"><a href="#dt:write_cycles">
+<i>write_cycles</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Extra cycles per explicit write access</dd>
+<dt id="dt:read_activity"><a href="#dt:read_activity">
+<i>read_activity</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Extra activity per explicit read access</dd>
+<dt id="dt:write_activity"><a href="#dt:write_activity">
+<i>write_activity</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Extra activity per explicit write access</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-core-timing.html">sample-core-timing</a>
+</section>
+<div class="chain">
+<a href="rm-class-sample_core_timing_connection.html">sample_core_timing_connection</a>
+<a href="rm-class-simple_pcie_root_port.html">simple_pcie_root_port</a>
+</div>

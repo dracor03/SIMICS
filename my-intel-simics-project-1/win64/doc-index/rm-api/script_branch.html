@@ -1,0 +1,171 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>script_branch</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev_util.html">dev_util</a>
+<a href="probes.html">probes</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="script_branch"><a href="#script_branch">script_branch</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>script_branch</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import script_branch
+</code></pre>
+</section>
+<h2 id="script_branch.check_reverse_args"><a href="#script_branch.check_reverse_args">script_branch.check_reverse_args</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.check_reverse_args(what, reverse, always)
+</code></pre>
+<h2>Description</h2>
+<p>Warn if reverse or always arg is not None.</p>
+</section>
+<h2 id="script_branch.check_script_branch_command"><a href="#script_branch.check_script_branch_command">script_branch.check_script_branch_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.check_script_branch_command(cmd, reverse=None, always=None)
+</code></pre>
+<h2>Description</h2>
+<p>Common script-branch checks, raising CliError if the command is incorrectly used. Returns True if the script-branch command should run and False if it should silently return immediately</p>
+</section>
+<h2 id="script_branch.sb_create"><a href="#script_branch.sb_create">script_branch.sb_create</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_create(func, desc=None)
+</code></pre>
+<h2>Description</h2>
+<p>Creates a script branch.</p>
+<p>Create a script branch that will start executing <code>func</code> (which should not take any arguments). The <code>sb_create</code> function returns a unique script-branch identifier, that can be used with <a href="script_branch.html#script_branch.sb_interrupt_branch">`script_branch.sb_interrupt_branch</a>. It may be called from a script branch to create a new parallel branch. The current branch will resume execution when the new script branch is suspended.</p>
+<p>The optional <code>desc</code> argument will be displayed by <code>list-script-branches</code> as a description of the script branch.</p>
+<h2>EXECUTION CONTEXT</h2>
+<p>Global Context</p>
+<h2>RETURN VALUE</h2>
+<p>script-branch identifier</p>
+<h2>SEE ALSO</h2>
+<p><a href="script_branch.html#script_branch.sb_wait"><code>script_branch.sb_wait</code></a>, <a href="script_branch.html#script_branch.sb_interrupt_branch"><code>script_branch.sb_interrupt_branch</code></a>, <a href="script_branch.html#script_branch.sb_run_in_main_branch"><code>script_branch.sb_run_in_main_branch</code></a></p>
+</section>
+<h2 id="script_branch.sb_get_wait_id"><a href="#script_branch.sb_get_wait_id">script_branch.sb_get_wait_id</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_get_wait_id()
+</code></pre>
+<h2>Description</h2>
+<p>Obtains script branch wait ID.</p>
+<p>Return a new unique script-branch wait-identifier that can be used when suspending a script-branch using <code>sb_wait</code>.</p>
+<h2>RETURN VALUE</h2>
+<p>script branch wait-identifier</p>
+<h2>SEE ALSO</h2>
+<p><a href="script_branch.html#script_branch.sb_wait"><code>script_branch.sb_wait</code></a>, <a href="script_branch.html#script_branch.sb_signal_waiting"><code>script_branch.sb_signal_waiting</code></a></p>
+</section>
+<h2 id="script_branch.sb_in_main_branch"><a href="#script_branch.sb_in_main_branch">script_branch.sb_in_main_branch</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_in_main_branch()
+</code></pre>
+<h2>Description</h2>
+<p>Indicates if the main branch is running.</p>
+<p>Return <code>true</code> if the main branch is currently active, and not one of the script branches.</p>
+<h2>SEE ALSO</h2>
+<p><a href="script_branch.html#script_branch.sb_run_in_main_branch"><code>script_branch.sb_run_in_main_branch</code></a></p>
+</section>
+<h2 id="script_branch.sb_interrupt_branch"><a href="#script_branch.sb_interrupt_branch">script_branch.sb_interrupt_branch</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_interrupt_branch(branch_id)
+</code></pre>
+<h2>Description</h2>
+<p>Interrupts suspended script branch.</p>
+<p>Interrupt a script branch that is currently suspended. The <code>branch_id</code> should be the script-branch identifier (returned by <a href="script_branch.html#script_branch.sb_create"><code>script_branch.sb_create</code></a>) of a suspended script branch, otherwise an exception is raised.</p>
+<p>As a side effect, the <code>sb_wait</code> function called in the script branch will raise a <strong>CliQuietError</strong> exception.</p>
+<h2>SEE ALSO</h2>
+<p><a href="script_branch.html#script_branch.sb_create"><code>script_branch.sb_create</code></a>, <a href="script_branch.html#script_branch.sb_wait"><code>script_branch.sb_wait</code></a></p>
+</section>
+<h2 id="script_branch.sb_run_in_main_branch"><a href="#script_branch.sb_run_in_main_branch">script_branch.sb_run_in_main_branch</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_run_in_main_branch(command, func)
+</code></pre>
+<h2>Description</h2>
+<p>Runs function in the main thread.</p>
+<p>Schedule <code>func</code> (which should not take any arguments) to run in the main thread and block the calling script-branch thread until the function has run. A <code>CliError</code> exception will be raised if an error occurs while running <code>func</code>, otherwise its return value is returned.</p>
+<h2>RETURN VALUE</h2>
+<p>return value of <code>func</code></p>
+<h2>SEE ALSO</h2>
+<p><a href="script_branch.html#script_branch.sb_create"><code>script_branch.sb_create</code></a>, <a href="script_branch.html#script_branch.sb_in_main_branch"><code>script_branch.sb_in_main_branch</code></a></p>
+</section>
+<h2 id="script_branch.sb_signal_waiting"><a href="#script_branch.sb_signal_waiting">script_branch.sb_signal_waiting</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_signal_waiting(wait_id)
+</code></pre>
+<h2>Description</h2>
+<p>Wakes up a suspended script branch.</p>
+<p>Wake up a suspended script-branch, with <code>wait_id</code> as wait identifier, letting it run again.</p>
+<h2>SEE ALSO</h2>
+<p><a href="script_branch.html#script_branch.sb_wait"><code>script_branch.sb_wait</code></a>, <a href="script_branch.html#script_branch.sb_get_wait_id"><code>script_branch.sb_get_wait_id</code></a></p>
+</section>
+<h2 id="script_branch.sb_wait"><a href="#script_branch.sb_wait">script_branch.sb_wait</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_wait(
+    command,
+    wait_id,
+    reverse=None,
+    always=None,
+    wait_data=None,
+    use_obj=None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Suspends a script branch.</p>
+<p>Suspend a script branch in the <code>command</code> command (a descriptive string) until <code>sb_signal_waiting</code> is called with <code>wait_id</code> as argument. The <code>reverse</code> and <code>always</code> should not be used. The <code>wait_data</code> argument is a string describing the data being waited for, or <code>None</code>. The <code>use_obj</code> argument is deprecated and should never be specified.</p>
+<h2>SEE ALSO</h2>
+<p><a href="script_branch.html#script_branch.sb_create"><code>script_branch.sb_create</code></a>, <a href="script_branch.html#script_branch.sb_get_wait_id"><code>script_branch.sb_get_wait_id</code></a>, <a href="script_branch.html#script_branch.sb_signal_waiting"><code>script_branch.sb_signal_waiting</code></a></p>
+</section>
+<h2 id="script_branch.sb_wait_for_hap"><a href="#script_branch.sb_wait_for_hap">script_branch.sb_wait_for_hap</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_wait_for_hap(
+    command,
+    hap,
+    obj,
+    idx,
+    reverse=None,
+    always=None,
+    wait_data=None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Help function for script-branch commands that should suspend until a certain hap occurs. ‘hap’ is the name of the hap. ‘obj’ is object or None that the hap is associated with. ‘idx’ is the hap index or -1 when the index should be ignored. reverse and always correspond to the script-branch arguments with the same names. The wait_data argument is a string describing the data being waited for, or None.</p>
+</section>
+<h2 id="script_branch.sb_wait_for_notifier"><a href="#script_branch.sb_wait_for_notifier">script_branch.sb_wait_for_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>script_branch.sb_wait_for_notifier(
+    command,
+    notifier,
+    what,
+    reverse,
+    always,
+    wait_data=None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Suspends script branch execution until the specified notifier occurs.</p>
+<p>The arguments ‘notifier’ and ‘what’ correspond to the arguments with the same names to SIM_add_notifier. ‘reverse’ and ‘always’ correspond to the script-branch arguments with the same names (see the help on e.g. the bp.wait-for-breakpoint command). The optional wait_data argument is a string describing the data being waited for (will be visible in the list-script-branches command).</p>
+<p>Raises CLiError if ‘what’ is not an integer (a notifier_type_t), if ‘notifier’ is not a Simics object, or if ‘what’ is not registered on ‘notifier’.</p>
+</section>
+<div class="chain">
+<a href="dev_util.html">dev_util</a>
+<a href="probes.html">probes</a>
+</div>

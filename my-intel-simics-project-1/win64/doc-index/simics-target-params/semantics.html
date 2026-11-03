@@ -1,0 +1,26 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Semantics</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="file-format.html">1 File Format</a>
+<a href="parameter-section.html">3 Parameter Section</a>
+</div>
+<div class="path">
+<a href="index.html">Target Parameters Reference</a>
+&nbsp;/&nbsp;</div><h1 id="semantics"><a href="#semantics">2 Semantics</a></h1>
+<p>The parameters definitions form a tree.
+The leaves in this tree are the individual parameters, which have types and other meta-data.
+The contents of an inner node can either be defined in the same script, or it can contain a parameter tree imported from another script.</p>
+<p>The run-time value for a parameter can be specified in multiple places, either in the script itself or by callers, recursively, since callers have access to parameters of scripts that they call, via imports.
+The actual value is the one from the first (outermost) specification.
+In effect, parameters are write-once, or equivalently parameter values are not set, only parameter default values.</p>
+<p>When a script runs another script that it has imported parameters from, the corresponding sub-tree with arguments must be provided by the caller, using the <em>namespace</em> parameter to the <code>load-target</code> or <code>run-script</code> commands.</p>
+
+<div class="chain">
+<a href="file-format.html">1 File Format</a>
+<a href="parameter-section.html">3 Parameter Section</a>
+</div>

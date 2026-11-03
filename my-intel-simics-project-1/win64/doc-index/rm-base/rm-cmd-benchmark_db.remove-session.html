@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;benchmark_db&gt;.remove-session</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.remove-run-annotation.html">&lt;benchmark_db&gt;.remove-run-annotation</a>
+<a href="rm-cmd-benchmark_db.remove-session-annotation.html">&lt;benchmark_db&gt;.remove-session-annotation</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="benchmark_db.remove-session"></a>
+<h1 id="benchmark_db.remove-session"><a href="#benchmark_db.remove-session">&lt;benchmark_db&gt;.remove-session</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;benchmark_db&gt;.remove-session</b> [<i>session-id</i>] [-unused] [-incomplete] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Removes one or several sessions from the database. If the <i>session-id</i> is specified, this session, and all corresponding benchmark-runs are removed. This can be handy if there was a know problem with this session and it should not be seen anymore. The <tt>-unused</tt> flag can be used to remove all sessions which does not have any corresponding runs associated. The <tt>-incomplete</tt> can be used to remove all session which contains suites that are <b>all</b> incomplete runs. That is, they have not run all the benchmarks in any suite, needed to correctly calculate a valid result.
+<p>
+Important note: This does not only remove the session, but also the corresponding runs of the associated individual benchmarks. It is also possible to remove the runs which previously defined as baseline-runs. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.benchmark-database.html">benchmark-database</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.remove-run-annotation.html">&lt;benchmark_db&gt;.remove-run-annotation</a>
+<a href="rm-cmd-benchmark_db.remove-session-annotation.html">&lt;benchmark_db&gt;.remove-session-annotation</a>
+</div>

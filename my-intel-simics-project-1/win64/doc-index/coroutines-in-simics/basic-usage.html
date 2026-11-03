@@ -1,0 +1,139 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Basic Usage Example</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="advanced-usage.html">3 Advanced Usage Example</a>
+</div>
+<div class="path">
+<a href="index.html">Python Coroutines in Simics</a>
+&nbsp;/&nbsp;</div><h1 id="basic-usage-example"><a href="#basic-usage-example">2 Basic Usage Example</a></h1>
+<p>Imagine you want to test that a system boots to a login prompt on its
+serial console (<code>board.serconsole.con</code>), and that requesting the <code>root</code> user
+brings you to a <code>#</code> prompt without asking for a password.</p>
+<p>Traditionally, this test could be implemented in the Simics CLI
+using a script branch; after loading the target (e.g. <code>qsp-x86/firststeps</code>),
+the test might look like:</p>
+<pre><code>$booted = false
+script-branch {
+        bp.console_string.wait-for board.serconsole.con "login: "
+        board.serconsole.con.input "root\n"
+        bp.console_string.wait-for board.serconsole.con "# "
+        echo "login successful"
+        $booted = true
+        stop
+}
+run 30 s
+expect $booted true
+</code></pre>
+<p>With the <code>sloop</code> coroutine library, you can express the same test as follows:</p>
+<pre><code>import snoop
+import sloop
+async def boot_to_login(console):
+    await sloop.wait(snoop.ConsoleString(console, "login: "))
+    console.iface.con_input.input_str("root\n")
+    await sloop.wait(snoop.ConsoleString(console, "# "))
+    print("login successful")
+
+sloop.run_until_complete(boot_to_login(conf.board.serconsole.con))
+</code></pre>
+<p>This example highlights the separation of concerns in a <code>sloop</code> coroutine:</p>
+<ul>
+<li><strong>Snooping Primitives</strong>:
+The <code>ConsoleString</code> class from the <code>snoop</code> library specifies
+<em>what</em> to wait for, such as strings appearing on a console.</li>
+<li><strong>Asynchronous Control Flow</strong>: The <code>sloop.wait</code> coroutine defines
+<em>how</em> to wait for these strings,
+by pausing until the specified string appears.</li>
+<li><strong>Simulation Control</strong>:
+The console interaction is abstracted into the <code>login</code> coroutine.
+At the top level, <code>run_until_complete</code> is used to start this coroutine
+and run simulation until it finishes.</li>
+</ul>
+<h2 id="time-and-timeouts"><a href="#time-and-timeouts">2.1 Time and Timeouts</a></h2>
+<p>The example above does not have an explicit timeout; if boot fails,
+the coroutine will just hang, eventually triggering a timeout in the test
+framework.
+It is better to let the test fail if the boot hasn’t finished
+within a certain amount of simulated time.</p>
+<p>In <code>snoop</code>, simulated time is always tied to a specific CPU or clock object.
+Typically, there’s an obvious choice of clock for a test,
+and it’s convenient to store a time snooper in a variable:</p>
+<pre><code>s = snoop.Seconds(conf.board.mb.cpu0, 1)
+</code></pre>
+<p>Time snoopers can be scaled using multiplication, enabling constructs like:</p>
+<pre><code>async def wait_three_seconds():
+    await sloop.wait(3 * s)
+</code></pre>
+<p>To handle scenarios where a boot process might hang,
+you can employ the <code>sloop.timeout</code> asynchronous context manager
+to enforce a timeout.
+The above example can be adjusted as follows:</p>
+<pre><code>async def login_with_timeout(console):
+    async with sloop.timeout(30 * s):
+        await sloop.wait(snoop.ConsoleString(console, "login: "))
+        console.iface.con_input.input_str("root\n")
+        await sloop.wait(snoop.ConsoleString(console, "# "))
+        print("login successful")
+
+sloop.run_until_complete(login_with_timeout(conf.board.serconsole.con))
+</code></pre>
+<p>Timeouts can be nested, allowing you to set an overarching timeout
+for the entire boot process and additional,
+shorter timeouts for specific milestones,
+thus identifying failures more promptly.</p>
+<h2 id="simulation-control"><a href="#simulation-control">2.2 Simulation Control</a></h2>
+<p>In the context of simulation, a coroutine acts as a participant and is not
+responsible for starting or stopping the simulation itself. The progression of
+the simulation is ultimately controlled by the user, who may interactively start
+or stop the simulation, or execute a script — often a test case —
+that drives the simulation forward.
+In <code>sloop</code>, a user or script can initiate a coroutine by
+using <code>sloop.global_event_loop().create_task()</code> to create a background task,
+or <code>sloop.run_until_complete()</code> to run the simulation until the coroutine has
+completed its execution.</p>
+<p>For tests that incorporate asynchronous logic, a dual approach is advantageous:
+initially, <code>create_task</code> is used to encapsulate the entire test case within a
+top-level coroutine task.
+This task is then stored in a global variable,
+and <code>run_until_complete</code> is subsequently called to run the simulation until the
+coroutine reaches its end:</p>
+<pre><code>boot_task = sloop.global_event_loop().create_task(
+    login_with_timeout(conf.board.serconsole.con))
+sloop.run_until_complete(boot_task)
+</code></pre>
+<p>During interactive test sessions, you might need to pause the simulation to
+examine the system state or to set breakpoints for debugging purposes.
+If the simulation is halted,
+the <code>run_until_complete</code> invocation will be interrupted,
+but the test task will persist as long as it was created as a separate entity.
+This grants complete control over the simulation,
+allowing you to resume or stop it at your discretion.
+Alternatively, you can call
+<code>run_until_complete</code> on the test task again to resume and carry the
+test through to its conclusion.</p>
+<h2 id="handling-system-resets"><a href="#handling-system-resets">2.3 Handling System Resets</a></h2>
+<p>To ensure the auto-login process is resilient to system reboots,
+you should use a <em>task group</em>:</p>
+<pre><code>async def always_auto_login(console, reset):
+    while True:
+        async with sloop.TaskGroup() as tg:
+            task = tg.create_task(boot_to_login(console))
+            await sloop.wait(reset)
+            task.cancel()
+</code></pre>
+<p>In this example, <code>reset</code> is a snooper that detects system reboots.
+Utilizing a task group’s <code>create_task</code> method ensures that the task
+is cleanly restarted after each reboot. Without a task group,
+an unexpected error could cause the task to persist through a reset,
+potentially leading to multiple instances of the coroutine
+running simultaneously.</p>
+
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="advanced-usage.html">3 Advanced Usage Example</a>
+</div>

@@ -1,0 +1,89 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.7 Networking and getting data into the simulated system</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="virtual-disks.html">8.6 Virtual disks</a>
+<a href="transfer-data-preparation.html">8.7.1 Preparation</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="networking-and-getting-data-into-the-simulated-system"><a href="#networking-and-getting-data-into-the-simulated-system">8.7 Networking and getting data into the simulated system</a></h1>
+<p>There are several situations when it is necessary and/or useful to let the
+simulated target machine interact with the host system, or even other systems
+accessible to the host via networking. Probably the most common situation is the
+need to transfer files between the target and the host.</p>
+<p>To summarize the available methods of transferring files between the target
+system and host machine:</p>
+<ul>
+<li>
+<p>With special software running <em>on the target</em> which communicates with the
+simulator, it is possible to transfer data between the target and the host
+while the target is running. Examples of this are:</p>
+<ul>
+<li>The Intel Simics agent, which can transfer files but also provides other
+kinds of interaction with the target system. A tutorial for the agent is
+available <a href="transfer-data-simics-agent.html">here</a>.</li>
+<li>The Intel SimicsFS, which is a file system based on
+<a href="https://www.kernel.org/doc/html/next/filesystems/fuse.html" rel="noopener noreferrer" target="_top">FUSE</a>. Read
+more about <em>Intel SimicsFS</em> in <a href="../simics-user-guide/managedisks.html#using-simicsfs-with-fuse"><em>Simics User’s
+Guide</em></a>.</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>Using these method may require the extra steps of building and transferring
+the special software to the target system.</p>
+</blockquote>
+</li>
+<li>
+<p>With disk images, for example and USB disk, files can be transferred.
+A tutorial on this is available <a href="transfer-data-usb.html">here</a>.
+See also the section about how to use <a href="virtual-disks.html">virtual disks</a>.</p>
+</li>
+<li>
+<p>If the target system has <em>networking support</em>, either a <a href="transfer-data-ftp.html">simulated
+network</a> can be used, or the target system can be
+connected to a <em>real network</em>, and use, for example
+<a href="transfer-data-napt-http.html">HTTP</a> or <a href="transfer-data-ssh.html">SSH/SCP</a> for the
+transfer.</p>
+</li>
+</ul>
+<p>For further information, see:</p>
+<ul>
+<li><a href="../simics-user-guide/managedisks.html">Simics User’s Guide</a></li>
+<li><a href="../ethernet-networking/index.html">Ethernet Networking Technology Guide</a></li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>In the tutorials, it is recommended to <em>start with the
+<a href="transfer-data-preparation.html">preparation</a></em> section, which will save time by
+using a checkpoint where Linux has booted.</p>
+</blockquote>
+
+<ul class="subsections">
+<li>
+<a href="transfer-data-preparation.html">8.7.1 Preparation</a>
+</li>
+<li>
+<a href="transfer-data-simics-agent.html">8.7.2 Using the Intel Simics Agent</a>
+</li>
+<li>
+<a href="transfer-data-usb.html">8.7.3 Using disk images</a>
+</li>
+<li>
+<a href="transfer-data-ftp.html">8.7.4 Using the Service Node</a>
+</li>
+<li>
+<a href="transfer-data-napt-http.html">8.7.5 Use NAPT network and HTTP</a>
+</li>
+<li>
+<a href="transfer-data-ssh.html">8.7.6 Using Port Forwarding and SSH</a>
+</li>
+</ul>
+<div class="chain">
+<a href="virtual-disks.html">8.6 Virtual disks</a>
+<a href="transfer-data-preparation.html">8.7.1 Preparation</a>
+</div>

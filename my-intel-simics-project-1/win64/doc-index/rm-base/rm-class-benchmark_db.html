@@ -1,0 +1,217 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>benchmark_db</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-bank_patch_tool_connection.html">bank_patch_tool_connection</a>
+<a href="rm-class-benchmark_monitor.html">benchmark_monitor</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="benchmark_db"><a href="#benchmark_db">benchmark_db</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ The benchmark database provides an persistent way to store benchmark runs information and view the results over time. Each benchmark_db object holds the connection to one opened database and proves commands to query the database contents, or make changes to the database. 
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, benchmark_database
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-benchmark_db.add-benchmark.html">add-benchmark</a>
+ – add benchmark name to the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-benchmark-to-suite.html">add-benchmark-to-suite</a>
+ – add benchmark(s) to a suite in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-host.html">add-host</a>
+ – add host name to the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-host-group.html">add-host-group</a>
+ – add host-group to the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-host-to-group.html">add-host-to-group</a>
+ – add host-group to the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-metric.html">add-metric</a>
+ – add new probe as metric in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-run-annotation.html">add-run-annotation</a>
+ – add a user annotation to a specific run</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-session-annotation.html">add-session-annotation</a>
+ – add a user annotation to a specific session</li>
+<li>
+<a href="rm-cmd-benchmark_db.add-suite.html">add-suite</a>
+ – add suite name to the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.delete.html">delete</a>
+ – remove this database object/connection</li>
+<li>
+<a href="rm-cmd-benchmark_db.export-json.html">export-json</a>
+ – export a benchmark run from the database as json</li>
+<li>
+<a href="rm-cmd-benchmark_db.garbage-collect.html">garbage-collect</a>
+ – try to optimize the database in size</li>
+<li>
+<a href="rm-cmd-benchmark_db.html-diff-report.html">html-diff-report</a>
+ – produce a diff HTML report comparing two runs in DB</li>
+<li>
+<a href="rm-cmd-benchmark_db.html-report.html">html-report</a>
+ – produce an HTML report with graphs from a run in DB</li>
+<li>
+<a href="rm-cmd-benchmark_db.import-json.html">import-json</a>
+ – import one or several benchmark runs into the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-benchmarks.html">list-benchmarks</a>
+ – list benchmark names in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-host-groups.html">list-host-groups</a>
+ – list defined host-groups and associated hosts in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-hosts.html">list-hosts</a>
+ – list host names in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-metrics.html">list-metrics</a>
+ – list the different metrics stored in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-run-annotations.html">list-run-annotations</a>
+ – list all run-annotation added</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-runs.html">list-runs</a>
+ – list benchmark runs in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-session-annotations.html">list-session-annotations</a>
+ – list all session-annotations added</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-session-scores.html">list-session-scores</a>
+ – list session's performance scores</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-sessions.html">list-sessions</a>
+ – list benchmark sessions in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.list-suites.html">list-suites</a>
+ – list benchmark suites in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-benchmark.html">remove-benchmark</a>
+ – remove benchmark name from the database (and runs)</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-benchmark-from-suite.html">remove-benchmark-from-suite</a>
+ – remove benchmark(s) from a suite in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-host.html">remove-host</a>
+ – remove host name from the database (and runs)</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-host-from-group.html">remove-host-from-group</a>
+ – remove a host from host-group in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-host-group.html">remove-host-group</a>
+ – remove a host-group from the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-metric.html">remove-metric</a>
+ – remove a probe as metric in the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-run.html">remove-run</a>
+ – remove a run from the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-run-annotation.html">remove-run-annotation</a>
+ – remove a user annotation from a specific run</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-session.html">remove-session</a>
+ – remove session(s) from the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-session-annotation.html">remove-session-annotation</a>
+ – remove a user annotation from a specific session</li>
+<li>
+<a href="rm-cmd-benchmark_db.remove-suite.html">remove-suite</a>
+ – remove suite name from the database</li>
+<li>
+<a href="rm-cmd-benchmark_db.set-journal-mode.html">set-journal-mode</a>
+ – set journal-mode on sqlite3 DB</li>
+<li>
+<a href="rm-cmd-benchmark_db.set-suite-baseline.html">set-suite-baseline</a>
+ – set baseline for a suite</li>
+<li>
+<a href="rm-cmd-benchmark_db.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-benchmark_db.web-dashboard.html">web-dashboard</a>
+ – start an interactive web dashboard for the database</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:create"><a href="#dt:create">
+<i>create</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>signals if a new database should be created</dd>
+<dt id="dt:read_only"><a href="#dt:read_only">
+<i>read_only</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>indicates if the database is read-only</dd>
+<dt id="dt:verbose"><a href="#dt:verbose">
+<i>verbose</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>set log_level=4 early</dd>
+<dt id="dt:database"><a href="#dt:database">
+<i>database</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>sqlite3-file to be used as database</dd>
+<dt id="dt:create_flags"><a href="#dt:create_flags">
+<i>create_flags</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Flags indicating the default metrics in the database. </dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.benchmark-database.html">benchmark-database</a>
+</section>
+<div class="chain">
+<a href="rm-class-bank_patch_tool_connection.html">bank_patch_tool_connection</a>
+<a href="rm-class-benchmark_monitor.html">benchmark_monitor</a>
+</div>

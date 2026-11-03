@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;gfx_break&gt;.bp-break-gfx</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-gfx-frontend-winsome.status.html">&lt;gfx-frontend-winsome&gt;.status</a>
+<a href="rm-cmd-gfx_break.bp-run-until-gfx.html">&lt;gfx_break&gt;.bp-run-until-gfx</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="gfx_break.bp-break-gfx"></a>
+<h1 id="gfx_break.bp-break-gfx"><a href="#gfx_break.bp-break-gfx">&lt;gfx_break&gt;.bp-break-gfx</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;gfx_break&gt;.bp-break-gfx</b> <i>filename</i> <i>interval</i> [-once] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Set Simics to break simulation when the graphical breakpoint defined by <i>filename</i> matches.
+<p>
+A graphical breakpoint matches when its image appears on the screen, in the same location as when it was saved. The breakpoint must have been created using the Simics GUI or the command <code>&lt;graphcon&gt;.save-break-xy</code>. The screen is checked for matches every <i>interval</i> seconds of host time, or in virtual on the clock associated to the console, if the attribute <tt>refresh_in_virtual_time</tt> is set on the console. The <tt>-once</tt> flag causes the breakpoint to automatically be removed after it has triggered. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-gfx-frontend-winsome.status.html">&lt;gfx-frontend-winsome&gt;.status</a>
+<a href="rm-cmd-gfx_break.bp-run-until-gfx.html">&lt;gfx_break&gt;.bp-run-until-gfx</a>
+</div>

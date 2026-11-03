@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-x86-branch-profiler</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-wall-e.html">new-wall-e</a>
+<a href="rm-cmd-new-x86-chassis.html">new-x86-chassis</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-x86-branch-profiler"></a>
+<h1 id="new-x86-branch-profiler"><a href="#new-x86-branch-profiler">new-x86-branch-profiler</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-x86-branch-profiler</b> [<i>"name"</i>] ([ <i>processors</i> ... ] | list of <i>processors</i>) [<i>parent</i>] [-connect-all] [<i>"group"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Creates a new x86_branch_profiler tool object. The tool is used to get statistic of normal branches executed on connected processors. <br>
+<br>
+The optional <i>name</i> argument can be used to set a name of the created object. If no name is given, a default name <i>bprof</i> followed by a sequence number is generated (<i>bprof0</i>, <i>bprof1</i>,...).<br>
+<br>
+ The optional <i>processors</i> argument, supports connecting one or several processors directly. With the optional <i>parent</i> argument a hierarchical object can be specified and all processors below this object matching the provider requirements will be connected to the tool. The <tt>-connect-all</tt> flag can be given to add a connection to all supported processors in the configuration.<br>
+<br>
+The optional argument <i>group</i> lets a user specify a named instrumentation group to use for the connection. (See <code>add-instrumentation-group</code> for details on named groups.)
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.x86-branch-profiler.html">x86-branch-profiler</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-wall-e.html">new-wall-e</a>
+<a href="rm-cmd-new-x86-chassis.html">new-x86-chassis</a>
+</div>

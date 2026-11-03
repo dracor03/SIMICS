@@ -1,0 +1,67 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Internal Data Types</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-types-instrumentation.html">Instrumentation Data Types</a>
+<a href="device-api-functions.html">Device API Functions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-data-types.html">Device API Data Types</a>
+&nbsp;/&nbsp;</div>
+<h1>Internal Data Types</h1>
+<h2 id="addr_type_t"><a href="#addr_type_t">Collection of Internal Data Types</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>byte_string_t, struct ether_addr, event_queue_type_t, icode_mode_t, image_spage_t, intervals_func_t, interval_set_t, interval_set_iter_t, os_time_t, struct os_tm, page_info_t, prof_data_t, prof_data_address_t, prof_data_counter_t, prof_data_iter_t, rand_state_t, range_node_t, sim_ic_type_t, simics_internal_counters_t, socket_t, state_save_kind_t, strbuf_t, struct simcontext, vtmem_inform_opcode_t, addr_type_t — internal data types</p>
+<h2>Description</h2>
+<p>These data types are exported for Simics internal use.</p>
+</section>
+<h2 id="block_flag_t"><a href="#block_flag_t">block_flag_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>block_flag_t — flags for blocking various internal caches</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Block_Memhier = 1,               /* want memhier or timing model
+                                                to see future accesses */
+        Sim_Block_MMU = 2,                   /* want future MMU visibility */
+        Sim_Block_MMU_IOSTC = 4,             /* want future MMU visibility
+                                                for accesses that skip the
+                                                IOSTC lookup */
+        Sim_Block_Breakpoint = 8,            /* need breakpoint check */
+        Sim_Block_Notmem = 16,               /* is not memory */
+        Sim_Block_Endian = 32,               /* memory is byteswapped */
+        Sim_Block_DSTC_Disabled = 64         /* DSTC is disabled for this
+                                                access */
+} block_flag_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Block_MMU
+simics.Sim_Block_Breakpoint
+simics.Sim_Block_MMU_IOSTC
+simics.Sim_Block_Notmem
+simics.Sim_Block_DSTC_Disabled
+simics.Sim_Block_Endian
+simics.Sim_Block_Memhier
+</code></pre>
+<h2>Description</h2>
+<p>This enum are flags for blocking various internal caches (internal).</p>
+</section>
+<div class="chain">
+<a href="dev-api-types-instrumentation.html">Instrumentation Data Types</a>
+<a href="device-api-functions.html">Device API Functions</a>
+</div>

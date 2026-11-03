@@ -1,0 +1,153 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pc-config</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-partition_tracker_comp.html">partition_tracker_comp</a>
+<a href="rm-class-pc-shadow.html">pc-shadow</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="pc-config"><a href="#pc-config">pc-config</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This device listens to the BIOS output port. It also initializes certain in-memory tables when the BIOS requests that.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:build_acpi_tables"><a href="#dt:build_acpi_tables">
+<i>build_acpi_tables</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:cpu_list"><a href="#dt:cpu_list">
+<i>cpu_list</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[o,o|n,b]*]</code>
+<br>List of CPUs where is list item is itself a (cpu, apic, is_logical) list. The is_logical field is true if the CPU is a logical CPUs.</dd>
+<dt id="dt:megs"><a href="#dt:megs">
+<i>megs</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:memory_space"><a href="#dt:memory_space">
+<i>memory_space</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Memory space to which tables are written.</dd>
+<dt id="dt:ioapic_id"><a href="#dt:ioapic_id">
+<i>ioapic_id</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:user_rsdp_address"><a href="#dt:user_rsdp_address">
+<i>user_rsdp_address</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:ebda_base"><a href="#dt:ebda_base">
+<i>ebda_base</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Physical address of EBDA.</dd>
+<dt id="dt:rsdp_offs"><a href="#dt:rsdp_offs">
+<i>rsdp_offs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:high_desc_offs"><a href="#dt:high_desc_offs">
+<i>high_desc_offs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:nvr_desc_offs"><a href="#dt:nvr_desc_offs">
+<i>nvr_desc_offs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:reclaim_desc_offs"><a href="#dt:reclaim_desc_offs">
+<i>reclaim_desc_offs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:high_desc_offs2"><a href="#dt:high_desc_offs2">
+<i>high_desc_offs2</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+<dt id="dt:smem_offs"><a href="#dt:smem_offs">
+<i>smem_offs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BIOS helper device variable.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.pc-config.html">pc-config</a>
+</section>
+<div class="chain">
+<a href="rm-class-partition_tracker_comp.html">partition_tracker_comp</a>
+<a href="rm-class-pc-shadow.html">pc-shadow</a>
+</div>

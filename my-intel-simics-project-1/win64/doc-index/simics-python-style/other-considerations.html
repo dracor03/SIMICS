@@ -1,0 +1,55 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>10 Other considerations</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="naming.html">9 Naming</a>
+<a href="using-python-with-simics.html">11 Using Python with Simics</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="other-considerations"><a href="#other-considerations">10 Other considerations</a></h1>
+<p>Use string methods wisely.
+There is often a function that does what you need, so look in the manual before
+writing a loop.</p>
+<p>In particular, do not use indexing and slicing when testing for
+prefixes/suffixes.
+Use <code>startswith()</code>/<code>endswith()</code> instead:</p>
+<pre><code>if s[:3] == 'bar':       # BAD
+if s.startswith('bar'):  # GOOD
+</code></pre>
+<p>Regular expressions are powerful but tricky to get right and can be slow; only
+use them when no better alternative exists.
+In particular, the string <code>.split()</code> method is a fast and easy way to break up
+a string into parts.</p>
+<p>Always use raw string literals when specifying regular expressions:</p>
+<pre><code>m = re.match("[a-z]+\b", s)        # BAD (and incorrect!)
+m = re.match(r"[a-z]+\b", s)       # GOOD (and correct)
+</code></pre>
+<p>If you must compare object types, use <code>isinstance()</code> rather than using <code>type()</code>
+since it allows for subtyping:</p>
+<pre><code>if type(x) == type(1):   # BAD
+if isinstance(x, int):   # OK
+</code></pre>
+<p>Remember that the empty list, tuple and dict are false in boolean contexts.
+Use this for clearer code:</p>
+<pre><code>if len(mylist) &gt; 0:      # CLUMSY
+if mylist:               # BETTER
+</code></pre>
+<p>Of course, you must be sure that you test the right thing; a polymorphic
+variable could hold a string or <code>None</code>, for instance.</p>
+<p>Keep in mind that tuples with a single element require a trailing comma:</p>
+<pre><code>print("Value=%r" % (value))      # WRONG
+print("Value=%r" % (value,))     # RIGHT
+</code></pre>
+<p>(Consider what happens in the code above if <code>value</code> is a tuple.)</p>
+<p>Use the <code>//</code> operator, not <code>/</code>, for integer (truncating) division.
+This makes the code more robust and also makes a migration to Python 3.x easier.</p>
+
+<div class="chain">
+<a href="naming.html">9 Naming</a>
+<a href="using-python-with-simics.html">11 Using Python with Simics</a>
+</div>

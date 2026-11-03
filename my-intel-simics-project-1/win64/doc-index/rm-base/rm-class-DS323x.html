@@ -1,0 +1,218 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>DS323x</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-DS3231.html">DS3231</a>
+<a href="rm-class-ISA.html">ISA</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="DS323x"><a href="#DS323x">DS323x</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+DS1213 I2C Real-Time Clock.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, i2c_device, i2c_slave_v2
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:i2c_bus-optional"><a href="#dt:i2c_bus-optional">i2c_bus (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_bus
+</dd>
+<dt id="dt:i2c_link_v2-optional"><a href="#dt:i2c_link_v2-optional">i2c_link_v2 (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_master_v2
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-regs"><a href="#dt:bank-regs">bank.regs</a></dt>
+<dd>
+<a href="rm-class-DS323x.html#DS323x.regs">DS323x.regs</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-DS323x.get-date-time.html">get-date-time</a>
+ – get date and time</li>
+<li>
+<a href="rm-cmd-DS323x.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-DS323x.set-date-time.html">set-date-time</a>
+ – set date and time</li>
+<li>
+<a href="rm-cmd-DS323x.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:addr_ptr"><a href="#dt:addr_ptr">
+<i>addr_ptr</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address pointer. Points the internal addressaffected on next data access.</dd>
+<dt id="dt:address"><a href="#dt:address">
+<i>address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address on the i2c bus.</dd>
+<dt id="dt:address_mode"><a href="#dt:address_mode">
+<i>address_mode</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Address mode. Internal state that decides if the RTC should treat data as address or value</dd>
+<dt id="dt:address_range"><a href="#dt:address_range">
+<i>address_range</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Specifies the accessible address range. For DS3231, 0x13 is the recommended value. For DS3232, 0x100 is recommended. The default is 0x12 (making the model behave as a DS3231).</dd>
+<dt id="dt:base_rtc_time"><a href="#dt:base_rtc_time">
+<i>base_rtc_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The real-time clock time when the oscillator was enabled, in seconds since 1970-01-01 00:00:00.</dd>
+<dt id="dt:base_time"><a href="#dt:base_time">
+<i>base_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>The simulated time when the oscillator was enabled, in seconds since the start of the simulation.</dd>
+<dt id="dt:current_rtc_time"><a href="#dt:current_rtc_time">
+<i>current_rtc_time</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>The real-time clock time, in seconds since 1970-01-01 00:00:00.</dd>
+<dt id="dt:enabled"><a href="#dt:enabled">
+<i>enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>tells if the real-time clock is enabled or not</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.DS323x.html">DS323x</a>
+</section>
+<h2 id="DS323x.regs"><a href="#DS323x.regs">DS323x.regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, int_register, io_memory, register_view, register_view_catalog
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="attributes-2">
+<a href="#attributes-2">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:control"><a href="#dt:control">
+<i>control</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Control Register.</dd>
+<dt id="dt:month"><a href="#dt:month">
+<i>month</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Month register. In binary format in the range 1-12, regardless of the current register mode.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-DS3231.html">DS3231</a>
+<a href="rm-class-ISA.html">ISA</a>
+</div>

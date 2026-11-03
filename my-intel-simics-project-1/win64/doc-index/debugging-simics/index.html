@@ -1,0 +1,690 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Debugging User-Developed Simulator Modules</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="debugging-user-developed-simulator-modules"><a href="#debugging-user-developed-simulator-modules">Debugging User-Developed Simulator Modules</a></h1>
+<h2 id="debugging-user-developed-simulator-modules-2"><a href="#debugging-user-developed-simulator-modules-2">1 Debugging User-Developed Simulator Modules</a></h2>
+<p>This document describes some tools that are used to debug Simics, and modules
+and software developed by the user that run with Simics.</p>
+<p>Due to the wide scope and numerous use cases, the purpose of this document is to
+introduce the basics and provide a quick start.</p>
+<p>The tools that are described are the module <code>state-assertion</code> which comes with
+the Simics installation, the two third party tools, <code>GDB</code> and <code>Valgrind</code>, and
+the internal Simics memory tracking system.</p>
+<h3 id="preventing-defects"><a href="#preventing-defects">1.1 Preventing Defects</a></h3>
+<p>A good way to pre-empt troublesome debugging sessions — which often coincide
+with critical deadlines — is the use of efficient testing. <em>Simics Model
+Builder</em> provides you with such support, see the <a href="../model-builder-user-guide/index.html"><em>Model Builder User’s
+Guide</em></a>.</p>
+<h2 id="using-state-assertion"><a href="#using-state-assertion">2 Using State Assertion</a></h2>
+<p>This chapter describes how to use <code>state-assertion</code>, which is a module that
+comes with Simics.</p>
+<p>In short, state-assertion is used by running the same configuration in two
+different Simics sessions and comparing the state of the two Simics sessions at
+specified intervals. It is the attributes of the verified objects that are
+compared and any difference will instantly cause an alert to the user.</p>
+<p>In particular, state-assertion is used to verify checkpointability, which is a
+key feature in Simics and most useful while debugging Simics, user modules, or
+target software.</p>
+<p>Furthermore, state-assertion can be used to find out where the execution begins
+to differ after changes in target software or changes in user models.</p>
+<p>Simics can be run under state-assertion in two ways: save the evolution to file
+and run the second Simics using that file, or, run a second Simics that receives
+the states over a network connection.</p>
+<p>A short overview for running Simics under state-assertion:</p>
+<ol>
+<li>Decide on one or more objects to verify. One or more CPUs are the most
+common objects to verify, because they normally detect any difference, even
+those caused by devices.</li>
+<li>Start Simics and either…
+<ul>
+<li>start state-assertion right away; or</li>
+<li>start the state-assertion from a checkpoint.</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>Run the simulation past the area to verify and stop.</li>
+<li>Verify the simulation in the second Simics instance.</li>
+</ul>
+<h3 id="example-session-using-file"><a href="#example-session-using-file">2.1 Example Session Using File</a></h3>
+<p>Start Simics, load the configuration, either run the simulation to some point
+prior to the interesting area to verify and take a checkpoint, or start
+state-assertion right away.</p>
+<ol>
+<li>
+<p>Setup the session. Decide on one or more objects to verify and start
+recording:</p>
+<pre><code>simics&gt; load-module state-assertion
+simics&gt; state-assertion-create-file compression = gz file = /tmp/test.sa
+Creating file '/tmp/test.sa' with compression 'gz'
+[state-assertion] File created successfully.
+sa0 created. You probably want to add some objects or memory space now with 
+'add' and 'add-mem-lis', then run 'start' to begin the assertion process.
+simics&gt; sa0.add obj = "board.mb.cpu0.core[0][0]" steps = 1000000
+[state-assertion] Added board.mb.cpu0.core[0][0] (x86QSP3) with save type 1(every 1000000 steps) - version 0.0
+simics&gt; sa0.start
+[state-assertion] Started
+simics&gt; c
+</code></pre>
+</li>
+<li>
+<p>Continue the simulation past the interesting area and stop the simulation.
+Finish state-assertion which will flush the state information to file.
+Finally, quit Simics:</p>
+<pre><code>running&gt; stop
+simics&gt; sa0.stop
+[state-assertion] Stopped
+simics&gt; quit
+</code></pre>
+</li>
+<li>
+<p>Start Simics, possibly from the checkpoint you created to begin with, and
+load the recorded state information and start the simulation:</p>
+<pre><code>simics&gt; load-module state-assertion
+simics&gt; state-assertion-open-file file = /tmp/test.sa compression = gz
+Opening file '/tmp/test.sa' with compression 'gz'
+[state-assertion] File opened successfully.
+sa0 opened. You should run 'start' to begin the assertion process.
+simics&gt; sa0.start
+[state-assertion] Added board.mb.cpu0.core[0][0] (x86QSP3) with save type 1(every 1000000 steps) - version 0.0
+[state-assertion] Started
+simics&gt; c
+</code></pre>
+</li>
+<li>
+<p>If all goes well no special output is expected, otherwise attributes that
+differs are listed with timestamps, for example:</p>
+<pre><code>[state-assertion::assert] object: 0 - board.mb.cpu0.core[0][0], timestamp 636000000
+Name                             Assert value       Current value
+rax                              0x0000000040010100 0x00000000df349d68 &lt;-- diff
+rbx                              0x00000000ddc65398 0x00000000ddc50398 &lt;-- diff
+...
+Difference found while asserting
+</code></pre>
+</li>
+</ol>
+<p>Normally you want to start with a large interval, but once a difference is
+found, restart the state-assertion at the most recent time to be known as
+correct but this time with <code>steps&nbsp;=&nbsp;1</code> to pin-point where the difference in
+states first occurs. Once that is done, re-run the last one or two steps with
+maximum log level to find out what is happening during that step and debug the
+execution normally.</p>
+<h3 id="example-session-using-network"><a href="#example-session-using-network">2.2 Example Session Using Network</a></h3>
+<p>Rather than save to file it is possible to run two Simics instances, connected
+over the network, one acting as a “producer” and one as a “consumer”:</p>
+<ol>
+<li>
+<p>Start the “consumer” Simics instance and prepare for state-assertion:</p>
+<pre><code>simics2&gt; load-module state-assertion
+simics2&gt; state-assertion-receive port = 4711
+[state-assertion] Waiting for connection...
+</code></pre>
+</li>
+<li>
+<p>Then start the “producer” Simics instance and connect to the waiting
+consumer instance:</p>
+<pre><code>simics1&gt; load-module state-assertion
+simics1&gt; state-assertion-connect port = 4711
+[state-assertion] File created successfully.
+sa0 connected. You probably want to add some objects or memory space now with 
+'add' and 'add-mem-lis', then run 'start' to begin the assertion process.
+</code></pre>
+</li>
+<li>
+<p>The receiving Simics should acknowledge the connection. Start the asserting:</p>
+<pre><code>simics2&gt; sa0.start
+</code></pre>
+</li>
+</ol>
+<p>Notice that the prompt will not return until after the first number of <em>steps</em>
+are executed in the producing Simics instance.</p>
+<ol>
+<li>
+<p>In analogy to the previous example, add one or more objects to the setup in
+the producing Simics instance and start the assertion:</p>
+<pre><code>simics1&gt; sa0.add obj = "board.mb.cpu0.core[0][0]" steps = 1000000
+[state-assertion] Added board.mb.cpu0.core[0][0] (x86QSP3) with save type 1(every 1000000 steps) - version 0.0
+simics1&gt; sa0.start
+simics1&gt; c
+</code></pre>
+</li>
+<li>
+<p>Soon the receiving Simics instance gets back its prompt, start that
+simulation and the receiver will now simulate the same target as the
+producer and compare its state every interval with the state given by the
+producer.</p>
+<pre><code>simics2&gt; c
+</code></pre>
+</li>
+</ol>
+<p>Even though errors found while using <code>state-assertion</code> may seem trivial or
+non-important, it is always better to address them as soon as possible. Should
+you later have to contact Simics Support, it may be necessary to provide a
+useful checkpoint to enable the support engineers to reproduce the issue.</p>
+<h2 id="debugging-dml-models-in-simics"><a href="#debugging-dml-models-in-simics">3 Debugging DML Models in Simics</a></h2>
+<p>This chapter describes how to debug errors in DML models in Simics Environment.</p>
+<p>The programming language DML is designed to make it easy to develop device
+models. The DML compiler, called <code>dmlc</code>, translates code written in DML into C
+source code. However, users who want to debug device models written in DML do
+not need to look into the details of the generated C code as it is possible to
+directly debug the DML code. Debugging devices written in DML is very similar to
+debugging C code.</p>
+<p>In this document the GDB shipped in the <em>Simics GDB</em> add-on package (package
+number 1031) is used. <a href="http://www.gnu.org/software/gdb/" rel="noopener noreferrer" target="_top">GDB</a> is an open source,
+general purpose debugger that allows you to follow the execution of a program
+that runs “inside” GDB, inspect variables, and has many other capabilities that
+are explained in detail in GDB’s on-line documentation.</p>
+<p>The GDB shipped in the <em>Simics GDB</em> add-on package (package number 1031) was
+specifically extended to support direct debugging of DML code. Using it you can:</p>
+<ol>
+<li>Set line breakpoints and function breakpoints in DML code.</li>
+<li>Step directly in DML code.</li>
+<li>Evaluate DML symbols directly instead of the mangled C symbols, such as
+variables, stack frames and so on.</li>
+</ol>
+<p>A short guide for running Simics under GDB:</p>
+<ol>
+<li>Start the GDB utility from the <em>Simics GDB</em> add-on package. If you debug
+from a command-line interface, use <code>bin/gdb</code> script from Simics project
+directory to start GDB.</li>
+<li>Start Simics and run the simulation close to the point in time where the
+error surfaces. Use the Simics <strong>pid</strong> command to obtain the current id of
+the Simics process.</li>
+<li>Use the GDB that was started on step 1. to attach to the Simics process.</li>
+<li>Set any needed breakpoints for functions or lines in your code. If you are
+debugging a crash of the simulator then breakpoints may not be needed - the
+GDB will automatically stop the processor at the point where a crash occurs.</li>
+<li>Control and debug the execution of Simics process with GDB.</li>
+</ol>
+<p>In the following sections, we will show you how to debug Simics models (written
+in DML) from Simics CLI.</p>
+<p>More information on how to build the modules can be found in the <a href="../model-builder-user-guide/index.html"><em>Model Builder
+User’s Guide</em></a> (the chapter on Build
+Environment), and the <a href="../dml-1.4-reference-manual/index.html"><em>DML 1.4 Reference
+Manual</em></a>, section “Running DMLC” in “The
+DML compiler” chapter.</p>
+<h3 id="debug-device-from-cli"><a href="#debug-device-from-cli">3.1 Debug Device from CLI</a></h3>
+<h4 id="prepare-the-example"><a href="#prepare-the-example">3.1.1 Prepare the Example</a></h4>
+<p>This section prepares a simple synthetic example that will cause a segmentation
+fault and as a result will crash Simics. In the following session, we will use
+the example to show a debugging process.</p>
+<ol>
+<li>Setup project and prepare the device source code<br>
+Create a project and copy a DML device as follows:
+<pre><code>joe@computer:~$ &lt;simics-installation&gt;/bin/project-setup proj
+joe@computer:~: cd proj
+joe@computer:~/proj: bin/project-setup --copy-module=simple-broken-device-gdb
+</code></pre>
+</li>
+</ol>
+<p>This copies a sample device to the folder <code>modules/simple-broken-device-gdb/</code>.
+The device is defined by the <code>simple-broken-device-gdb.dml</code> file:</p>
+<pre><code>method two(int *val) {
+    local int bar = *val;
+    log info: "method \"two\" called %d", bar;
+}
+
+method one() {
+    local int *foo = NULL;
+    log info: "method \"one\" called";
+    two(foo);
+}
+
+attribute int_attr is int64_attr "An integer attribute" {
+    method set(attr_value_t val) throws {
+        default(val);
+        after_set();
+    }
+    method after_set() throws {
+        log info: "attribute int_attr updated";
+        one();
+    }
+}
+
+bank regs {
+    register reg size 4 @ 1000 {
+        param init_val = 54;
+        method set(uint64 val) {
+            default(val);
+        }
+    }
+    register reg_array[i &lt; 4] size 4 @ 2000 + i * 4 {
+        param init_val = 78 + i;
+    }
+    group reg_group[i &lt; 4] {
+        register reg_array[j &lt; 4] size 4 @ 3000 + i * 20 + j * 4 {
+            param init_val = 78 + i * 10 + j;
+        }
+    }
+}
+</code></pre>
+<p>Notice how function “one” will call function “two” with a <code>NULL</code> pointer, which
+will definitely cause a crash at the line <code>local int bar = *val</code>.</p>
+<ol>
+<li>
+<p>Build the device</p>
+<pre><code>joe@computer:~/proj: make
+=== Building module "simple-broken-device-gdb" ===
+...
+</code></pre>
+</li>
+<li>
+<p>Start Simics, use the device and trigger the error</p>
+<pre><code>joe@computer:~/proj: ./simics
+
+simics&gt; load-module simple-broken-device-gdb
+simics&gt; @SIM_create_object("simple_broken_device_gdb", "trbl")
+&lt;the simple_broken_device_gdb 'trbl'&gt;
+simics&gt; trbl-&gt;int_attr = 4711
+[trbl info] attribute int_attr updated
+[trbl info] method "one" called
+Segmentation fault (SIGSEGV) in main thread
+#0  0x00007fd04065c448 (...proj/linux64/lib/simple-broken-device-gdb.so + 0x1448)
+#1  0x00007fd05588ad67 (...simics/linux64/bin/libsimics-common.so + 0x117d67)
+...
+</code></pre>
+</li>
+</ol>
+<p>The error caused a SIGSEGV and the stack trace points to our own module as the
+current frame. With tools such as <code>nm</code> and <code>objdump</code> it may be possible to
+pin-point the line in the source code, but with GDB we may monitor the execution
+and find a suspect.</p>
+<h4 id="example-session"><a href="#example-session">3.1.2 Example Session</a></h4>
+<p>In this session, we will show the detailed debugging process. Note that the
+project makefile compiles optimized modules by default, hence we need to
+recompile the module with the proper compilation options for a better debugging
+experience. The GDB shipped with Simics has been extended with DML knowledge.
+Use <code>bin/gdb</code> to run it.</p>
+<ol>
+<li>
+<p>Setup project and prepare the device source code<br>
+This is done in the prior session ‘Prepare for the Example’.</p>
+</li>
+<li>
+<p>Re-build the device without optimization and with debug artifacts:</p>
+<pre><code>joe@computer:~/proj: make clean
+Clean of all modules
+joe@computer:~/proj: make D=1
+=== Building module "simple-broken-device-gdb" ===
+...
+</code></pre>
+</li>
+<li>
+<p>Start Simics, create object, list PID</p>
+<pre><code>joe@computer:~/proj: ./simics
+
+simics&gt; load-module simple-broken-device-gdb
+simics&gt; @SIM_create_object("simple_broken_device_gdb", "trbl")
+&lt;the simple_broken_device_gdb 'trbl'&gt;
+simics&gt; pid
+12345
+</code></pre>
+</li>
+<li>
+<p>Attach GDB to the Simics process</p>
+<pre><code>joe@computer:~/proj: ./bin/gdb --pid 12345
+</code></pre>
+</li>
+<li>
+<p>Set a breakpoint</p>
+<p>Function names can be referenced the same way as in DML:</p>
+<pre><code>(gdb) break one
+Breakpoint 1 at 0x76ced68: file ...proj/modules/simple-broken-device-gdb/
+simple-broken-device-gdb.dml, line 34.
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>(gdb) <strong>break
+modules/simple-broken-device-gdb/simple-broken-device-gdb.dml:34</strong> will do
+the same thing.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>It’s possible for a DML symbol to have the same name as a C symbol within
+GDB; in such ambiguous cases, the C symbol is prioritized. The DML symbol
+can be explicitly chosen by disambiguating through the use of <code>dev.symbol</code>
+or <code>this.symbol</code>, depending on the context.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>A known issue with GDB is that it’s not possible to break on methods with
+a <code>shared</code> implementation (defined in a template). This means that you are
+not able to, for example, break on the default implementations of <code>get</code> or
+<code>set</code> of registers.
+A work-around for this is to provide a non-<code>shared</code> implementation of the
+method you wish to break on in the source file, by simply overriding that
+method and calling the default implementation:</p>
+<pre><code>register reg size 4 @ 1000 {
+    param init_val = 54;
+    method set(uint64 val) {
+        default(val);
+    }
+}
+``` As the overriding method implementation is not `shared`, it is
+possible to break on it.
+</code></pre>
+</blockquote>
+</li>
+<li>
+<p>Continue running the process:</p>
+<pre><code>(gdb) c
+Continuing.
+</code></pre>
+</li>
+<li>
+<p>Trigger the breakpoint<br>
+Set the variable <code>trbl-&gt;int_attr</code> at CLI:</p>
+<pre><code>simics&gt; trbl-&gt;int_attr = 4711
+[trbl info] attribute int_attr update
+</code></pre>
+<p>In GDB we read</p>
+<pre><code>Breakpoint 1, one (_dev=0x9eb4ee0)
+at ...proj/modules/simple-broken-device-gdb/simple-broken-device-gdb.dml:34
+34          local int *foo = NULL;
+</code></pre>
+</li>
+<li>
+<p>Debug process Step by issuing <code>next</code> twice, to the location just about where
+we call the function named “two”. Inspect the value of the variables:</p>
+<pre><code>...
+36          two(foo);
+(gdb) print foo
+$1 = (int *) 0x0
+</code></pre>
+<p>Not good, a NULL pointer. Another step and we face the SIGSEGV:</p>
+<pre><code>(gdb) n
+
+Program received signal SIGSEGV, Segmentation fault.
+0x076cedf3 in two (_dev=0x9eb4ee0, val=0x0)
+at ...proj/modules/simple-broken-device-gdb/simple-broken-device-gdb.dml:29
+29          local int bar = *val;
+</code></pre>
+<p>The crash happened at line 29 in the code of our module.</p>
+</li>
+</ol>
+<p>Backtrace and climb up the stack frame and inspect the variables in each frame:
+<code>    (gdb) backtrace     #0  0x076cedf3 in two (_dev=0x9eb4ee0, val=0x0)     at ...proj/modules/simple-broken-device-gdb/simple-broken-device-gdb.dml:29     #1  0x076cedbc in one (_dev=0x9eb4ee0)     at ...proj/modules/simple-broken-device-gdb/simple-broken-device-gdb.dml:36     #2  0x076cec97 in int_attr.after_set (_dev=0x9eb4ee0)     at ...proj/modules/simple-broken-device-gdb/simple-broken-device-gdb.dml:46     ...     (gdb) p val     $2 = (int *) 0x0     (gdb) up     #1  0x076cedbc in one (_dev=0x9eb4ee0)     at ...proj/modules/simple-broken-device-gdb/simple-broken-device-gdb.dml:36     36          two(foo);     (gdb) list     31  }     32     33  method one() {     34      local int *foo = NULL;     35      log info: "method \"one\" called";     36      two(foo);     37  }     38     39  attribute int_attr is int64_attr "An integer attribute" {     40      method set(attr_value_t val) throws {     (gdb) p foo     $3 = (int *) 0x0    </code></p>
+<p>This is a trivial example and ends here. Next steps for a normal debug session
+would be to figure out why <code>foo</code> was assigned a <code>NULL</code> value.</p>
+<h2 id="using-valgrind-on-simics"><a href="#using-valgrind-on-simics">4 Using Valgrind on Simics</a></h2>
+<blockquote class="markdown-alert-note">
+<p>Valgrind is only available on Linux hosts.</p>
+</blockquote>
+<p>This chapter describes how to use Valgrind to debug errors in Simics models,
+including memory corruptions, which can be difficult to find. For these types of
+bugs Valgrind is a very powerful tool, despite the reduced execution speed
+caused by Valgrind’s instrumentation and execution model.</p>
+<p><code>Valgrind</code> (see <a href="http://valgrind.org" rel="noopener noreferrer" target="_top">http://valgrind.org</a>) is an open-source
+tool for memory debugging, memory leak detection, and profiling Linux programs.</p>
+<p>A short guide for running Simics under Valgrind:</p>
+<ol>
+<li>Install Valgrind on your host.</li>
+<li>Compile the <code>valgrind-support</code> Simics module.</li>
+<li>Instead of running <code>./simics</code> run <code>./bin/valgrind-simics</code>.</li>
+</ol>
+<h3 id="installing-valgrind"><a href="#installing-valgrind">4.1 Installing Valgrind</a></h3>
+<p>If you downloaded the tarball from <a href="http://valgrind.org" rel="noopener noreferrer" target="_top">http://valgrind.org</a>,
+run the customary</p>
+<pre><code>./configure &amp;&amp; make &amp;&amp; make install
+</code></pre>
+<p>If you have installed the pre-built package that comes with your linux
+distribution, make sure you also install the development package as you will
+need it when compiling the Simics valgrind-support module.</p>
+<h3 id="compiling-valgrind-support"><a href="#compiling-valgrind-support">4.2 Compiling valgrind-support</a></h3>
+<p>As Valgrind instruments the code that executes under its supervision, we need to
+restrict Valgrind to not instrument the JIT code generated by Simics (the JIT
+code produced by Simics does not tolerate being changed). This can be achieved
+by loading the <code>valgrind-support</code> module into Simics. The binary interface for
+telling Valgrind that it should ignore certain regions of memory changes between
+different versions of Valgrind. This is why you should compile your own version
+of <code>valgrind-support</code> for the Valgrind-version which you are using.</p>
+<pre><code>project$ bin/project-setup --copy-module=valgrind-support
+project$ make valgrind-support
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>This step requires that you have access to the <code>valgrind.h</code> header that comes
+with the valgrind tarball or the valgrind development package</p>
+</blockquote>
+<h3 id="running-valgrind-on-simics"><a href="#running-valgrind-on-simics">4.3 Running Valgrind on Simics</a></h3>
+<p>To start Simics under Valgrind you should use the <code>./bin/valgrind-simics</code>
+script. This script sets up the needed environment similar to <code>./simics</code> but
+instead starts Valgrind wrapping the Simics binary.</p>
+<p>The script automatically passes the following arguments to Valgrind:</p>
+<pre><code>--tool=memcheck
+--suppressions=$HOSTSDIR/scripts/simics-valgrind.supp
+--soname-synonyms=somalloc=NONE
+</code></pre>
+<p>These options tell Valgrind to use the <code>memcheck</code> tool for detecting memory
+errors, to suppress false positives in Simics use of embedded Python, and to
+handle overloaded new/delete in C++ code.</p>
+<p>Run Simics with Valgrind loading a target script:</p>
+<pre><code>project$ bin/valgrind-simics targets/qsp-x86/firststeps.simics
+</code></pre>
+<p>To override the default arguments to Valgrind, it is possible to set the
+<code>VALGRIND_OPTIONS</code> environment variable before starting <code>valgrind-simics</code>.</p>
+<pre><code>project$ env VALGRIND_OPTIONS="--num-callers=20  --suppressions=&lt;simics-installation&gt;/scripts/simics-valgrind.supp  --tool=memcheck" bin/valgrind-simics
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>When setting custom VALGRIND_OPTIONS the default options must also be passed.</p>
+</blockquote>
+<h3 id="example-session-2"><a href="#example-session-2">4.4 Example Session</a></h3>
+<p>Simics comes with an example device with multiple errors in it. The device can
+be used to get acquainted with Valgrind. Copy it to your project with the
+following command:</p>
+<pre><code>project&gt; bin/project-setup --copy-module=simple-broken-device-valgrind
+</code></pre>
+<p>This is what it looks like:</p>
+<pre><code>dml 1.2;
+
+device simple_broken_device_valgrind;
+
+// short, one-line description
+parameter desc = "sample broken device for Valgrind example";
+
+// long description
+parameter documentation = "This is a very broken device for use with the Valgrind debugging example";
+
+import "io-memory.dml";
+
+extern void *malloc(size_t);
+extern int  free(void *);
+extern char *strcpy(char *, const char *);
+
+method init {
+    // Memory allocated by "new" expression will be initialized to 0's
+    // automatically
+    $too_few = new uint8[100];
+}
+
+data uint8 *too_few;
+
+bank regs {
+    parameter function = 0;
+    parameter register_size = 1;
+
+    // Accesses between 0-99 are okay
+    // Accesses above 99 are outside of malloc:ed memory
+    register u[0x100] @ 0x0000 + $i {
+        method read() -&gt; (value) {
+            log info: "read from u[%d]", $i;
+            value = $too_few[$i];
+        }
+    }
+
+    // Will use uninitialized malloc memory
+    register m @ 0x0100 {
+        method read() -&gt; (value) {
+            log info: "read from m";
+            local char *s = malloc(10);
+            log info, 1: "String=%s", s;
+            value = 0;
+            free(s);
+        }
+    }
+
+    // Accessing released memory
+    register r @ 0x0200 {
+        method read() -&gt; (value) {
+            log info: "read from r";
+            local char *s = new char[10];
+            strcpy(s, "foo");
+            delete s;
+            value = s[0];
+        }
+    }
+}
+</code></pre>
+<p>Here is a session using this device. Some of the output from Valgrind has been
+omitted from the example to focus on the important information.</p>
+<p>Start with a minimal system containing just our broken device and a
+memory-space. Map the device into the memory space and try to access it.</p>
+<pre><code>simics&gt; @SIM_create_object("memory-space", "phys_mem")
+&lt;the memory-space 'phys_mem'&gt;
+simics&gt; @SIM_create_object("simple_broken_device_valgrind", "broken")
+&lt;the simple_broken_device_valgrind 'broken'&gt;
+simics&gt; phys_mem.add-map broken 0x0 0x300
+Mapped 'broken' in 'phys_mem' at address 0x0.
+simics&gt; phys_mem.read     0 size = 1 # Should be okay
+[broken info] read from u[0]
+0x0000
+simics&gt; phys_mem.read    49 size = 1 # Should be okay
+[broken info] read from u[49]
+0x0000
+</code></pre>
+<p>We can see that access to the <code>u[0]</code> and <code>u[49]</code> registers are OK. No complaints
+from Valgrind.</p>
+<p>Now let’s try to access outside of malloc’d region:</p>
+<pre><code>simics&gt; phys_mem.read   100 size = 1 # Outside of malloc:ed region
+[broken info] read from u[100]
+==7335== 
+==7335== Invalid read of size 1
+==7335==    at 0x116199AD: ::_DML_M_reg__u__read_access(void) (simple-broken-device-valgrind.dml:56)
+==7335==    by 0x116196CD: _DML_M_reg__read_access (dml-builtins.dml:276)
+==7335==    by 0x116190E1: _DML_M_reg__access (dml-builtins.dml:258)
+==7335==    by 0x11618CBC: _DML_M_io_memory__operation (io-memory.dml:30)
+==7335==    by 0x116184FD: _DML_IFACE_io_memory__operation (io-memory.dml:20)
+==7335==    by 0x4A96120: VT_io_operation (device.c:54)
+==7335==    by 0x4ACA907: memory_space_map_access (memory-space.c:762)
+==7335==    by 0x4ACACEF: memory_space_access (memory-space.c:834)
+==7335==    by 0x4ACB09A: memory_space_access_simple_inq (memory-space.c:928)
+==7335==    by 0x4ACB2CD: memory_space_read (memory-space.c:994)
+==7335==    by 0x4B17DB6: py_code_MPT13conf_object_tPT13conf_object_tT18physical    _address_tKintKintRT12attr_value_t (py-wrappers.c:21392)
+==7335==    by 0x50339BA: PyEval_EvalFrameEx (ceval.c:3564)
+==7335==  Address 0xBA1365C is 0 bytes after a block of size 100 alloc'd
+==7335==    at 0x4904B4E: malloc (vg_replace_malloc.c:149)
+==7335==    by 0x4E40B32: lowlevel_malloc (simmalloc.c:238)
+==7335==    by 0x4E41139: mm_malloc (simmalloc.c:650)
+==7335==    by 0x11617EB3: simple_broken_device_valgrind_new_instance    (simple-broken-device-valgrind.dml:40)
+==7335==    by 0x4A7605B: make_new_instance (configuration.c:1067)
+==7335==    by 0x4A7CC4E: SIM_create_object (configuration.c:3585)
+==7335==    by 0x4B3F052: py_code_SIM_create_object (py-wrappers.c:43139)
+==7335==    by 0x50339BA: PyEval_EvalFrameEx (ceval.c:3564)
+==7335==    by 0x5035262: PyEval_EvalCodeEx (ceval.c:2831)
+==7335==    by 0x5035511: PyEval_EvalCode (ceval.c:494)
+==7335==    by 0x5056008: PyRun_StringFlags (pythonrun.c:1271)
+==7335==    by 0x502C2C6: builtin_eval (bltinmodule.c:599)
+0x0000
+</code></pre>
+<p>Above the <code>u[100]</code> register is accessed but the side-effect of the register is
+to read from another allocated region, which is only 100 bytes large.</p>
+<p>Now try to access uninitialized data:</p>
+<pre><code>simics&gt; phys_mem.read 0x100 size = 1 # Uninitialized data
+[broken info] read from m
+==7335== 
+==7335== Conditional jump or move depends on uninitialised value(s)
+==7335==    at 0x4E43307: __vtprintf (vtprintf.c:606)
+==7335==    by 0x4E4603E: vtvsnprintf (vtprintf.c:861)
+==7335==    by 0x4E4684C: sb_vaddfmt (strbuf.c:123)
+==7335==    by 0x4E46A98: sb_vfmt (strbuf.c:163)
+==7335==    by 0x4ABED34: VT_log_message_fmt_va (log.c:726)
+==7335==    by 0x4ABEE72: VT_log_message_fmt (log.c:738)
+==7335==    by 0x11619B36: _DML_M_reg__m__read_access__1 (simple-broken-device-valgrind.dml:64)
+==7335==    by 0x11619734: _DML_M_reg__read_access (dml-builtins.dml:276)
+==7335==    by 0x116190E1: _DML_M_reg__access (dml-builtins.dml:258)
+==7335==    by 0x11618CBC: _DML_M_io_memory__operation (io-memory.dml:30)
+==7335==    by 0x116184FD: _DML_IFACE_io_memory__operation (io-memory.dml:20)
+==7335==    by 0x4A96120: VT_io_operation (device.c:54)
+[broken info] String=
+0x0000
+</code></pre>
+<p>Above register <code>m</code> was accessed, but it uses a malloc region which has not been
+initialized.</p>
+<p>Now try to access free’d data:</p>
+<pre><code>simics&gt; phys_mem.read 0x200 size = 1 # Accessing free:d data
+[broken info] read from r
+==7335== 
+==7335== Invalid read of size 1
+==7335==    at 0x11619CA5: _DML_M_reg__r__read_access__2 (simple-broken-device-valgrind.dml:74)
+==7335==    by 0x11619774: _DML_M_reg__read_access (dml-builtins.dml:276)
+==7335==    by 0x116190E1: _DML_M_reg__access (dml-builtins.dml:258)
+==7335==    by 0x11618CBC: _DML_M_io_memory__operation (io-memory.dml:30)
+==7335==    by 0x116184FD: _DML_IFACE_io_memory__operation (io-memory.dml:20)
+==7335==    by 0x4A96120: VT_io_operation (device.c:54)
+==7335==    by 0x4ACA907: memory_space_map_access (memory-space.c:762)
+==7335==    by 0x4ACACEF: memory_space_access (memory-space.c:834)
+==7335==    by 0x4ACB09A: memory_space_access_simple_inq (memory-space.c:928)
+==7335==    by 0x4ACB2CD: memory_space_read (memory-space.c:994)
+==7335==    by 0x4B17DB6: py_code_MPT13conf_object_tPT13conf_object_tT18physical    _address_tKintKintRT12attr_value_t (py-wrappers.c:21392)
+==7335==    by 0x50339BA: PyEval_EvalFrameEx (ceval.c:3564)
+==7335==  Address 0x8F8C3A8 is 0 bytes inside a block of size 10 free'd
+==7335==    at 0x49057C8: free (vg_replace_malloc.c:233)
+==7335==    by 0x4E409EF: lowlevel_free (simmalloc.c:246)
+==7335==    by 0x4E41B24: mm_free (simmalloc.c:853)
+==7335==    by 0x11619CA0: _DML_M_reg__r__read_access__2 (simple-broken-device-valgrind.dml:74)
+==7335==    by 0x11619774: _DML_M_reg__read_access (dml-builtins.dml:276)
+==7335==    by 0x116190E1: _DML_M_reg__access (dml-builtins.dml:258)
+==7335==    by 0x11618CBC: _DML_M_io_memory__operation (io-memory.dml:30)
+==7335==    by 0x116184FD: _DML_IFACE_io_memory__operation (io-memory.dml:20)
+==7335==    by 0x4A96120: VT_io_operation (device.c:54)
+==7335==    by 0x4ACA907: memory_space_map_access (memory-space.c:762)
+==7335==    by 0x4ACACEF: memory_space_access (memory-space.c:834)
+==7335==    by 0x4ACB09A: memory_space_access_simple_inq (memory-space.c:928)
+0x0066
+</code></pre>
+<p>Register <code>r</code> was accessed, but it uses a memory area which has already been
+free’d.</p>
+<h2 id="simics-built-in-memory-tracking"><a href="#simics-built-in-memory-tracking">5 Simics built-in memory tracking</a></h2>
+<p>Simics contains a very simple system for tracking heap allocations made from C
+and DML. It is provided “as-is” and may disappear or change without prior
+notice, as it depends on internal implementation aspects.</p>
+<p>Allocations are only tracked when made using one of the macros in the
+<code>MM_MALLOC</code> family. Some calls to <code>malloc</code> may also be tracked if they were made
+in code including the header <code>simics/util/alloc.h</code>, but this should not be
+relied upon.</p>
+<p>Any allocation made by other means will not be visible in this system. In
+particular, this includes anything allocated by Python. Some of the internal
+allocations made by the simulator itself may also be hidden from view.</p>
+<p>The memory tracking makes Simics run more slowly and use more memory, so it has
+to be enabled explicitly by setting the environment variable
+<code>SIMICS_MEMORY_TRACKING</code> to 1 before starting the simulator.</p>
+<h3 id="memory-tracking-commands"><a href="#memory-tracking-commands">5.1 Memory tracking commands</a></h3>
+<p>The <code>mm-list-types</code>, <code>mm-list-sites</code> and <code>mm-list-allocations</code> commands display
+allocation statistics. In order to access them, they need to be enabled by
+running</p>
+<pre><code>simics&gt; enable-unsupported-feature "malloc-debug"
+</code></pre>
+<p>on the Simics command line. The commands all have an optional parameter to limit
+the number of results listed, see help for details. The commands mainly differ
+in the way their output is aggregated and sorted. The columns in the response
+are:</p>
+<dl>
+<dt id="dt:bytes"><a href="#dt:bytes">bytes</a></dt>
+<dd>Net number of bytes allocated but not freed.
+This does not count allocation overhead, only the number of bytes requested.</dd>
+<dt id="dt:allocs"><a href="#dt:allocs">allocs</a></dt>
+<dd>Net number of blocks allocated but not freed.</dd>
+<dt id="dt:calls"><a href="#dt:calls">calls</a></dt>
+<dd>Number of allocation calls made, including freed ones.</dd>
+<dt id="dt:type"><a href="#dt:type">type</a></dt>
+<dd>Type of allocated object, as passed to <code>MM_MALLOC</code>.</dd>
+<dt id="dt:file-line"><a href="#dt:file-line">file:line</a></dt>
+<dd>Allocation site location in the source code.</dd>
+</dl>
+<p>Reallocations (<code>MM_REALLOC</code> and wrapped <code>realloc</code>) count as a new allocation
+followed by freeing the old block.</p>
+
+<div class="chain">
+<span></span>
+</div>

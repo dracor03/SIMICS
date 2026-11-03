@@ -1,0 +1,51 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Standard Limitations</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simics-products.html">1 Simics Products</a>
+<a href="simics-feature-list.html">3 Simics Feature List</a>
+</div>
+<div class="path">
+<a href="index.html">Product Family Overview</a>
+&nbsp;/&nbsp;</div><h1 id="standard-limitations"><a href="#standard-limitations">2 Standard Limitations</a></h1>
+<p>The standard limitations may apply to all model products.</p>
+<ol>
+<li>Error states and diagnostic registers typically only return default values
+corresponding to no error when read.</li>
+<li>Performance counters will only return approximate values.</li>
+<li>Hardware models are simplified for performance and complexity reasons, as
+long as target software in the Delivery Criteria can run unmodified on the
+model.</li>
+<li>Only listed components or models will be implemented. Listed components or
+models can have limited functionality as long as the Delivery Criteria are
+fulfilled.</li>
+<li>The default in-order execution model in Simics allows one instruction or
+exception to be simulated each simulated clock tick. This means that the
+simulated processors implicitly have a “firm” consistency model. Unless
+otherwise specified, the in-order execution model is the only execution
+model supported.</li>
+<li>Simics is timing approximate; while Simics maintains a conceptual model of
+execution time, it will vary from the execution time of the same software
+running on a particular instance of physical hardware.</li>
+<li>Processor and device models simulate the architecturally defined behavior,
+usually defined in a Programmers Reference Manual. The Simics implementation
+of processor and device models may differ from hardware implementations but
+will comply with the architecture unless otherwise specified.</li>
+<li>For unusual cases, floating point calculations may have rounding errors,
+causing low order bits to differ from what is defined by architecture.</li>
+<li>While error status registers are available in the simulation model, they
+typically have read-write semantics without any side effects. This means
+they are not set by the simulation model and setting the registers will not
+cause any other effects in the model (such as triggering an interrupt or
+setting other registers).</li>
+<li>Deviations from product specification will be noted in the release notes.</li>
+</ol>
+
+<div class="chain">
+<a href="simics-products.html">1 Simics Products</a>
+<a href="simics-feature-list.html">3 Simics Feature List</a>
+</div>

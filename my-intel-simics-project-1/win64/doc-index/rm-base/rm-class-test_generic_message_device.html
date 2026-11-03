@@ -1,0 +1,113 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>test_generic_message_device</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-test_cdrom_media_wrapper.html">test_cdrom_media_wrapper</a>
+<a href="rm-class-test_usb_device.html">test_usb_device</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="test_generic_message_device"><a href="#test_generic_message_device">test_generic_message_device</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+obsolete generic-message-link sample device
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, generic_message_device
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:address"><a href="#dt:address">
+<i>address</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address of the device itself on the link.</dd>
+<dt id="dt:dest_address"><a href="#dt:dest_address">
+<i>dest_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Destination address for the messages (default is [0,0]).</dd>
+<dt id="dt:value"><a href="#dt:value">
+<i>value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Value to send in messages (default is [0,0]).</dd>
+<dt id="dt:length"><a href="#dt:length">
+<i>length</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Length of the message to send (default is [1,100] bytes).</dd>
+<dt id="dt:delay"><a href="#dt:delay">
+<i>delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Delay between each message in cycles (default is [1,100]).</dd>
+<dt id="dt:frame_delay"><a href="#dt:frame_delay">
+<i>frame_delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Delay to send messages in ns (default is [0,0] ns).</dd>
+<dt id="dt:save_logs"><a href="#dt:save_logs">
+<i>save_logs</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Activate/Deactivate log saving for send/received frames</dd>
+<dt id="dt:link"><a href="#dt:link">
+<i>link</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Link to connect to.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.test-generic-message-device.html">test-generic-message-device</a>
+</section>
+<div class="chain">
+<a href="rm-class-test_cdrom_media_wrapper.html">test_cdrom_media_wrapper</a>
+<a href="rm-class-test_usb_device.html">test_usb_device</a>
+</div>

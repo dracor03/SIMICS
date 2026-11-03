@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>debug-context</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-date.html">date</a>
+<a href="rm-cmd-dec.html">dec</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="debug-context"></a>
+<h1 id="debug-context"><a href="#debug-context">debug-context</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>debug-context</b> [<i>object</i>|<i>"context-query"</i>] [<i>"name"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Optionally change the current debug context and return it, naming the debug object <i>name</i> unless a object for the debug context already exists.
+<p>
+The current debug context can be specified either using the <i>object</i> argument to select a <em>processor</em> object, or the <i>context-query</i> argument to match any kind of <em>debug context</em> with state. The context query should match one unique processor or OS awareness leaf node.
+</p><p>
+The current debug context is the debug context global stepping and debugger inspection commands will affect.
+</p><p>
+Setting the current debug context also enables the debugger. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-date.html">date</a>
+<a href="rm-cmd-dec.html">dec</a>
+</div>

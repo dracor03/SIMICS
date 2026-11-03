@@ -1,0 +1,71 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Processor Model Integration Guide</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a>
+<a href="cosimulator-examples.html">1 Processor Scheduling Examples</a>
+</div>
+<div class="path"></div><h1 id="processor-model-integration-guide"><a href="#processor-model-integration-guide">Processor Model Integration Guide</a></h1>
+<p>This document describes the API used to implement models of processors in Simics.
+Simics handles the simulation framework, including the user interfaces, standardized APIs, plug-in administration, and commonly used utilities and resources.
+The processor models use and implement the standardized APIs, which allows mixing simulation models and creating a uniform interface to the user.</p>
+<p>The processor API is the part of the API that gives a model to get control over simulator scheduling.
+It includes processor specific interfaces to enable standard functions and commands for the processor models as well as efficient memory interfaces to allow fast simulation.
+The most important interfaces are covered in this document, for the other interfaces please refer to the <a href="../rm-api/index.html">API Reference Manual</a>.</p>
+<p>Depending on use, the processors should implement and use different parts of the interfaces described.</p>
+<p>A number of areas that a processor model may support can be identified as follows:</p>
+<dl>
+<dt id="dt:simulation-scheduling"><a href="#dt:simulation-scheduling">Simulation scheduling</a></dt>
+<dd>There must be basic support for advancing the simulation.
+This support must be present for any fast functional processor model.
+Cycle driven models may be designed using the built-in clock class that handles the scheduling interaction with the framework.</dd>
+<dt id="dt:direct-access-to-memory"><a href="#dt:direct-access-to-memory">Direct Access to Memory</a></dt>
+<dd>Interfaces used to cache pointers to memory, allowing accesses to be carried out without involving the API.</dd>
+<dt id="dt:inspection-and-control-of-processor-models"><a href="#dt:inspection-and-control-of-processor-models">Inspection and control of processor models</a></dt>
+<dd>As processors are very visible to the user of the simulator, there are several standardized ways for the user to access and control a processor.
+To support these, the processor models in turn have to implement interfaces and trigger haps.</dd>
+<dt id="dt:breakpoints"><a href="#dt:breakpoints">Breakpoints</a></dt>
+<dd>The processor model is fully responsible for triggering virtual address breakpoints.
+For physical address breakpoints, the processor model needs to check if ranges mapped with direct memory access contain breakpoints and then either request more fine grained regions of memory without breakpoints or fall back to explicit memory operations, where the explicit memory operations will handle breakpoints if they happen to match.</dd>
+<dt id="dt:simulation-of-models"><a href="#dt:simulation-of-models">Simulation of models</a></dt>
+<dd>Covers the mechanisms used to communicate between processors and devices.</dd>
+</dl>
+<p>Like any other model, processor models should be written to integrate well into the Simics environment.
+See the <a href="../model-builder-user-guide/development-checklist.html">Simics Model Development Checklist</a> section for a good checklist to follow when designing and implementing the model.
+See also the <a href="../simics-user-guide/index.html">Simics User’s Guide</a> for more information about the features discussed in this document.</p>
+<p>How to configure a system and create start scripts is described in <a href="../model-builder-user-guide/machine-creation.html">System Configurations</a> in Model Builder User’s Guide.
+Example system configurations can be found in <code>[simics]/targets/cosim/</code>.</p>
+
+<ul class="subsections">
+<li>
+<a href="cosimulator-examples.html">1 Processor Scheduling Examples</a>
+</li>
+<li>
+<a href="simulation-scheduling.html">2 Simulation Scheduling</a>
+</li>
+<li>
+<a href="direct-access-to-memory.html">3 Direct Access to Memory</a>
+</li>
+<li>
+<a href="controlling-and-inspecting-processor-state.html">4 Controlling and Inspecting Processor State</a>
+</li>
+<li>
+<a href="processor-api-breakpoints.html">5 Breakpoints</a>
+</li>
+<li>
+<a href="simics-environment-interaction.html">6 Simics Environment Interaction</a>
+</li>
+<li>
+<a href="simics-api-functions.html">7 Simics API Functions</a>
+</li>
+<li>
+<a href="miscellaneous-remarks.html">8 Miscellaneous Remarks</a>
+</li>
+</ul>
+<div class="chain">
+<span></span>
+<a href="cosimulator-examples.html">1 Processor Scheduling Examples</a>
+</div>

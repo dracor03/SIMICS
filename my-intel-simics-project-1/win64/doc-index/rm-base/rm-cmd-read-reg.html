@@ -1,0 +1,49 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>read-reg</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-read-configuration.html">read-configuration</a>
+<a href="rm-cmd-read-variable.html">read-variable</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="read-reg"></a>
+<a name="processor_info.read-reg"></a>
+<h1 id="read-reg"><a href="#read-reg">read-reg</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>read-reg</b> [<i>cpu-name</i>] <i>"reg-name"</i> <br><b>&lt;processor_info&gt;.read-reg</b> <i>"reg-name"</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Reads the register <i>reg-name</i> from an object implementing the <tt>int_register</tt> interface.
+<p>
+To read the <tt>eax</tt> register in an x86 processor called <tt>cpu0</tt>, the command invocation is <code>read-reg cpu0 eax</code>. There is also a namespace version <code>cpu0.read-reg eax</code> or the more convenient variant <tt>%eax</tt> that reads a register from the current frontend processor.
+</p><p>
+If no processor is selected using <i>cpu-name</i>, the current frontend processor is used.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-_percent_.html">%</a>, 
+<a href="rm-cmd-write-reg.html">write-reg</a>, 
+<a href="rm-cmd-print-processor-registers.html">print-processor-registers</a>, 
+<a href="rm-cmd-pselect.html">pselect</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-read-configuration.html">read-configuration</a>
+<a href="rm-cmd-read-variable.html">read-variable</a>
+</div>

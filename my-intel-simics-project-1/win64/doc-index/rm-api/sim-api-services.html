@@ -1,0 +1,245 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simulation Independent Services</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-control.html">Simulation Control</a>
+<a href="sim-api-caches.html">Simulator Translation Caches</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Simulation Independent Services</h1>
+<h2 id="SIM_cancel_realtime_event"><a href="#SIM_cancel_realtime_event">SIM_cancel_realtime_event</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_cancel_realtime_event — cancel callback in host time</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int
+SIM_cancel_realtime_event(int64 id);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_cancel_realtime_event(...)
+</code></pre>
+<h2>Description</h2>
+<p>Cancel a callback registered by <a href="sim-api-services.html#SIM_realtime_event"><code>SIM_realtime_event</code></a>, whose return value is specified as <code>id</code>.</p>
+<p>Returns 0 if the callback existed and was cancelled, or -1 if no callback with that identifier existed. (No exception is raised.)</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-services.html#SIM_realtime_event"><code>SIM_realtime_event</code></a></p>
+</section>
+<h2 id="SIM_notify_on_socket"><a href="#SIM_notify_on_socket">SIM_notify_on_socket, SIM_notify_on_object, SIM_notify_on_descriptor, notify_mode_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_notify_on_socket, SIM_notify_on_object, SIM_notify_on_descriptor, notify_mode_t — register notification on host I/O events</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_notify_on_socket(socket_t sock, notify_mode_t mode, int run_in_thread,
+                     void (*callback)(lang_void *data), lang_void *data);
+
+void
+SIM_notify_on_descriptor(int fd, notify_mode_t mode, int run_in_thread,
+                         void (*callback)(lang_void *data),
+                         lang_void *data);
+
+typedef enum {
+        Sim_NM_Read,            /* when ready for reading/accept, or closed */
+        Sim_NM_Write            /* when ready for writing/connect */
+} notify_mode_t;
+
+// other items
+
+void
+SIM_notify_on_object(HANDLE obj, int run_in_thread,
+                     void (*callback)(lang_void *data), lang_void *data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_notify_on_socket(...)
+simics.SIM_notify_on_descriptor(...)
+simics.Sim_NM_Read
+simics.Sim_NM_Write
+</code></pre>
+<h2>Description</h2>
+<p>These functions allow the function <code>callback</code> to be called with argument <code>data</code> whenever a specific I/O event occurs on the host machine. If <code>callback</code> is a null function pointer, a previously installed notification is removed.</p>
+<p>If <code>run_in_thread</code> is 1, the callback function may be run in a thread where it cannot access or call anything in Simics except for these functions and <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a>. If <code>run_in_thread</code> is zero, the callback function is always run in Global Context. This may incur a small penalty in latency (time between the occurrence of the host event and execution of <code>callback</code>).</p>
+<p>Values other than 0 and 1 for <code>run_in_thread</code> are reserved.</p>
+<p>Notification on a specific event will be blocked during the execution of its callback function.</p>
+<p><code>SIM_notify_on_socket</code> will call a registered callback depending on <code>mode</code>:</p>
+<table><thead><tr><th><code>mode</code></th><th>condition</th></tr></thead><tbody>
+<tr><td><a href="sim-api-services.html#SIM_notify_on_socket"><code>Sim_NM_Read</code></a></td><td>Socket is readable, closed, or incoming connection accepted</td></tr>
+<tr><td><a href="sim-api-services.html#SIM_notify_on_socket"><code>Sim_NM_Write</code></a></td><td>Socket is writeable, or outgoing connection has completed</td></tr>
+</tbody></table>
+<p>Socket notifiers of the mode <code>Sim_NM_Write</code> are not guaranteed to be called again unless a previous attempt to send data to the socket failed for flow control reasons (that is, it would have blocked).</p>
+<p>This means that notifiers of that mode should only be enabled for waiting on the completion of a nonblocking outgoing connection or for a previously “full” socket to accept data again.</p>
+<p><strong>Linux only</strong>: <code>SIM_notify_on_descriptor</code> will call a registered callback depending on <code>mode</code> for a given file descriptor in a way similar to <code>SIM_notify_on_socket</code>.</p>
+<p><strong>Windows only</strong>: <code>SIM_notify_on_object</code> will call a registered callback when <code>object</code> (which must be a waitable object) is in signalled state. The signalling object is modified in the same way as the Windows wait functions (<code>WaitForMultipleObjects</code> etc).</p>
+<blockquote class="markdown-alert-note">
+<p>A notification should be removed before its socket or descriptor is closed.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>On Windows, sockets registered for notification become nonblocking and must remain so for as long as they are registered. This is a limitation of the underlying Win32 API.</p>
+</blockquote>
+<h2>Execution Context</h2>
+<p>Cell Context (call); Threaded Context (callback with nonzero <code>run_in_thread</code>); Global Context (callback otherwise)</p>
+<h2>See Also</h2>
+<p><a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a></p>
+</section>
+<h2 id="SIM_realtime_event"><a href="#SIM_realtime_event">SIM_realtime_event</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_realtime_event — schedule callback in host time</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int64
+SIM_realtime_event(unsigned delay, void (*NOTNULL callback)(lang_void *data),
+                   lang_void *data, int run_in_thread, const char *desc);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_realtime_event(...)
+</code></pre>
+<h2>Description</h2>
+<p>Register <code>callback</code> to be run in <code>delay</code> ms, with argument <code>data</code>. The delay is in real time (on the host machine), and the actual delay may be somewhat larger because of host scheduling.</p>
+<p>If <code>run_in_thread</code> is 1, the callback may be run in a thread where it cannot access or call anything in Simics except for <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a>. If <code>run_in_thread</code> is zero, the callback function is always run in Global Context, with the simulation temporarily suspended and the entire Simics API available. This may cause the call to occur slightly later than requested, depending on what Simics is doing at the time.</p>
+<p>Values other than 0 and 1 for <code>run_in_thread</code> are reserved.</p>
+<p>The <code>desc</code> parameter is only present for debugging and has no other effect; it should be a static string describing the callback but may also be left <code>nullptr</code> if desired.</p>
+<p>The callback is only called once.</p>
+<p>The return value is a non-zero identifier that can be used to cancel the callback using <a href="sim-api-services.html#SIM_cancel_realtime_event"><code>SIM_cancel_realtime_event</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context. The callback is called in Threaded Context if <code>run_in_thread</code> is nonzero, in Global Context otherwise.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-services.html#SIM_cancel_realtime_event"><code>SIM_cancel_realtime_event</code></a>, <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a></p>
+</section>
+<h2 id="SIM_register_work"><a href="#SIM_register_work">SIM_register_work, SIM_thread_safe_callback, SIM_run_alone</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_register_work, SIM_thread_safe_callback, SIM_run_alone — register function to be called in Global Context</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_register_work(void (*NOTNULL f)(lang_void *data), lang_void *data);
+
+void
+SIM_thread_safe_callback(void (*NOTNULL f)(lang_void *data), lang_void *data);
+
+void
+SIM_run_alone(void (*NOTNULL f)(lang_void *data), lang_void *data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_register_work(...)
+simics.SIM_thread_safe_callback(...)
+simics.SIM_run_alone(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_register_work</code> and <code>SIM_thread_safe_callback</code> register work to be done in Global Context as soon as possible, (but not during the call to <code>SIM_register_work</code> or <code>SIM_thread_safe_callback</code> itself).</p>
+<p><code>SIM_run_alone</code> also registers work to be done in Global Context and if called from Cell Context the callback is executed before the next instruction is dispatched in the cell. If this isn’t used the cell may execute several instructions before the callback is executed. If <code>SIM_run_alone</code> is used while an instruction is being emulated then the callback will be invoked when the current instruction has completed and before the next instruction is dispatched.</p>
+<p>No other execution threads are running when the callback is invoked, but their exact position in simulated time may vary between runs. If the callback accesses objects in cells other than the one that <code>SIM_run_alone</code> was called from, then care must be taken to preserve determinism.</p>
+<p>When the callback is run, it is executed in Global Context, which means that it is safe to call any API functions from it. Another thread in the module may at this time also call API functions, if it synchronizes correctly with the callback function. For example, the callback function might just signal to the foreign thread to do its Simics API calls, wait for the thread to signal that it has finished, and then return.</p>
+<h2>Execution Context</h2>
+<p>Threaded context (call); Global Context (callback)</p>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_run_unrestricted"><code>SIM_run_unrestricted</code></a></p>
+</section>
+<h2 id="SIM_run_async_work"><a href="#SIM_run_async_work">SIM_run_async_work</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_run_async_work — launch asynchronous work in a separate thread</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_run_async_work(lang_void *(*NOTNULL async_call)(lang_void *arg),
+                   void (*async_ready)(lang_void *async_ret, lang_void *arg),
+                   lang_void *arg);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_run_async_work(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_run_async_work</code> creates a new thread, running in parallel with the Simics main thread, where the <code>async_call</code> function will be called. Since the function runs in Threaded Context, most Simics API functions are not available. Once the <code>async_call</code> function has run, its return value is passed to <code>async_ready</code>, if supplied, that will be called in Global Context, i.e. in the Simics main thread.</p>
+<p>The user supplied <code>arg</code> parameter is passed unmodified to both callback functions.</p>
+<p><code>SIM_run_async_work</code> is typically used when calling functions that would block the main thread for a long time while obtaining their result.</p>
+<p>If the result of <code>SIM_run_async_work</code> is used in the simulation, it should be sent through a recorder to make sure that the session can be replayed. See the recorder module and the <a href="simulator-to-simulator-interfaces.html#recorder_v2_interface_t"><code>recorder_v2</code></a> interface for more information.</p>
+<h2>Example</h2>
+<pre><code>import socket
+
+def async_call(arg):
+    # runs in separate thread without blocking Simics
+    return socket.gethostbyname(arg)
+
+def async_ready(ret, arg):
+    # runs in Simics main thread with access to the full Simics API
+    print("Host %s has IP address %s" % (arg, ret))
+
+simics.SIM_run_async_work(async_call, async_ready, "www.intel.com")
+</code></pre>
+<h2>Execution Context</h2>
+<p>Cell Context (call); Threaded Context (<code>async_call</code> callback); Global Context (<code>async_ready</code> callback)</p>
+<h2>See Also</h2>
+<p><a href="sim-api-services.html#SIM_notify_on_socket"><code>SIM_notify_on_descriptor</code></a>, <a href="sim-api-services.html#SIM_notify_on_socket"><code>SIM_notify_on_object</code></a>, <a href="sim-api-services.html#SIM_notify_on_socket"><code>SIM_notify_on_socket</code></a>, <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a>, <a href="sim-api-services.html#SIM_register_work"><code>SIM_run_alone</code></a>, <a href="dev-api-events.html#SIM_run_unrestricted"><code>SIM_run_unrestricted</code></a></p>
+</section>
+<h2 id="SIM_run_in_thread"><a href="#SIM_run_in_thread">SIM_run_in_thread</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_run_in_thread — run function in a separate thread</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_run_in_thread(void (*NOTNULL f)(lang_void *arg), lang_void *arg);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_run_in_thread(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_run_in_thread</code> schedules the callback <code>f</code> to run on a separate thread. The callback will run in Threaded Context and must observe the associated restrictions.</p>
+<p>Simics maintains a pool of worker threads used by this function, and hence the callback can typically be started quickly.</p>
+<p>The callback is allowed to block or otherwise run for a long time.</p>
+<p>The user supplied <code>arg</code> parameter is passed unmodified to the callback.</p>
+<h2>Execution Context</h2>
+<p>Any thread context (call); <br>
+Threaded Context (callback);</p>
+<h2>See Also</h2>
+<p><a href="sim-api-services.html#SIM_run_async_work"><code>SIM_run_async_work</code></a>, <a href="sim-api-services.html#SIM_register_work"><code>SIM_run_alone</code></a></p>
+</section>
+<div class="chain">
+<a href="sim-api-control.html">Simulation Control</a>
+<a href="sim-api-caches.html">Simulator Translation Caches</a>
+</div>

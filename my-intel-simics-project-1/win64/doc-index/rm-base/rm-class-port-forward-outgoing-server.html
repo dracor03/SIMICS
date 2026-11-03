@@ -1,0 +1,113 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>port-forward-outgoing-server</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-port-forward-incoming-server.html">port-forward-incoming-server</a>
+<a href="rm-class-port-space.html">port-space</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="port-forward-outgoing-server"><a href="#port-forward-outgoing-server">port-forward-outgoing-server</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Port forwarding service. Handles connections originating from inside the simulated environment.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, tcp_service, udp_service, port_forward
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-port-forward-outgoing-server.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:tcp"><a href="#dt:tcp">
+<i>tcp</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>TCP layer. Must implement the tcp interface.</dd>
+<dt id="dt:udp"><a href="#dt:udp">
+<i>udp</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>UDP layer. Must implement the udp interface.</dd>
+<dt id="dt:connections"><a href="#dt:connections">
+<i>connections</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[si]|[sissi]|[sii]|[sissii]*]</code>
+<br>Configures how connections are forwarded. The first two elements in each sublist specify the protocol and port to listen on. If zero, then all ports are listened on. If a sublist has five elements, then the additional arguments specify the ip address to listen on, and the ip address and port to forward to. If a sublist only has two element, then the connection will be forwarded to the ip address and port given in the incoming ip packet. If a source port is specified, it will be appended as the last element of the list, i.e., the length of the list will be 3 or 6, respectively, in that case.</dd>
+<dt id="dt:active_connections"><a href="#dt:active_connections">
+<i>active_connections</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[ssisi]*]</code>
+<br>Currently active connections from the simulated world to the real world. This attribute is read-only, and returns a list of connections, where each item contains the following information: [tcp/udp, simulated ip, simulated port, real ip, real port].</dd>
+<dt id="dt:drop_active_connection"><a href="#dt:drop_active_connection">
+<i>drop_active_connection</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>[ssisi]</code>
+<br>Drop an active connection from the simulated world to the real world. This attribute can be used to drop forwarded connections in case it was left open by either side, and waiting for time-out is not a viable option. The value to write is the connection description, as returned by the active_connections attribute: [tcp/upd, simulated ip, simulated port, real ip, real port].</dd>
+<dt id="dt:algs"><a href="#dt:algs">
+<i>algs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>Application Level Gateway (ALG) objects providing protocol specific support for port forwarding. The first object returning non-null in a call to its connection method will be the one that handles that particular connection.</dd>
+<dt id="dt:udp_timeout"><a href="#dt:udp_timeout">
+<i>udp_timeout</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Timeout before dropping an idle UDP NAT forcefully, in seconds. Default to 600. A negative value will in effect disable this timeout mechanism.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.service-node.html">service-node</a>
+</section>
+<div class="chain">
+<a href="rm-class-port-forward-incoming-server.html">port-forward-incoming-server</a>
+<a href="rm-class-port-space.html">port-space</a>
+</div>

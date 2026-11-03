@@ -1,0 +1,56 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.7.1 Preparation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="transfer-data.html">8.7 Networking and getting data into the simulated system</a>
+<a href="transfer-data-simics-agent.html">8.7.2 Using the Intel Simics Agent</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;
+<a href="transfer-data.html">8.7 Networking and getting data into the simulated system</a>
+&nbsp;/&nbsp;</div><h1 id="preparation"><a href="#preparation">8.7.1 Preparation</a></h1>
+<p>Most tutorials in this section require a <code>qsp-x86/firststeps</code> target machine
+where Linux has reached the login prompt, and that the <em>simulation is stopped</em>.</p>
+<p>If the checkpoint <code>target-booted.ckpt</code> has been created (see the
+<a href="checkpoints-snapshots-.html">checkpoints</a> section), it is possible to save time
+and launch the simulator directly from this checkpoint (<em>Alt 1</em>), otherwise
+start the <code>qsp-x86/firststeps</code> target (<em>Alt 2</em>).</p>
+<ul>
+<li>
+<p><em>Alt 1</em> - use the ‘target-booted.ckpt’ checkpoint if this is available (see
+the <a href="checkpoints-snapshots-.html">checkpoints</a> section)</p>
+<pre><code class="language-simics">$ <strong>./simics target-booted.ckpt</strong>
+</code></pre>
+</li>
+<li>
+<p><em>Alt 2</em> - launch the simulator with the <code>qsp-x86/firststeps</code> target and run
+until <em>Linux prompt</em>. For this, we use the target parameter
+<code>machine:software:simics:stop_after_login</code> which allows <em>stopping</em> the
+simulation after Linux has booted and user has been logged in.</p>
+<pre><code class="language-simics">$ <strong>./simics qsp-x86/firststeps machine:software:simics:stop_after_login=TRUE</strong>
+simics&gt; <strong>run</strong>
+running&gt;
+...
+running&gt; <strong>stop # after seeing login prompt</strong>
+simics&gt; <strong>write-configuration "target-booted.ckpt"</strong>
+</code></pre>
+</li>
+</ul>
+<p>After stopping, write a checkpoint <code>target-booted.ckpt</code>, and use <em>Alt 1</em> for
+later steps in the tutorial to avoid having to wait for Linux to boot.</p>
+<blockquote class="markdown-alert-note">
+<p>After having followed the above preparation steps, Linux should have booted
+and the simulator should have stopped.</p>
+</blockquote>
+
+<div class="chain">
+<a href="transfer-data.html">8.7 Networking and getting data into the simulated system</a>
+<a href="transfer-data-simics-agent.html">8.7.2 Using the Intel Simics Agent</a>
+</div>

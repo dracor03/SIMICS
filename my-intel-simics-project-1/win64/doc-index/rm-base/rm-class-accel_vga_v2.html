@@ -1,0 +1,927 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>accel_vga_v2</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-accel-vga.html">accel-vga</a>
+<a href="rm-class-agent_handle.html">agent_handle</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="accel_vga_v2"><a href="#accel_vga_v2">accel_vga_v2</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Accelerated Super VGA device implementing the Bochs VBE protocol. Supports all reasonable VBE modes that fit into the 16 MiB display memory, the largest being 2560x1600x32. Modes outside of the configured display resolution, changeable with the display-resolution command, will not be reported by the VGA BIOS when queried for available modes.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, accel_vga_v2, image_snoop, pcie_device
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:clkreq-optional"><a href="#dt:clkreq-optional">clkreq (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+<dt id="dt:console-pseudo"><a href="#dt:console-pseudo">console (pseudo)</a></dt>
+<dd>
+<b>Required interfaces</b>: gfx_con
+</dd>
+<dt id="dt:direct_map_space-required"><a href="#dt:direct_map_space-required">direct_map_space (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: map_demap
+</dd>
+<dt id="dt:image-required"><a href="#dt:image-required">image (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: image, linear_image
+</dd>
+<dt id="dt:memory_space-required"><a href="#dt:memory_space-required">memory_space (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: map_demap
+</dd>
+<dt id="dt:upstream_target-optional"><a href="#dt:upstream_target-optional">upstream_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pcie_map
+</dd>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, pcie_link_control, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+<dt id="dt:video_ram-required"><a href="#dt:video_ram-required">video_ram (required)</a></dt>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-pcie_config"><a href="#dt:bank-pcie_config">bank.pcie_config</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.pcie_config">accel_vga_v2.pcie_config</a>
+</dd>
+<dt id="dt:bank-vbe_io"><a href="#dt:bank-vbe_io">bank.vbe_io</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.vbe_io">accel_vga_v2.vbe_io</a>
+ – VBE IO registers for indirect VBE registers access</dd>
+<dt id="dt:bank-vbe_mem"><a href="#dt:bank-vbe_mem">bank.vbe_mem</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.vbe_mem">accel_vga_v2.vbe_mem</a>
+ – VBE memory access path to LFB</dd>
+<dt id="dt:bank-vbe_regs"><a href="#dt:bank-vbe_regs">bank.vbe_regs</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.vbe_regs">accel_vga_v2.vbe_regs</a>
+ – VBE registers (indirectly accessed via VBE IO)</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.HRESET">accel_vga_v2.HRESET</a>
+</dd>
+<dt id="dt:port-_upstream_egress"><a href="#dt:port-_upstream_egress">port._upstream_egress</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2._upstream_egress">accel_vga_v2._upstream_egress</a>
+</dd>
+<dt id="dt:port-_upstream_egress_dead_end"><a href="#dt:port-_upstream_egress_dead_end">port._upstream_egress_dead_end</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2._upstream_egress_dead_end">accel_vga_v2._upstream_egress_dead_end</a>
+</dd>
+<dt id="dt:port-phy"><a href="#dt:port-phy">port.phy</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.phy">accel_vga_v2.phy</a>
+</dd>
+<dt id="dt:port-upstream_ingress"><a href="#dt:port-upstream_ingress">port.upstream_ingress</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.upstream_ingress">accel_vga_v2.upstream_ingress</a>
+</dd>
+<dt id="dt:port-video_mem"><a href="#dt:port-video_mem">port.video_mem</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.video_mem">accel_vga_v2.video_mem</a>
+ – redirect towards VBE or VGA memory paths</dd>
+<dt id="dt:upstream_ingress_targets"><a href="#dt:upstream_ingress_targets">upstream_ingress_targets</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.upstream_ingress_targets">accel_vga_v2.upstream_ingress_targets</a>
+</dd>
+<dt id="dt:vga_engine"><a href="#dt:vga_engine">vga_engine</a></dt>
+<dd>
+<a href="rm-class-vga.html#vga">vga</a>
+ – VGA handler.</dd>
+<dt id="dt:vga_io"><a href="#dt:vga_io">vga_io</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – VGA IO ports.</dd>
+<dt id="dt:vga_mem_space"><a href="#dt:vga_mem_space">vga_mem_space</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – VGA memory access path.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-accel_vga_v2.display-resolution.html">display-resolution</a>
+ – display resolution</li>
+<li>
+<a href="rm-cmd-accel_vga_v2.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-accel_vga_v2.redraw.html">redraw</a>
+ – redraw display</li>
+<li>
+<a href="rm-cmd-accel_vga_v2.refresh-rate.html">refresh-rate</a>
+ – set refresh rate for the display</li>
+<li>
+<a href="rm-cmd-accel_vga_v2.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-accel_vga_v2.text-dump.html">text-dump</a>
+ – print text contents of display</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:bochs_wrkrnd_enab"><a href="#dt:bochs_wrkrnd_enab">
+<i>bochs_wrkrnd_enab</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>This attribute enables workaround for bochs driver bug found in rhel 7.1</dd>
+<dt id="dt:clkreq"><a href="#dt:clkreq">
+<i>clkreq</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>CLKREQ output signal (active high)
+<p>
+Required interface: <tt>signal</tt></p></dd>
+<dt id="dt:console"><a href="#dt:console">
+<i>console</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>GFX console for displaying.
+<p>
+Required interface: <tt>gfx_con</tt></p></dd>
+<dt id="dt:display_max_xres"><a href="#dt:display_max_xres">
+<i>display_max_xres</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>max x resolution</dd>
+<dt id="dt:display_max_yres"><a href="#dt:display_max_yres">
+<i>display_max_yres</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>max y resolution</dd>
+<dt id="dt:expansion_rom_size"><a href="#dt:expansion_rom_size">
+<i>expansion_rom_size</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Size of expansion ROM</dd>
+<dt id="dt:image"><a href="#dt:image">
+<i>image</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Image object containing the VRAM.
+<p>
+Required interfaces: <tt>image</tt>, <tt>linear_image</tt></p></dd>
+<dt id="dt:lfb_size"><a href="#dt:lfb_size">
+<i>lfb_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>size of LFB</dd>
+<dt id="dt:memory_space"><a href="#dt:memory_space">
+<i>memory_space</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>PCI mem space to map the direct map space into.
+<p>
+Required interface: <tt>map_demap</tt></p></dd>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Only for backwards compatibility</dd>
+<dt id="dt:redraw"><a href="#dt:redraw">
+<i>redraw</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>write-only</b> access; type: 
+<code>a</code>
+<br>Check vga_engine.redraw for details</dd>
+<dt id="dt:refresh_rate"><a href="#dt:refresh_rate">
+<i>refresh_rate</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Check vga_engine.refresh_rate for details</dd>
+<dt id="dt:text_page"><a href="#dt:text_page">
+<i>text_page</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>n|[s*]</code>
+<br>Check vga_engine.text_page for details</dd>
+<dt id="dt:vbe_default_bpp"><a href="#dt:vbe_default_bpp">
+<i>vbe_default_bpp</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>power-on value for bit-per-pixel</dd>
+<dt id="dt:vbe_default_enable"><a href="#dt:vbe_default_enable">
+<i>vbe_default_enable</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>power-on value for VBE enable</dd>
+<dt id="dt:vbe_default_xres"><a href="#dt:vbe_default_xres">
+<i>vbe_default_xres</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>power-on value for x resolution</dd>
+<dt id="dt:vbe_default_yres"><a href="#dt:vbe_default_yres">
+<i>vbe_default_yres</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>power-on value for y resolution</dd>
+<dt id="dt:video_ram"><a href="#dt:video_ram">
+<i>video_ram</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>RAM frontend for VRAM image.
+<p>
+Optional interfaces: <tt>io_memory</tt>, <tt>memory_space</tt>, <tt>port_space</tt>, <tt>ram</tt>, <tt>rom</tt>, <tt>transaction</tt>, <tt>transaction_translator</tt>, <tt>translator</tt></p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.accel-vga-v2.html">accel-vga-v2</a>
+</section>
+<h2 id="accel_vga_v2.HRESET"><a href="#accel_vga_v2.HRESET">accel_vga_v2.HRESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="accel_vga_v2._upstream_egress"><a href="#accel_vga_v2._upstream_egress">accel_vga_v2._upstream_egress</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction_translator, translation_flush
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator">
+<a href="#commands-for-interface-transaction_translator">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2._upstream_egress_dead_end"><a href="#accel_vga_v2._upstream_egress_dead_end">accel_vga_v2._upstream_egress_dead_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-4">
+<a href="#interfaces-implemented-4">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-4">
+<a href="#notifiers-4">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-4"><a href="#dt:cell-change-4">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-4"><a href="#dt:object-delete-4">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-4"><a href="#dt:queue-change-4">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction">
+<a href="#commands-for-interface-transaction">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.pcie_config"><a href="#accel_vga_v2.pcie_config">accel_vga_v2.pcie_config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-5">
+<a href="#interfaces-implemented-5">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, pcie_function_info, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-5">
+<a href="#notifiers-5">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-5"><a href="#dt:cell-change-5">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-5"><a href="#dt:object-delete-5">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-5"><a href="#dt:queue-change-5">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects-2">
+<a href="#port-objects-2">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:expansion-image"><a href="#dt:expansion-image">expansion.image</a></dt>
+<dd>
+<a href="rm-class-image.html#image">image</a>
+ – Expansion image</dd>
+<dt id="dt:expansion-rom"><a href="#dt:expansion-rom">expansion.rom</a></dt>
+<dd>
+<a href="rm-class-rom.html#rom">rom</a>
+ – Expansion ROM</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-pcie_function_info">
+<a href="#commands-for-interface-pcie_function_info">Commands for interface pcie_function_info</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-dma-read.html">pcie-dma-read</a>
+ – memory PCIe DMA Read</li>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-dma-write.html">pcie-dma-write</a>
+ – memory PCIe (DMA) Write</li>
+<li>
+<a href="rm-cmd-pcie_function_info.pcie-memory-probe.html">pcie-memory-probe</a>
+ – probe an upstream PCIe DMA</li>
+</ul>
+<h2 id="commands-for-interface-transaction-2">
+<a href="#commands-for-interface-transaction-2">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+<h2 id="attributes-2">
+<a href="#attributes-2">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:function_number"><a href="#dt:function_number">
+<i>function_number</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>PCIe function number of this bank</dd>
+</dl>
+</section>
+<h2 id="accel_vga_v2.phy"><a href="#accel_vga_v2.phy">accel_vga_v2.phy</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-6">
+<a href="#interfaces-implemented-6">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_link_readiness, transaction
+<h2 id="notifiers-6">
+<a href="#notifiers-6">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-6"><a href="#dt:cell-change-6">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-6"><a href="#dt:object-delete-6">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-6"><a href="#dt:queue-change-6">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-3">
+<a href="#commands-for-interface-transaction-3">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.upstream_ingress"><a href="#accel_vga_v2.upstream_ingress">accel_vga_v2.upstream_ingress</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-7">
+<a href="#interfaces-implemented-7">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_ingress_handling, transaction_translator, translation_flush
+<h2 id="notifiers-7">
+<a href="#notifiers-7">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-7"><a href="#dt:cell-change-7">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-7"><a href="#dt:object-delete-7">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-7"><a href="#dt:queue-change-7">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction_translator-2">
+<a href="#commands-for-interface-transaction_translator-2">Commands for interface transaction_translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction_translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction_translator.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.upstream_ingress_targets"><a href="#accel_vga_v2.upstream_ingress_targets">accel_vga_v2.upstream_ingress_targets</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-8">
+<a href="#interfaces-implemented-8">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers-8">
+<a href="#notifiers-8">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-8"><a href="#dt:cell-change-8">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-8"><a href="#dt:object-delete-8">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-8"><a href="#dt:queue-change-8">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects-3">
+<a href="#port-objects-3">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:config"><a href="#dt:config">config</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:io"><a href="#dt:io">io</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:memory"><a href="#dt:memory">memory</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:message"><a href="#dt:message">message</a></dt>
+<dd>
+<a href="rm-class-memory-space.html#memory-space">memory-space</a>
+ – Instances of the <tt>memory-space</tt> class provide linear address spaces into which devices and memory can be mapped.</dd>
+<dt id="dt:port-_dead_end"><a href="#dt:port-_dead_end">port._dead_end</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.upstream_ingress_targets._dead_end">accel_vga_v2.upstream_ingress_targets._dead_end</a>
+</dd>
+<dt id="dt:port-broadcast"><a href="#dt:port-broadcast">port.broadcast</a></dt>
+<dd>
+<a href="rm-class-accel_vga_v2.html#accel_vga_v2.upstream_ingress_targets.broadcast">accel_vga_v2.upstream_ingress_targets.broadcast</a>
+</dd>
+</dl>
+</section>
+<h2 id="accel_vga_v2.upstream_ingress_targets._dead_end"><a href="#accel_vga_v2.upstream_ingress_targets._dead_end">accel_vga_v2.upstream_ingress_targets._dead_end</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-9">
+<a href="#interfaces-implemented-9">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-9">
+<a href="#notifiers-9">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-9"><a href="#dt:cell-change-9">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-9"><a href="#dt:object-delete-9">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-9"><a href="#dt:queue-change-9">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-4">
+<a href="#commands-for-interface-transaction-4">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.upstream_ingress_targets.broadcast"><a href="#accel_vga_v2.upstream_ingress_targets.broadcast">accel_vga_v2.upstream_ingress_targets.broadcast</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-10">
+<a href="#interfaces-implemented-10">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction
+<h2 id="notifiers-10">
+<a href="#notifiers-10">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-10"><a href="#dt:cell-change-10">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-10"><a href="#dt:object-delete-10">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-10"><a href="#dt:queue-change-10">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-transaction-5">
+<a href="#commands-for-interface-transaction-5">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.vbe_io"><a href="#accel_vga_v2.vbe_io">accel_vga_v2.vbe_io</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+VBE IO registers for indirect VBE registers access
+<h2 id="interfaces-implemented-11">
+<a href="#interfaces-implemented-11">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-11">
+<a href="#notifiers-11">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-11"><a href="#dt:cell-change-11">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-11"><a href="#dt:object-delete-11">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-11"><a href="#dt:queue-change-11">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-2">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-2">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-2">
+<a href="#commands-for-interface-instrumentation_order-2">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-transaction-6">
+<a href="#commands-for-interface-transaction-6">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.vbe_mem"><a href="#accel_vga_v2.vbe_mem">accel_vga_v2.vbe_mem</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-3">
+<a href="#description-3">Description</a>
+</h2>
+VBE memory access path to LFB
+<h2 id="interfaces-implemented-12">
+<a href="#interfaces-implemented-12">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-12">
+<a href="#notifiers-12">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-12"><a href="#dt:cell-change-12">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-12"><a href="#dt:object-delete-12">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-12"><a href="#dt:queue-change-12">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-3">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-3">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-3">
+<a href="#commands-for-interface-instrumentation_order-3">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-transaction-7">
+<a href="#commands-for-interface-transaction-7">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.vbe_regs"><a href="#accel_vga_v2.vbe_regs">accel_vga_v2.vbe_regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-4">
+<a href="#description-4">Description</a>
+</h2>
+VBE registers (indirectly accessed via VBE IO)
+<h2 id="interfaces-implemented-13">
+<a href="#interfaces-implemented-13">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-13">
+<a href="#notifiers-13">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-13"><a href="#dt:cell-change-13">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-13"><a href="#dt:object-delete-13">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-13"><a href="#dt:queue-change-13">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe-4">
+<a href="#commands-for-interface-bank_instrumentation_subscribe-4">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order-4">
+<a href="#commands-for-interface-instrumentation_order-4">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-transaction-8">
+<a href="#commands-for-interface-transaction-8">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<h2 id="accel_vga_v2.video_mem"><a href="#accel_vga_v2.video_mem">accel_vga_v2.video_mem</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-5">
+<a href="#description-5">Description</a>
+</h2>
+redirect towards VBE or VGA memory paths
+<h2 id="interfaces-implemented-14">
+<a href="#interfaces-implemented-14">Interfaces Implemented</a>
+</h2>conf_object, log_object, translator
+<h2 id="notifiers-14">
+<a href="#notifiers-14">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-14"><a href="#dt:cell-change-14">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-14"><a href="#dt:object-delete-14">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-14"><a href="#dt:queue-change-14">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-translator">
+<a href="#commands-for-interface-translator">Commands for interface translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+</ul>
+</section>
+<div class="chain">
+<a href="rm-class-accel-vga.html">accel-vga</a>
+<a href="rm-class-agent_handle.html">agent_handle</a>
+</div>

@@ -1,0 +1,700 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Instrumentation Data Types</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-types-model-specific.html">Model Specific Data Types</a>
+<a href="dev-api-types-internal.html">Internal Data Types</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-data-types.html">Device API Data Types</a>
+&nbsp;/&nbsp;</div>
+<h1>Instrumentation Data Types</h1>
+<h2 id="access_filter_cb_t"><a href="#access_filter_cb_t">access_filter_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>access_filter_cb_t — instrumentation callback type for access filter</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/ram-instrumentation.h&gt; // in C
+import "simics/model-iface/ram-instrumentation.dml"; // in DML
+
+typedef access_t (*access_filter_cb_t)(conf_object_t *obj,
+                                      conf_object_t *ram,
+                                      conf_object_t *initiator,
+                                      uint64 offset,
+                                      unsigned size,
+                                      access_t access,
+                                      lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <code>register_access_filter_cb</code> method of the <a href="model-to-simulator-interfaces.html#ram_access_subscribe_interface_t"><code>ram_access_subscribe</code></a> interface to get a callback when a direct page is requested which is typically done by CPU models. The <code>obj</code> is the object that registered the callback, and the <code>initiator</code> is the object which tries to get the direct page. The target object of the direct page lookup is passed in the <code>ram</code> argument. Typically, it is an object of the <a href="../rm-base/rm-class-ram.html"><code>ram</code></a> class. The <code>offset</code>, <code>size</code> and <code>access</code> are the ram offset, the size of the cached page, and the access type, respectively. The <code>user_data</code> is the user data for the callback. To allow caching of a page, the corresponding bits in an <a href="sim-api-breakpoints.html#SIM_breakpoint"><code>access_t</code></a> should be returned. If 0 is returned the page will not be cached.</p>
+</section>
+<h2 id="after_read_callback_t"><a href="#after_read_callback_t">after_read_callback_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>after_read_callback_t — Callback type used with bank_instrumentation_subscribe interface</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/bank-instrumentation.h&gt; // in C
+import "simics/model-iface/bank-instrumentation.dml"; // in DML
+
+typedef void (*after_read_callback_t)(conf_object_t *connection,
+                                      bank_after_read_interface_t *access,
+                                      bank_access_t *handle,
+                                      lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>An implementation of this callback type can be registered with the <code>register_after_read</code> method in the <a href="model-to-simulator-interfaces.html#bank_instrumentation_subscribe_interface_t"><code>bank_instrumentation_subscribe</code></a> interface.</p>
+<p>The <code>connection</code> is the object used to group the callback with any other callbacks, which may be NULL. The <code>access</code> object provides a number of methods via the <a href="model-to-simulator-interfaces.html#bank_after_read_interface_t"><code>bank_after_read</code></a> interface which may be used along with the <code>handle</code> to perform a certain set of actions at the particular point of the access. The <code>user_data</code> is the custom data which was associated with the callback at registration.</p>
+</section>
+<h2 id="after_write_callback_t"><a href="#after_write_callback_t">after_write_callback_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>after_write_callback_t — Callback type used with bank_instrumentation_subscribe interface</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/bank-instrumentation.h&gt; // in C
+import "simics/model-iface/bank-instrumentation.dml"; // in DML
+
+typedef void (*after_write_callback_t)(conf_object_t *connection,
+                                       bank_after_write_interface_t *access,
+                                       bank_access_t *handle,
+                                       lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>An implementation of this callback type can be registered with the <code>register_after_write</code> method in the <a href="model-to-simulator-interfaces.html#bank_instrumentation_subscribe_interface_t"><code>bank_instrumentation_subscribe</code></a> interface.</p>
+<p>The <code>connection</code> is the object used to group the callback with any other callbacks, which may be NULL. The <code>access</code> object provides a number of methods via the <a href="model-to-simulator-interfaces.html#bank_after_write_interface_t"><code>bank_after_write</code></a> interface which may be used along with the <code>handle</code> to perform a certain set of actions at the particular point of the access. The <code>user_data</code> is the custom data which was associated with the callback at registration.</p>
+</section>
+<h2 id="bank_access_t"><a href="#bank_access_t">bank_access_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>bank_access_t — callback handle retrieved from the bank_instrumentation_subscribe interface</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/bank-instrumentation.h&gt; // in C
+import "simics/model-iface/bank-instrumentation.dml"; // in DML
+
+typedef struct bank_access bank_access_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.bank_access_t
+</code></pre>
+<h2>Description</h2>
+<p>Handle used to monitor and modify the state of register accesses using the <a href="model-to-simulator-interfaces.html#bank_before_read_interface_t"><code>bank_before_read</code></a>, <a href="model-to-simulator-interfaces.html#bank_after_read_interface_t"><code>bank_after_read</code></a>, <a href="model-to-simulator-interfaces.html#bank_before_write_interface_t"><code>bank_before_write</code></a>, and <a href="model-to-simulator-interfaces.html#bank_after_write_interface_t"><code>bank_after_write</code></a> interfaces.</p>
+</section>
+<h2 id="bank_callback_handle_t"><a href="#bank_callback_handle_t">bank_callback_handle_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>bank_callback_handle_t — bank callback handle</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/bank-instrumentation.h&gt; // in C
+import "simics/model-iface/bank-instrumentation.dml"; // in DML
+
+typedef uintptr_t bank_callback_handle_t;
+</code></pre>
+<h2>Description</h2>
+<p>Unique handle associated with a callback registered through the <a href="model-to-simulator-interfaces.html#bank_instrumentation_subscribe_interface_t"><code>bank_instrumentation_subscribe</code></a> interface.</p>
+</section>
+<h2 id="before_read_callback_t"><a href="#before_read_callback_t">before_read_callback_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>before_read_callback_t — Callback type used with bank_instrumentation_subscribe interface</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/bank-instrumentation.h&gt; // in C
+import "simics/model-iface/bank-instrumentation.dml"; // in DML
+
+typedef void (*before_read_callback_t)(conf_object_t *connection,
+                                       bank_before_read_interface_t *access,
+                                       bank_access_t *handle,
+                                       lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>An implementation of this callback type can be registered with the <code>register_before_read</code> method in the <a href="model-to-simulator-interfaces.html#bank_instrumentation_subscribe_interface_t"><code>bank_instrumentation_subscribe</code></a> interface.</p>
+<p>The <code>connection</code> is the object used to group the callback with any other callbacks, which may be NULL. The <code>access</code> object provides a number of methods via the <a href="model-to-simulator-interfaces.html#bank_before_read_interface_t"><code>bank_before_read</code></a> interface which may be used along with the <code>handle</code> to perform a certain set of actions at the particular point of the access. The <code>user_data</code> is the custom data which was associated with the callback at registration.</p>
+</section>
+<h2 id="before_write_callback_t"><a href="#before_write_callback_t">before_write_callback_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>before_write_callback_t — Callback type used with bank_instrumentation_subscribe interface</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/bank-instrumentation.h&gt; // in C
+import "simics/model-iface/bank-instrumentation.dml"; // in DML
+
+typedef void (*before_write_callback_t)(conf_object_t *connection,
+                                        bank_before_write_interface_t *access,
+                                        bank_access_t *handle,
+                                        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>An implementation of this callback type can be registered with the <code>register_before_write</code> method in the <a href="model-to-simulator-interfaces.html#bank_instrumentation_subscribe_interface_t"><code>bank_instrumentation_subscribe</code></a> interface.</p>
+<p>The <code>connection</code> is the object used to group the callback with any other callbacks, which may be NULL. The <code>access</code> object provides a number of methods via the <a href="model-to-simulator-interfaces.html#bank_before_write_interface_t"><code>bank_before_write</code></a> interface which may be used along with the <code>handle</code> to perform a certain set of actions at the particular point of the access. The <code>user_data</code> is the custom data which was associated with the callback at registration.</p>
+</section>
+<h2 id="cpu_access_scope_t"><a href="#cpu_access_scope_t">cpu_access_scope_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_access_scope_t — type to describe scope of memory access for instrumentation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef enum {
+        CPU_Access_Scope_Explicit,
+        CPU_Access_Scope_Implicit
+} cpu_access_scope_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.CPU_Access_Scope_Implicit
+simics.CPU_Access_Scope_Explicit
+</code></pre>
+<h2>Description</h2>
+<p>Used to select the access scope for instrumentation of memory accesses. CPU_Access_Scope_Explicit selects explicit accesses used by an instruction such as loading or storing a value. CPU_Access_Scope_Implicit selects implicit accesses such as table walks and exceptions handling. See the <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> for more information.</p>
+</section>
+<h2 id="cpu_address_cb_t"><a href="#cpu_address_cb_t">cpu_address_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_address_cb_t — type of callback function to handle addresses</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef logical_address_t (*cpu_address_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        logical_address_t address,
+        address_handle_t *handle,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> interface’s register_address_before member function.</p>
+<p>The callback will be called prior to a processor memory access, allowing the callback to change the logical address for an access.</p>
+<p>The argument <code>obj</code> is the object installing the callback and the <code>cpu</code> is the processor generating the logical <code>address</code>. If the access crosses a page boundary the access will be split into two calls. The <code>part</code> argument tells if the address belongs to the first or the second part. The <code>cpu_address_part_t</code> type has two values: <code>CPU_Address_Part_First</code> and <code>CPU_Address_Part_Second</code>. The <code>handle</code> can be used to extract more information about he address by using a architecture specific interface. See the <a href="model-to-model-interfaces.html#x86_address_query_interface_t"><code>x86_address_query</code></a> for example.</p>
+</section>
+<h2 id="cpu_bytes_t"><a href="#cpu_bytes_t">cpu_bytes_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_bytes_t — type used for bytes in cpu accesses</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef struct cpu_bytes {
+        size_t size;
+#ifndef PYWRAP
+        const uint8 *data;
+#endif
+} cpu_bytes_t;
+</code></pre>
+<h2>Description</h2>
+<p>An immutable sequence of bytes. The ownership is not transferred to the callee/caller when called or returned. The corresponding Python type is a string of bytes. May only be used in a defined scope which should be documented in each use case.</p>
+<p>The member <code>data</code> contains the data pointer, and the member <code>size</code> contains tha size of the data. It is illegal to access beyond the limit.</p>
+</section>
+<h2 id="cpu_cached_instruction_cb_t"><a href="#cpu_cached_instruction_cb_t">cpu_cached_instruction_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_cached_instruction_cb_t — type of cached instruction callback function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_cached_instruction_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        cached_instruction_handle_t *ci_handle,
+        instruction_handle_t *iq_handle,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> interface’s <code>register_cached_instruction_cb</code> member function.</p>
+<p>This callback will be called when an instruction is about to be cached in the processor model (this is not the same as being in the processor’s real hardware instruction cache).</p>
+<p><code>cpu</code> is the processor which executed an instruction.</p>
+<p><code>ci_handle</code> is an opaque handle associated with the instruction being executed, it is used with the <a href="model-to-simulator-interfaces.html#cpu_cached_instruction_interface_t"><code>cpu_cached_instruction</code></a> interface to install instruction specific callbacks.</p>
+<p><code>iq_handle</code> together with the <a href="model-to-simulator-interfaces.html#cpu_instruction_query_interface_t"><code>cpu_instruction_query</code></a> interface let a user examine instruction properties.</p>
+<p><code>user_data</code> is the user data for the callback.</p>
+</section>
+<h2 id="cpu_callback_free_user_data_cb_t"><a href="#cpu_callback_free_user_data_cb_t">cpu_callback_free_user_data_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_callback_free_user_data_cb_t — callback type used for freeing user data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_callback_free_user_data_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu, lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_cached_instruction_interface_t"><code>cpu_cached_instruction</code></a> interface to free instruction specific user data when the instruction is not being cached anymore. The <code>user_data</code> is the pointer to the callback data. <code>obj</code> is the connection object and <code>cpu</code> is the processor that the callback was registered for.</p>
+</section>
+<h2 id="cpu_control_register_read_cb_t"><a href="#cpu_control_register_read_cb_t">cpu_control_register_read_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_control_register_read_cb_t — type of callback function for control register read</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_control_register_read_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        int register_number,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>obj</code> is the object registering the callback and <code>cpu</code> is the processor that reads the control register <code>register_number</code>. The <code>user_data</code> is the user data for the callback.</p>
+</section>
+<h2 id="cpu_control_register_scope_t"><a href="#cpu_control_register_scope_t">cpu_control_register_scope_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_control_register_scope_t — type used to describe control register scope</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef enum {
+        CPU_Control_Register_All = -1
+        /* Any other value corresponds to the register number as
+           defined in the int_register interface for the processor */
+} cpu_control_register_scope_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.CPU_Control_Register_All
+</code></pre>
+</section>
+<h2 id="cpu_control_register_write_cb_t"><a href="#cpu_control_register_write_cb_t">cpu_control_register_write_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_control_register_write_cb_t — type of callback function for control register write</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_control_register_write_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        int register_number,
+        uint64 value,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>obj</code> is the object registering the callback and <code>cpu</code> is the processor that writes to the control register <code>register_number</code>.  The <code>value</code> is the value that will be written.  The <code>user_data</code> is the user data for the callback.</p>
+</section>
+<h2 id="cpu_emulation_cb_t"><a href="#cpu_emulation_cb_t">cpu_emulation_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_emulation_cb_t — type of instruction decode callback function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef cpu_emulation_t (*cpu_emulation_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_instruction_decoder_interface_t"><code>cpu_instruction_decoder</code></a> interface.</p>
+<p>This callback will be called when an user added instruction is about to be executed in the processor. The <code>cpu</code> is the processor which executes an instruction. The <code>instruction_user_data</code> is the user-data associated with the instruction. The return type <a href="dev-api-types-instrumentation.html#cpu_emulation_t"><code>cpu_emulation_t</code></a> is used to tell Simics how the next instruction should be fetched. For more information, see the <a href="model-to-simulator-interfaces.html#cpu_instruction_decoder_interface_t"><code>cpu_instruction_decoder</code></a> interface.</p>
+</section>
+<h2 id="cpu_emulation_t"><a href="#cpu_emulation_t">cpu_emulation_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_emulation_t — type of instruction decode callback function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef enum {
+        CPU_Emulation_Fall_Through,
+        CPU_Emulation_Control_Flow,
+        CPU_Emulation_Default_Semantics,
+        CPU_Emulation_Stall,
+} cpu_emulation_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.CPU_Emulation_Stall
+simics.CPU_Emulation_Control_Flow
+simics.CPU_Emulation_Default_Semantics
+simics.CPU_Emulation_Fall_Through
+</code></pre>
+</section>
+<h2 id="cpu_exception_cb_t"><a href="#cpu_exception_cb_t">cpu_exception_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_exception_cb_t — type of callback function for exception</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_exception_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        exception_handle_t *exception_handle,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>obj</code> is the object registering the callback and <code>cpu</code> is the processor that takes the exception or receives the interrupt. The handle is used to get more architectural information about the exception, for example, see the <a href="model-to-model-interfaces.html#x86_exception_query_interface_t"><code>x86_exception_query</code></a> for details. The <code>user_data</code> is the callback user data.</p>
+<p>No architectural state has been changed in this callback to reflect the exception or interrupt, e.g., the program counter will still be at the faulting instruction. Since an exception can occur while handling an exception it is not always the case that this callback corresponds to the final taken exception. Recursive exception will result in another call to this callback.</p>
+</section>
+<h2 id="cpu_exception_return_cb_t"><a href="#cpu_exception_return_cb_t">cpu_exception_return_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_exception_return_cb_t — type of callback function for exception return</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_exception_return_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        exception_return_handle_t *exception_handle,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>obj</code> is the object registering the callback and <code>cpu</code> is the processor that takes the exception or receives an interrupt. The handle is used to get more architectural information about the exception. Currently there is no interface available for this.</p>
+</section>
+<h2 id="cpu_exception_scope_t"><a href="#cpu_exception_scope_t">cpu_exception_scope_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_exception_scope_t — type used to describe exception scope</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef enum {
+        CPU_Exception_All = -1
+        /* Any other value corresponds to the exception number as
+           defined in the exception interface for the processor */
+} cpu_exception_scope_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.CPU_Exception_All
+</code></pre>
+</section>
+<h2 id="cpu_instruction_cb_t"><a href="#cpu_instruction_cb_t">cpu_instruction_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_instruction_cb_t — callback type used for instruction execution</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_instruction_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        instruction_handle_t *handle,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> or the <a href="model-to-simulator-interfaces.html#cpu_cached_instruction_interface_t"><code>cpu_cached_instruction</code></a> interfaces to get a callback before or after an instruction has been executed.</p>
+<p><code>obj</code> is the connection or the user object that registered the callback (or NULL if there is no object).</p>
+<p><code>cpu</code> is the processor which executed the instruction.</p>
+<p><code>handle</code> is an opaque handle associated with the instruction being executed. It can be used together with the <a href="model-to-simulator-interfaces.html#cpu_instruction_query_interface_t"><code>cpu_instruction_query</code></a> interface to get more information about the instruction.</p>
+<p><code>user_data</code> is the user data for the callback.</p>
+</section>
+<h2 id="cpu_instruction_decoder_cb_t"><a href="#cpu_instruction_decoder_cb_t">cpu_instruction_decoder_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_instruction_decoder_cb_t — type of instruction decode callback function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef int (*cpu_instruction_decoder_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        decoder_handle_t *decoder_handle,
+        instruction_handle_t *iq_handle,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> interface’s <code>register_instruction_decoder_cb</code> member function.</p>
+<p>This callback will be called when an instruction is about to be cached in the processor model (this is not the same as being in the processor’s real hardware instruction cache). The <code>cpu</code> is the processor which executed an instruction. The <code>decoder_handle</code> is an opaque handle associated with the instruction being executed and used in the <a href="model-to-simulator-interfaces.html#cpu_instruction_decoder_interface_t"><code>cpu_instruction_decoder</code></a> interface. The <code>iq_handle</code> is used with the <a href="model-to-simulator-interfaces.html#cpu_instruction_query_interface_t"><code>cpu_instruction_query</code></a> interface to get more information on the instruction. The <code>user_data</code> is the user data associated with the callback.</p>
+<p>If the instruction is accepted by the callback a positive integer number should be returned corresponding to the length of the instruction. In this case the <code>register_emulation_cb</code> method of the <a href="model-to-simulator-interfaces.html#cpu_instruction_decoder_interface_t"><code>cpu_instruction_decoder</code></a> interface should be called to set the actual (user) function that Simics will call each time the instruction is executed.</p>
+<p>If the decoder requires more bytes (i.e., because the new instruction is longer), a negative integer value should be returned by the <code>cb</code> function, indicating the number of bytes needed. For example, if the available bytes are 3 but the decoder need at least 4 bytes, -4 should be returned. The callback will then be called again with more available bytes (this can be repeated if the new instruction requires even more bytes at this point). Note that requesting more data than actual needed can cause spurious page faults if the data crosses a page boundary.</p>
+<p>If the <code>cb</code> callback should ignore the instruction the number 0 should be returned. This means that any other registered decoder will have a chance to decode the instruction. If no decoder accepts it, Simics’ default implementation will be used.</p>
+</section>
+<h2 id="cpu_instruction_disassemble_cb_t"><a href="#cpu_instruction_disassemble_cb_t">cpu_instruction_disassemble_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_instruction_disassemble_cb_t — type of disassemble callback function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef tuple_int_string_t (*cpu_instruction_disassemble_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        generic_address_t addr,
+        cpu_bytes_t bytes);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> interface’s <code>register_instruction_decoder_cb</code> member function.</p>
+<p>The callback will be called when a replaced instruction is being disassembled.</p>
+<p><code>obj</code> is the object registering the callback and <code>cpu</code> is the processor disassembling the instruction. <code>addr</code> is the address of the instruction in a generic form. This means that it is typically a physical address or a logical address depending on the context of the disassembling. The address can be used for offset calculations, i.e., displaying an absolute address instead of a relative one, for example in a branch instruction. The <code>bytes</code> argument should be used to read instruction bytes.</p>
+<p>The return value is of type <a href="sim-api-processor.html#SIM_disassemble_address"><code>tuple_int_string_t</code></a> and should be filled with the instruction length and an allocated (e.g., malloc) string representing the disassembly of the instruction. The ownership of the string is transferred to the calling environment which will free it when it is no longer needed.</p>
+<p>If too few bytes are passed for the instruction to be disassembled a negative value should be returned for the length indicating the needed bytes. The <code>disass_cb</code> is then called again with more bytes. If the instruction is rejected a length of 0 should be returned and the string should be set to NULL.</p>
+</section>
+<h2 id="cpu_memory_cb_t"><a href="#cpu_memory_cb_t">cpu_memory_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_memory_cb_t — callback type used for  memory access</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_memory_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        memory_handle_t *handle,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <a href="model-to-simulator-interfaces.html#cpu_instrumentation_subscribe_interface_t"><code>cpu_instrumentation_subscribe</code></a> or the <a href="model-to-simulator-interfaces.html#cpu_cached_instruction_interface_t"><code>cpu_cached_instruction</code></a> interfaces to get a callback before or after an memory access is executed.</p>
+<p><code>obj</code> is the object that registered the callback</p>
+<p><code>cpu</code> is the processor doing the access.</p>
+<p><code>handle</code> is an opaque handle associated with the instruction being executed. It can be used with the <a href="model-to-simulator-interfaces.html#cpu_memory_query_interface_t"><code>cpu_memory_query</code></a> interface to get more information about the access.</p>
+<p><code>user_data</code> is the userdata for the callback.</p>
+</section>
+<h2 id="cpu_mode_change_cb_t"><a href="#cpu_mode_change_cb_t">cpu_mode_change_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cpu_mode_change_cb_t — type of callback function for mode change</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef void (*cpu_mode_change_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        processor_mode_t old_mode, processor_mode_t new_mode,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>obj</code> is the object registering the callback and <code>cpu</code> is the processor that changes mode. The <code>old_mode</code> is the mode before the change and new_mode is the mode after the change.</p>
+</section>
+<h2 id="do_map_target_cb_t"><a href="#do_map_target_cb_t">do_map_target_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>do_map_target_cb_t — callback type for map target instrumentation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/transaction-instrumentation.h&gt; // in C
+import "simics/model-iface/transaction-instrumentation.dml"; // in DML
+
+typedef next_map_t (*do_map_target_cb_t)(const map_target_t *mt,
+                                         transaction_t *org_t,
+                                         uint64 addr, map_info_t *map,
+                                         lang_void *handle);
+</code></pre>
+</section>
+<h2 id="next_map_t"><a href="#next_map_t">next_map_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>next_map_t — type used for chaining map_target_t’s</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/transaction-instrumentation.h&gt; // in C
+import "simics/model-iface/transaction-instrumentation.dml"; // in DML
+
+typedef struct {
+        const map_target_t *mt;
+#ifndef PYWRAP
+        exception_type_t ex;
+#else
+        unsigned ex;
+#endif
+        uint64 addr;
+} next_map_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.next_map_t(mt=None, ex=0, addr=0)
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to hold information about the next map target in a translation chain. It is exposed in the <a href="dev-api-types-instrumentation.html#do_map_target_cb_t"><code>do_map_target_cb_t</code></a> function callback used in the <a href="dev-api-types-instrumentation.html#transaction_issue_cb_t"><code>transaction_issue_cb_t</code></a> callback in the <a href="model-to-simulator-interfaces.html#transaction_subscribe_interface_t"><code>transaction_subscribe</code></a> interface. See <a href="dev-api-types-instrumentation.html#transaction_issue_cb_t"><code>transaction_issue_cb_t</code></a> for more information.</p>
+</section>
+<h2 id="pre_decoder_cb_t"><a href="#pre_decoder_cb_t">pre_decoder_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pre_decoder_cb_t — callback function type used with pre_decoder interface</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/cpu-instrumentation.h&gt; // in C
+import "simics/model-iface/cpu-instrumentation.dml"; // in DML
+
+typedef bool (*pre_decoder_cb_t)(
+        conf_object_t *obj,
+        conf_object_t *cpu,
+        generic_address_t instruction_start_address,
+        physical_address_t position_physical_address,
+        uint8 *opcode_bytes,
+        unsigned valid_bytes,
+        unsigned instruction_position,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>This callback is used by the <a href="model-to-simulator-interfaces.html#pre_decoder_interface_t"><code>pre_decoder</code></a> interface to observe and modify the instruction byte stream.</p>
+<p>The <code>obj</code> is the connection object which owns the callback, or NULL, if no connection is used. <code>cpu</code> is the cpu which decodes the instructions. <code>instruction_start_address</code> is the address of the first byte in the instruction that is being decoded. For x86 this is the linerar address. <code>opcode_bytes</code> is a pointer to the first opcode byte in the instruction. The <code>valid_bytes</code> tells how many bytes that can read from the first byte.</p>
+<p>If the decoded instruction crosses a page boundary this callback is invoked twice, first with the bytes on the first page and then with additional bytes located on the next page. The <code>instruction_position</code> tells where in the instruction opcode the next bytes are added from the second page, and hence will be greater 0 if this occurs.</p>
+<p>The <code>position_physical_address</code> reflects the physical address of the <code>instruction_position</code>.</p>
+<p>The function should return true if the memory was modified, otherwise false.</p>
+</section>
+<h2 id="ram_access_cb_t"><a href="#ram_access_cb_t">ram_access_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>ram_access_cb_t — instrumentation callback type for ram access</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/ram-instrumentation.h&gt; // in C
+import "simics/model-iface/ram-instrumentation.dml"; // in DML
+
+typedef void (*ram_access_cb_t)(conf_object_t *obj,
+                                conf_object_t *ram,
+                                uint64 ram_offset,
+                                transaction_t *t,
+                                lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Instrumentation callback function registered through the <code>register_access_before_cb</code> or <code>register_access_after_cb</code> methods in the <a href="model-to-simulator-interfaces.html#ram_access_subscribe_interface_t"><code>ram_access_subscribe</code></a> interface to get a callback when a ram/rom object is accessed. <code>obj</code> is the object that registered the callback, and the <code>ram</code> is the ram/rom object that is accessed. The <code>ram_offset</code> is the offset in the ram/rom object where the transaction hits. The <code>t</code> argument is a pointer to the <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a> that is performed. See the access primitives of the <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a> type to see how to examine and modify the transaction. Depending on if the register function is of before or after type, the transaction will be, or already has been completed, at the time of this callback. This places restrictions on what can be done with the transaction.</p>
+</section>
+<h2 id="smm_switch_cb_t"><a href="#smm_switch_cb_t">smm_switch_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>smm_switch_cb_t — callback type for smm switch</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86-instrumentation.h&gt; // in C
+import "simics/arch/x86-instrumentation.dml"; // in DML
+
+typedef void (*smm_switch_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>This callback type is used by the <a href="model-to-model-interfaces.html#smm_instrumentation_subscribe_interface_t"><code>smm_instrumentation_subscribe</code></a> to implement instrumentation.</p>
+<p>The <code>obj</code> argument is the user object that registered the callback, or NULL if no such object exists.</p>
+<p>The <code>cpu</code> argument is the processor that enters/leaves System Management Mode.</p>
+<p>The <code>user_data</code> argument is the callback user data, passed to the register methods.</p>
+</section>
+<h2 id="transaction_issue_cb_t"><a href="#transaction_issue_cb_t">transaction_issue_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>transaction_issue_cb_t — callback type for transaction instrumentation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/transaction-instrumentation.h&gt; // in C
+import "simics/model-iface/transaction-instrumentation.dml"; // in DML
+
+typedef next_map_t (*transaction_issue_cb_t)(conf_object_t *obj,
+                                             const map_target_t *mt,
+                                             const char *map_target_type,
+                                             map_info_t *map,
+                                             transaction_t *t,
+                                             uint64 offset,
+                                             do_map_target_cb_t do_mt,
+                                             lang_void *handle,
+                                             lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>Note: This callback is internal and may change without notice.</p>
+<p>Instrumentation callback function registered through the <code>register_issue_cb</code> method in the <a href="model-to-simulator-interfaces.html#transaction_subscribe_interface_t"><code>transaction_subscribe</code></a> interface. In this callback a user can snoop and/or replace a transaction passing through a map target object.</p>
+<p>Argument <code>obj</code> is the object that registered the callback.  The <code>mt</code> argument is the map target used to map the transaction, and the <code>map_target_type</code> is a string describing the map target.  The <code>map</code> parameter is map information for the map target.  <code>addr</code> is the address in the mapped object where the transaction hits. You can retrieve the object by calling <a href="dev-api-translators.html#SIM_map_target_object"><code>SIM_map_target_object</code></a> on the map_target.  The <code>t</code> argument is a pointer to the transaction that is issued. See the access primitives of the <a href="dev-api-types-transactions.html#transaction_t"><code>transaction_t</code></a> type to see how to examine and modify the transaction. The <code>do_mt</code> is the function to call that actually do the map target access, and it is the callback’s responsibility to call it. This allows the map target, the map, the address, and the transaction to be modified by then callback. Se the documentation of the <a href="dev-api-types-instrumentation.html#do_map_target_cb_t"><code>do_map_target_cb_t</code></a> for a description of how to call it.</p>
+<p>The callback should return a <a href="dev-api-types-instrumentation.html#next_map_t"><code>next_map_t</code></a> value that is the return value of the do_mt callback. This describes the next map target to be considered, if the map target translates to a new map target. In this case, the next target is stored in the <code>mt</code> field. If no new map target is used, the field will be NULL. The type also contains an <code>ex</code> field set to something else than Sim_PE_No_Exception, if an exception occurred. It also has a <code>addr</code> field which describes the new address for the next map target.</p>
+<p>If the <code>do_mt</code> function is not called, this effectively cancels the transaction. The value map_next_t to return should then fill in the mt field with a NULL pointer.</p>
+</section>
+<h2 id="vmx_mode_switch_cb_t"><a href="#vmx_mode_switch_cb_t">vmx_mode_switch_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>vmx_mode_switch_cb_t — callback type for vmx mode switch</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86-instrumentation.h&gt; // in C
+import "simics/arch/x86-instrumentation.dml"; // in DML
+
+typedef void (*vmx_mode_switch_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        vmx_mode_t mode,
+        physical_address_t vmcs_address,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>This callback type is used by the <a href="model-to-model-interfaces.html#vmx_instrumentation_subscribe_interface_t"><code>vmx_instrumentation_subscribe</code></a> interface to implements VMX mode switch instrumentation.</p>
+<p>The <code>obj</code> argument is the user object that registered the callback, or NULL if no such object exists.</p>
+<p>The <code>cpu</code> argument is the processor that switches VMX mode.</p>
+<p>The mode that will be left or entered is passed in the <code>mode</code> argument in the callback.</p>
+</section>
+<h2 id="vmx_mode_t"><a href="#vmx_mode_t">vmx_mode_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>vmx_mode_t — enum for vmx modes</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86-instrumentation.h&gt; // in C
+import "simics/arch/x86-instrumentation.dml"; // in DML
+
+typedef enum {
+        Vmx_Off = 0,
+        Vmx_Root = 1,
+        Vmx_Non_Root = 2
+} vmx_mode_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Vmx_Non_Root
+simics.Vmx_Off
+simics.Vmx_Root
+</code></pre>
+<h2>Description</h2>
+<p>This enum is used to distinguish VMX modes. It is used by the <a href="dev-api-types-instrumentation.html#vmx_mode_switch_cb_t"><code>vmx_mode_switch_cb_t</code></a>.</p>
+</section>
+<h2 id="x86_mode_switch_cb_t"><a href="#x86_mode_switch_cb_t">x86_mode_switch_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>x86_mode_switch_cb_t — x86 specific callback type for mode switch instrumentation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/arch/x86-instrumentation.h&gt; // in C
+import "simics/arch/x86-instrumentation.dml"; // in DML
+
+typedef void (*x86_mode_switch_cb_t)(
+        conf_object_t *obj, conf_object_t *cpu,
+        x86_detailed_exec_mode_t mode,
+        lang_void *user_data);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>obj</code> is the connection object that registered the callback. <code>new_mode</code> argument contains the new mode. The possible modes available are captured in the <a href="model-to-model-interfaces.html#x86_reg_access_interface_t"><code>x86_detailed_exec_mode_t</code></a> type.</p>
+<p>The <code>user_data</code> is the user data associated with the callback.</p>
+</section>
+<div class="chain">
+<a href="dev-api-types-model-specific.html">Model Specific Data Types</a>
+<a href="dev-api-types-internal.html">Internal Data Types</a>
+</div>

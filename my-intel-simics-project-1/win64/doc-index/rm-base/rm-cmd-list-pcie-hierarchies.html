@@ -1,0 +1,50 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-pcie-hierarchies</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-packages.html">list-packages</a>
+<a href="rm-cmd-list-pcie-memory-hierarchies.html">list-pcie-memory-hierarchies</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-pcie-hierarchies"></a>
+<a name="pcie-list-hierarchies"></a>
+<h1 id="list-pcie-hierarchies"><a href="#list-pcie-hierarchies">list-pcie-hierarchies</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-pcie-hierarchies</b> [<i>"namespace"</i>] [-skip-info] [-include-bus] [-indicate-legacy-pcie] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Tries to find all PCIe subsystems and traverses the hierarchies from root port down to all endpoints and prints out the hierarchy in a table format.
+<p>
+The command supports the new Simics PCIe library and the legacy Simics PCIe library. The command also tries to traverse hybrid PCIe systems where a root port is implemented with the new Simics PCIe library but endpoints and switches underneath could be based on the legacy Simics PCIe library.
+</p><p>
+The new Simics PCIe library utilizes the classes <tt>pcie-downstream-port</tt> and <tt>pcie-downstream-port-legacy</tt> to build up the PCIe topology. The legacy Simics PCIe library utilizes the classes <tt>pcie-bus</tt> and <tt>pci-bus</tt> to build up the PCIe topology. The command finds all instantiated objects of these classes, and tries to construct the hierarchy based on how these class instances are connected to one another.
+</p><p>
+The <tt>-include-bus</tt> flag adds an addition column in the table, listing which bus object the <tt>device</tt> and <tt>function</tt> are underneath.
+</p><p>
+The <tt>-skip-info</tt> flag can be used to hide the <tt>info</tt> column in the table that contains the class description of the device.
+</p><p>
+The <tt>-indicate-legacy-pcie</tt> flag can be used to show if the PCIe device is modeled based on the new or legacy Simics PCIe interfaces.
+</p><p>
+The <i>namespace</i> argument can be used to only traverse PCIe hierarchies where the host bridge is part of the namespace. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-packages.html">list-packages</a>
+<a href="rm-cmd-list-pcie-memory-hierarchies.html">list-pcie-memory-hierarchies</a>
+</div>

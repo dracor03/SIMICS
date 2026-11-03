@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>riscv_clint</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="__rm_class_riscv-plic.html">riscv-plic</a>
+<a href="__rm_class_riscv_plic.html">riscv_plic</a>
+</div>
+<div class="path">
+<a href="index.html">RISC-V Simple Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="classes.html">4 Classes</a>
+&nbsp;/&nbsp;</div><h1 class="jdocu"><a class="not-numbered" name="__rm_class_riscv_clint">riscv_clint</a></h1>
+<p>
+
+<a name="riscv_clint"></a></p><dl class="jdocu_di">
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">RISC-V Core-Level Interrupt Block
+</dd>
+<dt class="jdocu_descitem"><b>Interfaces Implemented</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="undocumented-interfaces.html#__rm_interface_conf_object">conf_object</a>, <a class="jdocu" href="undocumented-interfaces.html#__rm_interface_log_object">log_object</a>, <a class="jdocu" href="undocumented-interfaces.html#__rm_interface_riscv_coprocessor">riscv_coprocessor</a></dd>
+<dt class="jdocu_descitem"><b>Port Objects</b></dt><dd class="jdocu_descitem"><b>bank.regs</b> (bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction)<br><b>port.CLOCK_DISABLE</b> (signal)<br><b>port.HRESET</b> (signal)<br><b>port.POWER</b> (signal)</dd>
+<dt class="jdocu_descitem"><b>Port Interfaces</b></dt><dd class="jdocu_descitem">core_dev_access_count (<a class="jdocu" href="undocumented-interfaces.html#__rm_interface_probe">probe</a>) : Port for generic device access count</dd>
+<dt class="jdocu_descitem"><b>Notifiers</b></dt><dd class="jdocu_descitem">state-change</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="modules.html#__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a>
+</dd>
+</dl><p></p><h2 class="jdocu"><a class="not-numbered" name="Attributes">Attributes</a></h2>
+<p></p><dl><dt id="dt:error_on_incorrect_sized_access"><a href="#dt:error_on_incorrect_sized_access"><b><i>error_on_incorrect_sized_access</i></b></a></dt><p><a name="__rm_attribute_riscv_clint_error_on_incorrect_sized_access"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>boolean</code>.
+Return Sim_PE_IO_Error if size of access does not match register size</dd></dl><p></p><dl><dt id="dt:freq_mhz"><a href="#dt:freq_mhz"><b><i>freq_mhz</i></b></a></dt><p><a name="__rm_attribute_riscv_clint_freq_mhz"></a></p><dd><b>Required</b> attribute; <b>read/write</b> access; type: <code>float</code>.
+Frequency in Mega-Hertz of mtime</dd></dl><p></p><dl><dt id="dt:hart"><a href="#dt:hart"><b><i>hart</i></b></a></dt><p><a name="__rm_attribute_riscv_clint_hart"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>[o*]</code>.
+HARTs or CLICs connected to this CLINT</dd></dl><p></p><dl><dt id="dt:msip"><a href="#dt:msip"><b><i>msip</i></b></a></dt><p><a name="__rm_attribute_riscv_clint_msip"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:64}]</code>.
+The MSIP signal targets
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p></p><dl><dt id="dt:mtime_read_cycles"><a href="#dt:mtime_read_cycles"><b><i>mtime_read_cycles</i></b></a></dt><p><a name="__rm_attribute_riscv_clint_mtime_read_cycles"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Number of cycles to stall when reading mtime</dd></dl><p></p><dl><dt id="dt:mtip"><a href="#dt:mtip"><b><i>mtip</i></b></a></dt><p><a name="__rm_attribute_riscv_clint_mtip"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:64}]</code>.
+The MTIP signal targets
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p>
+</p>
+<div class="chain">
+<a href="__rm_class_riscv-plic.html">riscv-plic</a>
+<a href="__rm_class_riscv_plic.html">riscv_plic</a>
+</div>

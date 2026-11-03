@@ -1,0 +1,88 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.3 Checkpoints (on-disk)</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="logging-and-tracing.html">8.2 Logging and Tracing</a>
+<a href="snapshots.html">8.4 Snapshots (in-memory)</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="checkpoints-on-disk"><a href="#checkpoints-on-disk">8.3 Checkpoints (on-disk)</a></h1>
+<p>The Intel Simics simulator allows saving the simulation state to <em>disk</em>, thus,
+the state of all target machines for later use. We call a saved state a
+checkpoint. Other simulators may refer to a saved state as a <em>snapshot</em>. In
+Simics a <a href="snapshots.html">snapshot</a> is also a saved state, but this only exists
+<em>in-memory</em> during a simulator session.</p>
+<p>In this section:</p>
+<ul>
+<li>how to create a checkpoint</li>
+<li>how to restore the simulation state from a checkpoint</li>
+<li>links to further information about checkpoints</li>
+</ul>
+<p>Creating a checkpoint:</p>
+<ol>
+<li>
+<p>launch the simulator and load the <code>qsp-x86/firststeps</code> target:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target qsp-x86/firststeps</strong>
+</code></pre>
+</li>
+<li>
+<p>run the simulation until Linux is booted:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>stop simulation:</p>
+<pre><code class="language-simics">running&gt; <strong>stop</strong>
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p>create a checkpoint by running the <code>write-configuration</code> CLI command and
+specifying a destination where to store a checkpoint:</p>
+<pre><code class="language-simics">simics&gt; <strong>write-configuration "target-booted.ckpt"</strong>
+</code></pre>
+</li>
+<li>
+<p>quit the simulator:</p>
+<pre><code class="language-simics">simics&gt; <strong>quit</strong>
+</code></pre>
+</li>
+</ol>
+<p>The <code>target-booted.ckpt</code> directory created in step 4 above contains saved
+simulation state.</p>
+<p>Restoring from a checkpoint:</p>
+<ol>
+<li>
+<p>launch the simulator</p>
+</li>
+<li>
+<p>restore the checkpoint state with the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>read-configuration "target-booted.ckpt"</strong>
+</code></pre>
+<p><img alt="" src="linux-grml-booted.png"></p>
+</li>
+<li>
+<p>the simulation state from the <code>target-booted.ckpt</code> checkpoint has now been
+restored. We can see a text terminal window of the target machine with Linux
+prompt. We can resume simulation with the <code>run</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+</ol>
+<p>Useful information about checkpoints can be found in the documentation of the
+<code>write-configuration</code> and <code>read-configuration</code> commands (the documentation can
+be obtained from the CLI by running the <code>help</code> command like this: <code>help write-configuration</code>).</p>
+
+<div class="chain">
+<a href="logging-and-tracing.html">8.2 Logging and Tracing</a>
+<a href="snapshots.html">8.4 Snapshots (in-memory)</a>
+</div>

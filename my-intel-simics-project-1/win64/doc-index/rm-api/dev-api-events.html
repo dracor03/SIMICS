@@ -1,0 +1,375 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Time and Events</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-translators.html">Device Translators</a>
+<a href="dev-api-version-copyright.html">Version and Copyright</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Time and Events</h1>
+<h2 id="SIM_cycle_count"><a href="#SIM_cycle_count">SIM_cycle_count</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_cycle_count — read cycle counter</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+cycles_t
+SIM_cycle_count(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_cycle_count(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_cycle_count</code> returns the current simulated clock cycle count at <code>obj</code>.</p>
+<p>If <code>obj</code> is a cycle counter implementing either the <a href="model-to-simulator-interfaces.html#cycle_event_interface_t"><code>cycle_event</code></a> interface or the <a href="model-to-simulator-interfaces.html#cycle_interface_t"><code>cycle</code></a> interface, then the returned count is the number of elapsed cycles according to that object. If <code>obj</code> is not a cycle counter, then the default clock associated with the object is queried for its cycle count.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_object_clock"><code>SIM_object_clock</code></a></p>
+<h2>Return Value</h2>
+<p><code>SIM_cycle_count</code> returns the current time in number of cycles.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_event_cancel_time"><a href="#SIM_event_cancel_time">SIM_event_cancel_time, SIM_event_cancel_step</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_event_cancel_time, SIM_event_cancel_step — cancel an event before expiration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_event_cancel_time(conf_object_t *NOTNULL clock,
+                      event_class_t *NOTNULL evclass,
+                      conf_object_t *NOTNULL obj,
+                      int (*pred)(lang_void *data, lang_void *match_data),
+                      lang_void *match_data);
+
+void
+SIM_event_cancel_step(conf_object_t *NOTNULL clock,
+                      event_class_t *NOTNULL evclass,
+                      conf_object_t *NOTNULL obj,
+                      int (*pred)(lang_void *data, lang_void *match_data),
+                      lang_void *match_data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_event_cancel_time(...)
+simics.SIM_event_cancel_step(...)
+</code></pre>
+<h2>Description</h2>
+<p>All unexpired <code>evclass</code> events posted for <code>obj</code> on <code>clock</code> for which <code>pred</code> returns nonzero will be cancelled and their destructor methods (if any) called. <code>pred</code> will be called with the data associated with the event and the supplied <code>match_data</code>. If <code>pred</code> is null (None in Python), all <code>evclass</code> events for <code>obj</code> on <code>clock</code> will be cancelled.</p>
+<p>There are separate calls for events posted at a point in time (cycle or seconds) and on a specific step.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_InterfaceNotFound</strong> Thrown by <code>SIM_event_cancel_step</code> if the <code>clock</code> object doesn’t implement the <a href="model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a> interface.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a>, <a href="dev-api-events.html#SIM_event_post_time"><code>SIM_event_post_time</code></a></p>
+</section>
+<h2 id="SIM_event_class_flags"><a href="#SIM_event_class_flags">SIM_event_class_flags</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_event_class_flags — get event class flags</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+event_class_flag_t
+SIM_event_class_flags(event_class_t *NOTNULL ec);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_event_class_flags(...)
+</code></pre>
+<h2>Description</h2>
+<p>Get the event class flags from a registered event class <code>ec</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a></p>
+</section>
+<h2 id="SIM_event_find_next_cycle"><a href="#SIM_event_find_next_cycle">SIM_event_find_next_cycle, SIM_event_find_next_time, SIM_event_find_next_step</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_event_find_next_cycle, SIM_event_find_next_time, SIM_event_find_next_step — find event expiration time</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+cycles_t
+SIM_event_find_next_cycle(conf_object_t *NOTNULL clock,
+                          event_class_t *NOTNULL evclass,
+                          conf_object_t *NOTNULL obj,
+                          int (*pred)(lang_void *data, lang_void *match_data),
+                          lang_void *match_data);
+
+double
+SIM_event_find_next_time(conf_object_t *NOTNULL clock,
+                         event_class_t *NOTNULL evclass,
+                         conf_object_t *NOTNULL obj,
+                         int (*pred)(lang_void *data, lang_void *match_data),
+                         lang_void *match_data);
+
+pc_step_t
+SIM_event_find_next_step(conf_object_t *NOTNULL clock,
+                         event_class_t *NOTNULL evclass,
+                         conf_object_t *NOTNULL obj,
+                         int (*pred)(lang_void *data, lang_void *match_data),
+                         lang_void *match_data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_event_find_next_cycle(...)
+simics.SIM_event_find_next_time(...)
+simics.SIM_event_find_next_step(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return the number of cycles/seconds/steps to the first event of <code>evclass</code> of <code>obj</code> posted on <code>clock</code> for which <code>pred</code> is true, or -1 if no event matched. <code>pred</code> will be called with the data associated with the event and the supplied <code>match_data</code>. If <code>pred</code> is null (None in Python), the first <code>evclass</code> event for <code>obj</code> on <code>clock</code> will be used.</p>
+<p>There are separate calls of events posted at a point in time (cycle or seconds) and on a specific step. Note that the return value of <code>SIM_event_find_next_cycle</code> is only a preliminary estimate; the number of remaining cycles will change if the clock’s frequency changes dynamically. To handle dynamically changing clock frequencies correctly, subscribe to the frequency changes via the clock’s <a href="model-to-model-interfaces.html#simple_dispatcher_interface_t"><code>simple_dispatcher</code></a> interface.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_InterfaceNotFound</strong> Thrown by <code>SIM_event_find_next_step</code> if the <code>clock</code> object doesn’t implement the <a href="model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a> interface: Minus one is returned in such a case.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a>, <a href="dev-api-events.html#SIM_event_post_time"><code>SIM_event_post_time</code></a></p>
+</section>
+<h2 id="SIM_event_post_time"><a href="#SIM_event_post_time">SIM_event_post_time, SIM_event_post_cycle, SIM_event_post_step</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_event_post_time, SIM_event_post_cycle, SIM_event_post_step — post an event</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_event_post_time(conf_object_t *NOTNULL clock,
+                    event_class_t *NOTNULL evclass,
+                    conf_object_t *NOTNULL obj,
+                    double seconds,
+                    lang_void *user_data);
+
+void
+SIM_event_post_cycle(conf_object_t *NOTNULL clock,
+                     event_class_t *NOTNULL evclass,
+                     conf_object_t *NOTNULL obj,
+                     cycles_t cycles,
+                     lang_void *user_data);
+
+void
+SIM_event_post_step(conf_object_t *NOTNULL clock,
+                    event_class_t *NOTNULL evclass,
+                    conf_object_t *NOTNULL obj,
+                    pc_step_t steps,
+                    lang_void *user_data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_event_post_time(...)
+simics.SIM_event_post_cycle(...)
+simics.SIM_event_post_step(...)
+</code></pre>
+<h2>Description</h2>
+<p>An event of <code>evclass</code> for object <code>obj</code> is posted on <code>clock</code> to occur at a given point in the future. The <code>user_data</code> will be associated with the event.</p>
+<p>The <code>clock</code> is the object that should be used for keeping track of time for the event. It can be a processor or an instance of the <a href="../rm-base/rm-class-clock.html"><code>clock</code></a> class.</p>
+<p>If a configuration class was specified when <code>evclass</code> was registered, then <code>obj</code> must be an instance of that class.</p>
+<p>The expiration point can be specified in seconds, cycles or steps by using the appropriate call, and these values are relative to the current state. Events that need to run synchronized (<code>Sim_EC_Machine_Sync</code>) can only be posted in seconds or cycles, not steps, since synchronization can only be perform in virtual time.</p>
+<blockquote class="markdown-alert-note">
+<p>Events posted with <code>SIM_event_post_cycle</code> are posted at a certain point in time based on the clock’s current frequency, not at a certain clock cycle. The difference is significant if the frequency of the <code>clock</code> object can change dynamically.</p>
+</blockquote>
+<h2>Exceptions</h2>
+<p><strong>SimExc_InterfaceNotFound</strong> Thrown by <code>SIM_event_post_step</code> if the <code>clock</code> object doesn’t implement the <a href="model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a> interface.</p>
+<p><strong>SimExc_General</strong> Thrown if the number of steps or time is negative or too far ahead, and, for <code>Sim_EC_Machine_Sync</code> events, if the event is posted less than a time quantum in the future.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a>, <a href="dev-api-events.html#SIM_event_cancel_time"><code>SIM_event_cancel_time</code></a></p>
+</section>
+<h2 id="SIM_get_event_class"><a href="#SIM_get_event_class">SIM_get_event_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_event_class — get the event class</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+event_class_t *
+SIM_get_event_class(conf_class_t *NOTNULL cl, const char *NOTNULL name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_event_class(...)
+</code></pre>
+<h2>Description</h2>
+<p>Get an event class registered for a configuration class, as done by the <a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a> function. The <code>cl</code> is the configuration class and <code>name</code> is the name of the event class to retrieve.</p>
+<p>If the event class cannot be found, <code>nullptr</code> is returned.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a></p>
+</section>
+<h2 id="SIM_register_event"><a href="#SIM_register_event">SIM_register_event</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_register_event — register an event</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+event_class_t *
+SIM_register_event(
+               const char *NOTNULL name,
+               conf_class_t *cl,
+               event_class_flag_t flags,
+               void (*NOTNULL callback)(conf_object_t *obj, lang_void *data),
+               void (*destroy)(conf_object_t *obj, lang_void *data),
+               attr_value_t (*get_value)(conf_object_t *obj, lang_void *data),
+               lang_void *(*set_value)(conf_object_t *obj, attr_value_t value),
+               char *(*describe)(conf_object_t *obj, lang_void *data));
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_register_event(...)
+</code></pre>
+<h2>Description</h2>
+<p>Registers events identified by <code>name</code> and to be posted for objects of class <code>cl</code>, and returns the event class to be used in other calls. The supplied methods are:</p>
+<dl>
+<dt id="dt:callback"><a href="#dt:callback"><code>callback</code></a></dt>
+<dd>Called when the event expires.</dd>
+<dt id="dt:destroy"><a href="#dt:destroy"><code>destroy</code></a></dt>
+<dd>Called when the event is removed from the queue without being called. The method is not allowed to use any event API calls; it is mainly intended for freeing event data. May be null.</dd>
+<dt id="dt:get_value"><a href="#dt:get_value"><code>get_value</code></a></dt>
+<dd>Called to convert the event data into a value that can be saved in a configuration. May be null when the event carries no data of interest.</dd>
+<dt id="dt:set_value"><a href="#dt:set_value"><code>set_value</code></a></dt>
+<dd>Called to convert a configuration value into event data. May be null when the event carries no data of interest.</dd>
+<dt id="dt:describe"><a href="#dt:describe"><code>describe</code></a></dt>
+<dd>Called to generate a human-readable description of the event to be used in the <a href="../rm-base/rm-cmd-print-event-queue.html"><code>print-event-queue</code></a> command. If written in C, must return an allocated string (using <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC</code></a> or <a href="dev-api-alloc.html#MM_STRDUP"><code>MM_STRDUP</code></a>). May be null, in which case the <code>name</code> is used.</dd>
+</dl>
+<p>Null function pointers correspond to the value None when invoked from Python.</p>
+<p>The <code>flags</code> are typically either zero or <code>Sim_EC_Notsaved</code>, where <code>Sim_EC_Notsaved</code> indicates that the event should not be saved as part of the configuration. In that case, <code>get_value</code> and <code>set_value</code> must both be null, and <code>cl</code> may also be null.</p>
+<p>Additionally, the <code>Sim_EC_No_Serialize</code> flag can be used to specify that the event should not serialize the cell if Multicore Accelerator mode (MCA) is activated. This flag allows the event to run in a threaded context instead of the default cell context. As with all threaded context code, the event callback must protect against threading violations by using <a href="sim-api-object-locks.html#SIM_acquire_target"><code>SIM_acquire_target</code></a> and <a href="sim-api-object-locks.html#SIM_acquire_object"><code>SIM_acquire_object</code></a>. Setting this flag can significantly speed up the simulation if such events are posted frequently.</p>
+<p>The other flag bits defined in <code>event_class_flag_t</code> are reserved for internal use in the Simics platform and some tightly coupled modules. See the event queue sample code for details on their use.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_event_post_time"><code>SIM_event_post_time</code></a></p>
+</section>
+<h2 id="SIM_run_unrestricted"><a href="#SIM_run_unrestricted">SIM_run_unrestricted</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_run_unrestricted — run callback after current instruction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_run_unrestricted(conf_object_t *NOTNULL obj,
+                     void (*NOTNULL func)(conf_object_t *obj,
+                                          lang_void *param),
+                     lang_void *user_data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_run_unrestricted(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>func</code> functions will be called immediately, if Simics is not currently running an instruction, or as soon as the current instruction has completed.</p>
+<p>Note that with the introduction of Multicore Accelerator, if an instruction is running when calling <code>SIM_run_unrestricted</code>, other simulation threads may continue for a while until they stop and the callback is serviced. This means that an object using <code>SIM_run_unrestricted</code> may receive calls through for example the <a href="model-to-model-interfaces.html#io_memory_interface_t"><code>io_memory</code></a> interface after returning from the scope where <code>SIM_run_unrestricted</code> is called but before the <code>func</code> callback function is called. For more information on considerations for Multicore Accelerator, see the <a href="threading-model.html">Threading Model</a> chapter.</p>
+<p>If several functions are registered this way before any of them has had a chance to run, the functions will be run in their order of registration.</p>
+<p>This call is mainly useful for actions that for various reasons can not be done while an instruction is being emulated.</p>
+<p>The <code>obj</code> is an object that has a clock (as defined by <a href="dev-api-configuration.html#SIM_object_clock"><code>SIM_object_clock</code></a>). This object and <code>user_data</code> are passed to the callback function.</p>
+<p>Since the callback is run in Cell Context, simulation threads for other cells may be running when the callback is executed. Consequently, only objects in the same cell as <code>obj</code> may be accessed from the callback.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-services.html#SIM_register_work"><code>SIM_run_alone</code></a></p>
+<h2>Execution Context</h2>
+<p>All contexts including Threaded Context (call); Cell Context (callback)</p>
+</section>
+<h2 id="SIM_step_count"><a href="#SIM_step_count">SIM_step_count</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_step_count — get step count</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+pc_step_t
+SIM_step_count(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_step_count(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the number of steps executed by the processor <code>obj</code>. A step is a completed instruction, an instruction causing a synchronous exception, or an asynchronous exception (interrupt).</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_InterfaceNotFound</strong> Thrown if the <code>obj</code> object doesn’t implement the <a href="model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a> interface. Minus one is returned in such a case.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_time"><a href="#SIM_time">SIM_time</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_time — get current simulated time</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+double
+SIM_time(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_time(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_time</code> returns the current time at <code>obj</code>.</p>
+<p>The returned time relates to how long the simulation has been running, and is usually not very useful in itself, but it can be used to compare with other times. The time on a specific processor is guaranteed to increase when simulation progresses, even if the clock frequency is changed. When adding a processor, it is assigned a current time to be synchronized with other processors in the simulation, or the time 0.0 if it is the first processor.</p>
+<blockquote class="markdown-alert-note">
+<p>The precision of the returned value degrades significantly with simulated time due to its representation as a double. When absolute timestamps are needed for the actual simulation, it is recommended that the <code>SIM_cycle_count</code> function is used instead on the picosecond clock.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>Using <code>SIM_time</code> on the picosecond clock will currently give the same result as <code>SIM_time</code> on the default clock. That is, the precision of this API function is limited by the frequency of the default clock.</p>
+</blockquote>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_picosecond_clock"><code>SIM_picosecond_clock</code></a></p>
+<h2>Return Value</h2>
+<p><code>SIM_time</code> returns the current time in seconds as a floating point value.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="dev-api-translators.html">Device Translators</a>
+<a href="dev-api-version-copyright.html">Version and Copyright</a>
+</div>

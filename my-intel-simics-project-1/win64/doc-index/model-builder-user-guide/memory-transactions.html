@@ -1,0 +1,466 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>12 Memory Transactions in DML</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="define-new-interface-type.html">11 Defining New Interface Types</a>
+<a href="python-in-modules.html">13 Using Python in a Simics module</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;</div><h1 id="memory-transactions-in-dml"><a href="#memory-transactions-in-dml">12 Memory Transactions in DML</a></h1>
+<h2 id="introduction"><a href="#introduction">12.1 Introduction</a></h2>
+<p>This chapter focuses on devices receiving or issuing transactions.
+Devices where transactions pass through, i.e. interconnects, are covered in
+chapter <a href="modeling-interconnects.html">Modeling Interconnects</a>.</p>
+<p>The API fundamentals for issuing memory transactions in Simics are the functions
+<code>SIM_new_map_target</code> and <code>SIM_issue_transaction</code>. The details for these
+functions and the complete API is covered in the <a href="transactions.html">Transactions
+API</a> chapter.</p>
+<p>Standard interfaces in Simics i.e.: <code>signal</code>, <code>i2c</code> and <code>serial_peripheral</code> are
+directly called by the initiator. For memory transaction the recommended
+approach is to convert the receiver object into a <code>map_target_t</code> through method
+<code>SIM_new_map_target</code> and then call function <code>SIM_issue_transaction</code> on the
+<code>map_target_t</code> and not interact directly with the memory interface. One
+advantage with this approach is that receivers can implement any of the below
+Simics memory interfaces and the initiator does not have to know or probe which
+interface to use. It also makes the initiator device more generic and can be
+integrated into multiple platforms where the receivers implement different
+memory interfaces.</p>
+<ol>
+<li><code>transaction</code></li>
+<li><code>translator</code></li>
+<li><code>transaction_translator</code></li>
+<li><code>memory_space</code></li>
+<li><code>io_memory</code></li>
+<li><code>ram</code></li>
+<li><code>rom</code></li>
+<li><code>port_space</code></li>
+</ol>
+<p>For a device to be the end receiver of transactions the device should implement
+the <code>transaction</code> interface. For a device to receive and then forward the
+transaction somewhere else, it should implement either the <code>translator</code> or the
+<code>transaction_translator</code> interfaces. See chapter <a href="transactions.html">Transactions
+API</a> for details.</p>
+<h2 id="issuing-transactions"><a href="#issuing-transactions">12.2 Issuing Transactions</a></h2>
+<p>The example DMA device below showcases how to issue read and write transactions
+from DML.</p>
+<figure id="issue_transactions">
+<pre><code>
+dml 1.4;
+
+device simple_dma_doc;
+param classname = "simple-dma-doc";
+param desc = "sample DMA device";
+
+import "utility.dml";
+
+method validate_map_target(conf_object_t *obj) -&gt; (bool) {
+    local map_target_t *tmp = SIM_new_map_target(obj, NULL, NULL);
+    if (!tmp) {
+        local exception_type_t _exc = SIM_clear_exception();
+        SIM_attribute_error(SIM_last_error());
+        return false;
+    }
+    SIM_free_map_target(tmp);
+    return true;
+}
+
+connect memory {
+    session map_target_t *map_target;
+    method validate(conf_object_t *obj) -&gt; (bool) {
+        return validate_map_target(obj);
+    }
+    method set(conf_object_t *obj) {
+        SIM_free_map_target(this.map_target);
+        default(obj);
+        this.map_target = obj ? SIM_new_map_target(obj, NULL, NULL) : NULL;
+    }
+}
+
+method write_memory32(uint64 addr, uint32 value) throws {
+    if (!memory.map_target)
+        throw;
+    local atom_t atoms[5] = {
+        ATOM_data(cast(&amp;value, uint8*)),
+        ATOM_size(sizeof(value)),
+        ATOM_flags(Sim_Transaction_Write),
+        ATOM_initiator(dev.obj),
+        ATOM_LIST_END
+    };
+    local transaction_t t;
+    t.atoms = atoms;
+    if (SIM_issue_transaction(memory.map_target, &amp;t, addr) != Sim_PE_No_Exception)
+        throw;
+}
+
+method read_memory32(uint64 addr) -&gt; (uint32) throws {
+    if (!memory.map_target)
+        throw;
+    local uint32 val;
+    local atom_t atoms[4] = {
+        ATOM_data(cast(&amp;val, uint8*)),
+        ATOM_size(sizeof(val)),
+        ATOM_initiator(dev.obj),
+        ATOM_LIST_END
+    };
+    local transaction_t t;
+    t.atoms = atoms;
+    if (SIM_issue_transaction(memory.map_target, &amp;t, addr) != Sim_PE_No_Exception)
+        throw;
+    return val;
+}
+
+bank regs {
+    register addr size 8 @ 0x0;
+    register data size 4 @ 0x8 is (write, read) {
+        method write(uint64 value) {
+            try {
+                write_memory32(addr.val, value);
+            } catch {
+                log error: "Failed to write to memory @ 0x%08x", addr.val;
+            }
+        }
+        method read() -&gt; (uint64) {
+            try {
+                return read_memory32(addr.val);
+            } catch {
+                log error: "Failed to read from memory @ 0x%08x", addr.val;
+                return 0;
+            }
+        }
+    }
+}
+
+</code></pre>
+<figcaption>Figure 3. Example DMA device</figcaption>
+</figure>
+<blockquote class="markdown-alert-note">
+<p>The DML utility template <b>map_target</b> would normally be applied to
+connect <b>memory</b> in the code above. It automatically allocates the
+<b>map_target_t</b> variable and defines helper methods for reading and
+writing. It was left out in this example to explicitly show the usage of the
+SIM_new_map_target API.</p>
+</blockquote>
+<h2 id="receiving-transactions"><a href="#receiving-transactions">12.3 Receiving Transactions</a></h2>
+<p>The remote FIFO device below showcases how to receive and process transactions
+through the <code>transaction</code> interface. It returns proper error codes depending on
+error type. For accesses considered unmapped the device shall return
+<code>Sim_PE_IO_Not_Taken</code> and for accesses it has to abort because of internal state
+it shall return <code>Sim_PE_IO_Error</code>.</p>
+<figure id="receive_transactions">
+<pre><code>
+dml 1.4;
+
+device remote_fifo_doc;
+param classname = "remote-fifo-doc";
+
+param desc = "sample FIFO device";
+
+import "utility.dml";
+
+param fifo_len = 100;
+saved int fifo[fifo_len + 1];
+saved int head_pos = 0;
+saved int tail_pos = 0;
+
+method push(uint32 v) throws {
+    if (is_full())
+        throw;
+
+    fifo[head_pos] = v;
+    head_pos = next_pos(head_pos);
+
+}
+method pop() -&gt; (uint32) throws {
+    if (is_empty())
+        throw;
+
+    local uint32 value = fifo[tail_pos];
+    this.tail_pos = next_pos(tail_pos);
+    return value;
+}
+method is_empty() -&gt; (bool) {
+    return tail_pos == head_pos;
+}
+
+method is_full() -&gt; (bool) {
+    return next_pos(head_pos) == tail_pos;
+}
+
+method next_pos(uint16 pos) -&gt; (uint16) {
+    return (pos + 1) % (fifo_len + 1);
+}
+
+implement transaction {
+    method issue(transaction_t *t, uint64 addr) -&gt; (exception_type_t) {
+        local uint64 size = SIM_transaction_size(t);
+        local conf_object_t *ini = SIM_transaction_initiator(t);
+
+        if (addr != 0) {
+            log spec_viol:
+                "Remote FIFO only only accepts accesses @ 0x0, got: 0x%x", addr;
+            /* Return IO not take for unmapped access */
+            return Sim_PE_IO_Not_Taken;
+        }
+        if (SIM_transaction_size(t) != 4) {
+            log spec_viol: "Remote FIFO only support 4-byte accesses";
+            /* Return IO not take for unmapped access */
+            return Sim_PE_IO_Not_Taken;
+        }
+
+        local uint32 v;
+        if (SIM_transaction_is_write(t)) {
+            local buffer_t bytes;
+            bytes.data = cast(&amp;v, uint8*);
+            bytes.len = size;
+            SIM_get_transaction_bytes(t, bytes);
+            try {
+                push(v);
+            } catch {
+                log spec_viol: "Fifo overflow";
+                /* Return IO error for device internal error */
+                return Sim_PE_IO_Error;
+            }
+        }
+        if (SIM_transaction_is_read(t)) {
+            try {
+                v = pop();
+            } catch {
+                log spec_viol: "Fifo underflow";
+                /* Return IO error for device internal error */
+                return Sim_PE_IO_Error;
+            }
+            local bytes_t bytes;
+            bytes.data = cast(&amp;v, uint8*);
+            bytes.len = size;
+            SIM_set_transaction_bytes(t, bytes);
+        }
+
+        return Sim_PE_No_Exception;
+    }
+}
+
+</code></pre>
+<figcaption>Figure 4. Example remote FIFO device</figcaption>
+</figure>
+<blockquote class="markdown-alert-note">
+<p>The above example could have utilized functions
+<b>SIM_get_transaction_value_le</b> and <b>SIM_set_transaction_value_le</b> to
+make the code more compact.</p>
+</blockquote>
+<h2 id="defining-custom-user-atoms"><a href="#defining-custom-user-atoms">12.4 Defining Custom User Atoms</a></h2>
+<p>Users have the capability to define their own custom atoms in Simics. The usage
+could for instance be to transport metadata between the initiator and the
+receiver in either direction. See <a href="transactions.html#custom-atom-types">Custom Atom
+Types</a> for details how to declare and
+register custom atoms. For devices written in DML the user also has to add a DML
+file to expose the atom types and access functions for DML. This file currently
+has to be handwritten by the user.</p>
+<p>Expanding on the previous example by adding two new atoms: <code>fifo_status</code> and
+<code>clear_fifo</code>. The <code>fifo_status</code> atom is filled in by the receiver and represents
+the current length of the FIFO. The <code>clear_fifo</code> atom is set by the initiator
+when it wants the receiver to clear the FIFO.</p>
+<p>The file <code>fifo-atom.dml</code> exposes the atoms to the DML devices. The .c and .h
+file are left out because how it would be done is already covered
+<a href="transactions.html#custom-atom-types">here</a>.</p>
+<figure id="fifo-atom-dml">
+<pre><code>dml 1.4;
+
+header %{
+#include "fifo-atom.h"
+%}
+
+extern typedef struct {
+    int len;
+} fifo_status_t;
+
+// Create atom
+extern atom_t ATOM_fifo_status(const fifo_status_t *msg);
+// Get atom
+extern const fifo_status_t* ATOM_get_transaction_fifo_status(const transaction_t *t);
+
+// Create atom
+extern atom_t ATOM_clear_fifo(bool clear);
+// Get atom
+extern const bool ATOM_get_transaction_clear_fifo(const transaction_t *t);
+
+</code></pre>
+<figcaption>Figure 5. fifo-atom.dml</figcaption>
+</figure>
+<h2 id="issuing-transactions-with-custom-atoms"><a href="#issuing-transactions-with-custom-atoms">12.5 Issuing Transactions with Custom Atoms</a></h2>
+<figure id="issue_custom_atoms">
+<pre><code>
+import "utility.dml";
+import "fifo-atom.dml";
+
+connect fifo is map_target;
+
+method write_to_fifo(uint32 value) -&gt; (fifo_status_t) throws {
+    if (!fifo.map_target)
+        throw;
+    local uint8 buf[4];
+    local fifo_status_t status;
+    local atom_t atoms[6] = {
+        ATOM_fifo_status(&amp;status),
+        ATOM_data(buf),
+        ATOM_size(sizeof(buf)),
+        ATOM_flags(Sim_Transaction_Write),
+        ATOM_initiator(dev.obj),
+        ATOM_LIST_END
+    };
+    local transaction_t t;
+    t.atoms = atoms;
+    SIM_set_transaction_value_le(&amp;t, value);
+    if (SIM_issue_transaction(fifo.map_target, &amp;t, 0) != Sim_PE_No_Exception)
+        throw;
+
+    return status;
+}
+
+method read_from_fifo() -&gt; (uint32, fifo_status_t) throws {
+    if (!fifo.map_target)
+        throw;
+    local uint8 val[4];
+    local fifo_status_t status;
+    local atom_t atoms[5] = {
+        ATOM_fifo_status(&amp;status),
+        ATOM_data(val),
+        ATOM_size(sizeof(val)),
+        ATOM_initiator(dev.obj),
+        ATOM_LIST_END,
+    };
+    local transaction_t t;
+    t.atoms = atoms;
+    if (SIM_issue_transaction(fifo.map_target, &amp;t, 0) != Sim_PE_No_Exception)
+        throw;
+    return (SIM_get_transaction_value_le(&amp;t), status);
+}
+
+method clear_fifo() throws {
+    if (!fifo.map_target)
+        throw;
+    local atom_t atoms[3] = {
+        ATOM_clear_fifo(true),
+        ATOM_initiator(dev.obj),
+        ATOM_LIST_END,
+    };
+    local transaction_t t;
+    t.atoms = atoms;
+    if (SIM_issue_transaction(fifo.map_target, &amp;t, 0) != Sim_PE_No_Exception)
+        throw;
+}
+
+bank regs {
+    register data size 4 @ 0x0 is (write, read) {
+        method write(uint64 value) {
+            try {
+                local fifo_status_t status = write_to_fifo(value);
+                fifo_status.val = status.len;
+            } catch {
+                log error: "Failed to write to fifo";
+            }
+        }
+        method read() -&gt; (uint64) {
+            try {
+                local (int v, fifo_status_t status) = read_from_fifo();
+                fifo_status.val = status.len;
+                return v;
+            } catch {
+                log error: "Failed to read from fifo";
+                return 0;
+            }
+        }
+    }
+    register fifo_status size 4 @ 0x4;
+    register clear size 1 @ 0x8 is (write) {
+        method write(uint64 value) {
+            try {
+                clear_fifo();
+            } catch {
+                log error: "Failed to clear fifo";
+            }
+        }
+    }
+}
+
+</code></pre>
+<figcaption>Figure 6. Example device accessing remote FIFO with status and clear atom</figcaption>
+</figure>
+<h2 id="receiving-transactions-with-custom-atoms"><a href="#receiving-transactions-with-custom-atoms">12.6 Receiving Transactions with Custom Atoms</a></h2>
+<figure id="receive_custom_atoms">
+<pre><code>import "fifo-atom.dml";
+
+implement transaction {
+    method issue(transaction_t *t, uint64 addr) -&gt; (exception_type_t) {
+        local uint64 size = SIM_transaction_size(t);
+        local conf_object_t *ini = SIM_transaction_initiator(t);
+
+        if (addr != 0) {
+            log spec_viol:
+                "Remote FIFO only only accepts accesses @ 0x0, got: 0x%x", addr;
+            /* Return IO not take for unmapped access */
+            return Sim_PE_IO_Not_Taken;
+        }
+        if (size != 4) {
+            log spec_viol: "Remote FIFO only support 4-byte accesses";
+            /* Return IO not take for unmapped access */
+            return Sim_PE_IO_Not_Taken;
+        }
+
+        /* If clear atom set, just clear fifo and return */
+        if (ATOM_get_transaction_clear_fifo(t)) {
+            clear();
+            return Sim_PE_No_Exception;
+        }
+
+        local uint8 buf[size];
+        local int v;
+        if (SIM_transaction_is_write(t)) {
+            local buffer_t bytes;
+            bytes.data = cast(&amp;v, uint8*);
+            bytes.len = size;
+            SIM_get_transaction_bytes(t, bytes);
+            try {
+                push(v);
+            } catch {
+                log spec_viol: "Fifo overflow";
+                /* Return IO error for device internal error */
+                return Sim_PE_IO_Error;
+            }
+        } else {  // Read
+            try {
+                v = pop();
+            } catch {
+                log spec_viol: "Fifo underflow";
+                /* Return IO error for device internal error */
+                return Sim_PE_IO_Error;
+            }
+            local bytes_t bytes;
+            bytes.data = cast(&amp;v, uint8*);
+            bytes.len = size;
+            SIM_set_transaction_bytes(t, bytes);
+        }
+
+        /* Check if fifo status atom is present and set it */
+        local fifo_status_t *status = cast(ATOM_get_transaction_fifo_status(t), fifo_status_t *);
+        if (status != NULL)
+            status-&gt;len = current_len();
+
+        return Sim_PE_No_Exception;
+    }
+}
+
+</code></pre>
+<figcaption>Figure 7. Example remote FIFO device with status and clear atom functionality</figcaption>
+</figure>
+
+<div class="chain">
+<a href="define-new-interface-type.html">11 Defining New Interface Types</a>
+<a href="python-in-modules.html">13 Using Python in a Simics module</a>
+</div>

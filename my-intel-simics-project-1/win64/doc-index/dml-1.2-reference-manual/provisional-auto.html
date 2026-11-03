@@ -1,0 +1,113 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>C Provisional language features</title>
+<link rel="stylesheet" href="simics.css">
+<script>function postUrl() {
+    window.parent.postMessage({ content_url: window.location.href }, "*");
+}
+if (window.parent != null && window.parent != window) {
+    postUrl();
+    window.addEventListener("hashchange", function () {
+        postUrl();
+    });
+} else {
+    // Check if we are part of a Simics doc site and redirect if we are
+    fetch("../simics-doc-site-marker", { method: "HEAD" }).then(response => {
+        if (response.ok) {
+            window.location = "..#" + window.location.href;
+        } else {
+            console.info("Not part of a Simics documentation site");
+        }
+    }).catch(error => {
+        console.warn("Failed to check if this is a Simics documentation site:",
+            error);
+    });
+}</script>
+</head>
+<div class="chain">
+<a href="messages.html">B Messages</a>
+<a href="deprecations-auto.html">D Managing deprecated language features</a>
+</div>
+<div class="path">
+<a href="index.html">Device Modeling Language 1.2 Reference Manual</a>
+&nbsp;/&nbsp;</div>
+<h1 id="provisional-language-features"><a href="#provisional-language-features">C Provisional language features</a></h1>
+<p>Sometimes, we may choose to extend the DML compiler with a feature before it is
+ready to be fully incorporated into the language. This can happen for different
+reasons, e.g. if the design is not fully evaluated or if the feature is
+backward incompatible. Currently, all provisional features are enabled on a
+per-file basis, by adding <code>provisional <em>feature_name</em>,
+<em>other_feature_name</em>;</code> just after the <code>dml 1.2;</code> statement.</p>
+<p>Provisional features can come in two flavours:</p>
+<ul>
+<li>
+<p><em>Stable</em> provisional features have a proven design and are
+expected to remain pretty stable over time. Details in semantics may
+still change between versions, but if we decide to make a
+significant incompatible change to a supported provisional, then we
+will create a second version of the provisional, under a new name,
+and keep both versions in parallel for some time. It can make sense
+to use supported provisional features in production code.</p>
+</li>
+<li>
+<p><em>Unstable</em> provisional features are expected to undergo significant
+incompatible changes over time, and are generally exposed to allow a
+dedicated team of modelers to evaluate an early design. It can be used
+to play around with, but should not be used in production code without
+first communicating with the DML team.</p>
+</li>
+</ul>
+<h2 id="list-of-stable-provisional-features"><a href="#list-of-stable-provisional-features">C.1 List of stable provisional features</a></h2>
+<dl>
+  <dt id="dt:simics_util_vect"><a href="#dt:simics_util_vect"><tt>simics_util_vect</tt></a></dt>
+  <dd>
+<a id="simics_util_vect">
+This feature enables the `vect` type, based on the
+`VECT` macro from the Simics C API (`simics/util/vect.h`).
+<p>This is a simple wrapping that behaves inconsistently in many
+ways, and we plan to eventually introduce a cleaner mechanism for
+vectors; the <code>simics_util_vect</code> is supported as an interim solution until we
+have that in place.</p>
+<p>The syntax is <code>BASETYPE vect</code>, e.g. <code>typedef int vect int_vect_t;</code>
+to define a type for vectors of the <code>int</code> type.</p>
+<p>Some caveats:</p>
+<ul>
+<li>
+<p><code>vect</code> types typically need to be <code>typedef</code>:ed before they are
+used.  This is because <code>int vect</code> is blindly expanded into
+<code>VECT(int)</code> in C, which in turn expands into a <code>struct</code>
+definition, meaning that saying <code>VECT(int)</code> twice yields two
+incompatible types. This means, for instance, that <code>typeof</code> in
+DML doesn’t work properly for <code>vect</code> types unless <code>typedef</code>:ed</p>
+</li>
+<li>
+<p>Importing <code>"internal.dml"</code> exposes various C macros from
+<code>vect.h</code> to DML: <code>VINIT</code>, <code>VELEMSIZE</code>, <code>VRESIZE</code>,
+<code>VRESIZE_FREE</code>, <code>VADD</code>, <code>VREMOVE</code>, <code>VDELETE_ORDER</code>, <code>VINSERT</code>,
+<code>VSETLAST</code>, <code>VLEN</code>, <code>VVEC</code>, <code>VGROW</code>, <code>VSHRINK</code>, <code>VFREE</code>,
+<code>VTRUNCATE</code>, <code>VCLEAR</code>, and <code>VCOPY</code>.</p>
+</li>
+<li>
+<p>DML natively supports indexing syntax, which is translated to
+<code>VGET</code> (or <code>VSET</code> for assignment). For instance:</p>
+<pre><code>typedef int vect int_vect_t;
+method first_element(int_vect_t v) -&gt; (int) {
+    assert VLEN(v) &gt; 0;
+    return v[0];
+}
+</code></pre>
+</li>
+</ul>
+<p>Enabling the <code>simics_util_vect</code> feature in a file only affects
+the <code>vect</code> declarations in that file.</p>
+</a><p><a id="simics_util_vect">When the <code>simics_util_vect</code> feature is disabled, usage of <code>vect</code> is an
+error if the </a><a href="deprecations-auto.html#vect-needs-provisional"><code>vect-needs-provisional</code>
+breaking change</a> is enabled.</p>
+</dd>
+</dl>
+
+<div class="chain">
+<a href="messages.html">B Messages</a>
+<a href="deprecations-auto.html">D Managing deprecated language features</a>
+</div>

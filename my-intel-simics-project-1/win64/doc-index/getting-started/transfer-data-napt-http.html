@@ -1,0 +1,109 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.7.5 Use NAPT network and HTTP</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="transfer-data-ftp.html">8.7.4 Using the Service Node</a>
+<a href="transfer-data-ssh.html">8.7.6 Using Port Forwarding and SSH</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;
+<a href="transfer-data.html">8.7 Networking and getting data into the simulated system</a>
+&nbsp;/&nbsp;</div><h1 id="use-napt-network-and-http"><a href="#use-napt-network-and-http">8.7.5 Use NAPT network and HTTP</a></h1>
+<p>In this section we demonstrate transferring data from the host to the target
+using regular networking.</p>
+<p>Intel Simics simulator can let the target machine connect to any network that
+the host system has access to. This can be achieved in several ways, where
+<strong>NAPT</strong> is the simplest option. The simulator then acts similarly like a
+regular home router, performing network address translation between the
+simulated network and the network that the host is connected to. The service
+node DNS server can also act as a proxy for real DNS.</p>
+<ul>
+<li>
+<p>Follow the <a href="transfer-data-preparation.html">preparation</a> steps to launch the
+simulator and reach prompt in the target machine.</p>
+<pre><code class="language-simics"># 
+# 
+</code></pre>
+</li>
+<li>
+<p>Enable real time mode, to avoid network timeouts. This makes sure that the
+simulator will not run the simulation faster than real time.</p>
+<pre><code class="language-simics">simics&gt; <strong>enable-real-time-mode</strong>
+Real-time mode enabled.
+</code></pre>
+</li>
+<li>
+<p>Connect to real network using NAPT.</p>
+<pre><code class="language-simics">simics&gt; <strong>connect-real-network-napt ethernet-link = ethernet_switch</strong>
+NAPT enabled with gateway 10.10.0.1/24 on link ethernet_switch.link.
+NAPT enabled with gateway fe80::2220:20ff:fe20:2000/64 on link ethernet_switch.link.
+</code></pre>
+</li>
+<li>
+<p>Set up a simple HTTP server on the host. This command can naturally also be
+executed in any host shell, but here we use the <code>shell</code> command from within
+CLI.</p>
+<pre><code class="language-simics">simics&gt; <strong>$python = (lookup-file "%simics%/bin/mini-python")</strong>
+simics&gt; <strong>$imgs = (lookup-file "%simics%/targets/common/images")</strong>
+simics&gt; <strong>shell -bg ($python + " -m http.server --directory " + $imgs)</strong>
+</code></pre>
+</li>
+<li>
+<p>For easier access of the host system from the target, we add the host IP
+address to the service node DNS.</p>
+<pre><code class="language-simics">simics&gt; <strong>service_node.sn.add-host name = "host0" ip = (sim-&gt;host_ipv4)</strong>
+Adding host info for IP 10.123.242.138: host0.network.sim
+</code></pre>
+</li>
+<li>
+<p>Start the simulation.</p>
+<pre><code class="language-simics">simics&gt; <strong>run</strong>
+running&gt;
+</code></pre>
+</li>
+<li>
+<p>Before downloading the agent, we will demonstrate how to enable real DNS and
+test that it works. First enable real DNS from CLI.</p>
+<pre><code class="language-simics">running&gt; <strong>service_node.enable-real-dns</strong>
+Real DNS enabled.
+</code></pre>
+<p>Test the DNS from the target console.</p>
+<pre><code class="language-simics"># <strong>host www.intel.com</strong>
+www.intel.com has address 104.81.114.201
+Host www.intel.com not found: 4(NOTIMP)
+Host www.intel.com not found: 4(NOTIMP)
+</code></pre>
+</li>
+<li>
+<p>Download the <code>simics_agent_binaries.zip</code> from the host using curl in the
+target console.</p>
+<pre><code class="language-simics"># curl -s http://host0:8000/simics_agent_binaries.zip \
+     --output simics_agent_binaries.zip
+</code></pre>
+</li>
+<li>
+<p>On the target machine, we can verify that the file has been transferred.</p>
+<pre><code class="language-simics"># <strong>ls simics_agent_binaries.zip</strong>
+simics_agent_binaries.zip
+# <strong>unzip -q simics_agent_binaries.zip</strong>
+# <strong>ls ./simics_agent_x86_linux64</strong>
+./simics_agent_x86_linux64
+</code></pre>
+</li>
+</ul>
+<p>In this example we only connected to the host itself, but in fact the same
+technique can be used to connect to any other system that the host can access.
+Also note that the HTTP server we open on the host will be accessible by any web
+browser.</p>
+
+<div class="chain">
+<a href="transfer-data-ftp.html">8.7.4 Using the Service Node</a>
+<a href="transfer-data-ssh.html">8.7.6 Using Port Forwarding and SSH</a>
+</div>

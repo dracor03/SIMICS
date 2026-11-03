@@ -1,0 +1,236 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Embedding Simics</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-configuration.html">Configuration</a>
+<a href="sim-api-haps.html">Haps</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Embedding Simics</h1>
+<h2 id="SIM_get_init_arg_string"><a href="#SIM_get_init_arg_string">SIM_get_init_arg_string, SIM_get_init_arg_boolean</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_init_arg_string, SIM_get_init_arg_boolean — get an argument that the Simics core was initialized with</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+const char *
+SIM_get_init_arg_string(const char *name, const char *default_value);
+
+bool
+SIM_get_init_arg_boolean(const char *name, bool default_value);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_init_arg_string(...)
+simics.SIM_get_init_arg_boolean(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the value of init argument <code>name</code> previously supplied to Simics using <a href="sim-api-embedding.html#SIM_init_simulator2"><code>SIM_init_simulator2</code></a>. Arguments are either strings (<code>char *</code>) or booleans (<code>bool</code>).</p>
+<p>This function is only needed when directly embedding <code>libsimics-common</code> in another application, which is deprecated.</p>
+<h2>Return Value</h2>
+<p>The argument value or <code>default_value</code> if the argument was not supplied to <a href="sim-api-embedding.html#SIM_init_simulator2"><code>SIM_init_simulator2</code></a> or if the argument value was <code>nullptr</code>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the argument is of the wrong type.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-embedding.html#SIM_init_simulator2"><code>SIM_init_simulator2</code></a></p>
+</section>
+<h2 id="SIM_init_command_line"><a href="#SIM_init_command_line">SIM_init_command_line</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_init_command_line — initialize the Simics command line</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_init_command_line();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_init_command_line(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_init_command_line</code> initializes the Simics command line used when running from a Linux shell or the Windows Command Prompt.</p>
+<p>This function must be called after the Simics Python module has been loaded and should only be called when embedding Simics in another application.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the function already has been called once.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-embedding.html#SIM_main_loop"><code>SIM_main_loop</code></a></p>
+</section>
+<h2 id="SIM_init_environment"><a href="#SIM_init_environment">SIM_init_environment</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_init_environment — perform early initialization of the simulator</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_init_environment(char **NOTNULL argv,
+                     bool handle_signals, bool allow_core_dumps);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_init_environment</code> function should be called as early as possible when Simics is embedded in another application, before any other Simics API function. It will initialize Simics dynamic memory handling <code>VTMEM</code>, set up signal handling and perform some other early initialization.</p>
+<p>The <code>argv</code> argument is a <code>nullptr</code> terminated list of strings. It must not be <code>nullptr</code>. It must contain at least one element, which will be used as the program name. Often you can use the <code>argv</code> that <code>main</code> receives as the value of this argument.</p>
+<p>If <code>handle_signals</code> is true, Simics will install its handler for Control-C, e.g. the SIGINT signal on Linux and ConsoleCtrlHandler on Windows. Set this value to false if the embedding application handles signals itself.</p>
+<p>If <code>allow_core_dumps</code> is true, Simics will not install handlers for fatal signals but instead let the application crash possibly generating a core dump on Linux systems. If the argument is false, no core dump is generated and Simics will try to catch fatal signals and return control to the command line again.</p>
+<p>This function is only needed when directly embedding <code>libsimics-common</code> in another application, which is deprecated.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_init_simulator2"><a href="#SIM_init_simulator2">SIM_init_simulator2</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_init_simulator2 — perform initialization of the simulator</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_init_simulator2(init_arg_t *NOTNULL init_args);
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_init_simulator2</code> initializes the simulator core and should only be called when embedding Simics in another application. It has to be called after <code>SIM_init_environment</code> but before using most other parts of the Simics API. The <code>init_args</code> argument is an array with <code>init_arg_t</code> structs, where the last entry has NULL in the <code>name</code> field.</p>
+<p>Each entry in the <code>init_args</code> array contains an argument name and an associated value that is either a string or a boolean. Simics has a number of pre-defined arguments that are used to configure the simulator.</p>
+<p>It is possible to provide additional arguments in the call to <code>SIM_init_simulator2</code>. Such arguments are ignored by Simics and assumed to be used-defined. Their values can be obtained using the <a href="sim-api-embedding.html#SIM_get_init_arg_string"><code>SIM_get_init_arg_string</code></a> and <a href="sim-api-embedding.html#SIM_get_init_arg_string"><code>SIM_get_init_arg_boolean</code></a> functions in the Simics API.</p>
+<p>List of pre-defined parameters and their types:</p>
+<table><thead><tr><th>Argument name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>batch-mode</td><td>bool</td><td>See -batch-mode command line flag.</td></tr>
+<tr><td>deprecation-level</td><td>char *</td><td>One of <code>0</code>, <code>1</code> and <code>2</code>. See the <code>sim.deprecation_level</code> attribute.</td></tr>
+<tr><td>gui-mode</td><td>char *</td><td>One of <code>gui</code>, <code>mixed</code> and <code>no-gui</code></td></tr>
+<tr><td>fail-on-warnings</td><td>bool</td><td>See -werror command line flag.</td></tr>
+<tr><td>log-enable</td><td>bool</td><td>Deprecated.</td></tr>
+<tr><td>log-file</td><td>char *</td><td>See -log-file command line flag.</td></tr>
+<tr><td>no-settings</td><td>bool</td><td>See -no-settings command line flag.</td></tr>
+<tr><td>no-windows</td><td>bool</td><td>See -no-win command line flag.</td></tr>
+<tr><td>python-verbose</td><td>bool</td><td>Legacy flag; does nothing.</td></tr>
+<tr><td>project</td><td>char *</td><td>See -project command line flag.</td></tr>
+<tr><td>quiet</td><td>bool</td><td>See -quiet command line flag.</td></tr>
+<tr><td>script-trace</td><td>bool</td><td>Show when a Simics script is entered/exited, along with any parameters passed to it and result variables returned from it.</td></tr>
+<tr><td>verbose</td><td>bool</td><td>See –verbose command line flag.</td></tr>
+</tbody></table>
+<p>Internal or deprecated:</p>
+<table><thead><tr><th>Argument name</th><th>Type</th></tr></thead><tbody>
+<tr><td>alt-settings-dir</td><td>char *</td></tr>
+<tr><td>application-mode</td><td>char *</td></tr>
+<tr><td>check-ifaces</td><td>bool</td></tr>
+<tr><td>disable-dstc</td><td>bool</td></tr>
+<tr><td>disable-istc</td><td>bool</td></tr>
+<tr><td>package-list</td><td>char *</td></tr>
+<tr><td>py-import-all</td><td>bool</td></tr>
+<tr><td>use-module-cache</td><td>bool</td></tr>
+</tbody></table>
+<p>This function is only needed when directly embedding <code>libsimics-common</code> in another application, which is deprecated.</p>
+<h2>Exceptions</h2>
+<p>None</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-embedding.html#SIM_init_environment"><code>SIM_init_environment</code></a>, <a href="sim-api-embedding.html#SIM_get_init_arg_string"><code>SIM_get_init_arg_string</code></a>, <a href="sim-api-embedding.html#SIM_get_init_arg_string"><code>SIM_get_init_arg_boolean</code></a>.</p>
+</section>
+<h2 id="SIM_main_loop"><a href="#SIM_main_loop">SIM_main_loop</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_main_loop — run the Simics main loop</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_main_loop();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_main_loop(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_main_loop</code> enters the main loop of Simics and never returns. It should only be called when embedding Simics in another application that wishes to transfer full control of the simulation to Simics.</p>
+<p>The main loop waits for work requests to be posted by notifiers, <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a> and <a href="sim-api-services.html#SIM_realtime_event"><code>SIM_realtime_event</code></a>. If the command line has been initialized it will be active as well.</p>
+<p>If the embedding application do not wish to transfer the control to Simics while the simulation is not advancing should use the <a href="sim-api-embedding.html#SIM_process_work"><code>SIM_process_work</code></a> or <a href="sim-api-embedding.html#SIM_process_work"><code>SIM_process_pending_work</code></a> to make sure that Simics can process any pending idle work.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the function is called recursively.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-embedding.html#SIM_init_command_line"><code>SIM_init_command_line</code></a>, <a href="sim-api-services.html#SIM_realtime_event"><code>SIM_realtime_event</code></a>, <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a>, <a href="sim-api-embedding.html#SIM_process_work"><code>SIM_process_work</code></a></p>
+</section>
+<h2 id="SIM_process_work"><a href="#SIM_process_work">SIM_process_work, SIM_process_pending_work</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_process_work, SIM_process_pending_work — run the Simics main loop</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int
+SIM_process_work(int (*done)(lang_void *done_data), lang_void *done_data);
+
+int
+SIM_process_pending_work();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_process_work(...)
+simics.SIM_process_pending_work(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_process_work</code> and <code>SIM_process_pending_work</code> processes work posted by <a href="sim-api-services.html#SIM_register_work"><code>SIM_register_work</code></a>, <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a> and <a href="sim-api-services.html#SIM_realtime_event"><code>SIM_realtime_event</code></a> and related functions to be run in <em>Global Context</em>. They do not process work posted with <code>run_in_thread</code> set. Such work is processed in worker threads.</p>
+<p>These process work functions are typically called when embedding Simics in another application to allow periodic and asynchronous Simics work to run while the simulation is not advancing. They can also be used as part of running the simulation to wait for events coming from external sources.</p>
+<p><code>SIM_process_pending_work</code> runs all work that has been queued up since the last call and returns immediately after.</p>
+<p><code>SIM_process_work</code> is similar but waits for new work to arrive. Each time all work that has been queued up has been processed the supplied <code>done</code> callback, which must be non-NULL, is called with <code>done_data</code> as its only argument. A return value of 1 tells <code>SIM_process_work</code> to stop processing work and return control to the caller again while 0 tells it to continue.</p>
+<p>The <code>SIM_process_work</code> functions return -1 if the user has pressed the interrupt key before or while they were running, provided that the simulator core was initialized to catch signals. Otherwise the return value is 0. The function checks for user interrupt at the same time as it checks the <code>done</code> predicate and only if such a predicate is provided.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-embedding.html#SIM_main_loop"><code>SIM_main_loop</code></a>, <a href="sim-api-services.html#SIM_realtime_event"><code>SIM_realtime_event</code></a>, <a href="sim-api-services.html#SIM_register_work"><code>SIM_thread_safe_callback</code></a></p>
+</section>
+<h2 id="SIM_set_frontend_context"><a href="#SIM_set_frontend_context">SIM_set_frontend_context</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_frontend_context — register a stack context buffer for Simics to longjmp back to</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_set_frontend_context(void *context);
+</code></pre>
+<h2>Description</h2>
+<p>When Simics encounters a fatal error that it cannot handle, it uses <code>longjmp()</code> to give control back to the main loop. The longjmp destination depends on the stack context buffer registered by the embedding application using <code>SIM_set_frontend_context</code>. The main loop run by <a href="sim-api-embedding.html#SIM_main_loop"><code>SIM_main_loop</code></a> already sets up the stack context. You only need to set up the stack context manually if you write your own main loop.</p>
+<p>A stack context buffer is created by calling <code>sigsetjmp()</code> on Linux and <code>setjmp()</code> on Windows.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-embedding.html#SIM_main_loop"><code>SIM_main_loop</code></a>, <a href="sim-api-embedding.html#SIM_process_work"><code>SIM_process_work</code></a></p>
+</section>
+<div class="chain">
+<a href="sim-api-configuration.html">Configuration</a>
+<a href="sim-api-haps.html">Haps</a>
+</div>

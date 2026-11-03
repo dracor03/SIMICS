@@ -1,0 +1,166 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Path</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-output.html">Output</a>
+<a href="sim-api-processor.html">Processor</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Path</h1>
+<h2 id="SIM_add_directory"><a href="#SIM_add_directory">SIM_add_directory</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_add_directory — add directory to search path</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_add_directory(const char *NOTNULL directory, bool prepend);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_add_directory(...)
+</code></pre>
+<h2>Description</h2>
+<p>Adds a directory to Simics’s search path. This is a list of directories which Simics uses when searching for files such as disk dumps, kernel images, etc.</p>
+<p>The <code>directory</code> argument is first converted using <a href="sim-api-path.html#SIM_native_path"><code>SIM_native_path</code></a>, to yield a path on host native form. If the path does not exist, a frontend exception is raised.</p>
+<p>If <code>prepend</code> is true, the directory is inserted first in the list of directories.</p>
+<p>This list of directories is saved as the attribute <code>simics_path</code> when doing <a href="../rm-base/rm-cmd-write-configuration.html"><code>write-configuration</code></a>. Each directory is first converted to absolute form if relative.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the directory does not exist.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-path.html#SIM_lookup_file"><code>SIM_lookup_file</code></a>, <a href="sim-api-path.html#SIM_clear_directories"><code>SIM_clear_directories</code></a></p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_clear_directories"><a href="#SIM_clear_directories">SIM_clear_directories</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_clear_directories — clear the search path</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_clear_directories();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_clear_directories(...)
+</code></pre>
+<h2>Description</h2>
+<p>Deletes all directories from the search path.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-path.html#SIM_add_directory"><code>SIM_add_directory</code></a>, <a href="sim-api-path.html#SIM_lookup_file"><code>SIM_lookup_file</code></a></p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_get_directories"><a href="#SIM_get_directories">SIM_get_directories</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_directories — get the current search path</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_directories();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_directories(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the current value of the directory search path.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_lookup_file"><a href="#SIM_lookup_file">SIM_lookup_file</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_lookup_file — find a file using simics search path</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+char *
+SIM_lookup_file(const char *file);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_lookup_file(...)
+</code></pre>
+<h2>Description</h2>
+<p>Searches for a file in the Simics search path.</p>
+<p>The returned path will always be in host native format, so it will not need to be converted. See <a href="sim-api-path.html#SIM_native_path"><code>SIM_native_path</code></a> for more details on what “host native format” means.</p>
+<p><code>NULL</code> is returned if <code>file</code> cannot be found.</p>
+<p>The search algorithm is as follows.</p>
+<ul>
+<li>
+<p>If <code>file</code> is <code>NULL</code> or an empty string, the function returns <code>NULL</code>.</p>
+</li>
+<li>
+<p>If <code>file</code> exists and is an absolute path, it is converted to host native form and returned.</p>
+</li>
+<li>
+<p>If <code>file</code> starts with <code>%simics%</code>, the rest of the path is looked up first in the current Simics project, and then in all configured Simics packages. If a match is found, the native form of the file found will be returned.</p>
+</li>
+<li>
+<p>If <code>file</code> exists in or relative to the current directory, it is returned without using the Simics search path. This is more or less equivalent of always having “.” first in the search path.</p>
+</li>
+<li>
+<p>For each directory in Simics search path: The directory and the file is concatenated and converted to host native format. Each such file is looked up first in the current Simics project, and then in all Simics packages. If a match is found, the native form of the file found will be returned.</p>
+</li>
+</ul>
+<p>If the file was found, a pointer to the full path to the file is returned. The ownership of the string is passed to the caller.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-path.html#SIM_add_directory"><code>SIM_add_directory</code></a>, <a href="sim-api-path.html#SIM_clear_directories"><code>SIM_clear_directories</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_native_path"><a href="#SIM_native_path">SIM_native_path</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_native_path — convert path to its native form</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+char *
+SIM_native_path(const char *NOTNULL path);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_native_path(...)
+</code></pre>
+<h2>Description</h2>
+<p>Translates a path to its host native form. This functions is a no-op on all platforms except Windows.</p>
+<p>The value returned by this function is allocated and owned by the caller.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-output.html">Output</a>
+<a href="sim-api-processor.html">Processor</a>
+</div>

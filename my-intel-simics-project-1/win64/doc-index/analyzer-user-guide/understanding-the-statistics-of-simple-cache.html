@@ -1,0 +1,97 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5.6 Understanding the Statistics of Simple Cache</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="using-simple-cache.html">5.5 Using Simple Cache</a>
+<a href="feature-list-stall-cache.html">6 Processor-specific Features and Limitations</a>
+</div>
+<div class="path">
+<a href="index.html">Analyzer User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="caches.html">5 Cache Simulation</a>
+&nbsp;/&nbsp;</div><h1 id="understanding-the-statistics-of-simple-cache"><a href="#understanding-the-statistics-of-simple-cache">5.6 Understanding the Statistics of Simple Cache</a></h1>
+<p>The following statistics are available in a <code>simple_cache</code>:</p>
+<dl>
+<dt id="dt:read-accesses"><a href="#dt:read-accesses">Read accesses</a></dt>
+<dd>Total number of read accesses</dd>
+<dt id="dt:read-misses"><a href="#dt:read-misses">Read misses</a></dt>
+<dd>Total number of read misses</dd>
+<dt id="dt:write-accesses"><a href="#dt:write-accesses">Write accesses</a></dt>
+<dd>Total number of write accesses</dd>
+<dt id="dt:write-misses"><a href="#dt:write-misses">Write misses</a></dt>
+<dd>Total number of write misses</dd>
+<dt id="dt:write-backs"><a href="#dt:write-backs">Write backs</a></dt>
+<dd>Total number of write backs to this cache (from previous level)</dd>
+<dt id="dt:write-backs-misses"><a href="#dt:write-backs-misses">Write backs misses</a></dt>
+<dd>Total number of write back misses to this cache (from previous level)</dd>
+<dt id="dt:request-for-write-accesses"><a href="#dt:request-for-write-accesses">Request for write accesses</a></dt>
+<dd>previous level wants to write to this line but missed and now request it for
+writing at this level</dd>
+<dt id="dt:request-for-write-misses"><a href="#dt:request-for-write-misses">Request for write misses</a></dt>
+<dd>previous level wants to write to this line but missed and now request it for
+writing at this level but misses</dd>
+<dt id="dt:prefetch-accesses"><a href="#dt:prefetch-accesses">Prefetch accesses</a></dt>
+<dd>Prefetches from either hardware prefetching or from instructions (software)</dd>
+<dt id="dt:prefetch-misses"><a href="#dt:prefetch-misses">Prefetch misses</a></dt>
+<dd>Prefetches from either hardware prefetching or from instructions (software)
+that misses</dd>
+<dt id="dt:request-for-write-prefetch-accesses"><a href="#dt:request-for-write-prefetch-accesses">Request for write prefetch accesses</a></dt>
+<dd>previous level wants to prefetch a write to this line but missed and now
+request it for write prefetching at this level</dd>
+<dt id="dt:request-for-write-prefetch-misses"><a href="#dt:request-for-write-prefetch-misses">Request for write prefetch misses</a></dt>
+<dd>previous level wants to prefetch a write to this line but missed and now
+request it for write prefetching at this level, and misses</dd>
+<dt id="dt:prefetches-used"><a href="#dt:prefetches-used">Prefetches used</a></dt>
+<dd>Prefetches that were later used for reading or writing, i.e., not wasted
+prefetches</dd>
+<dt id="dt:prefetch-instructions"><a href="#dt:prefetch-instructions">Prefetch instructions</a></dt>
+<dd>Number of prefetch instructions directed to the cache</dd>
+<dt id="dt:instruction-fetch-accesses"><a href="#dt:instruction-fetch-accesses">Instruction fetch accesses</a></dt>
+<dd>Total number of instruction fetches</dd>
+<dt id="dt:instruction-fetch-misses"><a href="#dt:instruction-fetch-misses">Instruction fetch misses</a></dt>
+<dd>Total number of instruction fetch misses</dd>
+<dt id="dt:evicted-modified"><a href="#dt:evicted-modified">Evicted modified</a></dt>
+<dd>Total number of evicted cache lines that were modified and needed to be
+written back to the next level</dd>
+<dt id="dt:evicted-total"><a href="#dt:evicted-total">Evicted total</a></dt>
+<dd>Total number of evicted cache lines (including evicted modified)</dd>
+<dt id="dt:cache-flush-instructions"><a href="#dt:cache-flush-instructions">Cache flush instructions</a></dt>
+<dd>Number of cache flush instructions for flushing entire cache, inv and wbinvd</dd>
+<dt id="dt:cache-line-flushes"><a href="#dt:cache-line-flushes">Cache line flushes</a></dt>
+<dd>Number of cache line flush instructions (clflush)</dd>
+<dt id="dt:uncachable-reads"><a href="#dt:uncachable-reads">Uncachable reads</a></dt>
+<dd>Total number of non-cacheable reads</dd>
+<dt id="dt:uncachable-writes"><a href="#dt:uncachable-writes">Uncachable writes</a></dt>
+<dd>Total number of non-cacheable writes</dd>
+</dl>
+<p>Here is an example of the statistics using the print-statistics command:</p>
+<pre><code>
+simics&gt; board.mb.cpu0.cache[0].l1d.print-statistics
+Using the 'board.mb.cpu0.core[0][0]' processor for the Steps/Count column
+┌─────┬───────────────────────────────────┬─────────┬─────┐
+│Row #│              Counter              │  Value  │  %  │
+├─────┼───────────────────────────────────┼─────────┼─────┤
+│    1│read accesses                      │724945650│     │
+│    2│read misses                        │  2678946│ 0.37│
+│    3│write accesses                     │555916819│     │
+│    4│write misses                       │ 12439648│ 2.24│
+│    5│prefetch accesses                  │  8120411│     │
+│    6│prefetch misses                    │  5158065│63.52│
+│    7│prefetched lines used              │  3533041│43.51│
+│    8│prefetch instructions              │   298374│     │
+│    9│evicted modified lines             │ 13465148│66.41│
+│   10│evicted total lines                │ 20275891│     │
+│   11│uncachable read accesses           │ 56576127│     │
+│   12│uncachable write accesses          │ 39916459│     │
+└─────┴───────────────────────────────────┴─────────┴─────┘
+</code></pre>
+<p>Counts with a value of zero are not printed.</p>
+
+<div class="chain">
+<a href="using-simple-cache.html">5.5 Using Simple Cache</a>
+<a href="feature-list-stall-cache.html">6 Processor-specific Features and Limitations</a>
+</div>

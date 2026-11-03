@@ -1,0 +1,170 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Device Translators</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-memory-transactions.html">Memory Transactions</a>
+<a href="dev-api-events.html">Time and Events</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Device Translators</h1>
+<h2 id="SIM_free_map_target"><a href="#SIM_free_map_target">SIM_free_map_target</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_free_map_target — free a map target</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_free_map_target(map_target_t *mt);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_free_map_target(...)
+</code></pre>
+<h2>Description</h2>
+<p>Releases a map target and all associated resources. Safely does nothing if the argument is NULL.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a></p>
+</section>
+<h2 id="SIM_map_target_flush"><a href="#SIM_map_target_flush">SIM_map_target_flush</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_map_target_flush — ensure that old translations are not used</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+bool
+SIM_map_target_flush(const map_target_t *NOTNULL mt,
+                     uint64 base, uint64 size, access_t access);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_map_target_flush(...)
+</code></pre>
+<h2>Description</h2>
+<p>This API function is intended to be used for the implementation the <a href="model-to-model-interfaces.html#translation_flush_interface_t"><code>translation_flush</code></a> interface. The documentation for the <a href="model-to-model-interfaces.html#translation_flush_interface_t"><code>translation_flush</code></a> interface describes how to use this function for the interface implementation.</p>
+<p>Additionally, this function can be used as a replacement for the <a href="dev-api-translators.html#SIM_translation_changed"><code>SIM_translation_changed</code></a> function to do a more fine-grain invalidation in the case when a previously returned translation becomes invalid.</p>
+<p>When a previously returned translation becomes invalid the translator object should notify Simics which can have translations cached. To notify Simics the translator object can either do the call to the <a href="dev-api-translators.html#SIM_translation_changed"><code>SIM_translation_changed</code></a> function or, as a potential performance optimization, do a more fine-grain invalidation by using the <code>SIM_map_target_flush</code> function.</p>
+<p>The translator object is expected to call the <code>SIM_map_target_flush</code> function for all targets of all previously returned translations which became invalid. If there are too many translations which are to be invalidated, then, performance-wise, it may be better just to do a single call to the <a href="dev-api-translators.html#SIM_translation_changed"><code>SIM_translation_changed</code></a> function. Also, if, during invalidation, any of the calls to the <code>SIM_map_target_flush</code> fails (i.e. the <code>false</code> value is returned by the function) then the translator is expected to call the <a href="dev-api-translators.html#SIM_translation_changed"><code>SIM_translation_changed</code></a> function which always succeeds.</p>
+<p>Please note that there is no need to call the <code>SIM_map_target_flush</code> function for the translations which were tagged with the <a href="dev-api-types-transactions.html#translation_t"><code>Sim_Translation_Dynamic</code></a> flag. Either, no invalidation is needed for the destinations where nothing is mapped.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_map_target_object"><a href="#SIM_map_target_object">SIM_map_target_object, SIM_map_target_port, SIM_map_target_target</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_map_target_object, SIM_map_target_port, SIM_map_target_target — inspect a map target</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+conf_object_t *
+SIM_map_target_object(const map_target_t *NOTNULL mt);
+
+const char *
+SIM_map_target_port(const map_target_t *NOTNULL mt);
+
+const map_target_t *
+SIM_map_target_target(const map_target_t *NOTNULL mt);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_map_target_object(...)
+simics.SIM_map_target_port(...)
+simics.SIM_map_target_target(...)
+</code></pre>
+<h2>Description</h2>
+<p>Helper functions allowing inspection of the map_target_t objects.</p>
+<h2>Return Value</h2>
+<p>Returns a Simics object, port, or chained target which was used for the creation of the <code>mt</code> map target, i.e., the respective argument passed to <a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a> when the map target was created.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a></p>
+</section>
+<h2 id="SIM_new_map_target"><a href="#SIM_new_map_target">SIM_new_map_target</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_new_map_target — create a map target</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+map_target_t *
+SIM_new_map_target(conf_object_t *NOTNULL obj, const char *port,
+                   const map_target_t *chained_target);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_new_map_target(...)
+</code></pre>
+<h2>Description</h2>
+<p>Create and return a new map target. A map target can be viewed as an opaque representation of an object/interface pair which can function either as an endpoint for a memory transaction or as an address space where a memory transaction can be performed.</p>
+<p>Map targets are usually used in conjunction with the <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a> interface and can represent anything which is mappable in a memory space, e.g., IO banks, RAM, ROM, memory spaces, port spaces, bridges, or translators. In order to get better performance, we recommend to allocate a map target once and reuse it rather than to allocate and delete it every time.</p>
+<p>If the <code>chained_target</code> parameter is null, <code>obj</code> is searched for one of the following interfaces: <a href="model-to-model-interfaces.html#ram_interface_t"><code>ram</code></a>, <a href="model-to-model-interfaces.html#ram_interface_t"><code>rom</code></a>, <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a>, <a href="model-to-model-interfaces.html#transaction_translator_interface_t"><code>transaction_translator</code></a>, <a href="model-to-simulator-interfaces.html#transaction_interface_t"><code>transaction</code></a>, <a href="model-to-model-interfaces.html#io_memory_interface_t"><code>io_memory</code></a>, <a href="model-to-model-interfaces.html#port_space_interface_t"><code>port_space</code></a>, or <a href="model-to-model-interfaces.html#memory_space_interface_t"><code>memory_space</code></a>. The interfaces are tried in the listed order, and the first interface found determines the “type” of the map target. For example, if <code>obj</code> implements both the <a href="model-to-model-interfaces.html#io_memory_interface_t"><code>io_memory</code></a> and the <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a> interface, then the created map target will direct memory transactions to the <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a> interface.</p>
+<p>If a map target argument is passed in the <code>chained_target</code> parameter, then <code>obj</code> must implement one of the following interfaces: <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a>, <a href="model-to-model-interfaces.html#bridge_interface_t"><code>bridge</code></a>, or <a href="model-to-model-interfaces.html#translate_interface_t"><code>translate</code></a>. The chained target contains information about a secondary map target used either directly or indirectly by the interface. For objects implementing the <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a> interface, the chained target is passed as an argument to the <code>translate</code> method. For bridges, the chained target is the target which is accessed through the bridge. For objects implementing <a href="model-to-model-interfaces.html#translate_interface_t"><code>translate</code></a>, the chained target is used as the target of the translation if the <code>translate</code> method returns null.</p>
+<blockquote class="markdown-alert-note">
+<p>Information about the chained target is encoded in the created map target, but no direct references are kept to the argument. In other words, ownership is not transferred by this call and the caller is responsible for releasing <code>chained_target</code> as appropriate.</p>
+</blockquote>
+<p>If a string is passed in the <code>port</code> parameter, then Simics looks for port interfaces instead of regular interfaces.</p>
+<h2>Return Value</h2>
+<p>Returns a map target, encoding information about the object, the interface, and the chained target, if any. <code>nullptr</code> is returned if an exception was thrown.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Lookup</strong> Thrown if no usable port interface was found.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-translators.html#SIM_free_map_target"><code>SIM_free_map_target</code></a>, <a href="dev-api-types-generic.html#map_target_t"><code>map_target_t</code></a>, <a href="dev-api-translators.html#SIM_map_target_object"><code>SIM_map_target_object</code></a>, <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a></p>
+</section>
+<h2 id="SIM_translation_changed"><a href="#SIM_translation_changed">SIM_translation_changed</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_translation_changed — ensure that old translations are not used</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_translation_changed(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_translation_changed(...)
+</code></pre>
+<h2>Description</h2>
+<p>Devices implementing the <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a> interface need to call this function whenever a previously returned translation becomes invalid; the only exception is if all invalid translations were tagged with <code>Sim_Translation_Dynamic</code>, in which case this is not necessary.</p>
+<p>Failure to call this function will likely result in Simics continuing to use old translations, since those may have been cached internally.</p>
+<p>The object implementing the translator should be passed in the <code>obj</code> parameter.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code> interface</a></p>
+</section>
+<div class="chain">
+<a href="dev-api-memory-transactions.html">Memory Transactions</a>
+<a href="dev-api-events.html">Time and Events</a>
+</div>

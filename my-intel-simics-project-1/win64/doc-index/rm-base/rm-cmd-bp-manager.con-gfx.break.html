@@ -1,0 +1,41 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.con-gfx.break</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.bank.wait-for.html">bp.bank.wait-for</a>
+<a href="rm-cmd-bp-manager.con-gfx.run-until.html">bp.con-gfx.run-until</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.con-gfx.break"></a>
+<h1 id="bp-manager.con-gfx.break"><a href="#bp-manager.con-gfx.break">bp.con-gfx.break</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.con-gfx&gt;.break</b> <i>object</i> <i>filename</i> <i>interval</i> [-once] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command uses breakpoint functionality on <i>object</i>, with the following description:
+<p>
+Set Simics to break simulation when the graphical breakpoint defined by <i>filename</i> matches.
+</p><p>
+A graphical breakpoint matches when its image appears on the screen, in the same location as when it was saved. The breakpoint must have been created using the Simics GUI or the command <code>&lt;graphcon&gt;.save-break-xy</code>. The screen is checked for matches every <i>interval</i> seconds of host time, or in virtual on the clock associated to the console, if the attribute <tt>refresh_in_virtual_time</tt> is set on the console. The <tt>-once</tt> flag causes the breakpoint to automatically be removed after it has triggered. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.bank.wait-for.html">bp.bank.wait-for</a>
+<a href="rm-cmd-bp-manager.con-gfx.run-until.html">bp.con-gfx.run-until</a>
+</div>

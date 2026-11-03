@@ -1,0 +1,597 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.7 Probes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="instrumentation.html">2.6 Instrumentation</a>
+<a href="low-level-debugging.html">3 Low-Level Debugging</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="feature-overview.html">2 Feature Overview</a>
+&nbsp;/&nbsp;</div><h1 id="probes"><a href="#probes">2.7 Probes</a></h1>
+<p>This section describes the <em>Probes Framework</em> in Simics.</p>
+<p>Simics’ Probes framework provides a generic mechanism for measuring counters and
+other statistics in Simics. The probe measurement points are distributed across
+the entire simulated system.</p>
+<p>Probes can be related to target processors, device models, the host system
+(where Simics runs), instrumentation tools etc. There are also probes which
+present sums of other probes in the system on cell or global level.</p>
+<p>Currently, most probes have been added for the purpose of measuring and
+understanding the performance of Simics. Additional probes could focus more on
+the target hardware and software aspects.</p>
+<p>A probe offers a simple way to extract the value, and also contains type
+information and formatting hints on the probe itself to present the value of the
+probe, in an uniform and user-readable format.</p>
+<p>A probe is identified by a probe-kind, which is a string with a hierarchical
+namespaces separated with dots (<code>.</code>). For example, <code>cpu.cycles</code> would be found
+in each processor model in the system and represents how many cycles that has
+elapsed on the specific processor. The <code>cell.cycles</code> probes are related to the
+cell objects and this returns the sum of executed cycles of processors which are
+located under the specific cell. Finally, <code>sim.cycles</code> is not related to any
+object but form a singleton sum of all the processor’s cycles elapsed.</p>
+<p>Probes can also be derived from other probes, offering some calculated metric.
+For example <code>sim.slowdown</code> is calculated as the fraction between
+<code>sim.time.wallclock</code> and <code>sim.time.virtual</code>, providing an indication how fast
+the virtual time elapsed compared to the real wallclock time on the system which
+Simics runs on.</p>
+<p>Simics itself is aware of all probes that currently exist in the system,
+allowing commands to list the probes or read out their values from Simics
+command line interface.</p>
+<p>Probes may either be explicitly implemented in the various Simics objects, or
+can be implicitly created by the probes framework itself. For example, Simics
+may detect that a new object is created that implements the <code>cycle</code> interface
+and then automatically create probes for accessing the new object’s cycle
+information.</p>
+<h2 id="probes-command-set"><a href="#probes-command-set">2.7.1 Probes Command Set</a></h2>
+<p>To look at the available probes, the probe-feature must first be enabled, which
+can be done with the <code>enable-probes</code> command. When the feature is enabled all
+probes in the system are detected and/or implicitly created. Also, any further
+creation or deletion of Simics objects is monitored, keeping the list of known
+probes in sync with the simulated system.</p>
+<p>When the probes framework is enabled, a singleton object called <code>probes</code> is
+created, which holds all commands to examine probes. For example the
+<code>probes.list-kinds</code> command gives an overview of the probes that are available
+in the system, and the amount of objects for each probe-kind. See figure
+<a class="reference" href="#probe-example1">22</a> for some examples.</p>
+<figure id="probe-example1">
+<pre><code>./simics qsp-x86/firststeps machine:hardware:processor:num_cores=2
+</code></pre>
+<pre><code class="language-simics">simics&gt; <strong>enable-probes</strong>
+simics&gt; <strong>probes.list-kinds</strong>
+┌─────────┬───────────────────────────────────┬──────────────────────────┬───┬────────────────────────────────────────┐
+│  Row #  │            Probe Kind             │       Display Name       │Num│              Description               │
+├─────────┼───────────────────────────────────┼──────────────────────────┼───┼────────────────────────────────────────┤
+│        1│cell.cycles                        │Cycles                    │  1│Total number of expired cycles in all   │
+│         │                                   │                          │   │processors in a specific cell           │
+├─────────┼───────────────────────────────────┼──────────────────────────┼───┼────────────────────────────────────────┤
+│        2│cell.esteps                        │Esteps                    │  1│Total number of executed steps          │
+│         │                                   │                          │   │(~instructions) on all processors in a  │
+│         │                                   │                          │   │specific cell, ignoring any halt steps  │
+├─────────┼───────────────────────────────────┼──────────────────────────┼───┼────────────────────────────────────────┤
+│        3│cell.event.cycle.histogram         │Cycle Event Histogram     │  1│Histogram of all cycle events triggered │
+│         │                                   │                          │   │in a cell.                              │
+├─────────┼───────────────────────────────────┼──────────────────────────┼───┼────────────────────────────────────────┤
+│        4│cell.event.cycle.intensity         │Cycle Event Intensity     │  1│Number of cycles per event in a cell.   │
+├─────────┼───────────────────────────────────┼──────────────────────────┼───┼────────────────────────────────────────┤
+...
+simics&gt; <strong>probes.list-kinds probe-kind = cpu.  categories = instructions -active -probe-type</strong>
+┌─────┬────────────────┬────────────┬───┬────────┬────────────────────────────────────────────────────────────────────┐
+│Row #│   Probe Kind   │Display Name│Num│  Type  │                            Description                             │
+├─────┼────────────────┼────────────┼───┼────────┼────────────────────────────────────────────────────────────────────┤
+│    1│cpu.esteps      │Esteps      │  2│int     │Number of executed steps (~instructions) on this processor, ignoring│
+│     │                │            │   │        │any halt steps                                                      │
+├─────┼────────────────┼────────────┼───┼────────┼────────────────────────────────────────────────────────────────────┤
+│    2│cpu.load_percent│Sim Load%   │  2│fraction│Calculated load of a processor, that is, instruction per cycles,    │
+│     │                │            │   │        │shown as percent: esteps / cycles. 0% is reported if the processor  │
+│     │                │            │   │        │is entirely idle and 100% when the processor executes instructions  │
+│     │                │            │   │        │for all cycles. The value is also adjusted with the current step-   │
+│     │                │            │   │        │rate of a processor, if this exists. Note that if the step-rate is  │
+│     │                │            │   │        │dynamically changed during execution, the result will be incorrect  │
+│     │                │            │   │        │and 0 / 0 is returned.                                              │
+├─────┼────────────────┼────────────┼───┼────────┼────────────────────────────────────────────────────────────────────┤
+│    3│cpu.steps       │Steps       │  2│int     │Number of steps (~instructions) consumed by this processor,         │
+│     │                │            │   │        │including any halt steps                                            │
+├─────┼────────────────┼────────────┼───┼────────┼────────────────────────────────────────────────────────────────────┤
+│Sum  │                │            │  6│        │                                                                    │
+└─────┴────────────────┴────────────┴───┴────────┴────────────────────────────────────────────────────────────────────┘
+simics&gt; <strong>probes.list-kinds -objects probe-kind = cpu.steps</strong>
+┌─────┬──────────┬────────────┬───┬────────────────────────────────────────┬─────────────────────────────────────────┐
+│Row #│Probe Kind│Display Name│Num│                Objects                 │               Description               │
+├─────┼──────────┼────────────┼───┼────────────────────────────────────────┼─────────────────────────────────────────┤
+│    1│cpu.steps │Steps       │  2│board.mb.cpu0.core[0][0], board.mb.cpu0.│Number of steps (~instructions) consumed │
+│     │          │            │   │core[1][0]                              │by this processor, including any halt    │
+│     │          │            │   │                                        │steps                                    │
+├─────┼──────────┼────────────┼───┼────────────────────────────────────────┼─────────────────────────────────────────┤
+│Sum  │          │            │  2│                                        │                                         │
+└─────┴──────────┴────────────┴───┴────────────────────────────────────────┴─────────────────────────────────────────┘
+</code></pre>
+ <figcaption>Figure 22. Example of probe.list-kinds commands</figcaption> 
+</figure>
+<p>The <code>probes.read</code> allows one or several probes values to be read out and
+displayed. The command can also be used in Simics scripts to assign
+cli-variables. If a single <code>probe</code> is read, its value will be returned, while
+using <code>probe-kind</code> will return a list of tuples <code>[(probe, value)*]</code> that was
+read out.</p>
+<p>See figure <a class="reference" href="#probe-example2">23</a> for some examples.</p>
+<figure id="probe-example2">
+<pre><code class="language-simics">simics&gt; <strong>disable-vmp</strong>
+simics&gt; <strong>run-seconds 1</strong>
+simics&gt; <strong>probes.read probe-kind = cpu. -active</strong>
+┌─────┬────────────────────────────────────────────────────────────┬─────────────┐
+│Row #│                           Probe                            │        Value│
+├─────┼────────────────────────────────────────────────────────────┼─────────────┤
+│    1│board.mb.cpu0.core[0][0]:cpu.counter.x86.exception          │            0│
+│    2│board.mb.cpu0.core[0][0]:cpu.counter.x86.exception_intensity│            -│
+│    3│board.mb.cpu0.core[0][0]:cpu.counter.x86.interrupt          │           78│
+│    4│board.mb.cpu0.core[0][0]:cpu.counter.x86.interrupt_intensity│   6444230.13│
+│    5│board.mb.cpu0.core[0][0]:cpu.cycles                         │   2000000000│
+│    6│board.mb.cpu0.core[0][0]:cpu.disabled_reason                │             │
+│    7│board.mb.cpu0.core[0][0]:cpu.esteps                         │    502649950│
+│    8│board.mb.cpu0.core[0][0]:cpu.exec_mode.hypersim_steps       │            0│
+│    9│board.mb.cpu0.core[0][0]:cpu.load_percent                   │          25%│
+│   10│board.mb.cpu0.core[0][0]:cpu.steps                          │    502649950│
+│   11│board.mb.cpu0.core[0][0]:cpu.time.virtual                   │  00:00:01.00│
+│   12│board.mb.cpu0.core[0][0]:cpu.time.virtual_ps                │1000000000000│
+│   13│board.mb.cpu0.core[0][0]:cpu.vmp.vmexits.histogram          │             │
+│   14│board.mb.cpu0.core[0][0]:cpu.vmp.vmexits.total              │            0│
+│   15│board.mb.cpu0.core[0][0]:cpu.vmp.vmrets.total               │            0│
+│   16│board.mb.cpu0.core[1][0]:cpu.counter.x86.exception          │            0│
+│   17│board.mb.cpu0.core[1][0]:cpu.counter.x86.exception_intensity│            -│
+│   18│board.mb.cpu0.core[1][0]:cpu.counter.x86.interrupt          │            0│
+│   19│board.mb.cpu0.core[1][0]:cpu.counter.x86.interrupt_intensity│            -│
+│   20│board.mb.cpu0.core[1][0]:cpu.cycles                         │   2000000000│
+│   21│board.mb.cpu0.core[1][0]:cpu.disabled_reason                │          HLT│
+│   22│board.mb.cpu0.core[1][0]:cpu.esteps                         │       108585│
+│   23│board.mb.cpu0.core[1][0]:cpu.exec_mode.hypersim_steps       │            0│
+│   24│board.mb.cpu0.core[1][0]:cpu.load_percent                   │           0%│
+│   25│board.mb.cpu0.core[1][0]:cpu.steps                          │       108585│
+│   26│board.mb.cpu0.core[1][0]:cpu.time.virtual                   │  00:00:01.00│
+│   27│board.mb.cpu0.core[1][0]:cpu.time.virtual_ps                │1000000000000│
+│   28│board.mb.cpu0.core[1][0]:cpu.vmp.vmexits.histogram          │             │
+│   29│board.mb.cpu0.core[1][0]:cpu.vmp.vmexits.total              │            0│
+│   30│board.mb.cpu0.core[1][0]:cpu.vmp.vmrets.total               │            0│
+└─────┴────────────────────────────────────────────────────────────┴─────────────┘
+simics&gt; <strong>probes.read probe-kind = cpu.load_percent</strong>
+
+┌─────┬─────────────────────────────────────────┬─────┐
+│Row #│                  Probe                  │Value│
+├─────┼─────────────────────────────────────────┼─────┤
+│    1│board.mb.cpu0.core[0][0]:cpu.load_percent│  25%│
+│    2│board.mb.cpu0.core[1][0]:cpu.load_percent│   0%│
+└─────┴─────────────────────────────────────────┴─────┘
+simics&gt; <strong>echo (probes.read probe-kind = cpu.load_percent)</strong>
+[["board.mb.cpu0.core[0][0]:cpu.load_percent", "25%"], ["board.mb.cpu0.core[1][0]:cpu.load_percent", "0%"]]
+simics&gt; <strong>echo (probes.read probe-kind = cpu.load_percent -values)</strong>
+
+[["board.mb.cpu0.core[0][0]:cpu.load_percent", 0.251324975], ["board.mb.cpu0.core[1][0]:cpu.load_percent", 5.42925e-05]]
+simics&gt; <strong>echo (probes.read probe = board.mb.cpu0.core[0][0]:cpu.load_percent -values)</strong>
+
+0.251324975
+</code></pre>
+ <figcaption>Figure 23. Examples of probes.list-details</figcaption> 
+</figure>
+<p>Some probes are not active by default, typically because there could be overhead
+in maintaining their values. To activate a probe the <code>probes.subscribe</code> can be
+used. As long as there are at least one subscriber on a probe, it will be
+active, and when the number of subscribers goes down to zero, the probe becomes
+deactivated again.</p>
+<p>Figure <a class="reference" href="#probe-example3">24</a> shows some examples where probes first need to be
+subscribed in order to be read later.</p>
+<figure id="probe-example3">
+<pre><code class="language-simics">
+simics&gt; <strong>probes.subscribe probe-kind = sim.mips</strong>
+simics&gt; <strong>probes.subscribe probe-kind = sim.module_profile</strong>
+simics&gt; <strong>run-seconds 10</strong>
+simics&gt; <strong>probes.read  probe = sim:sim.module_profile</strong>
+
+x86-public64.so                         94   45%
+x86QSP3 JIT                             32   15%
+libsimics-common.so                     19    9%
+libc.so.6                               16    8%
+ICH10.so                                 8    4%
+libwx_gtk2u_core-3.0.so.0.4.0            8    4%
+libX11.so.6.4.0                          6    3%
+libpython3.7m.so.1.0                     5    2%
+x86ex_tlb.so                             4    2%
+libvtutils.so                            4    2%
+X58-devices.so                           3    1%
+_core.cpython-37m-x86_64-linux-gnu.so    3    1%
+pcie-downstream-port.so                  2    1%
+siplib.cpython-37m-x86_64-linux-gnu.so   1    0%
+libgdk-x11-2.0.so.0.2400.33              1    0%
+libwx_baseu-3.0.so.0.4.0                 1    0%
+simics&gt; <strong>probes.read probe-kind = sim.mips</strong>
+┌─────┬────────────┬────────┐
+│Row #│   Probe    │   Value│
+├─────┼────────────┼────────┤
+│    1│sim:sim.mips│608.72 M│
+└─────┴────────────┴────────┘
+simics&gt; <strong>probes.read probe-kind = sim.mips -values</strong>
+┌─────┬────────────┬────────────┐
+│Row #│   Probe    │       Value│
+├─────┼────────────┼────────────┤
+│    1│sim:sim.mips│608721207.89│
+└─────┴────────────┴────────────┘
+simics&gt; <strong>probes.read probe-kind = sim.mips -raw-values</strong>
+┌─────┬────────────┬─────────────────────────┐
+│Row #│   Probe    │                    Value│
+├─────┼────────────┼─────────────────────────┤
+│    1│sim:sim.mips│      7.35e+08 / 1.21e+00│
+│     │            │= 6.09e+08 (608721207.89)│
+└─────┴────────────┴─────────────────────────┘
+</code></pre>
+ <figcaption>Figure 24. Examples of probes.read</figcaption> 
+</figure>
+<p>By default, the <code>read</code> command returns a string formatted in a user-readable
+format, according to the probe’s properties. To get the actual value of the
+probe the <code>-values</code> switch can be used,</p>
+<p>The <code>-raw-value</code> flag returns internal representation of advanced types. This
+can be useful for understanding the source-values for a calculated value.</p>
+<h2 id="probe-samplers"><a href="#probe-samplers">2.7.2 Probe Samplers</a></h2>
+<p>Probe samplers are a group of tools which read user-configurable probes during
+simulation, through sampling. This captures deviations of the probes during the
+simulation, compared to just looking at the end result when the simulation is
+finished.</p>
+<p>By default, added probes are all sampled and printed out during run-time with
+one row representing each sample, each column representing a particular probe.</p>
+<p>With many probes sampled, the table can become very wide, and hard to read. To
+avoid this, a probe can be added with special flags:</p>
+<ul>
+<li><strong>-no-sampling</strong> Do not sample the probe, but present the end value in the
+summary. This can be handy for probes where it is not interesting to know what
+happened during the simulation but the final value is of interest.</li>
+<li><strong>-hidden</strong> Do not display the probe in each sample on screen during
+simulation. The data is still recorded and can be viewed or saved later.</li>
+</ul>
+<p>The result of the measurements can be saved to <code>csv</code> or <code>json</code> formats. There
+are also plot capabilities built in the tools when connected to Simics-client.</p>
+<p>There are three different samplers, with very similar command sets. To create
+one of these samplers, the <code>new-probe-monitor</code>, <code>new-probe-streamer</code> or
+<code>new-system-perfmeter</code> is used. Since the command interface for these tools are
+largely identical, the probe-monitor chapter explains details which are
+generally applicable.</p>
+<h3 id="probe-monitor"><a href="#probe-monitor">2.7.2.1 Probe Monitor</a></h3>
+<p>The <code>probe-monitor</code> tool offers a way to read out and present the probe values
+in continuous samples, while the simulation is running.</p>
+<p>All probes being monitored will be presented in a table row for each sample
+taken, allowing detection of abnormal values during the simulation.</p>
+<p>It is possible to add lots of probes to the same probe-monitor, but as the
+number of probes increase, so does the width of the produced table. Therefore,
+it can be useful to create several probe-monitors, each showing some group of
+related feature.</p>
+<p>To create a probe-monitor use the <code>new-probe-monitor</code> command. This will create
+a new object such as <code>pm0</code> which has some additional commands. See figure
+<a class="reference" href="#pm-example">25</a> for an example.</p>
+<figure id="pm-example">
+<pre><code class="language-simics">$&gt; ./simics qsp-x86/firststeps machine:hardware:processor:num_cores=2
+simics&gt; <strong>new-probe-monitor sampling-mode = realtime interval = 1 -summary</strong>
+simics&gt; <strong>pm0.add-probe probe-kind = sim.time.wallclock sim.time.virtual mode = session</strong>
+simics&gt; <strong>pm0.add-probe probe-kind = sim.time.schedule sim.slowdown sim.esteps sim.mips cpu.esteps cpu.time.schedule cpu.schedule_percent cpu.mips</strong>
+simics&gt; <strong>run-seconds 60</strong>
+
+┌──────────────────────────────────────────────────────────────┬──────────────────────────────────────┬──────────────────────────────────────┐
+│                                                              │       board.mb.cpu0.core[0][0]       │       board.mb.cpu0.core[1][0]       │
+├──────────┬──────────┬─────────┬────────┬────────────┬────────┼────────────┬─────────┬──────┬────────┼────────────┬─────────┬──────┬────────┤
+│ Session  │ Session  │Sched (s)│Slowdown│   Esteps   │  IPS   │   Esteps   │Sched (s)│Sched%│  IPS   │   Esteps   │Sched (s)│Sched%│  IPS   │
+│Wallclock │ Virtual- │         │        │            │        │            │         │      │        │            │         │      │        │
+│(hh:mm:ss)│   Time   │         │        │            │        │            │         │      │        │            │         │      │        │
+│          │(hh:mm:ss)│         │        │            │        │            │         │      │        │            │         │      │        │
+├──────────┼──────────┼─────────┼────────┼────────────┼────────┼────────────┼─────────┼──────┼────────┼────────────┼─────────┼──────┼────────┤
+│  00:00:01│  00:00:01│311.92 ms│    0.59│   462112845│872.65 M│   462021371│297.54 ms│   95%│  1.55 G│       91474│ 14.38 ms│    5%│  6.36 M│
+│  00:00:02│  00:00:04│445.62 ms│    0.29│   252202461│251.80 M│   252171406│432.12 ms│   97%│583.56 M│       31055│ 13.50 ms│    3%│  2.30 M│
+│  00:00:03│  00:00:22│999.63 ms│    0.06│    54925316│ 54.86 M│    54925316│959.26 ms│   96%│ 57.26 M│           0│ 40.37 ms│    4%│  0.00  │
+│  00:00:04│  00:00:40│995.50 ms│    0.06│    55920137│ 55.86 M│    55920137│955.12 ms│   96%│ 58.55 M│           0│ 40.38 ms│    4%│  0.00  │
+│  00:00:05│  00:00:54│997.73 ms│    0.07│   798812869│798.45 M│   798792570│964.31 ms│   97%│828.36 M│       20299│ 33.42 ms│    3%│607.45 k│
+│  00:00:06│  00:00:55│998.69 ms│    0.61│  3001496016│  3.00 G│  2927954125│941.13 ms│   94%│  3.11 G│    73541891│ 57.56 ms│    6%│  1.28 G│
+│  00:00:07│  00:00:59│966.83 ms│    0.33│   548000049│547.45 M│   184324157│491.32 ms│   51%│375.16 M│   363675892│475.51 ms│   49%│764.82 M│
+│  00:00:08│  00:00:59│994.97 ms│    2.38│  1178737071│  1.18 G│   643116292│395.46 ms│   40%│  1.63 G│   535620779│599.52 ms│   60%│893.42 M│
+│  00:00:09│  00:01:00│998.21 ms│    1.30│  2418507935│  2.42 G│  1159903342│565.55 ms│   57%│  2.05 G│  1258604593│432.66 ms│   43%│  2.91 G│
+</code></pre>
+ <figcaption>Figure 25. Sample probe-monitor session</figcaption> 
+</figure>
+<p>Here, first a probe-monitor is created, that gets the name <code>pm0</code> by default. The
+probe-monitor samples the probes each wallclock seconds, which is controlled by
+the <code>mode</code> and <code>interval</code> arguments.</p>
+<p>The <code>-summary</code> flag means all probe values will be displayed when the simulation
+stops, providing the session or current value for the probes subscribed to,
+described later.</p>
+<p>Next, the <code>pm0.add-probe</code> is issued with two probe-kinds using the mode
+<code>session</code>. If mode is not specified, it defaults to <code>delta</code> meaning the value
+presented for the probe is the difference from the previous sample. That is, it
+shows the value for the sample only. With the <code>session</code> mode, it instead shows
+the total value since the probe was added to the monitor. In this case, the
+accumulated times, both in host wall-clock and the virtual time of the simulated
+system is displayed.</p>
+<p>Apart from <code>session</code> and <code>delta</code> there is also the <code>current</code> mode which can be
+selected, which displays the plain probe value, without any adjustments. The
+<code>current</code> mode is interesting for some probes, which are not monotonically
+increasing, such as a temperature. It can also be interesting to be used for
+probes derived from checkpointed state, for example the global virtual time,
+when the user wants to see the absolute time.</p>
+<p>Finally, before the execution is started we add more probes, now using the
+default <code>delta</code> mode. Here we are mixing some singleton probes <code>sim.*</code> and some
+processor specific probes <code>cpu.*</code>. Since there are two processors in the
+simulated system used in this example, the number of all monitored probes is 14.</p>
+<p>When the simulation is started, the probe-monitor starts to print out table rows
+for the probes being measured, one second between each sample. Probes which have
+an object associated will be sorted under that object, so here probes for the
+two processors have an additional heading showing where the probes belong to.</p>
+<p>Some more detailed information on each column or probe, that was monitored in
+this example.</p>
+<dl>
+<dt id="dt:session-wallclock-hh-mm-ss-sim-time-wallclock"><a href="#dt:session-wallclock-hh-mm-ss-sim-time-wallclock">Session Wallclock (hh:mm:ss) - <em>sim.time.wallclock</em></a></dt>
+<dd>
+<p>This is basically the host time that has elapsed during the simulation. Note
+that this time stands still if Simics is not executing. If the true wallclock
+is desired (which increments even when Simics is not simulating), the probe
+<code>host.time.wallclock</code> can be used instead. The time here is presented as
+hours, minutes and second format.</p>
+</dd>
+<dt id="dt:session-virtual-time-hh-mm-ss-sim-time-virtual"><a href="#dt:session-virtual-time-hh-mm-ss-sim-time-virtual">Session Virtual-Time (hh:mm:ss) - <em>sim.time.virtual</em></a></dt>
+<dd>
+<p>This probe returns the virtual time of the simulation. The virtual time for
+all processors are pretty much in sync, but there can be small differences.
+The probe simply selects the first processor that it finds and presents that.
+Similar to wall clock, and all <code>session</code> or <code>current</code> times are presented in
+hours, minutes and second format.</p>
+</dd>
+<dt id="dt:sched-s-sim-time-schedule"><a href="#dt:sched-s-sim-time-schedule">Sched (s) - <em>sim.time.schedule</em></a></dt>
+<dd>
+<p>This is another
+aspect of time in Simics, namely how much time that Simics scheduler have
+requested the different processor to be scheduled in total. In a
+multi-threaded simulation this time can be much greater than the wallclock
+time, since each execution thread can run in parallel. The monitor presents
+any delta times with a second metric-prefix, giving much higher resolution.</p>
+</dd>
+<dt id="dt:slowdown-sim-slowdown"><a href="#dt:slowdown-sim-slowdown">Slowdown - <em>sim.slowdown</em></a></dt>
+<dd>
+<p>The slowdown probes give a
+measurement of how fast virtual time elapses compared to wallclock time. Any
+value below one means that the virtual time goes faster than the host
+wallclock. This provides a hint on how fast the simulation is.</p>
+<p>A value of 0.5 means Simics simulation goes twice as fast as the simulated
+virtual system, while a figure of 2.0 means the simulation goes in half the
+speed compared to the simulated system.</p>
+<blockquote class="markdown-alert-note">
+<p>Don’t take this figure for any kind of exactness to the real system,
+sim.time.virtual depends on:</p>
+<ul>
+<li>The frequency of the simulated processors.</li>
+<li>A simplistic timing model where typically one instruction always takes
+one cycle to execute.</li>
+<li>Device models are also typically simplistic on how fast transfers and
+interrupts occur.</li>
+<li>Idle processor can typically consume cycles almost infinitely fast, which
+does not happen in real hardware.</li>
+</ul>
+<p>How fast Simics executes also depends on how many processors it
+schedules, the processor models, the type of workload, threading settings,
+internal caches and much more. Thus, one needs to take the slowdown figure
+with a grain of salt, before comparing with other sessions, or even with
+just with different workloads.</p>
+</blockquote>
+</dd>
+<dt id="dt:esteps-sim-esteps"><a href="#dt:esteps-sim-esteps">Esteps - <em>sim.esteps</em></a></dt>
+<dd>
+<p>Steps in Simics are roughly
+equivalent to instructions. Some processor models however can consume steps
+while they are stalled. Therefore, the esteps (executed steps) metric is
+better suited for counting instructions, where the halt-steps have been
+subtracted from the steps counter. The simulator global <code>sim.esteps</code> is the
+total of all <code>cpu.esteps</code> in the system.</p>
+</dd>
+<dt id="dt:ips-sim-mips"><a href="#dt:ips-sim-mips">IPS - <em>sim.mips</em></a></dt>
+<dd>
+<p>(M)IPS is an acronym of (Million)
+Instructions Per Second. This is a common measurement for looking at the how
+fast the simulation is. It is calculated as <code>sim.esteps / sim.time.wallclock</code>.
+Note that, depending on the simulation speed, other prefixes than <code>M</code> are used
+each sample, for example <code>G</code> for GIPS, or <code>k</code> for kIPS.</p>
+</dd>
+<dt id="dt:esteps-cpu-esteps"><a href="#dt:esteps-cpu-esteps">Esteps - <em>cpu.esteps</em></a></dt>
+<dd>
+<p>The processor specific number of executed steps.</p>
+</dd>
+<dt id="dt:sched-s-cpu-time-schedule"><a href="#dt:sched-s-cpu-time-schedule">Sched (s) - <em>cpu.time.schedule</em></a></dt>
+<dd>
+<p>The amount of time Simics scheduler has scheduled this processor.</p>
+</dd>
+<dt id="dt:sched-cpu-schedule_percent"><a href="#dt:sched-cpu-schedule_percent">Sched% - <em>cpu.schedule_percent</em></a></dt>
+<dd>
+<p>This probe gives a
+percent value of how much of the time this processor has been scheduled
+<code>cpu.time.schedule / sim.time.schedule</code> This can be used to detect
+bottle-necks in the simulation, if one processor stands for the majority of
+the time.</p>
+</dd>
+<dt id="dt:ips-cpu-mips"><a href="#dt:ips-cpu-mips">IPS - <em>cpu.mips</em></a></dt>
+<dd>
+<p>This probe might look like
+<code>sim.mips</code> but is actually a bit different. The processor specific MIPS number
+is calculated as: <code>cpu.esteps / cpu.time.schedule</code>. This means that the MIPS
+numbers here cannot be added together. Instead this gives an indication of how
+fast this particular processor executes, given the amount of time it got. This
+can be used to detect sub-optimal processor simulation even if the processor
+runs at a much lower frequency, and consequently is not scheduled as much.</p>
+</dd>
+</dl>
+<p>When the simulation is finished, the probe-monitor shows a table of all the
+probes that are monitored. The table provides the current value for all probes,
+see figure <a class="reference" href="#pm-summary-example">26</a> for the example output.</p>
+<figure id="pm-summary-example">
+<pre><code>┌─────┬────────────┬────────────────────┬────────────────────────┬───────────────────────┐
+│Row #│Display Name│     Probe-kind     │         Object         │Session Formatted Value│
+├─────┼────────────┼────────────────────┼────────────────────────┼───────────────────────┤
+│    1│Wallclock   │sim.time.wallclock  │sim                     │            00:00:09.09│
+│    2│Virtual-Time│sim.time.virtual    │sim                     │            00:01:00.00│
+│    3│Sched       │sim.time.schedule   │sim                     │            00:00:08.27│
+│    4│Slowdown    │sim.slowdown        │sim                     │                   0.15│
+│    5│Esteps      │sim.esteps          │sim                     │             9512224930│
+│    6│IPS         │sim.mips            │sim                     │                 1.05 G│
+│    7│Esteps      │cpu.esteps          │board.mb.cpu0.core[0][0]│             6853454540│
+│    8│Sched       │cpu.time.schedule   │board.mb.cpu0.core[0][0]│            00:00:06.43│
+│    9│Sched%      │cpu.schedule_percent│board.mb.cpu0.core[0][0]│                    78%│
+│   10│IPS         │cpu.mips            │board.mb.cpu0.core[0][0]│                 1.07 G│
+│   11│Esteps      │cpu.esteps          │board.mb.cpu0.core[1][0]│             2658770390│
+│   12│Sched       │cpu.time.schedule   │board.mb.cpu0.core[1][0]│            00:00:01.84│
+│   13│Sched%      │cpu.schedule_percent│board.mb.cpu0.core[1][0]│                    22%│
+│   14│IPS         │cpu.mips            │board.mb.cpu0.core[1][0]│                 1.45 G│
+└─────┴────────────┴────────────────────┴────────────────────────┴───────────────────────┘
+</code></pre>
+ <figcaption>Figure 26. Probe-Monitor Summary Printout</figcaption> 
+</figure>
+<p>The <em>Session Formatted Value</em> represents the probe value formatted accordingly
+to the probe properties. If probes have been added with the <code>current</code> mode then
+an additional <em>Current Formatted Value</em> column is also displayed.</p>
+<p>It is also possible to get the same results printed out with the <code>pm0.summary</code>
+command, where it is possible to request more floating point decimals to be
+presented with the <code>float-decimals</code> argument.</p>
+<p>The <code>pm0.status</code> shows the settings of the probe-monitor, including which probes
+that are currently monitored. Probes can be removed with the <code>pm0.remove-probe</code>
+command and it is possible to change the sampling settings of the probe-monitor
+itself with the <code>pm0.sampling-settings</code> command.</p>
+<p>While the probe-monitor prints out the table data while the simulation is
+running, all data is also saved internally. To show the entire history of all
+samples, the <code>pm0.print-table</code> can be used and the data can also be saved into a
+<code>.csv</code> with the <code>pm0.export-table-csv</code> command. Any data in the csv file will be
+unformatted, allowing easily import in a spreadsheet for further analyses.</p>
+<h3 id="probe-streamer"><a href="#probe-streamer">2.7.2.2 Probe Streamer</a></h3>
+<p>The <code>probe-streamer</code> tool offers a way to read out probe values and dump the
+samples in a <code>.csv</code>, while the simulation is running.</p>
+<p>To create a probe-streamer use the <code>new-probe-streamer</code> command. This will
+create a new object such as <code>ps0</code> which has some additional commands. Most of
+these commands are common to the <code>probe-monitor</code>. See figure <a class="reference" href="#ps-example">27</a>
+for an example.</p>
+<figure id="ps-example">
+<pre><code class="language-simics">$&gt; ./simics qsp-x86/firststeps machine:hardware:processor:num_cores=2
+simics&gt; <strong>new-probe-streamer mode = realtime interval = 1 csv-file-output=stream.csv</strong>
+</code></pre>
+</figure>
+<h3 id="probe-based-system-perfmeter"><a href="#probe-based-system-perfmeter">2.7.2.3 Probe Based system-perfmeter</a></h3>
+<p>This tool replaces the old <code>system-perfmeter</code> tool, which had similar
+capabilities but more monolithic, with all measurement, calculations and output
+formatting part of the tool itself. Another difference is that the old
+<code>system-perfmeter</code> was a singleton object, you could not have multiple tools
+measuring different things.</p>
+<p>The <code>new-system-perfmeter</code> extends the <code>new-probe-monitor</code>, with some added
+features making it easier to use when measuring Simics performance:</p>
+<ul>
+<li>Some default probes are automatically monitored.</li>
+<li>The <code>new-system-perfmeter</code> has some handy command line switches for easily
+adding additional performance related probes.</li>
+</ul>
+<p>See figure <a class="reference" href="#perfmeter-example">28</a> for an example.</p>
+<figure id="perfmeter-example">
+<pre><code class="language-simics">$&gt; ./simics qsp-x86/firststeps machine:hardware:processor:num_cores=2
+simics&gt; <strong>new-system-perfmeter -summary</strong>
+
+Using board.mb.cpu0.core[0][0] as clock
+Enabling probes
+[probes info] Enabling probes (could take a while)
+[probes info] Found 330 probes using 141 different probe-kinds
+[probes info] Additional probe-related commands now exist under the 'probes' singleton object
+[sp0 info] Added: sim:sim.time.virtual with mode session
+[sp0 info] Added: sim:sim.time.wallclock with mode session
+[sp0 info] Added: sim:sim.time.virtual with mode delta
+[sp0 info] Added: sim:sim.time.wallclock with mode delta
+[sp0 info] Added: sim:sim.slowdown with mode delta
+[sp0 info] Added: sim:sim.process.cpu_percent with mode delta
+[sp0 info] Added: sim:sim.load_percent with mode delta
+Created sp0
+simics&gt; <strong>run-seconds 20</strong>
+┌──────────┬──────────┬─────────┬─────────┬────────┬────┬────┐
+│ Session  │ Session  │Virtual- │Wallclock│Slowdown│Host│Sim │
+│ Virtual- │Wallclock │Time (s) │   (s)   │        │CPU%│Load│
+│   Time   │(hh:mm:ss)│         │         │        │    │ %  │
+│(hh:mm:ss)│          │         │         │        │    │    │
+├──────────┼──────────┼─────────┼─────────┼────────┼────┼────┤
+│  00:00:00│  00:00:00│479.60 ms│215.28 ms│    0.45│118%│ 22%│
+│  00:00:02│  00:00:01│  1.91 s │  1.00 s │    0.52│ 57%│  3%│
+│  00:00:19│  00:00:02│ 16.47 s │999.54 ms│    0.06│114%│  0%│
+┌─────┬────────────┬───────────────────────┬──────┬───────────────────────┐
+│Row #│Display Name│      Probe-kind       │Object│Session Formatted Value│
+├─────┼────────────┼───────────────────────┼──────┼───────────────────────┤
+│    1│Virtual-Time│sim.time.virtual       │sim   │            00:00:30.00│
+│    2│Wallclock   │sim.time.wallclock     │sim   │            00:00:02.83│
+│    3│Slowdown    │sim.slowdown           │sim   │                   0.09│
+│    4│Host CPU%   │sim.process.cpu_percent│sim   │                    93%│
+│    5│Sim Load%   │sim.load_percent       │sim   │                     1%│
+└─────┴────────────┴───────────────────────┴──────┴───────────────────────┘
+simics&gt; <strong>quit</strong>
+
+$&gt; ./simics qsp-x86/firststeps machine:hardware:processor:num_cores=2
+simics&gt; <strong>new-system-perfmeter -summary -cpu-exec-modes</strong>
+
+Using board.mb.cpu0.core[0][0] as clock
+Enabling probes
+[probes info] Enabling probes (could take a while)
+[probes info] Found 330 probes using 141 different probe-kinds
+[probes info] Additional probe-related commands now exist under the 'probes' singleton object
+[sp0 info] Added: sim:sim.time.virtual with mode session
+[sp0 info] Added: sim:sim.time.wallclock with mode session
+[sp0 info] Added: sim:sim.time.virtual with mode delta
+[sp0 info] Added: sim:sim.time.wallclock with mode delta
+[sp0 info] Added: sim:sim.slowdown with mode delta
+[sp0 info] Added: sim:sim.process.cpu_percent with mode delta
+[sp0 info] Added: sim:sim.load_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[0][0]:cpu.exec_mode.hypersim_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[1][0]:cpu.exec_mode.hypersim_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[0][0]:cpu.exec_mode.vmp_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[1][0]:cpu.exec_mode.vmp_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[0][0]:cpu.exec_mode.jit_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[1][0]:cpu.exec_mode.jit_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[0][0]:cpu.exec_mode.interpreter_percent with mode delta
+[sp0 info] Added: board.mb.cpu0.core[1][0]:cpu.exec_mode.interpreter_percent with mode delta
+Created sp0
+simics&gt; <strong>run-seconds 30</strong>
+┌────────────────────────────────────────────────────────────┬───────────────────┬───────────────────┐
+│                                                            │  board.mb.cpu0.   │  board.mb.cpu0.   │
+│                                                            │    core[0][0]     │    core[1][0]     │
+├──────────┬──────────┬─────────┬─────────┬────────┬────┬────┼────┬────┬────┬────┼────┬────┬────┬────┤
+│ Session  │ Session  │Virtual- │Wallclock│Slowdown│Host│Sim │HYP%│VMP%│JIT%│INT%│HYP%│VMP%│JIT%│INT%│
+│ Virtual- │Wallclock │Time (s) │   (s)   │        │CPU%│Load│    │    │    │    │    │    │    │    │
+│   Time   │(hh:mm:ss)│         │         │        │    │ %  │    │    │    │    │    │    │    │    │
+│(hh:mm:ss)│          │         │         │        │    │    │    │    │    │    │    │    │    │    │
+├──────────┼──────────┼─────────┼─────────┼────────┼────┼────┼────┼────┼────┼────┼────┼────┼────┼────┤
+│  00:00:01│  00:00:00│508.60 ms│390.61 ms│    0.77│ 71%│ 21%│  0%│100%│  0%│  0%│  0%│ 63%│  4%│ 33%│
+│  00:00:03│  00:00:01│  2.36 s │  1.00 s │    0.42│ 71%│  3%│  0%│ 99%│  1%│  0%│  0%│ 40%│ 25%│ 35%│
+│  00:00:21│  00:00:02│ 17.71 s │  1.00 s │    0.06│113%│  0%│  0%│ 98%│  1%│  1%│-   │-   │-   │-   │
+┌─────┬────────────┬─────────────────────────────────┬────────────────────────┬───────────────────────┐
+│Row #│Display Name│           Probe-kind            │         Object         │Session Formatted Value│
+├─────┼────────────┼─────────────────────────────────┼────────────────────────┼───────────────────────┤
+│    1│Virtual-Time│sim.time.virtual                 │sim                     │            00:00:30.00│
+│    2│Wallclock   │sim.time.wallclock               │sim                     │            00:00:02.92│
+│    3│Slowdown    │sim.slowdown                     │sim                     │                   0.10│
+│    4│Host CPU%   │sim.process.cpu_percent          │sim                     │                    92%│
+│    5│Sim Load%   │sim.load_percent                 │sim                     │                     1%│
+│    6│HYP%        │cpu.exec_mode.hypersim_percent   │board.mb.cpu0.core[0][0]│                     0%│
+│    7│VMP%        │cpu.exec_mode.vmp_percent        │board.mb.cpu0.core[0][0]│                    99%│
+│    8│JIT%        │cpu.exec_mode.jit_percent        │board.mb.cpu0.core[0][0]│                     0%│
+│    9│INT%        │cpu.exec_mode.interpreter_percent│board.mb.cpu0.core[0][0]│                     0%│
+│   10│HYP%        │cpu.exec_mode.hypersim_percent   │board.mb.cpu0.core[1][0]│                     0%│
+│   11│VMP%        │cpu.exec_mode.vmp_percent        │board.mb.cpu0.core[1][0]│                    52%│
+│   12│JIT%        │cpu.exec_mode.jit_percent        │board.mb.cpu0.core[1][0]│                    14%│
+│   13│INT%        │cpu.exec_mode.interpreter_percent│board.mb.cpu0.core[1][0]│                    34%│
+└─────┴────────────┴─────────────────────────────────┴────────────────────────┴───────────────────────┘
+</code></pre>
+</figure>
+<p>In the first run, only the default probes are used. The <code>-summary</code> switch
+automatically prints the value of the collected probes when Simics stops. In the
+second run, the <code>-cpu-exec-modes</code> is added, causing 8 additional probes to be
+monitored.</p>
+<p>For some practical scenarios using <code>new-system-perfmeter</code>, such as exploring
+potential bottlenecks with the <code>explore</code> probe-collection and generating an
+HTML report from the collected data, see
+<a href="simulation-performance.html#useful-performance-scenarios">Useful Performance Scenarios</a>
+in the Performance chapter.</p>
+
+<div class="chain">
+<a href="instrumentation.html">2.6 Instrumentation</a>
+<a href="low-level-debugging.html">3 Low-Level Debugging</a>
+</div>

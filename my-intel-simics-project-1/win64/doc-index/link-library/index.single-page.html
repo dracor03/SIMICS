@@ -1,0 +1,346 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Link Library Programming Guide</title>
+
+<section class="page" id="index.html"><h1 id="index.html:link-library-programming-guide"><a href="#index.html:link-library-programming-guide">Link Library Programming Guide</a></h1>
+</section><section class="page" id="introduction.html"><h1 id="introduction.html:introduction"><a href="#introduction.html:introduction">1 Introduction</a></h1>
+<p>The link library lets users write Simics link models.
+A link is used to connect devices in different cells, even in different processes, so that they can exchange non-instantaneous messages in a deterministic way.
+Typical links include Ethernet and other network connections, but also simpler signal links and more abstract communication channels.</p>
+<p>Much of the functionality of links is the same for different kinds of links; that commonality is encapsulated in the link library.
+This makes it simpler to create new link types, since a minimum of new code is required for each new link type.</p>
+<p>Before going further, it is important to realize when <em>not</em> to use the link library:</p>
+<ul>
+<li>If the devices are expected to all be located in the same configuration cell, most of the link library support is unnecessary.
+It will probably be much easier to create a simple broadcast bus object that distribute messages where they should go via interface calls.</li>
+<li>If the requirement is for a simple point-to-point protocol to exchange messages between two devices in different configuration cells, the <code>datagram_link</code> might well suffice.
+It allows simple byte strings to be passed from one sender to one or multiple receivers via the simple <code>datagram_link</code> interface.</li>
+<li>If the requirement is to broadcast messages between a set of devices, once again, the <code>datagram_link</code> might be the easiest way forward, as it provides just that.</li>
+</ul>
+<p>The link library, however, is available for more complex usage: multiple message types across the link (such as link speed, link status, etc.), special addressing (unicast or multicast groups, switching, etc.), special types of devices (such as sender and receiver for the signal-link).
+All of these requirements will be more easily expressed, and provide better simulation performance, by creating a special-purpose link based on the link library.</p>
+<p>The rest of this document describes how to create a new link type, using the provided <code>datagram_link</code> as an example.
+The reader is expected to know how to develop Simics modules in C.
+Further information can be found in the <a href="../model-builder-user-guide/index.html">Model Builder User’s Guide</a>.</p>
+</section><section class="page" id="link-concepts.html"><h1 id="link-concepts.html:link-concepts"><a href="#link-concepts.html:link-concepts">2 Link Concepts</a></h1>
+<p>A link consists of two Simics configuration classes: link and endpoint.
+In a running simulation, there will exist one link object per link, and one endpoint object per device connected to the link.</p>
+<p>The link and endpoint classes use the link library to handle many of the details of link operation.
+The link library keeps its state in opaque data structures attached to the link and endpoint objects.
+Some of this information can be queried via the link library API.</p>
+<p>When devices connect to the link, they really contact a freshly created endpoint object, usually provided by the link component.
+Any interaction between the device and the link goes through that endpoint object.</p>
+<p>When running in a distributed simulation, a link is represented by an identically named instance in each process of the simulation.</p>
+<p>Link objects may have configuration parameters, which are represented as Simics attributes in the link class.
+These parameters should only be changed when the simulation is not running, to avoid indeterminism.
+In a distributed setup, configuration parameters should also be shared with the other instances of the same link: the link library provides the <code>SIMLINK_config_update_value()</code> and <code>SIMLINK_config_remove_value()</code> functions for that purpose.
+For example, the <code>goal_latency</code> of the link is implemented as a global configuration parameter.
+More information is available in the <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+<p>Endpoint objects may contain configuration parameters, as well as simulation state that can be changed at runtime, since they are only involved with one device on the link.
+For example, the <code>ethernet_switch</code> implementation keeps a translation table from MAC addresses to endpoint IDs in each endpoint on the link, allowing them to be updated as endpoints learn about the connected devices.</p>
+</section><section class="page" id="linking-and-initialization.html"><h1 id="linking-and-initialization.html:linking-and-initialization"><a href="#linking-and-initialization.html:linking-and-initialization">3 Linking and Initialization</a></h1>
+<p>Linking the link library to your module is simply a matter of adding the following line to the module’s <code>Makefile</code> (for GNU Make builds):</p>
+<pre><code>MODULE_LDFLAGS = -llink
+</code></pre>
+<p>For CMake-based builds, use <code>target_link_libraries</code> to link against the link library instead.</p>
+<p>The <code>init_local()</code> function in the link module needs to call the <code>SIMLINK_init_library()</code> function:</p>
+<pre><code>void
+init_local()
+{
+        /* The link library must always be initialised first. */
+        SIMLINK_init_library();
+
+        /* The rest of the module initialization */
+}
+</code></pre>
+</section><section class="page" id="class-definitions.html"><h1 id="class-definitions.html:class-definitions"><a href="#class-definitions.html:class-definitions">4 Class Definitions</a></h1>
+<p>Each class defines a C <code>struct</code> type to store an instance of the class.
+The <code>struct</code> must start with a <code>conf_object_t</code>, and like any Simics configuration object it may also contain any additional configuration parameters required by the specific link.
+As usual, if this information needs to be saved in checkpoints, you as the class author are responsible for registering attributes that save and restore it.</p>
+<pre><code>typedef struct {
+        conf_object_t obj;
+
+        /* Any link-specific parameters would go here. */
+} datagram_link_t;
+</code></pre>
+<pre><code>typedef struct {
+        conf_object_t obj;
+
+        /* Any endpoint-specific state would go here. */
+} datagram_link_endpoint_t;
+</code></pre>
+<p>Each link type needs to declare a variable of type <code>link_type_t</code> and fill it with information used by the link library to access functionality that is specific to the link type.
+Each of the <code>link_type_t</code> member functions is described in the <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+<p>The link class’s <code>init()</code> method needs to call <code>SIMLINK_init()</code> to attach all link library’s internal information to the link object.
+The <code>finalize()</code> method needs to call <code>SIMLINK_finalize()</code>.</p>
+<pre><code>static conf_object_t *
+datagram_link_alloc(conf_class_t *cls)
+{
+        datagram_link_t *dl = MM_ZALLOC(1, datagram_link_t);
+        return &amp;dl-&gt;obj;
+}
+
+static void *
+datagram_link_init(conf_object_t *obj)
+{
+        datagram_link_t *dl = (datagram_link_t *)obj;
+
+        static const link_type_t link_methods = {
+                .msg_to_attr = msg_to_attr,
+                .msg_from_attr = msg_from_attr,
+                .free_msg = free_msg,
+                .marshal = marshal,
+                .unmarshal = unmarshal,
+                .deliver = deliver,
+                .update_config_value = link_config_value_updated,
+                .remove_config_value = link_config_value_removed,
+        };
+        SIMLINK_init(&amp;dl-&gt;obj, &amp;link_methods);
+
+        return &amp;dl-&gt;obj;
+}
+</code></pre>
+<pre><code>static void
+datagram_link_finalize(conf_object_t *obj)
+{
+        SIMLINK_finalize(obj);
+}
+</code></pre>
+<p>Similarly, the endpoint class’s <code>init()</code> and <code>finalize()</code> methods need to call <code>SIMLINK_endpoint_init()</code> and <code>SIMLINK_endpoint_finalize()</code>, respectively:</p>
+<pre><code>static void *
+datagram_link_endpoint_init(conf_object_t *obj)
+{
+        datagram_link_endpoint_t *dlep =
+                (datagram_link_endpoint_t *)obj;
+        SIMLINK_endpoint_init(&amp;dlep-&gt;obj, false);
+        return dlep;
+}
+</code></pre>
+<pre><code>static void
+datagram_link_endpoint_finalize(conf_object_t *ep)
+{
+        SIMLINK_endpoint_finalize(ep);
+}
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>Depending on the current configuration, endpoint objects might be created while no device is yet connected.
+For that reason, device related operations, such as caching an interface, are expected to be done in the <code>device_changed()</code> callback rather than in the <code>finalize()</code> function.
+See also <code>link_type_t</code> documentation for more information and an example.</p>
+</blockquote>
+<p>The endpoint class also has to have a <code>deinit()</code> function, which has to be, or at least call, <code>SIMLINK_endpoint_disconnect()</code>.</p>
+<p>After declaring the link class with <code>SIM_create_class()</code>, <code>SIMLINK_register_class()</code> must also be called, with the class as argument.</p>
+<p>Similarly, for the endpoint class, <code>SIMLINK_register_endpoint_class()</code> must be called.
+It takes two parameters: the endpoint class and the attribute type of a checkpointed in-flight link message.</p>
+<pre><code>void
+init_local()
+{
+        /* The link library must always be initialised first. */
+        SIMLINK_init_library();
+
+        const class_info_t cl_methods = {
+                .alloc = datagram_link_alloc,
+                .init = datagram_link_init,
+                .finalize = datagram_link_finalize,
+                .deinit = datagram_link_deinit,
+                .dealloc = datagram_link_dealloc,
+                .short_desc = "link that broadcasts byte strings",
+                .description = "A link that broadcasts byte strings."
+        };
+        conf_class_t *cl = SIM_create_class("datagram_link_impl",
+                                              &amp;cl_methods);
+
+        /* Tell the link library what class represents the link */
+        SIMLINK_register_class(cl);
+
+        const class_info_t epcl_methods = {
+                .alloc = datagram_link_endpoint_alloc,
+                .init = datagram_link_endpoint_init,
+                .finalize = datagram_link_endpoint_finalize,
+                .deinit = SIMLINK_endpoint_disconnect,
+                .dealloc = datagram_link_endpoint_dealloc,
+                .short_desc = "endpoint for datagram links",
+                .description = "Endpoint for datagram link objects."
+        };
+        conf_class_t *epcl = SIM_create_class("datagram_link_endpoint",
+                                                &amp;epcl_methods);
+
+        static const datagram_link_interface_t dgram_link_if = {
+                .receive = receive
+        };
+        SIM_REGISTER_INTERFACE(epcl, datagram_link, &amp;dgram_link_if);
+
+        /* Tell the link library what class we use for endpoints */
+        SIMLINK_register_endpoint_class(epcl, "d");
+}
+</code></pre>
+</section><section class="page" id="link-specific-interfaces.html"><h1 id="link-specific-interfaces.html:link-specific-interfaces"><a href="#link-specific-interfaces.html:link-specific-interfaces">5 Link-Specific Interfaces</a></h1>
+<p>Endpoints always need to implement interfaces specific to the link type, so they can accept messages from the connected devices.
+Here, <code>datagram_link</code> registers a <code>datagram_link</code> interface for its endpoint class.</p>
+<pre><code>void
+init_local()
+{
+        /* The link library must always be initialised first. */
+        SIMLINK_init_library();
+
+        const class_info_t cl_methods = {
+                .alloc = datagram_link_alloc,
+                .init = datagram_link_init,
+                .finalize = datagram_link_finalize,
+                .deinit = datagram_link_deinit,
+                .dealloc = datagram_link_dealloc,
+                .short_desc = "link that broadcasts byte strings",
+                .description = "A link that broadcasts byte strings."
+        };
+        conf_class_t *cl = SIM_create_class("datagram_link_impl",
+                                              &amp;cl_methods);
+
+        /* Tell the link library what class represents the link */
+        SIMLINK_register_class(cl);
+
+        const class_info_t epcl_methods = {
+                .alloc = datagram_link_endpoint_alloc,
+                .init = datagram_link_endpoint_init,
+                .finalize = datagram_link_endpoint_finalize,
+                .deinit = SIMLINK_endpoint_disconnect,
+                .dealloc = datagram_link_endpoint_dealloc,
+                .short_desc = "endpoint for datagram links",
+                .description = "Endpoint for datagram link objects."
+        };
+        conf_class_t *epcl = SIM_create_class("datagram_link_endpoint",
+                                                &amp;epcl_methods);
+
+        static const datagram_link_interface_t dgram_link_if = {
+                .receive = receive
+        };
+        SIM_REGISTER_INTERFACE(epcl, datagram_link, &amp;dgram_link_if);
+
+        /* Tell the link library what class we use for endpoints */
+        SIMLINK_register_endpoint_class(epcl, "d");
+}
+</code></pre>
+</section><section class="page" id="communication-interfaces.html"><h1 id="communication-interfaces.html:communication-interfaces"><a href="#communication-interfaces.html:communication-interfaces">6 Communication Interfaces</a></h1>
+<p>The link model needs to define a structure that represents all kinds of messages that can be sent over the link.
+This structure should “inherit” from <code>link_message_t</code>, by placing it first in the <code>struct</code> (so that a pointer to a <code>datagram_link_message_t</code> can be cast to a <code>link_message_t</code> pointer).</p>
+<pre><code>typedef struct {
+        link_message_t common;               /* should always be first */
+        /* The actual data in the message - in our case an allocated
+           byte string owned by this structure. */
+        bytes_t payload;
+} datagram_link_message_t;
+</code></pre>
+<p>New messages are allocated with <code>MM_MALLOC()</code>, and <code>SIMLINK_init_message()</code> is used to fill in the “common” part:</p>
+<pre><code>static link_message_t *
+new_datagram_message(const uint8 *data, size_t len)
+{
+        datagram_link_message_t *m = MM_MALLOC(1, datagram_link_message_t);
+        SIMLINK_init_message(&amp;m-&gt;common);
+        uint8 *d = MM_MALLOC(len, uint8);
+        memcpy(d, data, len);
+        m-&gt;payload = (bytes_t){.data = d, .len = len};
+        return &amp;m-&gt;common;
+}
+</code></pre>
+<p>Finally, the message is dispatched using the <code>SIMLINK_send_message()</code> or <code>SIMLINK_send_message_multi()</code> functions.</p>
+<pre><code>static void
+receive(conf_object_t *NOTNULL ep, bytes_t msg)
+{
+        SIMLINK_send_message(ep, LINK_BROADCAST_ID,
+                             new_datagram_message(msg.data, msg.len));
+}
+</code></pre>
+<p>Messages are delivered to the endpoints’ <code>deliver()</code> callback registered by the link.
+The callback is responsible for translating the message into something the receiving device will understand.</p>
+<pre><code>static void
+deliver(conf_object_t *ep, const link_message_t *lm)
+{
+        const datagram_link_message_t *m =
+                (const datagram_link_message_t *)lm;
+        conf_object_t *dev = SIMLINK_endpoint_device(ep);
+        const char *port = SIMLINK_endpoint_port(ep);
+        const datagram_link_interface_t *dli =
+                SIM_c_get_port_interface(dev, "datagram_link", port);
+        if (dli)
+                dli-&gt;receive(dev, m-&gt;payload);
+        else
+                SIM_LOG_ERROR(ep, 0, "Device does not implement"
+                              " datagram_link interface");
+}
+</code></pre>
+</section><section class="page" id="link-components.html"><h1 id="link-components.html:link-components"><a href="#link-components.html:link-components">7 Link Components</a></h1>
+<p>To be part of a standard, component-based configuration, new links have to provide a component that will wrap the link implementation and handle connections.
+An important role of the link component is to create and destroy endpoint objects as the connections are being made.</p>
+<p>Links tend to share a lot of common functionality, and link components are no exceptions.
+The link library provides two interfaces to easily create link components.</p>
+<h2 id="link-components.html:simple-component"><a href="#link-components.html:simple-component">7.1 Simple Component</a></h2>
+<p>The simplest way to create a link component is to use the <code>link_components.create_simple()</code> function. Here is the component definition for <code>datagram_link</code>:</p>
+<pre><code>from link_components import create_simple
+
+class datagram_link(
+    create_simple(link_class = 'datagram_link_impl',
+                  endpoint_class = 'datagram_link_endpoint',
+                  connector_type = 'datagram-link',
+                  class_desc = "datagram link",
+                  basename = 'datagram_link')):
+    """The datagram link component creates a datagram-link, which is a simple
+    broadcast bus forwarding messages (as sequences of bytes) from a sender
+    device to all other devices present of the link. The datagram-link is both
+    an example of how to build a link with the Simics Link Library, and a
+    simple broadcast link that can be reused when multi-cell communication
+    between devices is necessary. Refer to the &lt;cite&gt;Link Library Programming
+    Guide&lt;/cite&gt; for more information."""
+</code></pre>
+<p>Using this simplified method assumes that the link fulfills a number of requirements:</p>
+<ul>
+<li>The link object can be created without additional configuration.</li>
+<li>There is no restriction on the number of connections to the link, beyond the connector type check that is done at the component level.
+The link connector takes either an object or an [object, port] two-element list as argument.
+Device connectors should accept an endpoint object as argument.</li>
+<li>The link has only one endpoint class. An endpoint can be created without additional configuration.</li>
+</ul>
+<p>Further information is available in the <code>link_components.create_simple()</code> API description, in the <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+<p>If the new link type does not comply with the limitations above, a slightly more complex interface is available.</p>
+<h2 id="link-components.html:custom-component"><a href="#link-components.html:custom-component">7.2 Custom Component</a></h2>
+<p>When more flexibility is required, it is possible to create a new component class inheriting from <code>link_components.link_component</code>.
+Two functions should be overridden to control how the component handles connections:</p>
+<pre><code>class ethernet_switch(link_components.link_component):
+    """Ethernet switch: this component represents a switched Ethernet network,
+    allowing any number of devices to connect and optimizing the packet routing
+    according to what is learned about the MAC addresses talking on the link."""
+
+    _class_desc = 'an Ethernet switch component'
+    _help_categories = ['Networking']
+
+    class basename(link_components.link_component.basename):
+        val = 'ethernet_switch'
+
+    def create_unconnected_endpoint(self, cnt):
+        return create_vlan_switch_endpoint(self.get_slot('link'), None,
+                                           None, True)
+
+    def register_connector_templates(self):
+        self.eth_tmpl = self.add_link_connector_template(
+            name = 'ethernet-link-connector',
+            type = 'ethernet-link',
+            growing = True,
+            create_unconnected_endpoint = self.create_unconnected_endpoint)
+
+    def add_objects(self):
+        self.add_pre_obj_with_name('link', 'eth-switch-link',
+                                   self.get_link_object_name(),
+                                   goal_latency = self.goal_latency.val,
+                                   global_id = self.global_id.val)
+        self.add_link_connector('device', self.eth_tmpl)
+
+    def get_free_connector_cmd(self):
+        c = self.get_unconnected_connector_object('device')
+        if not c:
+            raise cli.CliError('Internal error: no connectors found')
+        return c.name
+</code></pre>
+<p><code>register_connector_templates()</code> is responsible for registering the description—called <em>template</em> here—of the connectors that will be allowed in the link.
+Each connector template can be associated with a number of functions that will be called when a connection is attempted, is successful, or is destroyed.
+Each connector template can also be defined as growing, meaning that new connectors will be added dynamically to make sure there is always one connector free.</p>
+<p><code>add_objects()</code> is responsible for creating the necessary link object and the initial connectors.</p>
+<p>A more complete explanation of these functions is available in the component API in the  <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+</section>

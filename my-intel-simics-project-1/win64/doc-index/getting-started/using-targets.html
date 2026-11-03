@@ -1,0 +1,94 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.1 Customizing Targets</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="tutorials.html">8 Tutorials</a>
+<a href="logging-and-tracing.html">8.2 Logging and Tracing</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="customizing-targets"><a href="#customizing-targets">8.1 Customizing Targets</a></h1>
+<p>In the <a href="running-simics-cli.html">running the simulator</a> section, we loaded a
+target which created a configuration with <em>default settings</em>. It is also
+possible to <em>customize</em> the properties of target machines by setting <em>target
+parameters</em>.</p>
+<p>In this section we demonstrate how to:</p>
+<ul>
+<li><a href="#discovering-target-parameters">discover</a> <em>target parameters</em> for a target</li>
+<li><a href="#setting-target-parameters">set</a> target parameters when loading a target</li>
+</ul>
+<h2 id="discovering-target-parameters"><a href="#discovering-target-parameters">8.1.1 Discovering Target Parameters</a></h2>
+<p>This section describes how to discover <em>target parameters</em>
+available for a specific target, in this case the <code>qsp-x86/firststeps</code> target.
+These are some of possible methods to list target parameters:</p>
+<ul>
+<li><a href="#discovery-using-command-line-completion">command line completion</a></li>
+<li>the <a href="#discovery-using-the-help-system">help</a> command</li>
+<li>the <a href="#discovery-using-params-help"><code>params.help</code></a> command</li>
+</ul>
+<h3 id="discovery-using-command-line-completion"><a href="#discovery-using-command-line-completion">8.1.1.1 Discovery using Command Line Completion</a></h3>
+<p>To discover available parameters via command line completion, press the <em>tab key
+twice</em> after entering <code>load-target target = qsp-x86/firststeps</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target target = qsp-x86/firststeps &lt;TAB&gt;&lt;TAB&gt;</strong>
+machine:hardware:apic_bus:class =
+machine:hardware:consoles:con0:bg_color =
+machine:hardware:consoles:con0:create =
+machine:hardware:consoles:con0:fg_color =
+machine:hardware:consoles:con0:show =
+</code></pre>
+<p>This will list the available <strong>target parameters</strong>, which is useful for overview
+and as a convenience when setting parameters.</p>
+<h3 id="discovery-using-the-help-system"><a href="#discovery-using-the-help-system">8.1.1.2 Discovery using the Help System</a></h3>
+<p>Another way to list <em>target parameters</em>, and also to show type, description and
+default value, is to use the <code>help</code> command with <code>target:</code> as prefix:</p>
+<pre><code class="language-simics">simics&gt; <strong>help "target:qsp-x86/firststeps"</strong>
+┌───────────────────────────────┬────┬──────────────────────────────┬──────────────────────────────┐
+│Name                           │Type│Description                   │Default                       │
+├───────────────────────────────┼────┼──────────────────────────────┼──────────────────────────────┤
+│machine:hardware:memory_megs   │int │Amount of RAM in the machine, │8192                          │
+│                               │    │in MiB. The highest supported │                              │
+│                               │    │value is 65536 (64 GiB).      │                              │
+...
+</code></pre>
+<h3 id="discovery-using-params-help"><a href="#discovery-using-params-help">8.1.1.3 Discovery using params.help</a></h3>
+<p>The object <code>params</code> has a <code>help</code> command, which can provide information on
+targets.</p>
+<pre><code class="language-simics">simics&gt; <strong>params.help target = "qsp-x86/firststeps"</strong>
+┌───────────────────────────────┬────┬──────────────────────────────┬──────────────────────────────┐
+│Name                           │Type│Description                   │Default                       │
+├───────────────────────────────┼────┼──────────────────────────────┼──────────────────────────────┤
+│machine:hardware:memory_megs   │int │Amount of RAM in the machine, │8192                          │
+│                               │    │in MiB. The highest supported │                              │
+│                               │    │value is 65536 (64 GiB).      │                              │
+</code></pre>
+<p>To see a complete description of <code>params.help</code>, type <code>help params.help</code>.</p>
+<h2 id="setting-target-parameters"><a href="#setting-target-parameters">8.1.2 Setting Target Parameters</a></h2>
+<p>Let’s create a target machine with 4 cores per physical processor by setting the
+<code>num_cores</code> parameter to 4. To do that please run the following command:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-target "qsp-x86/firststeps" machine:hardware:processor:num_cores = 4</strong>
+</code></pre>
+<p>To verify that the target indeed has 4 cores, run the <code>list-processors</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-processors</strong>
+┌────────────────────────┬─┬─────────┬────────┐
+│        CPU Name        │ │CPU Class│  Freq  │
+├────────────────────────┼─┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│*│x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[1][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[2][0]│ │x86QSP3  │2.00 GHz│
+│board.mb.cpu0.core[3][0]│ │x86QSP3  │2.00 GHz│
+└────────────────────────┴─┴─────────┴────────┘
+</code></pre>
+<p>It is also possible to create a file with customized values of target parameters
+in a <code>preset</code> file. This is described in <a href="../simics-user-guide/script-support-in-simics.html#preset-files">Simics User’s
+Guide</a>.</p>
+
+<div class="chain">
+<a href="tutorials.html">8 Tutorials</a>
+<a href="logging-and-tracing.html">8.2 Logging and Tracing</a>
+</div>

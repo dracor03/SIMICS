@@ -1,0 +1,62 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>20 Modeling I2C Devices</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dma.html">19 Modeling Direct Memory Access (DMA)</a>
+<a href="modeling-interconnects.html">21 Modeling Interconnects</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-common-hardware-components.html">III Modeling Common Hardware Components</a>
+&nbsp;/&nbsp;</div><h1 id="modeling-i2c-devices"><a href="#modeling-i2c-devices">20 Modeling I2C Devices</a></h1>
+<h2 id="introduction"><a href="#introduction">20.1 Introduction</a></h2>
+<p>Simics supports writing I2C devices. There are two ways to model an I2C device.
+The easiest way is to let the I2C device implement the <code>i2c_device</code> interface.
+The interface models the communication on high level, moving one byte in each
+transfer. The other way to model an I2C device is to implement the actual bit
+lines defined in the I2C standard. Modeling an I2C device model on high level is
+described in <a class="reference" href="#high-level-i2c-device-modeling">20.2</a> and on low level is described
+in <a class="reference" href="#low-level-i2c-device-modeling">20.3</a>.</p>
+<p>I2C devices in Simics are connected to an I2C bus (the <code>i2c_bus</code> class). The bus
+relays transfers from I2C device masters to I2C device slaves. The master is the
+I2C device initiating the transfer. The slave is the I2C device responding to
+the transfer. An I2C device can act as both master and slave but not at the same
+time.</p>
+<p>Each slave has a 7-bit address. The master uses the address to communicate with
+the slave. A slave can have more than one address.</p>
+<h2 id="high-level-i2c-device-modeling"><a href="#high-level-i2c-device-modeling">20.2 High-Level I2C Device Modeling</a></h2>
+<p>I2C devices can implement the <code>i2c_device</code> interface. This interface is a high
+level interface which transfers bytes instead of bits. The requirement for using
+this interface is that the I2C device does not make the actual physical line
+status visible for software or other hardware. The I2C bus implements <code>i2c_bus</code>
+interface which is used in combination with the <code>i2c_device</code> interface to form a
+high-level connection.</p>
+<p>Simics includes a sample I2C device with source code. The name of the module is
+<em>sample-i2c-device</em>. You can copy the code to your project, try it out, or
+modify it to fit your requirements.</p>
+<p>See the documentation for the <code>i2c_bus</code> interface and <code>i2c_device</code> interface to
+get a more detailed description how to use the interfaces and implement I2C
+devices.</p>
+<h2 id="low-level-i2c-device-modeling"><a href="#low-level-i2c-device-modeling">20.3 Low-Level I2C Device Modeling</a></h2>
+<p>The I2C bus also support low-level I2C device implementations using signals
+defined in the I2C standard. Only bus masters can use the low-level interface.</p>
+<p>I2C has two wires, clock and data, where the data line is bidirectional. In
+Simics, the bidirectional line is modeled as two unidirectional signals, one
+going from the master to the bus, and one going from the bus to the master. The
+<code>i2c-bus</code> implements two <code>signal</code> ports, <code>SCL</code> and <code>SDA</code>, and provides one
+signal attribute <code>sda_target</code> for the SDA signal going from the bus to the
+master. The example setup in figure <a class="reference" href="#i2c_lowlevel_img">11</a> illustrates this.</p>
+<figure id="i2c_lowlevel_img">
+<p><img alt="" src="i2c_lowlevel.png"> </p><figcaption>Figure 11. A four-port general purpose IO device
+connected to an I2C bus.</figcaption><p></p>
+</figure>
+
+<div class="chain">
+<a href="dma.html">19 Modeling Direct Memory Access (DMA)</a>
+<a href="modeling-interconnects.html">21 Modeling Interconnects</a>
+</div>

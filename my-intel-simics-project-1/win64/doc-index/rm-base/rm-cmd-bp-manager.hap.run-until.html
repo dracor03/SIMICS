@@ -1,0 +1,49 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.hap.run-until</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.hap.break.html">bp.hap.break</a>
+<a href="rm-cmd-bp-manager.hap.trace.html">bp.hap.trace</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.hap.run-until"></a>
+<h1 id="bp-manager.hap.run-until"><a href="#bp-manager.hap.run-until">bp.hap.run-until</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.hap&gt;.run-until</b> (<i>"name"</i>|-all) [<i>object</i>] [<i>index</i>] [-s] [<i>timeout</i>] [<i>timeout-rt</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Run the simulation until a hap occurs.
+<p>
+The optional argument <i>object</i> limits the considered hap occurrences to a specific object, and <i>index</i> can be used for indexed haps.
+</p><p>
+The <i>name</i> parameter specifies the hap. If the <tt>-all</tt> flag is specified, all haps will be used.
+</p><p>
+When a hap triggers, the frontend object is changed to the object that triggered the hap, unless <tt>-s</tt> is specified.
+</p><p>
+If <i>timeout</i> is a positive number, the command will run for at most that many seconds of virtual time.
+</p><p>
+If <i>timeout-rt</i> is a positive number, the command will run for at most that many seconds of real time.
+</p><p>
+A time-out will be signaled by throwing a CLI exception, which can be captured using try/except in order to take specific action, or to let it pass unhandled. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.hap.break.html">bp.hap.break</a>
+<a href="rm-cmd-bp-manager.hap.trace.html">bp.hap.trace</a>
+</div>

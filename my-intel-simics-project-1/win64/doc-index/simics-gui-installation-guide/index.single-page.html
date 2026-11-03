@@ -1,0 +1,20 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>GUI Installation Guide</title>
+
+<section class="page" id="installation-guide.html"><h1 id="installation-guide.html:gui-installation-guide"><a href="#installation-guide.html:gui-installation-guide">GUI Installation Guide</a></h1>
+<p>This application has a dependency on Python* and must be available on your host machine. On Linux that usually entails making sure <code>python3</code> is in your <code>PATH</code>.</p>
+<p>If you are using Windows you may first need to install python or the dedicated Intel Simics package with python (package 1033 Simics Python), and then give the application its location in the Settings options in the host context menu.</p>
+<h2 id="installation-guide.html:1-software-and-hardware-requirements"><a href="#installation-guide.html:1-software-and-hardware-requirements">1 Software And Hardware Requirements</a></h2>
+<p>The GUI&nbsp;is built on top of Node.js*, Electron*, and Chromium*, and its host requirements are based on the requirements of those frameworks. It has been tested to work on:</p>
+<ul>
+<li>64-bit Windows 11 (and equivalent server versions of Windows)</li>
+<li>64-bit recent Linux versions. It has been tested on Fedora* 39 and later.</li>
+</ul>
+<h2 id="installation-guide.html:2-install-gui"><a href="#installation-guide.html:2-install-gui">2 Install GUI</a></h2>
+<p>As a customer you should have received instructions that describes which package to install and where to find it. If this is not the case, contact your provider to obtain this information.</p>
+<p>For the installation, use the Intel® Simics® Package Manager. The package manager can be used to check for updated packages, download and install/uninstall, and manage Intel Simics projects, also called "user projects". It supports both command line (batch) mode and GUI mode.</p>
+<p>The simulator is delivered in packages, each one containing different parts of the functionality. There is a Simics Base package and several add-on packages. The GUI is provided in one of those add-on packages (package 1015 Simics GUI).</p>
+<p>The package manager can create user projects with Simics Base and other add-on packages. A user project is a directory for adding user files and developing simulation models, and is typically set up for a combination of a few packages of certain versions. Thus such projects enable users to work with different package combinations just by switching between projects.</p>
+</section>

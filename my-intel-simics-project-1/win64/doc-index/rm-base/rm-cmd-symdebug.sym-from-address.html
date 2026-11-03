@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;symdebug&gt;.sym-from-address</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-symdebug.sym-file.html">&lt;symdebug&gt;.sym-file</a>
+<a href="rm-cmd-symdebug.sym-function.html">&lt;symdebug&gt;.sym-function</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="symdebug.sym-from-address"></a>
+<h1 id="symdebug.sym-from-address"><a href="#symdebug.sym-from-address">&lt;symdebug&gt;.sym-from-address</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;symdebug&gt;.sym-from-address</b> <i>address</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Returns the name of the symbol that overlaps the specified <i>address</i> in memory. The returned name can be used with other symbol inspection commands such as <code>sym-address</code>, <code>sym-type</code>, and <code>sym-value</code>. This is more general than <code>sym-function</code>; it looks for both function and global variable symbols.
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-sym-address.html">sym-address</a>, 
+<a href="rm-cmd-sym-type.html">sym-type</a>, 
+<a href="rm-cmd-sym-value.html">sym-value</a>, 
+<a href="rm-cmd-sym-function.html">sym-function</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-symdebug.sym-file.html">&lt;symdebug&gt;.sym-file</a>
+<a href="rm-cmd-symdebug.sym-function.html">&lt;symdebug&gt;.sym-function</a>
+</div>

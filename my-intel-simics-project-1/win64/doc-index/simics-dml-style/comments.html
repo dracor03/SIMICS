@@ -1,0 +1,150 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Comments</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="general-syntax.html">3 General syntax</a>
+<a href="naming.html">5 Naming</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for DML</a>
+&nbsp;/&nbsp;</div><h1 id="comments"><a href="#comments">4 Comments</a></h1>
+<h2 id="comment-formatting"><a href="#comment-formatting">4.1 Comment formatting</a></h2>
+<ul>
+<li>
+<p><strong>CF1</strong> Prefer <code>//</code> comments over <code>/*   */</code> comments, but both are allowed.</p>
+</li>
+<li>
+<p><strong>CF2</strong> Really short comments can be winged (placed on the same line as the
+code).
+Preferably leave at least two spaces between the code and the start of the
+comment.</p>
+</li>
+<li>
+<p><strong>CF3</strong> If a winged comment gets too long to fit, put it on its own line,
+before the line it is commenting.
+Indent comments (if not winged) to the same level as surrounding code.</p>
+</li>
+<li>
+<p><strong>CF4</strong> Write multi-line comments as follows, without any empty comment lines.</p>
+<pre><code>// This is a long comment
+// that consists of multiple lines
+</code></pre>
+</li>
+<li>
+<p><strong>CF5</strong> Do not use a comment style other than these mentioned other than in
+very special circumstances.
+In particular, do not use banners, boxes or horizontal/vertical lines of
+characters.
+These just take up space for no good reason, and grab attention that is better
+directed to code.</p>
+</li>
+<li>
+<p><strong>CF6</strong> Consider comments to be statements for brace purposes.
+That is, this if-statement needs braces as if the comment had been a statement.</p>
+<pre><code>if (drunk(user)) {
+        // sober up
+        drink(user, strong_coffee);
+}
+</code></pre>
+</li>
+<li>
+<p><strong>CF7</strong> Add <code>//</code> at the very beginning of lines in a region to disable the
+code.</p>
+</li>
+<li>
+<p><strong>CF8</strong> Do not check in disabled code without a very good reason for doing so
+and a comment stating why it is there.
+Lacking this, disabled code is fair game for removal without prior notice.</p>
+</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>These rules are for visual consistency, to make it easier to locate, read and edit comments.</p>
+</blockquote>
+<h2 id="contents-of-comments"><a href="#contents-of-comments">4.2 Contents of Comments</a></h2>
+<ul>
+<li>
+<p><strong>CC1</strong> Comments should only contain information that cannot be easily
+inferred from the code.
+If the code is obvious enough, no comment is needed.
+If not, it is better to spend effort on making the code clearer than
+explaining it in a comment.</p>
+<p>Example of a bad comment:</p>
+<pre><code>// Flush page cache.
+flush_page_cache(cpu);
+</code></pre>
+</li>
+<li>
+<p><strong>CC2</strong> Explain why, not what.
+Reading the code gives you what, but not always why.
+Reasons for a particular design choice are much more useful to the reader.
+Do not sign comments with name or date.</p>
+</li>
+<li>
+<p><strong>CC3</strong> Do not keep history in comments.
+They should describe the code as it is, not as it has been.
+Erase anything that is no longer valid.</p>
+<p>Examples of bad comments:</p>
+<pre><code>// moved here from processor.c
+
+local double delta;   // no longer an integer
+
+// (mike) this is only safe if x != 0
+
+// 980325 rewritten to use new event code
+</code></pre>
+</li>
+<li>
+<p><strong>CC4</strong> When editing existing code, you are just as responsible for editing
+the comments that refer to that code so that they are still valid.
+Incorrect comments should not be left in the code; it is better to remove them
+if they cannot be updated to reflect the state of the code.</p>
+</li>
+<li>
+<p><strong>CC5</strong> Partly for this reason, it is desirable to keep comments as close as
+possible to the code they are commenting on.
+This makes them harder to miss when changing the code.
+(Do not overdo this and fragment the code with too many interspersed
+comments—try to strike a balance.)</p>
+</li>
+<li>
+<p><strong>CC6</strong> TODO and FIXME comments should make it clear what needs to be done or
+fixed, and why; otherwise they contain no information.</p>
+<p>Refer to Bugzilla bug numbers in comments if the issue is still open.
+When fixed, such references should be removed.
+Example:</p>
+<pre><code>// FIXME: This is incorrect if p==0. (bug #4711)
+</code></pre>
+</li>
+<li>
+<p><strong>CC7</strong> Prefer describing data to explaining code.
+If the data structures are known, the code manipulating them should be natural
+and need little extra explanation.</p>
+</li>
+<li>
+<p><strong>CC8</strong> Keep winged and one-line comments terse and telegraphic in style, in
+order to keep their widths down.
+Cut down on articles and punctuation.</p>
+<pre><code>Bad:      t += dt;     // Compensate for the time skew.
+Good:     t += dt;     // compensate for time skew
+</code></pre>
+</li>
+</ul>
+<h2 id="file-comments"><a href="#file-comments">4.3 File comments</a></h2>
+<ul>
+<li><strong>FC1</strong> Comments at the beginning of source code may contain a brief
+description of the file if not evident.
+Ordinary comment rules apply.
+If copyright and license statements are required, they should also be added to
+the top comment section.</li>
+<li><strong>FC2</strong> Other than this, keep file comments to an absolute minimum, in
+accordance with the general comment principles above.</li>
+</ul>
+
+<div class="chain">
+<a href="general-syntax.html">3 General syntax</a>
+<a href="naming.html">5 Naming</a>
+</div>

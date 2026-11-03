@@ -1,0 +1,92 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>virtiofs_fuse</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-virtio_pcie_net.html">virtio_pcie_net</a>
+<a href="rm-class-vmcom.html">vmcom</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="virtiofs_fuse"><a href="#virtiofs_fuse">virtiofs_fuse</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A device that expects FUSE requests and will reply with FUSE responses.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, virtiofs_fuse
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-virtiofs_fuse.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-virtiofs_fuse.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:daemon_log_file"><a href="#dt:daemon_log_file">
+<i>daemon_log_file</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Enable logs for the FUSE daemon and specify the output file for the logs</dd>
+<dt id="dt:share"><a href="#dt:share">
+<i>share</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Directory on the host to share with the simulated target or unix domain socket file created by virtiofs daemon</dd>
+<dt id="dt:connection_established"><a href="#dt:connection_established">
+<i>connection_established</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>b</code>
+<br>True if connection has been established to FUSE daemon</dd>
+<dt id="dt:daemon_pid"><a href="#dt:daemon_pid">
+<i>daemon_pid</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>True if connection has been established to FUSE daemon</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.virtiofs-fuse.html">virtiofs-fuse</a>
+</section>
+<div class="chain">
+<a href="rm-class-virtio_pcie_net.html">virtio_pcie_net</a>
+<a href="rm-class-vmcom.html">vmcom</a>
+</div>

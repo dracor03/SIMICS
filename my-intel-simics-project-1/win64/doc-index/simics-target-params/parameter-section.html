@@ -1,0 +1,123 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 Parameter Section</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="semantics.html">2 Semantics</a>
+<a href="evaluation-order.html">4 Runtime Evaluation Order</a>
+</div>
+<div class="path">
+<a href="index.html">Target Parameters Reference</a>
+&nbsp;/&nbsp;</div><h1 id="parameter-section"><a href="#parameter-section">3 Parameter Section</a></h1>
+<p>At the top level, the parameter section must be a YAML mapping.
+The script parameter framework define the following keys at the top level:</p>
+<ul>
+<li><code>params</code> - whose value must be a mapping.
+This defines the tree of parameter definitions available in the script.
+The keys in the mapping are the parameter names and the values are parameter definitions.
+See Section <a class="reference" href="#parameter-tree-nodes">3.1</a> for the format of each parameter definition.</li>
+<li><code>args</code> - whose value must be a mapping.
+This defines the tree of arguments (parameter default values) used when the script is run.
+A script that only has an <code>args</code>, no <code>params</code> section (either directly or via imports from other scripts) and no code, is known as a <em>preset</em>.
+See Section <a class="reference" href="#argument-specifications">3.2</a> for the format arguments.</li>
+<li><code>description</code> - the description of the script, shown by help, when listing parameters, GUI views, and other user interfaces.</li>
+<li><code>target</code> - the file name of the script where parameter definitions and script code are taken from when the current script is run.
+This is typically used in presets.
+If this key is provided, then it is illegal to also have associated code for the current script.
+Note that the referred script can also be a preset.</li>
+<li><code>script</code> - the file name of the associated code for the current script, that is run after any mentioned blueprints are instantiated.
+If this key is provided, it is illegal to also have code inlined in the same file or as a YAML string.</li>
+<li><code>cmd</code> - code given as a YAML string.
+If this key is provided, it is illegal to also have code inlined in the same file or to also specify the <code>script</code> key.</li>
+<li><code>pre-init</code> - the file name of associated pre-instantiation code for the current script, that is run before any mentioned blueprints are expanded.</li>
+<li><code>code-type</code> - the type of the associated code.
+The allowed values are <code>simics</code> for Simics CLI scripts, or <code>py</code> for Python code.
+This key defaults to <code>simics</code> if the file has extension <code>.simics</code> or <code>.include</code> and it defaults to <code>py</code> if the file has extension <code>.py</code> or <code>.yml</code>.
+Otherwise this key is mandatory if the script has associated code.</li>
+</ul>
+<p>Typically one either has a <code>params</code> section and associated code, either inlined or in a separate file referenced by the <code>script</code> key, or one has an <code>args</code> section and reference another script via the <code>target</code> key.</p>
+<p>Note that one can have a <code>params</code> section when the <code>target</code> key is specified, but those parameters cannot be used by the script since it has no code.
+However they can be used by scripts that include the current script.
+It is illegal to have a parameter in <code>params</code> that is also present in the script specified by <code>target</code>.</p>
+<h2 id="parameter-tree-nodes"><a href="#parameter-tree-nodes">3.1 Parameter Tree Nodes</a></h2>
+<p>Each parameter definition must be a YAML mapping.
+It either defines an inner node (a namespace) in the parameter tree, or an actual parameter.</p>
+<p>Parameters are defined by including the <code>type</code> key.
+In that case the following keys are defined:</p>
+<ul>
+<li><code>type</code> - the type of values this parameter accepts.
+The allowed types are:
+<ol>
+<li><code>str</code> - for string values.</li>
+<li><code>int</code> - for unbounded integer values.</li>
+<li><code>float</code> - for floating point values.</li>
+<li><code>bool</code> - for boolean values.</li>
+<li><code>i8</code>, <code>u8</code> up to <code>i256</code>, <code>u256</code> - for integers values with specified bit size.</li>
+<li><code>list</code> or <code>list[&lt;type&gt;]</code> - for list values, optionally specifying the element type (which can itself be a list type).</li>
+<li><code>file</code> - for file names.
+These are string values where <code>%simics%</code> and <code>%script%</code> are evaluated in the usual manner.
+The files must exist when the target is run.</li>
+</ol>
+</li>
+<li><code>required</code> - specifies if the parameter must have an assigned value when the script is run.
+The default is <code>true</code>.</li>
+<li><code>default</code> - the parameter default value.
+See Section <a class="reference" href="evaluation-order.html">4</a> for how arguments are set.
+The default is to have no default value, resulting in an unassigned parameter.</li>
+<li><code>description</code> - a description of the parameter.</li>
+<li><code>values</code> - a list of allowed parameter values.
+If this key is included, it is illegal to set the parameter to a value not in this list.</li>
+<li><code>output</code> - specifies if the parameter is an output parameter, default is <code>false</code>.
+Output parameters are meant to denote computed values that are defined as parameters for convenience.
+They are not included in the output of <code>params.save</code>.</li>
+<li><code>advanced</code> - specifies the advanced level of the parameter.
+The default is 1.
+Specifying a higher level results in the parameter being hidden by default when using <code>params.help</code> and similar places.</li>
+<li><code>allow_empty</code> - specifies that <code>NIL</code> is a valid value of the parameter, default is <code>false</code>.</li>
+</ul>
+<p>An inner node may be an <em>import node</em>, defined by having the <code>import</code> key, or a <em>blueprint import node</em>, defined by having the <code>blueprint</code> key.
+In the import case the following keys are defined:</p>
+<ul>
+<li><code>import</code> - the file name where parameters should be imported from.</li>
+<li><code>provides</code> - whose value must be a list.
+The list must contain names of imported parameters, and it specifies that these parameters are not required when running the current script, whether or not they were required in the imported script.
+This is typically used when the current script sets default values of the parameters before running the imported script.</li>
+<li><code>defaults</code> - whose value must be a mapping.
+The format of the mapping is the same as the <code>args</code> mapping: the keys must be names of imported parameters and the values are the new default values, overriding the defaults specified in the imported scripts.</li>
+</ul>
+<p>In the blueprint import case, the following keys are defined:</p>
+<ul>
+<li><code>blueprint</code> - the name of the blueprint whose parameters should be imported.
+This must be the name specified in the <code>blueprint</code> Python decorator.</li>
+<li><code>module</code> - the Python module where the blueprint is defined.
+It must be possible to import this module.</li>
+<li><code>namespace</code> - the top level namespace name that should be used when expanding the blueprint.
+This can reference the value of a sibling parameter to the blueprint import node, by having the prefix <code>^</code>.</li>
+<li><code>defaults</code> - whose value must be a mapping.
+The format of the mapping is the same as the <code>args</code> mapping: the keys must be names of imported parameters and the values are the new default values, overriding the defaults specified in the blueprint.</li>
+</ul>
+<p>Every blueprint that is imported is put on the list of blueprints that is expanded between the pre-instantiation code and regular script code is run.</p>
+<p>If neither the <code>import</code>, <code>blueprint</code> nor the <code>type</code> key are specified, then the parameter definition is a regular inner node in the parameter tree, and its keys are parameter names whose values must be parameter definitions, as defined above.</p>
+<h3 id="array-parameters"><a href="#array-parameters">3.1.1 Array Parameters</a></h3>
+<p>Import nodes in the parameter tree may be of array type, whose size depends on another parameter, which must be a required parameter of integer type.
+An array node is specified by having a node name of the form <code>&lt;name&gt;[&lt;size&gt;]</code>.</p>
+<p>At run-time, assuming the <code>&lt;size&gt;</code> parameter is assigned <code>&lt;value&gt;</code>, the argument tree will contain nodes <code>&lt;name&gt;[0]</code>, <code>&lt;name&gt;[1]</code>, …, <code>&lt;name&gt;[&lt;value&gt;-1]</code>.</p>
+<h2 id="argument-specifications"><a href="#argument-specifications">3.2 Argument Specifications</a></h2>
+<p>The argument tree specified by <code>args</code> must match the tree of parameters: the keys are parameter names or names of inner nodes, and the values are the (default) values, or a mapping in the case of inner nodes.</p>
+<p>At any node in the argument tree, one can import an argument tree from another script.
+This is specified by having the <code>import</code>, whose value must be the file name where arguments should be imported from.
+Additional arguments can be specified in the same mapping as the import.</p>
+<h2 id="parameter-references"><a href="#parameter-references">3.3 Parameter References</a></h2>
+<p>Any parameter can be turned into a reference to another parameter, by specifying a parameter name prefixed with <code>^</code> as the parameter value.
+This is primarily useful when parameters in different sub-scripts should have the same value, and copying the values using <code>params.setdefault</code> is impractical.</p>
+<p>Only parameters in the same script can be referenced, specified from the root of the script, using <code>:</code> as separator when referring to nested parameters.
+Reading from a reference has the same effect as reading from the referred parameter.</p>
+<p>It is illegal to set a parameter default to be a reference to an unassigned parameter, unless this is done using <code>params.setdefault</code>, in which case it is illegal to read from the reference until the referred parameter is assigned.</p>
+
+<div class="chain">
+<a href="semantics.html">2 Semantics</a>
+<a href="evaluation-order.html">4 Runtime Evaluation Order</a>
+</div>

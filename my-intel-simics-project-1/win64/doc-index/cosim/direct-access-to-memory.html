@@ -1,0 +1,28 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 Direct Access to Memory</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simulation-scheduling.html">2 Simulation Scheduling</a>
+<a href="controlling-and-inspecting-processor-state.html">4 Controlling and Inspecting Processor State</a>
+</div>
+<div class="path">
+<a href="index.html">Processor Model Integration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="direct-access-to-memory"><a href="#direct-access-to-memory">3 Direct Access to Memory</a></h1>
+<p>The processor API includes support for caching pointers to simulated memory so that the model can perform accesses directly instead of having to use the API for every individual access.</p>
+<p>This chapter lists the interfaces used to setup and handle direct access to memory.</p>
+<p>The <code>direct_memory_lookup</code> and <code>direct_memory</code> interfaces replace the <code>memory_page</code> interface of Simics 4.8.</p>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_lookup_interface_t"><code>direct_memory_lookup</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_interface_t"><code>direct_memory</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_flush_interface_t"><code>direct_memory_flush</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_update_interface_t"><code>direct_memory_update</code></a></li>
+</ul>
+
+<div class="chain">
+<a href="simulation-scheduling.html">2 Simulation Scheduling</a>
+<a href="controlling-and-inspecting-processor-state.html">4 Controlling and Inspecting Processor State</a>
+</div>

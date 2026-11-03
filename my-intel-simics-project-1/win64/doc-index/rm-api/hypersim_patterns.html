@@ -1,0 +1,73 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>hypersim_patterns</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="update_checkpoint.html">update_checkpoint</a>
+<a href="flash_memory.html">flash_memory</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="hypersim_patterns"><a href="#hypersim_patterns">hypersim_patterns</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>hypersim_patterns</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import hypersim_patterns
+</code></pre>
+</section>
+<h2 id="hypersim_patterns.add"><a href="#hypersim_patterns.add">hypersim_patterns.add</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>hypersim_patterns.add(
+    name,
+    arch,
+    target_list=None,
+    own_info_cmd=False,
+    own_status_cmd=False
+)
+</code></pre>
+<h2>Description</h2>
+<p>Registers a hypersim-pattern.</p>
+<p>The simics_start.py script for all pattern modules should call this function to register its pattern classes. The patterns will be automatically installed on the processor types it supports.</p>
+<dl>
+<dt id="dt:function-arguments-name"><a href="#dt:function-arguments-name">Function arguments: <code>name</code></a></dt>
+<dd>class name</dd>
+<dt id="dt:arch"><a href="#dt:arch"><code>arch</code></a></dt>
+<dd>architecture it supports (cpu-&gt;architecture ppc32, ppc64)</dd>
+<dt id="dt:target_list"><a href="#dt:target_list"><code>target_list</code></a></dt>
+<dd>optional list of classnames that are supported. If target_list is omitted or None, the pattern will be used by all CPUs of <code>arch</code> architecture.</dd>
+<dt id="dt:own_info_cmd"><a href="#dt:own_info_cmd"><code>own_info_cmd</code></a></dt>
+<dd>Legacy parameter, must always be overridden to True</dd>
+<dt id="dt:own_status_cmd"><a href="#dt:own_status_cmd"><code>own_status_cmd</code></a></dt>
+<dd>Legacy parameter, must always be overridden to True</dd>
+</dl>
+</section>
+<h2 id="hypersim_patterns.register_std_info_command"><a href="#hypersim_patterns.register_std_info_command">hypersim_patterns.register_std_info_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>hypersim_patterns.register_std_info_command(cls)
+</code></pre>
+<h2>Description</h2>
+<p>Registers standard info command.</p>
+<p>Register a basic info command implementation for the hypersim pattern class named <code>cls</code>.</p>
+</section>
+<h2 id="hypersim_patterns.register_std_status_command"><a href="#hypersim_patterns.register_std_status_command">hypersim_patterns.register_std_status_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>hypersim_patterns.register_std_status_command(cls)
+</code></pre>
+<h2>Description</h2>
+<p>Registers standard status command.</p>
+<p>Register a basic status command implementation for the hypersim pattern class named <code>cls</code>.</p>
+</section>
+<div class="chain">
+<a href="update_checkpoint.html">update_checkpoint</a>
+<a href="flash_memory.html">flash_memory</a>
+</div>

@@ -1,0 +1,194 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>io-apic</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-interrupt_to_signal.html">interrupt_to_signal</a>
+<a href="rm-class-leader.html">leader</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="io-apic"><a href="#io-apic">io-apic</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The IOAPIC device implements the functionality of the Intel® 82093AA I/O-APIC. The IOAPIC is connected to an APIC-bus.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, ioapic
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-reset"><a href="#dt:port-reset">port.RESET</a></dt>
+<dd>
+<a href="rm-class-io-apic.html#io-apic.RESET">io-apic.RESET</a>
+ – Reset pin.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-io-apic.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-io-apic.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:apic_bus"><a href="#dt:apic_bus">
+<i>apic_bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connected bus object of class <tt>apic-bus</tt>.</dd>
+<dt id="dt:mem_msi"><a href="#dt:mem_msi">
+<i>mem_msi</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Object implementing io_memory interface which will receive MSI signals. If not set apic-bus will be used</dd>
+<dt id="dt:ioapic_id"><a href="#dt:ioapic_id">
+<i>ioapic_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The ID of this io-apic object.</dd>
+<dt id="dt:ibdf_def_value"><a href="#dt:ibdf_def_value">
+<i>ibdf_def_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Default value of the IBDF register used if lpc isn't connected</dd>
+<dt id="dt:register_select"><a href="#dt:register_select">
+<i>register_select</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Register selected for reading/writing (will affect the next transaction).</dd>
+<dt id="dt:redirection"><a href="#dt:redirection">
+<i>redirection</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Represents the redirection table, where each interrupt input signal has a dedicated entry.</dd>
+<dt id="dt:pin_raised"><a href="#dt:pin_raised">
+<i>pin_raised</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>A one in the corresponding index means that the input pin is high, while a zero means that it is low.</dd>
+<dt id="dt:int_deliver_status"><a href="#dt:int_deliver_status">
+<i>int_deliver_status</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>Interrupt acceptance status.</dd>
+<dt id="dt:edid_size"><a href="#dt:edid_size">
+<i>edid_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>RW part of EDID field in redirection entry. Writable EDID is [48 + edid_size - 1 : 48]. Zero means no EDID.</dd>
+<dt id="dt:ioapic_version"><a href="#dt:ioapic_version">
+<i>ioapic_version</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>I/O apic implementation version (Indirect register 1).</dd>
+<dt id="dt:ioapic_version_once_ref"><a href="#dt:ioapic_version_once_ref">
+<i>ioapic_version_once_ref</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Initialize to 0 to enable RWO behavior on the IOAPIC version register. Otherwise (the default) the register is read-only. Allowed values are: 0=RWO not yet written, 1=RWO written, 2=always read-only.</dd>
+<dt id="dt:redirection_vector_read_only"><a href="#dt:redirection_vector_read_only">
+<i>redirection_vector_read_only</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to True if interrupt vectors in redirection table should be read-only</dd>
+<dt id="dt:boot_configuration"><a href="#dt:boot_configuration">
+<i>boot_configuration</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>BCFG register (Indirect register 3).</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.io-apic.html">io-apic</a>
+</section>
+<h2 id="io-apic.RESET"><a href="#io-apic.RESET">io-apic.RESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+Reset pin.
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-interrupt_to_signal.html">interrupt_to_signal</a>
+<a href="rm-class-leader.html">leader</a>
+</div>

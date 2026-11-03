@@ -1,0 +1,82 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>10 Migration Guide SystemC Kernel</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="building-required-libraries.html">9 Building Required Libraries</a>
+</div>
+<div class="path">
+<a href="index.html">SystemC* Library</a>
+&nbsp;/&nbsp;</div><h1 id="migration-guide-systemc-kernel"><a href="#migration-guide-systemc-kernel">10 Migration Guide SystemC Kernel</a></h1>
+<h2 id="migrate-from-2-3-1-to-2-3-3"><a href="#migrate-from-2-3-1-to-2-3-3">10.1 Migrate from 2.3.1 to 2.3.3</a></h2>
+<p>From a device model’s point of view there are only a few incompatible changes
+between SystemC 2.3.1 and 2.3.3 to consider. Migration should thus be
+straightforward and trivial. If the model has dependencies on 3rd party IP,
+additional changes may be required. Please contact the IP provider for details.</p>
+<p>Here is the list of known changes that can cause problems when migrating from
+2.3.1 to 2.3.3. See the Accellera kernel <code>RELEASENOTES</code> for more details and
+full list of changes:</p>
+<ul>
+<li>The non-standard functions `interface_count` and `if_typename` in
+sc_port_base have been marked as private.</li>
+<li>The non-standard, 32-bit implementation of sc_(u)int has been removed.</li>
+<li>The non-standard macros WAIT, WAITN and WAIT_UNTIL have been renamed to
+SC_WAIT, SC_WAITN, SC_WAIT_UNTIL.</li>
+<li>The non-standard macros SCAST, CCAST, RCAST have been removed.</li>
+<li>The implicit inclusions of the system-headers “cstring” and “sstream” have
+been removed.</li>
+<li>Detection and assert of invalid instantiation of an sc_export outside of an
+sc_module.</li>
+<li>Detection and assert of invalid immediate notification of events during
+elaboration.</li>
+<li>Wait on empty event list not allowed. Add an explicit check before invoking
+<code>wait()</code> or <code>next_trigger()</code>.</li>
+</ul>
+<h2 id="migrate-from-2-3-3-to-2-3-4"><a href="#migrate-from-2-3-3-to-2-3-4">10.2 Migrate from 2.3.3 to 2.3.4</a></h2>
+<p>In addition to the changes listed in the Accellera kernel <code>RELEASENOTES</code>, there
+is an incompatible change in the <code>tlm::tlm_base_socket_if</code> interface. In SystemC
+2.3.3, the interface is defined as follows:</p>
+<pre><code>class tlm_base_socket_if {
+ public:
+  virtual sc_core::sc_port_base &amp;         get_port_base() = 0;
+  virtual sc_core::sc_port_base const &amp;   get_port_base() const = 0;
+  virtual sc_core::sc_export_base &amp;       get_export_base() = 0;
+  virtual sc_core::sc_export_base const &amp; get_export_base() const = 0;
+  ...
+};
+</code></pre>
+<p>In SystemC 2.3.4, these methods have been renamed:</p>
+<pre><code>class tlm_base_socket_if {
+ public:
+  virtual sc_core::sc_port_base &amp;         get_base_port() = 0;
+  virtual sc_core::sc_port_base const &amp;   get_base_port() const = 0;
+  virtual sc_core::sc_export_base &amp;       get_base_export() = 0;
+  virtual sc_core::sc_export_base const &amp; get_base_export() const = 0;
+  ...
+};
+</code></pre>
+<p>If your integrated SystemC IP explicitly uses these methods from
+<code>tlm::tlm_base_socket_if</code>, you will need to update the method names accordingly.</p>
+<h2 id="migrate-from-2-3-4-to-3-0-0"><a href="#migrate-from-2-3-4-to-3-0-0">10.3 Migrate from 2.3.4 to 3.0.0</a></h2>
+<p>SystemC 3.0.0 introduces new features and API changes to align with IEEE Std.
+1666-2023. For detailed information, refer to Chapter 3 “New Features” in the
+Accellera kernel <code>RELEASENOTES.md</code>.</p>
+<p>IEEE Std. 1666-2023 mandates C++17 as the baseline for SystemC implementations.
+Ensure that your SystemC IP is compatible with a compiler that supports the
+C++17 language standard.</p>
+<p>Below is a list of known changes that may cause issues when migrating from 2.3.4
+to 3.0.0:</p>
+<ul>
+<li>The macro <code>SC_HAS_PROCESS</code> is not required anymore and has been deprecated</li>
+<li>The constructor <code>sc_time(double, bool)</code> has been deprecated</li>
+<li>The constructor <code>sc_time(uint64, bool)</code> has been deprecated</li>
+<li>The function <code>sc_set_default_time_unit</code> has been deprecated</li>
+<li>The function <code>sc_get_default_time_unit</code> has been deprecated</li>
+</ul>
+
+<div class="chain">
+<a href="building-required-libraries.html">9 Building Required Libraries</a>
+</div>

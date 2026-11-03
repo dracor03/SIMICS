@@ -1,0 +1,71 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.2 Ethernet VLAN Switch</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="ethernet-links.html">2.1 Ethernet Links</a>
+<a href="link-object-timing.html">2.3 Link Object Timing</a>
+</div>
+<div class="path">
+<a href="index.html">Ethernet Networking Technology Guide</a>
+&nbsp;/&nbsp;
+<a href="simicsnet.html">2 Network Simulation</a>
+&nbsp;/&nbsp;</div><h1 id="ethernet-vlan-switch"><a href="#ethernet-vlan-switch">2.2 Ethernet VLAN Switch</a></h1>
+<p>The <code>ethernet_switch</code> described in the previous section complains if it receives
+frames tagged with VLAN information. For VLAN the <code>eth-links</code> provides an IEEE
+802.1Q VLAN aware switch: <code>ethernet_vlan_switch</code>.</p>
+<blockquote class="markdown-alert-note">
+<p>This section assumes you know what VLAN is. It only shows how to configure and
+use the ethernet_vlan_switch.</p>
+</blockquote>
+<p>The VLAN switch has the same functionality as the basic Ethernet switch, but the
+interface is different to handle the added complexity of VLAN. You need to add
+VLAN groups to the switch before you can connect Ethernet devices to it. Each
+VLAN group has its own set of connectors.</p>
+<p>The VLAN switch is created in the same way as the other Ethernet link
+components:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module eth-links</strong>
+simics&gt; <strong>create-ethernet-vlan-switch evs</strong>
+Created non-instantiated 'ethernet_vlan_switch' component 'evs'
+</code></pre>
+<p>Once the link has been created you need to add VLAN groups to it:</p>
+<pre><code class="language-simics">simics&gt; <strong>evs.add-vlan 1</strong>
+</code></pre>
+<p>Each VLAN group adds two kinds of connectors: vlan_<em>X</em>_dev<em>Y</em> and
+vlan_<em>X</em>_trunk_dev<em>Y</em>, where <em>X</em> is the VLAN group id and <em>Y</em> is an
+identifier for the connector. When a connector of one kind is used the switch
+automatically creates a new empty connector of the same kind with a new
+identifier.</p>
+<p>Use the vlan_<em>X</em>_dev<em>Y</em> connectors to connect devices which do not expect or
+add VLAN tags. For example, to connect the first network port of the <code>QSP-x86</code>
+machine created by the <code>firststeps-multi.simics</code> script:</p>
+<pre><code class="language-simics">simics&gt; <strong>connect board0.mb.sb.eth_slot evs.vlan_1_dev0</strong>
+</code></pre>
+<p>Frames sent from the switch on these connections will not have any VLAN tags and
+the switch will generate a warning if it receives a tagged frame on such a
+connection.</p>
+<p>Each VLAN group also has trunk connectors. On these connections the switch will
+parse frames sent to the switch to find which VLAN group they should be sent to
+and the switch will ensure that outgoing frames are tagged with the correct VLAN
+group.</p>
+<p>To avoid having to keep track of the connector identifiers you can use
+<code>get-free-connector</code> to get an available non-trunk connector for a VLAN group:</p>
+<pre><code class="language-simics">simics&gt; <strong>evs.get-free-connector 1</strong>
+"evs.vlan_1_dev1"
+simics&gt; <strong>connect board1.mb.sb.eth_slot (evs.get-free-connector 1)</strong>
+simics&gt; <strong>evs.get-free-connector 1</strong>
+"evs.vlan_1_dev2"
+</code></pre>
+<p>and <code>get-free-trunk-connector</code> to get an available trunk connector for a VLAN
+group:</p>
+<pre><code class="language-simics">simics&gt; <strong>evs.get-free-trunk-connector 1</strong>
+"evs.vlan_1_trunk_dev0"
+</code></pre>
+
+<div class="chain">
+<a href="ethernet-links.html">2.1 Ethernet Links</a>
+<a href="link-object-timing.html">2.3 Link Object Timing</a>
+</div>

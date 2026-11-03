@@ -1,0 +1,235 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8.5 Writing Custom Scripts</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="snapshots.html">8.4 Snapshots (in-memory)</a>
+<a href="virtual-disks.html">8.6 Virtual disks</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;
+<a href="tutorials.html">8 Tutorials</a>
+&nbsp;/&nbsp;</div><h1 id="writing-custom-scripts"><a href="#writing-custom-scripts">8.5 Writing Custom Scripts</a></h1>
+<p>In addition to interactive use, the Intel Simics simulator can also run scripts
+with <em>CLI commands</em> and/or <em>Python code</em>. This section provides some examples on
+how to write custom scripts and run them.</p>
+<p>When the situation occurs that the same commands have to be repeated, it is
+recommended to instead put these in a script.</p>
+<h2 id="create-and-run-a-script"><a href="#create-and-run-a-script">8.5.1 Create and Run a Script</a></h2>
+<p>Here we describe how to create and run a simple script.
+We will create a script in the project directory and run it.</p>
+<h3 id="create-the-script"><a href="#create-the-script">8.5.1.1 Create the script</a></h3>
+<p>Open an editor, and copy/paste/save the below lines to <code>first.simics</code> in the
+project folder.</p>
+<pre><code>echo "Script is running"
+</code></pre>
+<h3 id="run-the-script"><a href="#run-the-script">8.5.1.2 Run the script</a></h3>
+<p>This can be done in two ways:</p>
+<ul>
+<li>
+<p>Launch the simulator with the script (using <code>-q</code> to get less output).</p>
+<ul>
+<li>
+<p><em>On Windows</em></p>
+<pre><code class="language-shell">c:\simics\project&gt;simics.bat -q first.simics
+Script is running
+simics&gt;
+</code></pre>
+</li>
+<li>
+<p><em>On Linux</em></p>
+<pre><code class="language-shell">project&gt;./simics -q first.simics
+Script is running
+simics&gt;
+</code></pre>
+</li>
+</ul>
+<p>With the <code>--batch-mode</code> launch option, the simulator will exit after running the
+script (example on Linux).</p>
+<pre><code class="language-shell">project&gt;./simics -q --batch-mode first.simics
+Script is running
+project&gt;
+</code></pre>
+</li>
+<li>
+<p>From simulator CLI:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script first.simics</strong>
+Script is running
+</code></pre>
+</li>
+</ul>
+<h2 id="cli-script"><a href="#cli-script">8.5.2 CLI Script</a></h2>
+<p>Let’s say we repeatedly input the following lines on the CLI:</p>
+<pre><code>$target = "qsp-x86/firststeps"
+$run_time = 0.2
+
+echo "Load the target " + $target + " and run " + $run_time + " seconds"
+load-target "qsp-x86/firststeps"
+run-seconds $run_time
+ptime
+</code></pre>
+<p>To speed up the turnaround time, we can put these lines in a script, and run
+this script.</p>
+<ol>
+<li>
+<p>Create the script <code>run-target.simics</code> with the above commands, in the project
+folder.</p>
+</li>
+<li>
+<p><a href="#run-the-script">Run</a> the script <code>run-target.simics</code> and verify that the
+output from the last command, <code>ptime</code> is:</p>
+<pre><code class="language-simics">Load the target qsp-x86/firststeps and run 0.2 seconds
+┌────────────────────────┬─────────┬─────────┬────────┐
+│       Processor        │  Steps  │ Cycles  │Time (s)│
+├────────────────────────┼─────────┼─────────┼────────┤
+│board.mb.cpu0.core[0][0]│387346147│400000000│   0.200│
+└────────────────────────┴─────────┴─────────┴────────┘
+</code></pre>
+</li>
+</ol>
+<h2 id="python-calling-cli-commands"><a href="#python-calling-cli-commands">8.5.3 Python calling CLI commands</a></h2>
+<p>This is an example of a Python script which does essentially the same thing as
+<a href="#cli-script">CLI Script</a> example, and shows different ways of calling CLI
+commands from Python.</p>
+<ol>
+<li>
+<p>Create the script <code>run-target.py</code> with the below contents:</p>
+<pre><code>import cli
+import simics
+
+target = "qsp-x86/firststeps"
+run_time = 0.2
+
+cli.run_command(f'echo "Load the target {target} and run {run_time} seconds"')
+simics.SIM_load_target(target, None, [], [])
+cli.global_cmds.run_seconds(seconds=run_time)
+cpu = cli.current_cpu_obj()  # get the current CPU object
+print(cpu.cli_cmds.ptime())
+</code></pre>
+</li>
+</ol>
+<p>The target is loaded by calling the simulator API function
+<code>simics.SIM_load_target</code> which corresponds to what is done with the
+<code>load-target</code> command.</p>
+<ol>
+<li>
+<p><a href="#run-the-script">Run</a> the script <code>run-target.py</code> and verify that the output
+is:</p>
+<pre><code class="language-simics">Load the target qsp-x86/firststeps and run 0.2 seconds
+[[&lt;the x86QSP3 'board.mb.cpu0.core[0][0]'&gt;, 387346147, 400000000, 0.2]]
+</code></pre>
+<p>Note that the return value of <code>ptime</code> is printed.</p>
+</li>
+</ol>
+<p>In <code>run-target.py</code> two ways of running CLI commands from Python are
+demonstrated:</p>
+<ul>
+<li>
+<p><em>Using <code>cli.run_command</code></em></p>
+</li>
+<li>
+<p><em>Using Python functions that wrap CLI commands</em> These functions have
+underscore (<code>_</code>) where the command has dashes (<code>-</code>). Also, the name space
+location depends on if the command is <em>global</em> or if it is accessed from an
+<em>object</em>:</p>
+<ul>
+<li>
+<p><em>global commands</em> - Global commands are named <code>cli.global_cmds.*</code>, for
+example <code>cli.global_cmds.run_seconds(seconds=run_time)</code>.</p>
+</li>
+<li>
+<p><em>object commands</em> - Object commands are named <code>&lt;object&gt;.cli_cmds.*</code>, for
+example <code>cpu.cli_cmds.ptime()</code>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>The <em>function arguments</em> are documented with the Python help system.
+Note that the function arguments can be different from the command arguments.
+For the full command documentation, use the CLI <code>help</code> command.</p>
+<p>Examples of viewing help text for the <code>board.log-group</code> command:</p>
+<ul>
+<li>
+<p>Get the full command documentation.</p>
+<pre><code class="language-simics">simics&gt; <strong>help board.log-group</strong>
+Command &lt;conf_object&gt;.log-group
+
+   Synopsis
+      &lt;conf_object&gt;.log-group [-enable|-disable] ["log-group"] [-r]
+      log-group [object] [-enable|-disable] ["log-group"] [-r]
+
+   Description
+      Enable (-enable) or disable (-disable) a log-group, or show whether it is
+...
+</code></pre>
+</li>
+<li>
+<p>Get the Python function arguments.</p>
+<pre><code class="language-simics">simics&gt; <strong>@help(conf.board.cli_cmds.log_group)</strong>
+Help on function log_group in module cli_impl:
+
+log_group(*args, **kw)
+    Function to run the '&lt;conf_object&gt;.log-group' command.
+    No positional parameters are accepted.
+    The following keyword-only parameter(s) are accepted:
+    - _enable: optional, flag, default value - (flag_t, 0, None)
+    - _disable: optional, flag, default value - (flag_t, 0, None)
+    - log_group: optional, string, default value - None
+    - _r: optional, flag, default value - False...
+</code></pre>
+</li>
+</ul>
+<p>Note in the above example:</p>
+<ul>
+<li>The object <code>board</code> is accessed from Python using <code>conf.board</code>.</li>
+<li>The CLI command name <code>log-group</code> has the corresponding function named
+<code>log_group</code> (with underscore).</li>
+</ul>
+<h2 id="cli-script-mixed-with-python"><a href="#cli-script-mixed-with-python">8.5.4 CLI Script mixed with Python</a></h2>
+<p>Here follows another example script, which demonstrates scripting that combines
+CLI commands and Python:</p>
+<ol>
+<li>
+<p>Create the script <code>mix.simics</code> with the below contents:</p>
+<pre><code>@import cli
+@import conf
+@import simics
+
+@def log_cli_var(name):
+    print(f'Log the value of "{name}" from Python')
+    contents = cli.simenv[name]
+    simics.SIM_log_info(1, conf.sim, 0, f'{name} = {contents}')
+
+$a = 1
+@log_cli_var("a")
+@b = cli.simenv.a + 1
+expect ($a + 1) `b`
+</code></pre>
+<p>In the script the following is demonstrated:</p>
+<ol>
+<li>Calling Python code using <code>@</code>.</li>
+<li>Access <em>CLI variables</em> from Python using <code>cli.simenv</code>.</li>
+<li>Access <em>Python variables</em> from CLI using backticks (<code>`b`</code>).</li>
+<li>Using the simulator object <code>sim</code> from Python by prepending <code>conf.</code> to
+the object name (the <code>sim</code> object is always present).</li>
+<li>Calling of the simulator API function <code>simics.SIM_log_info</code>.</li>
+</ol>
+</li>
+<li>
+<p><a href="#run-the-script">Run</a> the script <code>mix.simics</code> and verify that the output is:</p>
+<pre><code class="language-simics">Log the value of "a" from Python
+[sim info] a = 1
+</code></pre>
+</li>
+</ol>
+<p>For further information about CLI, see the <a href="../simics-user-guide/script-support-in-simics.html">Simics User’s
+Guide</a>.</p>
+
+<div class="chain">
+<a href="snapshots.html">8.4 Snapshots (in-memory)</a>
+<a href="virtual-disks.html">8.6 Virtual disks</a>
+</div>

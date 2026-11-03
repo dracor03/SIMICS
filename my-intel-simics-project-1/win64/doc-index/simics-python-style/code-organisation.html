@@ -1,0 +1,42 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Code organisation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="layout-and-lexical-details.html">3 Layout and lexical details</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="code-organisation"><a href="#code-organisation">2 Code organisation</a></h1>
+<p>Avoid statements with side-effects (that is, ones that do not just declare
+functions or classes) at the top-level of a file.
+Instead, put all actual actions inside functions, and call them from a single
+place, usually near the bottom of the file.</p>
+<p>For free-standing programs, write something like:</p>
+<pre><code>def main():
+    ... code for the actual action here ...
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+<p>This way, the file can be imported as a module from other files without running
+anything.
+It can also be checked by <strong>pychecker</strong>, which is highly recommended.</p>
+<p>Use a separate line for each imported module:</p>
+<pre><code>import sys, os           # WRONG
+
+import sys               # RIGHT
+import os
+</code></pre>
+<p>This makes code diffs cleaner and reduces the risk for conflicts when merging
+changes.</p>
+<p>Use <code>import</code> instead of <code>execfile</code> to get code and definitions from other files.</p>
+
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="layout-and-lexical-details.html">3 Layout and lexical details</a>
+</div>

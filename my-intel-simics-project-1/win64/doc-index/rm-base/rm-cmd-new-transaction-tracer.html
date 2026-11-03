@@ -1,0 +1,65 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-transaction-tracer</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-tracer-tool.html">new-tracer-tool</a>
+<a href="rm-cmd-new-txt-console-comp.html">new-txt-console-comp</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-transaction-tracer"></a>
+<h1 id="new-transaction-tracer"><a href="#new-transaction-tracer">new-transaction-tracer</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-transaction-tracer</b> [<i>"name"</i>] [<i>file</i>] [-read] [-write] [-execute] [-inquiry] [<i>max-bytes</i>] ([ <i>filter-objects</i> ... ] | list of <i>filter-objects</i>) ([ <i>filter-initiators</i> ... ] | list of <i>filter-initiators</i>) [<i>"group"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Creates a new transaction tracer tool. The tool will trace all transactions initiated through the SIM_issue_transaction call. The tracer will show how the transaction is routed across the system until it reaches the transaction terminus.
+<p>
+The <tt>-read</tt>, <tt>-write</tt>, <tt>-execute</tt> flags can be set to only trace specific accesses. The <tt>-inquiry</tt> flag can be used to trace inquiry accesses as well. Every access is traced by default but with inquiry switched off.
+</p><p>
+For each access the following trace format will used: <tt>[Initiator] [recursion level] -&gt; (Map-Target-Type) Map-Target-Object [I] [Type] Size Data-Bytes</tt> Exception Atoms. The Initiator is the object that initiated the transaction from the beginning. "Unknown" is printed if the initiator cannot be identified. The Map-Target-Object is to which object the map target maps to.
+</p><p>
+The arrow indicates if the transaction is on its way to the map target (before context). An opposite left arrow is printed if the transaction is leaving the map target (after context).
+</p><p>
+I is displayed if the transaction is an inquiry access. Type will be either Execute, Read, or Write. Size is the size of the transaction in bytes and Data-Bytes is the raw content in bytes displayed in hexadecimal numbers, with little endian byte-order. Data bytes are only displayed for ram, port, io, and transaction map targets. For writes, data is written before the transaction is issued, and for reads/executes after the transaction has hit the destination object, otherwise the data in the transaction can be filled with garbage. When data is not displayed, "--" is written instead.
+</p><p>
+An exception code will be printed if an exception occurs during the termination of the transaction.
+</p><p>
+Atoms will contain the atoms used by the map target and are displayed after the map target is done. If the atom has a "!" character before the atom name, it means the map target tried to read the atom but it was not present in the transaction.
+</p><p>
+For each (recursively) mapped level in the memory hierarchy, the indentation level is adjusted with 3 spaces. This makes it easier to read the output.
+</p><p>
+A deferred transaction may cause indentation problems since it will be interrupted in the middle, and other transactions may run interleaved.
+</p><p>
+The <i>file</i> argument can be set to print to a file instead of standard out.
+</p><p>
+The <i>max-bytes</i> argument limits the number of data bytes printed per transaction. When the transaction data exceeds this limit, the output is truncated and "..." is appended. By default all bytes are printed.
+</p><p>
+The <i>filter-objects</i> argument takes one or more objects to filter on. Only transactions targeting those map target objects will be logged, other targets will not be seen even though transactions are passing through them. If no filter objects are given, all transactions are logged.
+</p><p>
+The <i>filter-initiators</i> argument takes one or more objects to filter on. Only transactions initiated by those objects will be logged. If no filter initiators are given, all initiators are logged. <br>
+<br>
+The optional <i>name</i> argument can be used to set a name of the created object. If no name is given, a default name <i>tt</i> followed by a sequence number is generated (<i>tt0</i>, <i>tt1</i>,...).<br>
+<br>
+The optional argument <i>group</i> lets a user specify a named instrumentation group to use for the connection. (See <code>add-instrumentation-group</code> for details on named groups.)
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.transaction-tracer.html">transaction-tracer</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-tracer-tool.html">new-tracer-tool</a>
+<a href="rm-cmd-new-txt-console-comp.html">new-txt-console-comp</a>
+</div>

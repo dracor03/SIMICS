@@ -1,0 +1,87 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Upstream Egress and Ingress templates</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="common.html">Common and Type 0 templates</a>
+<a href="bridge_combined.html">Bridge and Type 1 templates</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;
+<a href="dml-template-reference.html">DML template reference</a>
+&nbsp;/&nbsp;</div>
+<h1>Upstream Egress and Ingress templates</h1>
+<h2 id="pcie_upstream_ingress_handling"><a href="#pcie_upstream_ingress_handling">pcie_upstream_ingress_handling</a></h2>
+<p>Adds a port <code>upstream_ingress</code> that implements the <code>transaction_translator</code>
+interface. Port <code>upstream_ingress</code> receives all accesses before they
+take any effect.</p>
+<p>The <code>transaction_translator_interface_t</code> method <code>translate</code>
+in port <code>upstream_ingress</code> can be overridden
+to inspect/add/react to atoms in the transaction. When overridden, it is
+recommended that the default implementation is called, such that
+the transaction will flow onwards to the ultimate destination
+(unless, of course, this is not desired).</p>
+<h3 id="ingress_blockers"><a href="#ingress_blockers">ingress_blockers</a></h3>
+<p>The group <code>ingress_blockers</code> sits below the port <code>upstream_ingress</code>
+in the object hierarchy. It serves the purpose of conditionally block downstream transactions.
+Its method <code>is_blocked</code> iterates over all blockers in the group and blocks the transaction
+if any of them evaluate to true. The owner of a blocker is responsible for
+calling <code>SIM_translation_changed</code> on object <code>upstream_ingress.obj</code> when
+its blocking conditions change. This is to ensure that any cached translations
+in the system are discarded.</p>
+<p>Blockers in this group are added as DML subgroups and must inherit the <code>upstream_ingress_blocker</code>
+template. See the <code>upstream_ingress_blocker</code> template for more details.</p>
+<h2 id="upstream_ingress_blocker"><a href="#upstream_ingress_blocker">upstream_ingress_blocker</a></h2>
+<p>The <code>upstream_ingress_blocker</code> template is meant to be inherited
+by DML subgroups of the <code>ingress_blockers</code> group
+in the <code>pcie_upstream_ingress_handling</code> template.
+It requires the object to define method <code>block_transaction</code>.
+Method <code>block_transaction</code> will be checked for each downstream transaction
+to determine if the transaction can be forwarded.</p>
+<h4 id="parameters"><a href="#parameters">Parameters:</a></h4>
+<ul>
+<li><code>blocker_name</code> is used to identify the blocker in the logs when a transaction is blocked.</li>
+</ul>
+<h4 id="block_transaction-const-transaction_t-t-uint64-addr-access_t-access-bool"><a href="#block_transaction-const-transaction_t-t-uint64-addr-access_t-access-bool"><code>block_transaction(const transaction_t *t, uint64 addr, access_t access) -&gt; (bool)</code></a></h4>
+<p>This method is called for each downstream transaction.
+If it returns true, the transaction is blocked
+and will not be forwarded to the destination.
+If it returns false, the transaction will be allowed to proceed.</p>
+<h2 id="device_local_p2p"><a href="#device_local_p2p">device_local_p2p</a></h2>
+<p>Enables peer-to-peer (P2P) routing for multi-function and SR-IOV endpoint
+devices. When a function issues an upstream transaction (memory or
+ID-routed message), this template intercepts the transaction in the
+upstream egress path and checks whether its destination matches
+another function within the same device. If a match is found and
+<code>can_route_p2p</code> permits it, the transaction is redirected to the
+device’s own <code>upstream_ingress</code> port instead of being forwarded
+upstream, effectively implementing device-local peer-to-peer routing.</p>
+<p>The template supports matching against:</p>
+<ul>
+<li>Physical Function (PF) BARs and requester IDs</li>
+<li>Virtual Function (VF) BARs and requester IDs (when SR-IOV is enabled)</li>
+</ul>
+<p>For memory transactions, routing is based on BAR address ranges.
+For ID-routed messages, routing is based on device ID (BDF) matching.</p>
+<h4 id="overridable-methods"><a href="#overridable-methods">Overridable methods</a></h4>
+<ul>
+<li><code>can_route_p2p(uint16 src_rid, uint16 target_rid, transaction_t *t, uint64 addr) -&gt; (pcie_p2p_routing_decision_t, transaction_t *)</code>:
+Called when a P2P-routable transaction matches a local function.
+The meaning of the <code>pcie_p2p_routing_decision_t</code> return
+value is interpreted as follows: <code>PCIE_P2P_BLOCK</code> means the transaction
+shall not proceed at all, <code>PCIE_P2P_ROUTE_UPSTREAM</code> means it shall proceed
+upstream, and <code>PCIE_P2P_ROUTE_P2P</code> means it shall be routed peer-to-peer.
+Returns <code>(PCIE_P2P_ROUTE_UPSTREAM, t)</code> by default,
+meaning P2P routing must be explicitly enabled by overriding this method.
+The <code>src_rid</code> parameter is the requester ID of the originating function
+and <code>target_rid</code> is the device ID of the matched destination function.</li>
+</ul>
+
+<div class="chain">
+<a href="common.html">Common and Type 0 templates</a>
+<a href="bridge_combined.html">Bridge and Type 1 templates</a>
+</div>

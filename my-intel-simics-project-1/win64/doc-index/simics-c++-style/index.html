@@ -1,0 +1,292 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Style Guide for C++</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain"><a href="index.single-page.html" target=_blank>🖨️ Single Page</a></div>
+<div class="path"></div><h1 id="style-guide-for-c"><a href="#style-guide-for-c">Style Guide for C++</a></h1>
+<h2 id="introduction"><a href="#introduction">1 Introduction</a></h2>
+<p>This document outlines the C++ coding style guidelines for writing C++ code. Our style guide is based on the <a href="https://github.com/google/styleguide/blob/gh-pages/cppguide.html" rel="noopener noreferrer" target="_top">Google C++ Style Guide</a> up to Commit 8c4da23 on Sep 5 2024 with some modifications to better suit Simics modeling.</p>
+<h3 id="legal-disclaimer"><a href="#legal-disclaimer">1.1 Legal Disclaimer</a></h3>
+<p>The Google C++ Style Guide is the property of Google LLC and licensed under the CC-By 3.0 License. It is used as a reference and modified to create this document.</p>
+<p>Our reference to the Google C++ Style Guide does not imply endorsement of Google products or services. We do not suggest or recommend the use of any specific Google products, libraries, or tools mentioned in the original guide.</p>
+<h2 id="modifications"><a href="#modifications">2 Modifications</a></h2>
+<p>The following sections document the differences between our style guide and the Google C++ Style Guide. These modifications reflect Simics modeling’s specific requirements and preferences.</p>
+<h3 id="c-version"><a href="#c-version">2.1 C++ Version</a></h3>
+<p>In addition to the guidelines provided in the Google C++ Style Guide, we want to emphasize that the choice of the C++ version should follow the specific requirements of the product. For example, the <a href="../cc-device-api/index.html#minimal-requirements">C++ API requirements</a> lists the supported C++ standards of the Simics C++ API.</p>
+<h3 id="header-files"><a href="#header-files">2.2 Header Files</a></h3>
+<h4 id="the-define-guard"><a href="#the-define-guard">2.2.1 The #define Guard</a></h4>
+<ul>
+<li><strong>Google Style</strong>:
+<ul>
+<li>Do not use <code>#pragma once</code>; instead use the standard Google include guards.</li>
+<li>To guarantee uniqueness, they should be based on the full path in a project’s source tree. For example, the file <code>foo/src/bar/baz.h</code> in project foo should have the following guard:</li>
+</ul>
+</li>
+</ul>
+<pre><code>#ifndef FOO_BAR_BAZ_H_
+#define FOO_BAR_BAZ_H_
+
+...
+
+#endif  // FOO_BAR_BAZ_H_
+</code></pre>
+<ul>
+<li><strong>Simics Style</strong>:
+<ul>
+<li>Since Simics Model Builder depends on a <a href="../installation-guide/hardware-and-software-requirements.html">modern C++ compiler</a>, <code>#pragma once</code> is not a problem. This is the preferred choice due to its simplicity. Old style header guards are also allowed.</li>
+<li>At least one directory should be part of the guard name; in the above example, <code>BAR_BAZ_H</code> would be permitted but not just <code>BAZ_H</code>. The comment after the #endif is optional but must, if present, match the guard name used.</li>
+</ul>
+</li>
+</ul>
+<h4 id="names-and-order-of-includes"><a href="#names-and-order-of-includes">2.2.2 Names and Order of Includes</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+All of a project’s header files should be listed as descendants of the project’s source directory without use of UNIX directory aliases <code>.</code> (the current directory) or <code>..</code> (the parent directory).</p>
+</li>
+<li>
+<p><strong>Simics Style</strong>:
+For headers in the same directory as the including file, it is fine to use unqualified names (<code>#include "abc.h"</code>).</p>
+</li>
+</ul>
+<h3 id="scoping"><a href="#scoping">2.3 Scoping</a></h3>
+<h4 id="namespaces"><a href="#namespaces">2.3.1 Namespaces</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Namespaces should have unique names based on the project name, and possibly its path.</p>
+</li>
+<li>
+<p><strong>Simics Style</strong>:
+Use the <code>simics</code> namespace exclusively when developing or modifying a Simics product. Don’t use it in other contexts.</p>
+</li>
+</ul>
+<h3 id="google-specific-magic"><a href="#google-specific-magic">2.4 Google-Specific Magic</a></h3>
+<h4 id="cpplint"><a href="#cpplint">2.4.1 cpplint</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Use <code>cpplint.py</code> to detect style errors.</p>
+</li>
+<li>
+<p><strong>Simics Style</strong>:
+Because Simics includes modifications to the Google style guide, the following filters must be applied to run <code>cpplint.py</code>:</p>
+<ul>
+<li><code>-build/header_guard</code>, see <a href="#the-define-guard">The define Guard</a>;</li>
+<li><code>-build/include_subdir</code>, see <a href="#names-and-order-of-includes">Names and Order of Includes</a>;</li>
+<li><code>-whitespace/indent</code>, see <a href="#spaces-vs-tabs">Spaces vs. Tabs</a>.</li>
+</ul>
+</li>
+</ul>
+<h3 id="other-c-features"><a href="#other-c-features">2.5 Other C++ Features</a></h3>
+<h4 id="exceptions"><a href="#exceptions">2.5.1 Exceptions</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Do not use C++ exceptions. Because most existing C++ code at Google is not prepared to deal with exceptions.</p>
+</li>
+<li>
+<p><strong>Simics Style</strong>:
+Appropriate use of C++ exceptions is fine in Simics. For example, in the C++ API v2, exceptions are used to indicate an error when setting an attribute.</p>
+</li>
+</ul>
+<pre><code>void SampleAttributeClassMemberMethod::set_value(const int &amp;v) {
+    if (v &lt; 256) {
+        value = v;
+    } else {
+        throw std::runtime_error("Too large value");
+    }
+}
+</code></pre>
+<h4 id="preprocessor-macros"><a href="#preprocessor-macros">2.5.2 Preprocessor Macros</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Avoid defining macros, especially in headers; prefer inline functions, enums, and const variables. Name macros with a project-specific prefix. Do not use macros to define pieces of a C++ API.</p>
+</li>
+<li>
+<p><strong>Simics Style</strong>:
+Appropriately defined macros are fine in Simics. Some macros make it easier for users. For instance, <code>AFTER_CALL</code> simplifies calling an after statement by preventing repeated arguments and reducing errors.</p>
+<pre><code>AFTER_CALL(this, 2.0, &amp;SampleAfter::oneUint64ArgumentClassFunction,
+           obj(), one_uint64_);
+</code></pre>
+<p>Simple macros like <code>#define ONE 1</code> should be avoided and replaced by inline functions, enums, or const variables.</p>
+</li>
+</ul>
+<h3 id="naming"><a href="#naming">2.6 Naming</a></h3>
+<h4 id="constant-names"><a href="#constant-names">2.6.1 Constant Names</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Use a leading “k” followed by mixed case, like “kDaysInAWeek”.</p>
+</li>
+<li>
+<p><strong>Simics Style</strong>:
+In Simics, constants are named in the same manner as other variables, without requiring any special prefixes or suffixes to indicate they are constants.</p>
+</li>
+</ul>
+<h4 id="function-names"><a href="#function-names">2.6.2 Function Names</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Functions should start with a capital letter and have a capital letter for each new word. For example, <code>AddTableEntry</code>.</p>
+</li>
+<li>
+<p><strong>Simics Style Modification</strong>:
+Functions should start with a lower-case letter and have a capital letter for each new word. For example, <code>addTableEntry</code>.</p>
+</li>
+</ul>
+<h4 id="exceptions-to-naming-rules"><a href="#exceptions-to-naming-rules">2.6.3 Exceptions to Naming Rules</a></h4>
+<p>The Simics API is implemented in C, and as such, it follows a distinct naming convention for functions, classes, and objects. When writing C++ code that interacts closely with the Simics C API, it is advisable to adhere to the existing Simics C naming conventions.</p>
+<h3 id="comments"><a href="#comments">2.7 Comments</a></h3>
+<p>In general, follow Google style to use either the <code>//</code> or <code>/* */</code> syntax. However, if the comments need to be included in the Doxygen output, then the style for that is using the <code>///</code> or <code>/** **/</code> syntax.</p>
+<h3 id="formatting"><a href="#formatting">2.8 Formatting</a></h3>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+To help you format code correctly, we’ve created a <a href="https://raw.githubusercontent.com/google/styleguide/gh-pages/google-c-style.el" rel="noopener noreferrer" target="_top">settings file for emacs</a>.</p>
+</li>
+<li>
+<p><strong>Simics Style Modification</strong>:
+No public setting file is provided. Internally we used <a href="https://github.com/intel-innersource/applications.simulators.simics.base.vt-elisp" rel="noopener noreferrer" target="_top">Emacs Lisp files</a>.</p>
+</li>
+</ul>
+<h4 id="spaces-vs-tabs"><a href="#spaces-vs-tabs">2.8.1 Spaces vs. Tabs</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Use only spaces, and indent 2 spaces at a time.</p>
+</li>
+<li>
+<p><strong>Simics Style Modification</strong>:
+Use only spaces for indentation. The indentation width is 4 spaces (not 2).
+This applies to all indented blocks: functions, classes, control structures, etc.</p>
+</li>
+</ul>
+<h4 id="line-length"><a href="#line-length">2.8.2 Line Length</a></h4>
+<p>Keep lines to a maximum of <strong>80 characters</strong>. This improves readability and helps
+with code reviews. When a line would exceed 80 characters, break it logically:</p>
+<pre><code class="language-cpp">// Good: Line breaks at 80 chars
+bool isValid = checkConditionOne()
+               &amp;&amp; checkConditionTwo()
+               &amp;&amp; checkConditionThree();
+
+// Good: Function call broken into multiple lines
+installEventHandler(obj, "event_name",
+                    &amp;Callback::handleEvent,
+                    objPtr);
+</code></pre>
+<h4 id="trailing-whitespace"><a href="#trailing-whitespace">2.8.3 Trailing Whitespace</a></h4>
+<p><strong>Never</strong> include trailing whitespace at the end of lines. Remove any spaces or tabs
+that appear after the last non-whitespace character.</p>
+<h4 id="inline-comments"><a href="#inline-comments">2.8.4 Inline Comments</a></h4>
+<p>When adding inline comments (comments at the end of a line), use <strong>at least 2 spaces</strong>
+before the comment marker. This improves visual separation between code and comments:</p>
+<pre><code class="language-cpp">int count = 42;        // Number of items in the batch
+bool isActive = true;  // Flag indicating active state
+</code></pre>
+<h4 id="pointer-and-reference-expressions"><a href="#pointer-and-reference-expressions">2.8.5 Pointer and Reference Expressions</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+When referring to a pointer or reference (variable declarations, definitions,
+arguments, return types, template parameters, etc.), you may place the space
+before or after the asterisk/ampersand. The trailing-space style elides the space
+in some cases (template parameters, etc.).</p>
+<pre><code>// These are fine, space preceding.
+char *c;
+const std::string &amp;str;
+int *GetPointer();
+std::vector&lt;char *&gt;
+
+// These are fine, space following (or elided).
+char* c;
+const std::string&amp; str;
+int* GetPointer();
+std::vector&lt;char*&gt;  // Note no space between '*' and '&gt;'
+</code></pre>
+</li>
+<li>
+<p><strong>Simics Style Modification</strong>:
+Space preceding is preferred in the Simics C++ API (e.g., <code>int * ptr</code>,
+<code>const std::string &amp; ref</code>). Users may use both formats in their own code,
+but consistency within a file is recommended.</p>
+</li>
+</ul>
+<h4 id="boolean-expressions"><a href="#boolean-expressions">2.8.6 Boolean Expressions</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+The &amp;&amp; (logical AND) operators appear at the end of the line. This style is
+more common in Google code, though placing operators at the beginning of the
+next line is also acceptable.</p>
+<pre><code>if (this_one_thing &gt; this_other_thing &amp;&amp;
+    a_third_thing == a_fourth_thing &amp;&amp;
+    yet_another &amp;&amp; last_one) {
+     ...
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Simics Style Modification</strong>:
+The &amp;&amp; (logical AND) operators should appear at the <strong>beginning</strong> of the next
+line. This improves readability and makes conditions easier to scan.</p>
+<pre><code>if (this_one_thing &gt; this_other_thing
+    &amp;&amp; a_third_thing == a_fourth_thing
+    &amp;&amp; yet_another &amp;&amp; last_one) {
+     ...
+}
+</code></pre>
+</li>
+</ul>
+<h4 id="constructor-initializer-lists"><a href="#constructor-initializer-lists">2.8.7 Constructor Initializer Lists</a></h4>
+<ul>
+<li>
+<p><strong>Google Style</strong>:
+Constructor initializer lists can be all on one line or with subsequent lines
+indented four spaces. Multiple acceptable formats exist for initializer lists:</p>
+<pre><code>// If the signature and initializer list are not all on one line,
+// you must wrap before the colon and indent 4 spaces:
+MyClass::MyClass(int var)
+    : some_var_(var), some_other_var_(var + 1) {
+  DoSomething();
+}
+
+// When the list spans multiple lines, put each member on its own line
+// and align them:
+MyClass::MyClass(int var)
+    : some_var_(var),             // 4 space indent
+      some_other_var_(var + 1) {  // lined up
+  DoSomething();
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Simics Style</strong>:
+Use 8-space indentation (4 spaces doubled) as described in <a href="#spaces-vs-tabs">Spaces vs. Tabs</a>.
+Optionally, users may place the comma (“,”) at the beginning of continuation lines
+for improved readability.</p>
+<pre><code>// If the signature and initializer list are not all on one line,
+// you must wrap before the colon and indent 4 spaces:
+MyClass::MyClass(int var)
+        : some_var_(var), some_other_var_(var + 1) {
+    DoSomething();
+}
+
+// When the list spans multiple lines, put each member on its own line
+// and align them:
+MyClass::MyClass(int var)
+        : some_var_(var)              // 8 space indent
+        , some_other_var_(var + 1) {  // lined up
+    DoSomething();
+}
+</code></pre>
+</li>
+</ul>
+
+<div class="chain">
+<span></span>
+</div>

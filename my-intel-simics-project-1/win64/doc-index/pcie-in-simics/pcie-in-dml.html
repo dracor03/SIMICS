@@ -1,0 +1,865 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>PCIe in DML</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="high-level-design.html">High level design</a>
+<a href="ats.html">Address Translation Service (ATS)</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="pcie-in-dml"><a href="#pcie-in-dml">PCIe in DML</a></h1>
+<p>Simics provides a set of DML templates to assist in writing models for
+PCIe compliant devices. The templates are available in
+<code>[simics]/src/devices/dml-lib/pcie/</code>.</p>
+<h2 id="endpoints"><a href="#endpoints">Endpoints</a></h2>
+<p>A typical endpoint device would use the <a class="reference" href="common.html#pcie_endpoint">pcie_endpoint</a>
+template. This template defines the <code>pcie_config</code> register bank which
+simulates a Type 0 Configuration header. It also defines a <strong>connect</strong> for
+the upstream target, implements the required interfaces, and handles the
+mapping of resources defined in any base address registers. When using
+the template, all PCIe access types (memory, IO, configuration, or message)
+will enter the device via the <strong>port</strong> <code>upstream_ingress</code>. The port will then
+route the transactions to their respective destinations: the <code>pcie_config</code>
+bank for configuration or message transactions, or the Memory/IO BAR-mapped
+resources. This port allows to handle all incoming traffic before
+it takes any effect. For example, a powered-down device could terminate all
+accesses there. Note that also for multi-function endpoints there is only
+one upstream ingress port for the entire device.</p>
+<img alt="a PCIe Endpoint" height="400px" src="pcie-endpoint.png">
+<h3 id="configuration-header"><a href="#configuration-header">Configuration Header</a></h3>
+<p>The configuration header of a PCIe device is a register bank,
+typically named pcie_config, which uses the template
+<a class="reference" href="common.html#physical_config_bank">physical_config_bank</a>. A register bank would normally
+not instantiate this template directly, but use either of
+<a class="reference" href="common.html#type_0_bank">type_0_bank</a> or <a class="reference" href="bridge_combined.html#type_1_bank">type_1_bank</a> instead. An
+endpoint that uses the <code>pcie_endpoint</code> template automatically gets a
+bank <code>pcie_config</code> which is an instance of the
+<a class="reference" href="common.html#type_0_bank">type_0_bank</a> template. All instances of
+<a class="reference" href="common.html#physical_config_bank">physical_config_bank</a> will be mapped in the
+configuration space of the upstream port when the device is connected,
+and all base address registers in the bank will be mapped in the
+appropriate address space, according to the type. If more than one
+instance of <code>physical_config_bank</code> exists in the same device,
+i.e. when simulating a multi-function-device, they must be separated
+by assigning different values to the parameter <code>function</code>. Sample code
+for a simple multi-function endpoint is available in the quick-start
+<a class="reference" href="quickstart.html#multi-function-endpoint">Multi-Function Endpoint</a> section.</p>
+<h3 id="device-id-vendor-id-and-class-code"><a href="#device-id-vendor-id-and-class-code">Device ID, Vendor ID and Class Code</a></h3>
+<p>The <code>pcie_config</code> bank defines the registers <code>vendor_id</code>, <code>device_id</code>
+and <code>class_code</code>. An endpoint must assign init values for these,
+according to the specification of the hardware that is to be
+simulated. Sample code for setting Vendor ID, Device ID and Class Code
+is available in the quick-start <a class="reference" href="quickstart.html#endpoint">Endpoint</a> section.
+Depending on the device to be modeled, the init value for other
+registers might also need to be customized.</p>
+<h3 id="capabilities"><a href="#capabilities">Capabilities</a></h3>
+<p>PCIe defines optional “Capabilities” and “Extended
+Capabilities”. These are available as templates, configurable by
+parameters. The templates are designed to be applied on groups, and
+all templates require the parameters <code>base</code> and <code>next_ptr</code> to be
+defined. The <code>base</code> parameter defines the address of the first
+register in the capability structure. The <code>next_ptr</code> defines the base
+address of the first address in the next capability structure (or zero
+if this is the last capability). For example, the
+<a class="reference" href="quickstart.html#endpoint">Endpoint</a> in the quick-start section has the
+Subsystem ID (SSID) and Message Signaled Interrupts (MSI) capabilities
+defined</p>
+<p>Note that except where explicitly noted, the capability templates just
+define the registers and fields from the PCIe specification. The
+actual functionality must then be implemented by the device code. See
+<a href="dml-template-reference.html">DML Template Reference</a> for more details.</p>
+<h3 id="base-address-registers"><a href="#base-address-registers">Base Address Registers</a></h3>
+<p>An endpoint typically defines at least one base address register. In
+Simics these are declared by creating registers in the bank that
+corresponds to the configuration header (typically <code>pcie_config</code>).
+The base address registers must use one of the base address templates,
+for example the <a class="reference" href="common.html#memory_base_address_64">memory_base_address_64</a>. The
+<a class="reference" href="quickstart.html#endpoint">Endpoint</a> in the quick-start section defines two
+Memory Base Address registers, <code>bar0</code> and <code>bar2</code>. Each of them is tied
+to a register bank that will be mapped when the Memory Space Enable
+bit in the Command register is written as ‘1’.</p>
+<p>There are a number of different templates that can be used to simulate
+base address registers, and they can be customized using various
+parameters. These are described in the <a href="common.html#abstract_base_address">Common
+Templates</a> section of this document.</p>
+<h3 id="interrupts"><a href="#interrupts">Interrupts</a></h3>
+<p>PCIe functions can send legacy interrupts using the
+<code>raise_legacy_interrupt</code> and <code>lower_legacy_interrupt</code> methods in the
+<code>pcie_config</code> bank. If the function has an MSI and/or MSI-X capability, it
+can use the appropriate <a class="reference" href="#capabilities">Capabilities</a> template to implement this and
+send message signalled interrupts by using the <code>raise</code> method in the
+group using the <code>msi_capability</code> or <code>msix_capability</code> template. The
+<a class="reference" href="quickstart.html#endpoint">Endpoint</a> in the quick-start section, for example,
+has MSI capability and raises MSI vector 0 when the <code>intr</code> register in <code>app0</code> is
+written. If a function has both an MSI and an MSI-X capability, it’s important
+to either call the <code>raise()</code> method on both capabilities (if the capability is
+disabled, it is a no-op), or use the <code>enabled()</code> method on both capabilities to
+check which one is enabled before calling the applicable <code>raise()</code> method.</p>
+<h4 id="the-msi-x-capability"><a href="#the-msi-x-capability">The MSI-X Capability</a></h4>
+<p>MSI-X is less straightforward compared to MSI. With MSI-X, there is the MSI-X
+Table and the MSI-X PBA structure that both reside in BAR mapped memory space.
+The library is able to handle all of this accordingly, but there is more
+configuration needed compared to MSI where it’s simple to just instantiate the
+MSI capability template and be done with it.</p>
+<h5 id="example-1-bar-containing-msi-x-table-and-msi-x-pba"><a href="#example-1-bar-containing-msi-x-table-and-msi-x-pba">Example: 1 BAR Containing MSI-X Table and MSI-X PBA</a></h5>
+<pre><code class="language-dml">dml 1.4;
+device msix_example_1;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+bank pcie_config {
+    register capabilities_ptr { param init_val = 0x40; }
+    // bar is a BAR register at position 1 since it is at offset 0x14
+    register bar @ 0x14 is (memory_base_address_64) { param size_bits = 12; }
+
+    is defining_msix_capability;
+    param msix_offset = 0x40;
+    param msix_next_ptr = 0;
+    param msix_num_vectors = 32;
+    // The Table and PBA params contains the BIR value at the 3 lower bits and
+    // the offset at the remaining 29 bits.
+    param msix_table_offset_bir = 1;
+    param msix_pba_offset_bir = ((0x10 * msix_num_vectors) &lt;&lt; 3) | 1;
+    param msix_data_bank = msix_data;
+}
+
+// Internal representation of the MSI-X state
+bank msix_data is msix_table {
+    param msix_bank = pcie_config;
+}
+</code></pre>
+<p>Here we have an endpoint with one function that contains an MSI-X capability. We
+have set the <code>msix_table_offset_bir</code> param to 1. This param represents the
+values Table BIR and Table Offset in the MSI-X capability structure. Since Table
+BIR becomes 1, and Table Offset also becomes 0, the MSI-X Table will end up in
+the memory region mapped by <code>bar</code> (which is at position 1) at offset 0. With
+<code>msix_pba_offset_bir</code> set to <code>((0x10 * msix_num_vectors) &lt;&lt; 3) | 1</code> and <code>(0x10 * msix_num_vectors)</code> being the size of the MSI-X Table, the PBA BIR is also 1.
+However, the offset makes the PBA start just after where the Table has ended (in
+the same memory region).</p>
+<p>A few notes:</p>
+<ul>
+<li>The content of the <code>msix_data</code>, which instantiates <code>msix_table</code>, should not
+need any consideration by the user, since this is a library implementation
+detail.</li>
+<li>An MSI-X interrupt would in this case have been raised using
+<code>pcie_config.msix.raise(&lt;vector&gt;)</code>.</li>
+<li>There must exist a BAR register definition in the bank where the
+<code>msix_capability</code> is instantiated on an offset which is in line with the BIR
+selection for both the Table and the PBA.</li>
+<li>The MSI-X Table and PBA must not necessarily reside on the same BAR mapped
+memory-region.</li>
+<li>It is allowed for MSI-X Table and PBA to utilize an already occupied BAR as
+per the PCIe specification. The library however only supports that data (which
+is mapped by setting the <code>map_obj</code> param in the BAR register definition) would
+start at offset 0 of memory-region mapped by the BAR register. The MSI-X Table
+and PBA can have any offset (as long as it does not overlap with valid access
+points in the <code>map_obj</code>).</li>
+</ul>
+<h3 id="read-write-pcie-memory"><a href="#read-write-pcie-memory">Read/Write PCIe Memory</a></h3>
+<p>Simics PCIe uses the <code>transaction_t</code> data type for all
+transactions. The <a class="reference" href="common.html#config_bank">config_bank</a> template provides utility
+methods for reading and writing to the PCIe memory space. These
+methods reside in the group <code>memory</code> and operate on the
+<code>upstream_target</code>. Details are available in the
+<a class="reference" href="common.html#memory-methods">Memory methods</a> section of this document. Below is a
+sample DML device which defines a method that reads 8 bytes from PCIe
+memory and writes it back with all bits flipped.</p>
+<figure id="example-memory-read-write">
+<figcaption>Figure 5. Example memory reading and writing</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+method process_data(uint64 address) {
+    local (pcie_error_t err, uint64 value) = pcie_config.memory.read(addr, 8);
+    if (err != PCIE_Error_No_Error) {
+        log error: "failed to read PCIe memory @ 0x%x", address;
+        return;
+    }
+    err = pcie_config.memory.write(addr, ~value, 8);
+    if (err != PCIE_Error_No_Error)
+        log error: "failed to write PCIe memory @ 0x%x", address;
+}
+</code></pre>
+</figure>
+<h3 id="send-receive-messages"><a href="#send-receive-messages">Send/Receive Messages</a></h3>
+<p>Just like for memory transactions, the <a class="reference" href="common.html#config_bank">config_bank</a>
+template defines a group <code>message</code> with utility methods for sending
+and receiving messages. By default, the methods for receiving just log
+an “unimpl” string and return <code>false</code>, indicating that the device did
+not accept the message. Device code must override the methods for the
+messages it wishes to service, and return <code>true</code> if the message is
+accepted. As with the <code>memory</code> group, the methods for sending messages
+operate on <code>upstream_target</code>.</p>
+<p>Here is a sample DML device which accepts ‘Vendor Defined Type 0’
+messages and sends a ‘Vendor Defined Type 1’ message upstream, with
+the address bits inverted. The available methods are described in more
+detail in the <a href="common.html#message-methods-sending">Sending</a> and
+<a href="common.html#message-methods-receiving">Receiving</a> Messages sections.</p>
+<figure id="example-send-receive-message">
+<figcaption>Figure 6. Example sending and receiving messages</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+bank pcie_config {
+    // ...
+    group message {
+        method vendor_defined_type_0(transaction_t *t, uint64 addr) -&gt; (bool) {
+            log info, 2: "VDM Type 0 received, address: 0x%x", addr;
+            local pcie_error_t err = message.send(
+                ~addr, PCIE_Vendor_Defined_Type_1, PCIE_Msg_Route_Upstream);
+            return err == PCIE_Error_No_Error;
+        }
+    }
+    // ..
+}
+</code></pre>
+</figure>
+<h3 id="upstream-ingress-handling"><a href="#upstream-ingress-handling">Upstream Ingress Handling</a></h3>
+<p>As described in section <a href="#endpoints">endpoints</a>, all traffic enters the device via the port
+<code>upstream_ingress</code>. In order to handle incoming traffic in this port, the
+<code>translate</code> method of the <code>transaction_translator</code> interface of the port
+needs to be overridden as shown in the below example.</p>
+<p>The first log message in the example is where you can inspect the incoming
+transaction and possibly route it to other places like a handler for
+transactions that arrive when the device is powered down.
+In order to let the transaction progress to its default destination,
+one needs to call the <code>default</code> implementation of the <code>translate</code> method.
+After calling into <code>default</code> the result can be inspected.</p>
+<pre><code>port upstream_ingress {
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *t,
+                         exception_type_t (*callback)(translation_t txl,
+                                                      transaction_t *tx,
+                                                      cbdata_call_t cbd),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) default {
+            log info, 2: "Before calling into target";
+            local exception_type_t rv = default(addr, access, t, callback, cbdata);
+            log info, 2: "After calling into target";
+            return rv;
+        }
+    }
+}
+</code></pre>
+<h2 id="resets"><a href="#resets">Resets</a></h2>
+<p>PCIe defines two types of resets: Conventional Reset and <code>FLR</code> (Function Level
+Reset)</p>
+<p>Conventional Reset is divided into three categories: <code>Cold</code>, <code>Warm</code> and <code>Hot</code></p>
+<p><code>Cold</code> reset in the PCIe library is the same as instantiating the PCIe device in
+Simics. <code>Warm</code> reset is modeled in the library. <code>Hot</code> reset is defined in the
+PCIe specification and is modeled. <code>FLR</code> is also modeled in the library.</p>
+<h3 id="warm-reset"><a href="#warm-reset">Warm Reset</a></h3>
+<p><code>Warm</code> reset is modeled with the <code>hard_reset</code> templates and a <code>HRESET</code> signal
+port exists to trigger a <code>warm</code> reset externally. All registers go back to their
+initial state.</p>
+<p>A template <a href="#conditional-reset-templates"><code>conditional_hard_reset</code></a> is provided for registers and fields that conditionally keep their values across warm reset depending on a run-time predicate.</p>
+<h3 id="hot-reset"><a href="#hot-reset">Hot Reset</a></h3>
+<p><code>Hot</code> reset is modeled with the <code>soft_reset</code> templates, (defined in DML
+Utilities), in the library. In PCIe <code>Hot</code> reset is triggered by an inband
+signal. In Simics the inband signal is modeled through the <code>pcie_device</code>
+interface method <code>hot_reset</code>. When an upstream port triggers this method a
+<code>soft_reset</code> is invoked on the PCIe device, resetting each PCIe <code>function</code> below
+the object implementing the <code>pcie_device</code> interface. Register fields inheriting
+template <code>pcie_sticky</code> are not affected by a <code>Hot</code> reset. The library adds the
+template <code>pcie_sticky</code> to all fields defined as <code>sticky</code> in the specification.</p>
+<p>A template <a href="#conditional-reset-templates"><code>conditional_soft_reset</code></a> is provided for registers and fields that conditionally keep their values across hot reset depending on a run-time predicate.</p>
+<h3 id="flr"><a href="#flr">FLR</a></h3>
+<p><code>FLR</code> only applies to <code>Endpoints</code> and is modeled with the
+<code>pcie_function_level_reset</code> templates in the library. <code>FLR</code> operates on function
+level. Firmware can reset individual functions in a multi function device by
+invoking <code>FLR</code>. Each <code>type_0_bank</code> inherits template
+<code>pcie_function_level_reset</code>. Firmware invokes an <code>FLR</code> by writing <code>1</code> to field
+<code>bcre_iflr</code> in the Device Control Register or to field <code>iflr</code> in the Control
+register in the PCI AF capability. An <code>FLR</code> is initiated by invoking method
+<code>pcie_function_level_reset</code> on the function’s PCIe config bank. It causes all
+<code>FLR</code> relevant fields to reset to their initial state and resets relevant states
+within the PCIe device. To add custom <code>FLR</code> logic to a model the user has to
+override the <code>pcie_function_level_reset</code> method in the <code>bank</code>.</p>
+<figure id="example-flr">
+<figcaption>Figure 7. Example FLR implementation</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+saved int my_function_state;
+
+is pcie_endpoint;
+bank pcie_config {
+    register capabilities_ptr {
+        param init_val = 0x40;
+    }
+
+    is defining_exp_capability;
+    param exp_offset = capabilities_ptr.init_val;
+    param exp_next_ptr = 0x0;
+    param exp_dp_type = PCIE_DP_Type_EP;
+
+    method pcie_function_level_reset() {
+        default();
+        log info, 2: "Resetting function";
+        my_function_state = 0;
+    }
+}
+</code></pre>
+</figure>
+<p>A template <a href="#conditional-reset-templates"><code>conditional_pcie_function_level_reset</code></a> is provided for registers and fields that conditionally keep their values across FLR depending on a run-time predicate.</p>
+<h3 id="adding-shared-reset-logic"><a href="#adding-shared-reset-logic">Adding shared reset logic</a></h3>
+<p>To add custom reset logic that needs to be run for all PCIe resets: <code>Warm</code>,
+<code>Hot</code> and <code>FLR</code>, one should utilize the <code>pcie_after_reset</code> method at the top of
+the PCIe config bank. It will by default be invoked by all PCIe reset types.</p>
+<figure id="example-shared-reset-logic">
+<figcaption>Figure 8. Example adding custom reset logic invoked by all PCIe reset types.</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+bank pcie_config {
+    saved int state;
+    method pcie_after_reset() {
+        default();
+        log info, 2: "Resetting model";
+        state = 0;
+    }
+}
+</code></pre>
+</figure>
+<h3 id="hardware-initialized-registers-and-fields-hwinit"><a href="#hardware-initialized-registers-and-fields-hwinit">Hardware initialized registers and fields (HwInit)</a></h3>
+<p>The <code>pcie_config</code> bank has a parameter <code>use_standard_access_templates</code> that
+defaults to <code>true</code>. When this parameter is set to <code>true</code>, the library
+automatically adds templates <code>read_only</code>, <code>hwinit</code> and <code>ignore_write</code> to
+registers and fields according to PCIe specification. The <code>hwinit</code> template by
+default makes the field <code>read-only</code>. See <a href="dml-template-reference.html">DML Template
+Reference</a> for more details for the <code>hwinit</code>
+template.</p>
+<p>The actual implementation of <code>HwInit</code> in vendor hardware implementations varies
+because the PCIe specification states that the Hwinit behaviour is vendor
+defined to a large extent. Therefore the <code>HwInit</code> behaviour in the lib can be
+tailored to accommodate vendor functionality. Here are a few examples of
+<code>HwInit</code> hardware behaviour which the library can model:</p>
+<figure id="example-hwinit-hreset">
+<figcaption>Figure 9. Example to allow firmware to write once to each hwinit field after hard reset or instantiation</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+bank pcie_config {
+    in each (hwinit) {
+        param writable_after_hreset = true;
+    }
+}
+</code></pre>
+</figure>
+<figure id="example-hwinit-input-signal">
+<figcaption>Figure 10. Example where input signal controls writable access to hwinit fields</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+bank pcie_config {
+    in each (hwinit) {
+        param writable_once_only = false;
+    }
+}
+port hwinit_control_signal is signal_port {
+    implement signal {
+        method signal_raise() {
+            default();
+            pcie_config.unlock_hwinit_registers();
+        }
+        method signal_lower() {
+            default();
+            pcie_config.lock_hwinit_registers();
+        }
+    }
+}
+</code></pre>
+</figure>
+<figure id="example-hwinit-disable">
+<figcaption>Figure 11. Example to disable hwinit behaviour entirely</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+bank pcie_config {
+    in each (hwinit) {
+        param writable_after_hreset = true;
+        param writable_once_only = false;
+    }
+}
+</code></pre>
+</figure>
+<h3 id="conditional-reset-templates"><a href="#conditional-reset-templates">Conditional reset templates</a></h3>
+<p>The templates <code>conditional_hard_reset</code>, <code>conditional_soft_reset</code> and <code>conditional_pcie_function_level_reset</code> facilitate modeling registers and fields that conditionally keep their value across the respective reset depending on a run-time predicate.
+This is used in the Power Management capability to model Power Management Event bits.
+Those are only sticky across reset if the respective bit is set in the PM Capabilities register.</p>
+<h2 id="root-complexes-and-switches"><a href="#root-complexes-and-switches">Root Complexes and Switches</a></h2>
+<p>A PCIe device that is not an endpoint, i.e. a Root Port or a Switch
+Port, is simulated with the help of an object of the class
+<code>pcie-downstream-port</code>.</p>
+<p>A root or switch port would typically use one of the
+<a class="reference" href="bridge_combined.html#pcie_root_port">pcie_root_port</a>, <a class="reference" href="bridge_combined.html#pcie_downstream_port">pcie_downstream_port</a> or
+<a class="reference" href="bridge_combined.html#pcie_upstream_port">pcie_upstream_port</a> templates (an object that instantiates one of
+these templates will from now be referenced as a PCIe port). These PCIe port
+templates create a port object <code>downstream_port</code> of the class
+<code>pcie-downstream-port</code> and defines a bank <code>pcie_config</code> which is an instance of
+the <a class="reference" href="bridge_combined.html#type_1_bank">type_1_bank</a> template. It also defines a connect to an
+upstream target and provides default implementations for the interface
+<code>transaction_translator</code> to handle upstream transactions. PCIe ports are also
+constructed with an <code>upstream_ingress</code> port that all downstream transactions
+flow through. Similar to endpoints the <code>upstream_ingress</code> routes transactions
+to internal resources in the PCIe port, but for PCIe ports the
+<code>upstream_ingress</code> port also manages downstream routing to the port’s secondary bridge.</p>
+<p>The <a class="reference" href="bridge_combined.html#type_1_bank">type_1_bank</a> template automatically handles the
+standard base address registers for IO, Memory, and Prefetchable memory.
+It maps the configured ranges in the appropriate address space of the
+connected upstream target, forwarding them to its downstream
+port. Here is an overview image of a sample RC with one root port and
+one Root Complex Integrated Endpoint (RCiEP).</p>
+<img alt="a PCIe Root Complex" height="500px" src="pcie-root-complex.png">
+<p>And here is an overview image of a sample Switch with one upstream and
+three downstream ports.</p>
+<img alt="a PCIe Switch" height="500px" src="pcie-switch.png">
+<p>The quick-start section contains sample code for creating a similar
+<a class="reference" href="quickstart.html#root-complex">Root Complex</a> and <a class="reference" href="quickstart.html#switch">Switch</a></p>
+<h3 id="handling-downstream-traffic"><a href="#handling-downstream-traffic">Handling downstream traffic</a></h3>
+<p>A PCIe port by default automatically forwards all downstream traffic to its
+<code>pcie-downstream-port</code> helper object. Since the PCIe port is also based on the
+<code>pcie_device</code> template, all the traffic will first go through its
+<code>upstream_ingress</code> port before hitting the <code>pcie-downstream-port</code>.
+By overriding the <code>transaction_translator</code> in the upstream ingress port,
+a PCIe port can dynamically redirect downstream traffic, apply custom access
+restrictions or add atoms to a downstream transaction. See the
+<a href="#adding-atoms-to-downstream-transaction">section</a> about adding atoms to a
+transaction if applicable.</p>
+<h4 id="adding-atoms-to-downstream-transaction"><a href="#adding-atoms-to-downstream-transaction">Adding atoms to downstream transaction</a></h4>
+<p>Adding atoms to a transaction by chaining multiple transactions needs to be
+handled with care if the object that adds the atom does not want break support
+for <em>deferred</em> transactions in a platform that supports it. More information
+regarding this topic can be found
+<a href="../model-builder-user-guide/transactions.html#transaction-chaining">here</a>,
+which is an important read to understand the example below. It is suggested to
+use the <code>pcie_transaction_chaining_helper</code> template when doing this which
+simplifies the chaining considerably.</p>
+<p>In the example below, the <code>transaction_translator</code> interface of the
+<code>upstream_ingress</code> port in an object that has instantiated the
+<code>pcie_root_port</code> template has been overridden. Here, if the transaction is a
+memory transaction and has an address of <code>0x3cc00004</code>, the <code>pcie_ecs</code> atom is
+added to the transaction by chaining transactions. The chaining is done by using
+the API:s provided by the <code>pcie_transaction_chaining_helper</code> template. The three
+methods <code>move_to_heap()</code>, <code>restore_custom_atoms()</code> and <code>get_custom_atoms()</code> need
+to be implemented in order to get proper support for if the transaction ends up
+being deferred and if a checkpoint creation occurs while a transaction is in a
+deferred state.</p>
+<pre><code>port upstream_ingress {
+    attribute ecs_chaining_example is pcie_transaction_chaining_helper {
+        param max_atoms = 4;
+        param type = "[[ii]*]";
+        param list_size = 2;
+
+        method move_to_heap(pcie_helper_atoms_t *heap_atoms,
+            const transaction_t *old_transaction) -&gt; (void *) {
+                local pcie_ecs_t *ecs = new pcie_ecs_t;
+                *ecs = ATOM_get_transaction_pcie_ecs(old_transaction);
+                add_atom(heap_atoms, ATOM_pcie_ecs(*ecs));
+                return ecs;
+        }
+
+        method restore_custom_atoms(pcie_helper_atoms_t *atoms,
+            attr_value_t value) -&gt; (void*) {
+            local attr_value_t ecs_attr = SIM_attr_list_item(value, 1);
+            local pcie_ecs_t *ecs = new pcie_ecs_t;
+            *ecs = SIM_attr_integer(ecs_attr);
+            add_atom(atoms, ATOM_pcie_ecs(*ecs));
+            return ecs;
+        }
+
+        method get_custom_atoms(attr_value_t *list,
+            pcie_helper_atoms_t *atoms) {
+            local pcie_ecs_t *ecs = cast(atoms-&gt;allocated_data, pcie_ecs_t *);
+            SIM_attr_list_set_item(list, 1, SIM_make_attr_uint64(*ecs));
+        }
+    }
+
+    implement transaction_translator {
+        method translate(uint64 addr,
+                        access_t access,
+                        transaction_t *prev,
+                        exception_type_t (*callback)(translation_t txl,
+                                                    transaction_t *tx,
+                                                    cbdata_call_t cbd),
+                        cbdata_register_t cbdata) -&gt; (exception_type_t) {
+            local const pcie_type_t * type = ATOM_transaction_pcie_type(prev);
+            if (type != NULL &amp;&amp; *type == PCIE_Type_Mem) {
+                local translation_t txl = { .target = upstream_ingress_targets.memory.map_target, ... };
+                local transaction_t t;
+
+                local pcie_helper_atoms_t atoms;
+                local atom_t atom_buf[ecs_chaining_example.max_atoms];
+                if (addr == 0x3cc00004) {
+                    ecs_chaining_example.create_chained_transaction(addr,
+                        &amp;atoms, atom_buf, sizeof(atom_buf), prev);
+                    ecs_chaining_example.add_atom(&amp;atoms, ATOM_pcie_ecs(
+                        PCIE_ECS_SIG_OS));
+                    ecs_chaining_example.add_atom(&amp;atoms, ATOM_list_end(0));
+                    return ecs_chaining_example.monitor_transaction(&amp;atoms,
+                        default(addr, access, &amp;atoms.t, callback, cbdata));
+                }
+            }
+            return default(addr, access, prev, callback, cbdata);
+        }
+    }
+}
+</code></pre>
+<h3 id="handling-upstream-traffic"><a href="#handling-upstream-traffic">Handling upstream traffic</a></h3>
+<p>A PCIe port by default automatically forwards all upstream traffic to its
+<code>upstream_target</code>. A PCIe port that wishes to change that can either redirect
+traffic of a certain type by setting any or all of the parameters <code>def</code>, <code>msg</code>,
+<code>mem</code>, <code>io</code>, and <code>cfg</code> in the <code>txl_target</code> group (of the object that
+instantiated any of the PCIe port templates) to a valid map target. Setting it
+to <code>NULL</code> will block upstream traffic of that type. If a PCIe port wants to
+dynamically redirect upstream traffic, the <code>transaction_translator</code>
+implementation that is implemented in the PCIe port can instead be be
+overridden. See the documentation for the
+<a class="reference" href="bridge_combined.html#pcie_upstream_translator">pcie_upstream_translator</a> template for more information.</p>
+<h3 id="handling-upstream-messages"><a href="#handling-upstream-messages">Handling upstream messages</a></h3>
+<p>Messages can be handled by creating instances of the template
+<code>handling_messages</code> in the <code>upstream_message</code> port. This port is
+created automatically by the <a class="reference" href="bridge_combined.html#pcie_root_port">pcie_root_port</a> template. See the
+documentation for the <a class="reference" href="bridge_combined.html#handling_messages">handling_messages</a> template for more
+information. Here is an example that handles Vendor Defined Message
+Type 0:</p>
+<figure id="example-upstream-message">
+<figcaption>Figure 12. Example upstream message handling</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device rp;
+import "pcie/common.dml";
+
+is pcie_root_port;
+
+port upstream_message {
+    group vdm0 is handling_messages {
+        method message(transaction_t *t, uint64 addr,
+                       pcie_message_type_t type) -&gt; (pcie_error_t) {
+            if (type != PCIE_Vendor_Defined_Type_0) {
+                // message not handled here
+                return PCIE_Error_Not_Set;
+            }
+
+            log info: "VDM0 received";
+            return PCIE_Error_No_Error;
+        }
+    }
+}
+</code></pre>
+</figure>
+<h2 id="other-bridges"><a href="#other-bridges">Other bridges</a></h2>
+<p>A device that wishes to bridge PCIe to/from host memory, without
+necessarily being a Type 1 device, would use the <a class="reference" href="bridge_combined.html#pcie_bridge">pcie_bridge</a>
+template. Like <code>pcie_root_port</code>, the template creates a port object
+<code>downstream_port</code> but it doesn’t create any register bank and instead
+of an <code>upstream_target</code> it has a connect <code>host_memory</code> to which it
+translates requests.</p>
+<h2 id="pcie-6-message-segment-routing"><a href="#pcie-6-message-segment-routing">PCIe 6 Message Segment Routing</a></h2>
+<p>Segment routing across PCIe hierarchies is supported in PCIe 6 and
+the PCIe modeling library provides templates and methods to support it.</p>
+<p>Segment routing consists of two parts:</p>
+<ol>
+<li>Configuring the segment number for each PCIe hierarchy within a Root Complex.</li>
+<li>Route messages upstream if destination segment does not match the source
+segment number.</li>
+</ol>
+<p>The first part requires as per PCIe 6 specification that configuration requests
+contain the segment number for the hierarchy. It is up to the root complex to
+append <code>ATOM_transaction_pcie_destination_segment</code> atom to downstream
+configuration requests. The PCIe library will capture this atom and store its
+value internally. This is true for Root Ports, Switches and Endpoints. For
+segment routing to work all relevant devices in the hierarchy must instantiate
+the <code>dev3_capability</code> capability. For instance if an endpoint wants to route a
+message to a target that is part of another PCIe hierarchy all upstream ports
+connecting the endpoints to the Root Complex must have the <code>dev3_capability</code>
+instantiated.</p>
+<p>The second part is handled automatically within the PCIe library up until the
+Root Complex. But first the message initiator must setup the message transfer
+utilizing the <code>send_custom</code> method. More details in the
+<a href="common.html#message-methods-sending">Sending</a> Message section.</p>
+<figure id="example-send-message-with-segment">
+<figcaption>Figure 13. Example sending message upstream with segment number</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+bank pcie_config {
+    // ...
+    is defining_dev3_capability;
+    param dev3_offset = 0x100;
+    param dev3_next_ptr = dev3_offset + 0x100;
+    // ..
+
+    method send_message(uint16 target_id, uint8 segment_number) {
+        local atom_t extra_atoms[2];
+
+        extra_atoms[0] = ATOM_pcie_destination_segment(segment_number);
+        extra_atoms[1] = ATOM_list_end(0);
+        local bytes_t data;
+
+        local pcie_error_t ret = message.send_custom(target_id &lt;&lt; 48,
+                                                    PCIE_Vendor_Defined_Type_0,
+                                                    PCIE_Msg_Route_ID,
+                                                    data,
+                                                    extra_atoms);
+    }
+}
+</code></pre>
+</figure>
+<figure id="example-root-complex-with-multiple-segments">
+<figcaption>Figure 14. Example of root complex with multiple PCIe segments supporting message routing across segments.</figcaption>
+<pre><code>dml 1.4;
+device root_complex;
+</code></pre>
+<pre><code>import "utility.dml";
+import "pcie/common.dml";
+
+param pcie_version = 6.0;
+
+param nbr_segments := 4;
+
+group segment[segment_id &lt; nbr_segments] {
+    subdevice bridge is (pcie_bridge, post_init) {
+        group txl_target {
+            param msg = dev.upstream_messages.map_target;
+        }
+
+        method post_init() {
+            local set_error_t ret;
+            local attr_value_t rp = SIM_make_attr_list(3, SIM_make_attr_uint64(0),
+                                    SIM_make_attr_uint64(0),
+                                    SIM_make_attr_object(root_port.obj));
+            local attr_value_t root_ports = SIM_make_attr_list(1, rp);
+
+            ret = SIM_set_attribute(downstream_port.obj, "devices", &amp;root_ports);
+            SIM_attr_free(&amp;root_ports);
+            assert(ret == Sim_Set_Ok);
+        }
+    }
+    subdevice root_port is (pcie_root_port) {
+        bank pcie_config {
+            register capabilities_ptr {
+                param init_val = 0x40;
+            }
+            is defining_pm_capability;
+            param pm_offset = capabilities_ptr.init_val;
+            param pm_next_ptr = pm_offset + 0x10;
+
+            is defining_exp_capability;
+            param exp_offset = pm_next_ptr;
+            param exp_next_ptr = 0;
+            param exp_dp_type = PCIE_DP_Type_RP;
+
+            is defining_dev3_capability;
+            param dev3_offset = 0x100;
+            param dev3_next_ptr = 0;
+        }
+    }
+}
+port upstream_messages is (init_mt) {
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *t,
+                         exception_type_t (*callback)(translation_t txl,
+                                                      transaction_t *tx,
+                                                      cbdata_call_t cbd),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) default {
+            local pcie_msg_route_t route =
+                ATOM_get_transaction_pcie_msg_route(t);
+            local const uint8* seg_id =
+                ATOM_transaction_pcie_destination_segment(t);
+
+            local translation_t txl;
+            switch (route) {
+            case PCIE_Msg_Route_ID:
+                if (seg_id != NULL &amp;&amp; *seg_id &lt; nbr_segments) {
+                    txl.target = segment[*seg_id].bridge.downstream_port.map_target;
+                }
+                break;
+            case PCIE_Msg_Route_Upstream:
+                txl.target = dev.message.map_target;
+                break;
+            default:
+                log error: "%s, Unexpected pcie routing type: %d", this.qname, route;
+                return Sim_PE_IO_Not_Taken;
+            }
+            if (txl.target) {
+                log info, 2:
+                    "Forwarding messages: %s, %s, segment=%d, address=0x%x, to: %s",
+                    pcie_message_type_name(ATOM_get_transaction_pcie_msg_type(t)),
+                    pcie_route_type_name(ATOM_get_transaction_pcie_msg_route(t)),
+                    *seg_id,
+                    addr,
+                    SIM_object_name(SIM_map_target_object(txl.target));
+            }
+            return callback(txl, t, cbdata);
+        }
+    }
+}
+
+port message is (message_port);
+</code></pre>
+</figure>
+<h2 id="data-object-exchange"><a href="#data-object-exchange">Data Object Exchange</a></h2>
+<p>Note! As of PCIe 6.1, DOE protocols are now referred to as DOE features.</p>
+<p>Data Object Exchange (DOE) is supported and can be implemented in a device using
+the <code>doe_capability</code> template. This template by default implements DOE Discovery
+protocol. New protocols can be added easily by adding entries in the <code>doe</code> group
+of the <code>doe_capability</code>. The DOE Discovery protocol implementation will detect
+and report those accordingly with no modifications to the DOE Discovery
+implementation. Below is an example of implementing DOE in a PCIe device with a
+custom DOE protocol.</p>
+<figure id="example-doe">
+<figcaption>Figure 15. Example of device with DOE and a custom DOE protocol</figcaption>
+<pre><code class="language-dml">dml 1.4;
+device endpoint;
+import "pcie/common.dml";
+
+is pcie_endpoint;
+
+bank pcie_config {
+    register capabilities_ptr { param init_val = 0x40; }
+    is defining_doe_capability;
+    param doe_offset = 0x40;
+    param doe_next_ptr = doe_offset + 0x100;
+    param doe_mailbox_len = 50;
+    param doe_interrupt_support = true;
+    group doe {
+        group protocols {
+            group test_protocol is doe_test_protocol {}
+        }
+    }
+}
+
+template doe_test_protocol is doe_protocol {
+    param vendor_id = 0x00FF;
+    param data_object_type = 1;
+
+    method handle_request(const uint32 *req, uint18 req_len) {
+        local uint32 res[3];
+
+        local doe_header_t res_header;
+        res_header.vendor_id = vendor_id;
+        res_header.data_object_type = data_object_type;
+        res_header.length = 3;
+        memcpy(res, &amp;res_header, sizeof(res_header));
+
+        res[2] = 0xABCDEF;
+        try {
+            mailbox.push_buffer(res, sizeof(res) / sizeof(res[0]));
+            response_ready(sizeof(res) / sizeof(res[0]));
+        } catch {
+            response_error();
+        }
+    }
+}
+</code></pre>
+</figure>
+<p>Pushing the response can be done with either the <code>push</code> or the <code>push_buffer</code>
+methods of the <code>mailbox</code>. Each handling of a data object must conclude with
+either a <code>response_ready(res_len)</code> or <code>response_error()</code> invocation.</p>
+<h2 id="error-signaling"><a href="#error-signaling">Error Signaling</a></h2>
+<p>There are 3 (in-band) error signaling mechanisms defined in the PCIe
+specification:</p>
+<ul>
+<li>Completion status</li>
+<li>Error messages</li>
+<li>Error forwarding / data poisoning</li>
+</ul>
+<p>The PCIe library has support for the first two mechanisms to various degrees (as
+discussed below).</p>
+<h3 id="completion-status"><a href="#completion-status">Completion Status</a></h3>
+<p>A completion packet in PCIe includes a completion status field in the its
+header. This is implemented in the library as an atom <code>pcie_error_ret</code>. The
+library sets this in some occasions when handling a request, but it can also be
+set by the user of the library in applicable contexts. The requester is then
+able to inspect the <code>pcie_error_ret</code> atom to determine if the request was
+successful or not.</p>
+<h3 id="error-messages"><a href="#error-messages">Error messages</a></h3>
+<p>Error messages are messages sent by functions in the PCIe hierarchy that
+encounter errors (device specific internal errors or errors defined in the PCIe
+specification) to the Root Complex (more specifically the applicable root port).
+These messages could also be sent by root complex integrated endpoints, where
+they instead would be sent to a Root Complex Event Collector (RCEC) if
+implemented. Note that the library currently has no functional support for Error
+Messages being collected by an RCEC.</p>
+<h4 id="submitting-and-handling-errors"><a href="#submitting-and-handling-errors">Submitting and Handling Errors</a></h4>
+<p>PCIe functions may utilize the <code>emit_errors</code> group in the <code>config_bank</code> to
+submit errors using either <code>emit_errors.submit_correctable_error()</code>,
+<code>emit_errors.submit_uncorrectable_error()</code> or
+<code>emit_errors.submit_uncorrectable_error_advisory_non_fatal()</code>. The library will
+then set the applicable status bits in the PCI configuration header as well as
+in the PCI Express Capability Structure:</p>
+<ul>
+<li>Correctable Error Detected, Non-Fatal Error Detected and Fatal Error Detected
+fields in the Device Status register</li>
+<li>Unsupported Request Detected in the Device Status register</li>
+</ul>
+<p>Additionally, if the PCIe function has a AER capability, applicable fields
+depending on the error and if software has not masked certain errors in the AER
+capability:</p>
+<ul>
+<li>The Correctable Error Status and the Uncorrectable Error Status registers</li>
+<li>First Error Pointer field in the Advanced Error Capabilities and Control
+register</li>
+<li>Header Log and TLP Prefix Log registers</li>
+<li>Header log size and Logged TLP Size fields in the  Advanced Error Capabilities
+and Control register</li>
+<li>TLP Prefix Log Present field in the Advanced Error Capabilities and Control
+register</li>
+<li>Log TLP was Flit Mode field in the Advanced Error Capabilities and Control
+register</li>
+</ul>
+<p>Root ports will also if instantiating the <code>handling_err_messages</code> without
+overriding the default implementation set the following fields in the AER
+capability based on values in the Root Error Command register:</p>
+<ul>
+<li>ERR_COR Received, Multiple ERR_COR Received, ERR_FATAL/NONFATAL Received,
+Multiple ERR_FATAL/NONFATAL Received, First Uncorrectable Fatal, Non-Fatal
+Error Messages Received, Fatal Error Messages Received and ERR_COR Subclass
+fields in the Root Error Status register</li>
+<li>The ERR_COR Source Identification and the ERR_FATAL/NONFATAL Source
+Identification fields in the Error Source Identification register</li>
+</ul>
+<p>If software otherwise has configured the device to send error messages
+for an error type, and not masked the error the error using AER, the library
+will send these messages upstream automatically. Root ports would instead send
+these messages to themselves, as per the PCIe specification.</p>
+<p>Root ports (that have instantiated <code>pcie_root_port</code>) may instantiate the
+<code>handling_err_messages</code> template in their local message target port (by default
+the <code>upstream_message</code> port in the root port). In this instantiation, the
+<code>handle_error_message()</code> method can be overridden to handle incoming error
+signaling messages coming from downstream functions. The default behavior of
+this method is to generate applicable interrupts based on the configuration of
+the AER capability (if it has one), which is described earlier in this section.</p>
+
+<div class="chain">
+<a href="high-level-design.html">High level design</a>
+<a href="ats.html">Address Translation Service (ATS)</a>
+</div>

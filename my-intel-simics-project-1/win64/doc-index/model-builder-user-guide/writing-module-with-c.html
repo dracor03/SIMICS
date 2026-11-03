@@ -1,0 +1,804 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>15 Modeling with C</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="new-commands.html">14 Adding New Commands</a>
+<a href="writing-module-with-python.html">16 Modeling with Python</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;</div><h1 id="modeling-with-c"><a href="#modeling-with-c">15 Modeling with C</a></h1>
+<p>While the majority of this guide focuses on DML, there is also support for
+writing modules in C and Python. DML is recommended for device models as DML
+allows the author to focus on the functionality of the device without having to
+worry about the mechanics of interacting with Simics. Components must be written
+in Python which is also useful for high level modules which do not model devices
+directly. C is useful for integrating with legacy code.</p>
+<p>This chapter describes how to create modules written in C focusing on the
+mechanics of interacting with Simics. The general guidelines presented earlier
+apply to C as well as to DML. Each section focuses on one concept and describes
+how to implement it in C. It may be useful to review section <em>Classes and
+Objects</em> in <em>API Reference Manual</em> to clarify the differences between objects,
+classes, and modules.</p>
+<h2 id="module-loading"><a href="#module-loading">15.1 Module Loading</a></h2>
+<p>Most modules need to do some work when initially loaded into Simics. Typically
+this work includes registering the classes implemented by the module, and their
+attributes, with Simics.</p>
+<p>A module written in C or C++ must implement the function <code>init_local()</code>. It must
+exist, even if it is empty. The function will be run by Simics when the module
+is loaded into Simics. The function is defined as:</p>
+<pre><code>void
+init_local(void)
+{
+}
+</code></pre>
+<p>If the module is written in C++, this function must be declared <em>extern “C”</em> for
+C linkage.</p>
+<h2 id="classes"><a href="#classes">15.2 Classes</a></h2>
+<p>Each Simics class implemented by a module must be registered with Simics.
+Remember that classes registered in a module should be listed in the
+<code>MODULE_CLASSES</code> variable in the module’s <code>Makefile</code>. This allows Simics to
+automatically load the required modules when reading a configuration file.
+Similarly, components registered in the module should be listed in
+<code>MODULE_COMPONENTS</code>.</p>
+<p>Registering a class is done by creating and filling a <code>class_info_t</code> structure,
+and then calling the function <code>SIM_create_class</code> with the new class name and the
+<code>class_info_t</code> structure. The members in the <code>class_info_t</code> structure are:</p>
+<dl>
+<dt id="dt:init"><a href="#dt:init"><code>init</code></a></dt>
+<dd>
+<p>A function called when creating an instance of the class.</p>
+</dd>
+<dt id="dt:finalize"><a href="#dt:finalize"><code>finalize</code></a></dt>
+<dd>
+<p>This function is called once <code>init</code> has
+returned, and all attributes on the object being created have been set.</p>
+</dd>
+<dt id="dt:kind"><a href="#dt:kind"><code>kind</code></a></dt>
+<dd>
+<p>The class kind tells Simics whether objects
+of this class should be saved when a checkpoint is created. Valid values are:</p>
+<dl>
+<dt id="dt:sim_class_kind_vanilla"><a href="#dt:sim_class_kind_vanilla"><code>Sim_Class_Kind_Vanilla</code></a></dt>
+<dd>class instances will be
+saved as part of checkpoints (this is the default if <code>kind</code> is not given
+any value.)</dd>
+<dt id="dt:sim_class_kind_pseudo"><a href="#dt:sim_class_kind_pseudo"><code>Sim_Class_Kind_Pseudo</code></a></dt>
+<dd>class instances will never be saved.</dd>
+</dl>
+</dd>
+<dt id="dt:short_desc"><a href="#dt:short_desc"><code>short_desc</code></a></dt>
+<dd>
+<p>A short description of the class,
+preferably a one-liner. This is for example used by some commands that list
+classes in table form.</p>
+</dd>
+<dt id="dt:description"><a href="#dt:description"><code>description</code></a></dt>
+<dd>
+<p>A string that should contain a,
+potentially longer, description of the class.</p>
+</dd>
+</dl>
+<p>In C or C++, registration of classes is usually done from within the mandatory
+<em>init_local()</em> function. The C definition of <code>class_info_t</code> and
+<code>SIM_create_class()</code> is the following:</p>
+<pre><code>    typedef struct class_info {
+        conf_object_t *(*alloc)(conf_class_t *cls);
+        lang_void *(*init)(conf_object_t *obj);
+        void (*finalize)(conf_object_t *obj);
+        void (*objects_finalized)(conf_object_t *obj);
+        void (*deinit)(conf_object_t *obj);
+        void (*dealloc)(conf_object_t *obj);
+        const char *description;
+        const char *short_desc;
+        class_kind_t kind;
+    } class_info_t;
+
+conf_class_t *SIM_create_class(
+        const char *NOTNULL name, const class_info_t *NOTNULL class_info);
+</code></pre>
+<p><code>SIM_create_class()</code> returns a pointer to a <code>conf_class_t</code> structure which is
+used internally by Simics to keep track of the class information. This pointer
+can be used when referring to the class in calls to other functions.</p>
+<p>A simple <code>init_local()</code> initialization function could look like this:</p>
+<pre><code>void
+init_local(void)
+{
+        class_info_t cdata;
+        conf_class_t *my_class;
+
+        memset(&amp;cdata, 0, sizeof(cdata));
+        cdata.init = my_init;
+        cdata.kind = Sim_Class_Kind_Pseudo;
+        cdata.short_desc = "One-liner";
+        cdata.description = "This is my class";
+
+        my_class = SIM_create_class("my-class", &amp;cdata);
+
+        // Other initializations...
+}
+</code></pre>
+<h2 id="objects"><a href="#objects">15.3 Objects</a></h2>
+<p>A configuration class implemented in C typically maintains the state of each
+object in a structure that is co-allocated with the object’s <code>conf_object_t</code>
+structure, which is used both as a general reference to the object and to keep
+track of information for the configuration system.</p>
+<p>This is done by putting the <code>conf_object_t</code> first in a C <code>struct</code> that also
+contains the object state:</p>
+<pre><code>  typedef struct {
+          conf_object_t obj;  // Always first!
+          // Object-specific state follows.
+          float temperature;
+  } my_object_t;
+  
+</code></pre>
+<p>Converting between a pointer to <code>my_object_t</code> and its corresponding
+<code>conf_object_t</code> then becomes a cast or member dereference:</p>
+<pre><code>          // my_object_t -&gt; conf_object_t
+          conf_object_t *obj = &amp;myobj-&gt;obj;
+  
+          // conf_object_t -&gt; my_object_t
+          my_object_t *myobj = (my_object_t *)obj;
+</code></pre>
+<p>Of course, the code casting from a <code>conf_object_t</code> pointer must know for certain
+that it really is an object of the right type. This knowledge is usually
+implicit in the function interfaces.</p>
+<p>The allocation of the combined structure is done in the <code>alloc</code> method in the
+<code>class_info_t</code> value passed to <code>SIM_create_class</code>:</p>
+<pre><code>  static conf_object_t *
+  my_alloc(conf_class_t *cls)
+  {
+          my_object_t *myobj = MM_ZALLOC(1, my_object_t);
+          return &amp;myobj-&gt;obj;
+  }
+</code></pre>
+<p>The method <code>init</code> should be defined to initialize the structure:</p>
+<pre><code>  static void *
+  my_init(conf_object_t *obj)
+  {
+          my_object_t *myobj = (conf_object_t *)obj;
+          myobj-&gt;temperature = 20.0;
+          return myobj;
+  }
+</code></pre>
+<p>Configuration classes written in C++ may use the same techniques as in C, or
+simpler by subclassing <code>simics::SimicsObject</code>; see the <em>C++ Device API</em>
+programming guide for details.</p>
+<h2 id="attributes"><a href="#attributes">15.4 Attributes</a></h2>
+<p>Attributes are linked to the class definition, usually just after the class has
+been declared, with the <code>SIM_register_attribute()</code> function. It has the
+following declaration in C:</p>
+<pre><code>int SIM_register_attribute(
+           conf_class_t *cls, const char *name,
+           attr_value_t (*get_attr)(conf_object_t *),
+           set_error_t (*set_attr)(conf_object_t *, attr_value_t *),
+           attr_attr_t attr,
+           const char *type,
+           const char *doc);
+</code></pre>
+<p>The parameters of <code>SIM_register_attribute()</code> are:</p>
+<dl>
+<dt id="dt:cls"><a href="#dt:cls"><code>cls</code></a></dt>
+<dd>
+<p>The name of the class (previously registered with <code>SIM_create_class()</code>.)</p>
+</dd>
+<dt id="dt:name"><a href="#dt:name"><code>name</code></a></dt>
+<dd>
+<p>The name of the attribute to register.</p>
+</dd>
+<dt id="dt:get_attr-set_attr"><a href="#dt:get_attr-set_attr"><code>get_attr</code>, <code>set_attr</code></a></dt>
+<dd>
+<p>The <code>get()</code> and <code>set()</code>
+functions for the attribute. If one of these operations is not supported,
+<code>NULL</code> (or <code>None</code> in Python) can be used.</p>
+</dd>
+<dt id="dt:attr"><a href="#dt:attr"><code>attr</code></a></dt>
+<dd>
+<p>The properties of the attribute, a
+combination of the configuration type, an optional index type and
+initialization order. It tells Simics how the attribute will be saved and
+addressed, and is specified using the constants described below.</p>
+<p>The <em>configuration type</em> of an attribute must be selected from one of the
+following values:</p>
+<dl>
+<dt id="dt:sim_attr_required"><a href="#dt:sim_attr_required"><code>Sim_Attr_Required</code></a></dt>
+<dd>The attribute has to be set
+when creating the object. It will also be saved during checkpointing.</dd>
+<dt id="dt:sim_attr_optional"><a href="#dt:sim_attr_optional"><code>Sim_Attr_Optional</code></a></dt>
+<dd>If a value is not specified,
+the attribute will keep its default value when creating an object. It will
+be saved during checkpointing.</dd>
+<dt id="dt:sim_attr_pseudo"><a href="#dt:sim_attr_pseudo"><code>Sim_Attr_Pseudo</code></a></dt>
+<dd>The attribute does not really
+represent any internal state. It may work instead as a command in
+disguise, or as a redundant way of accessing internal state. It will not
+be saved during checkpointing.</dd>
+</dl>
+<p>Attributes may also have the following additional kinds added (using a bitwise
+<em>or</em> operation).</p>
+<dl>
+<dt id="dt:sim_attr_persistent"><a href="#dt:sim_attr_persistent"><code>Sim_Attr_Persistent</code></a></dt>
+<dd>Attribute represents a
+persistent value and is included in persistent files, created with the
+<code>save-persistent-state</code> command. Persistent attributes are used for data
+that survives power-cycling.</dd>
+<dt id="dt:sim_attr_internal"><a href="#dt:sim_attr_internal"><code>Sim_Attr_Internal</code></a></dt>
+<dd>Indicates that the attribute
+is internal to the object and should not be accessed directly by other
+users.</dd>
+</dl>
+<p>In addition the order in which the attribute will be initialized can be defined
+by adding (also using a bitwise <em>or</em> operation) with one of the following
+values:</p>
+<dl>
+<dt id="dt:sim_init_phase_0"><a href="#dt:sim_init_phase_0"><code>Sim_Init_Phase_0</code></a></dt>
+<dd>Early initialization (default)</dd>
+<dt id="dt:sim_init_phase_1"><a href="#dt:sim_init_phase_1"><code>Sim_Init_Phase_1</code></a></dt>
+<dd>Late initialization</dd>
+</dl>
+<p>Attributes with <code>Sim_Init_Phase_1</code> will be initialized after attributes with
+<code>Sim_Init_Phase_0</code>, but no other order is guaranteed.</p>
+</dd>
+<dt id="dt:type"><a href="#dt:type"><code>type</code></a></dt>
+<dd>
+<p>String describing the data type of the attribute.</p>
+</dd>
+<dt id="dt:desc"><a href="#dt:desc"><code>desc</code></a></dt>
+<dd>
+<p>A documentation string describing the attribute.</p>
+</dd>
+</dl>
+<h3 id="a-simple-example"><a href="#a-simple-example">15.4.1 A Simple Example</a></h3>
+<p>Let us use a simple counter attribute as an example.</p>
+<p>In C, we’ll have an object declared as:</p>
+<pre><code>typedef struct my_object {
+        conf_object_t obj;
+        int foo;
+} my_object_t;
+</code></pre>
+<p>We want to implement an attribute called <code>counter</code>, thus we need a pair of
+<code>set</code>/<code>get</code> functions. <code>counter</code> will internally use <code>foo</code> to keep its value.
+The pair of <code>get/set</code> functions could be defined as:</p>
+<pre><code>static attr_value_t
+get_counter(conf_object_t *obj)
+{
+        my_object_t *mo = (my_object_t *)obj;
+
+        return SIM_make_attr_uint64(mo-&gt;foo);
+}
+
+static set_error_t
+set_counter(conf_object_t *obj, attr_value_t *val)
+{
+        my_object_t *mo = (my_object_t *)obj;
+
+        mo-&gt;foo = SIM_attr_integer(*val);
+        return Sim_Set_Ok;
+}
+</code></pre>
+<p>In the <code>get_counter()</code> function, <code>obj</code> is the object that owns the attribute and
+<code>arg</code> is the user information that was registered along with the attribute. Note
+that <code>obj</code> can be safely cast to <code>my_object_t</code> (<code>conf_object_t</code> is used as a
+“base type” here). The function creates an <code>attr_value_t</code> variable that will be
+of integer type and contain the value <code>foo</code>. It then returns this attribute
+value.</p>
+<p>The <code>set_counter()</code> function on the other hand takes a <code>val</code> argument which
+contains the value to be written. The return value is of type <code>set_error_t</code>,
+which is defined as below. Descriptions of the values can be found in the <em>API
+Reference Manual</em>.</p>
+<pre><code>typedef enum {
+        Sim_Set_Ok,
+        Sim_Set_Object_Not_Found,
+        Sim_Set_Interface_Not_Found,
+        Sim_Set_Illegal_Value,
+        Sim_Set_Illegal_Type,
+        Sim_Set_Illegal_Index,
+        Sim_Set_Attribute_Not_Found,
+        Sim_Set_Not_Writable
+} set_error_t;
+</code></pre>
+<p>Registering the <code>counter</code> attribute is just a matter of calling
+<code>SIM_register_attribute()</code>:</p>
+<pre><code>SIM_register_attribute(my_class, 
+                       "counter",
+                       get_counter,
+                       set_counter,
+                       Sim_Attr_Required,
+                       "i",
+                       "A counter");
+</code></pre>
+<h3 id="a-pseudo-attribute"><a href="#a-pseudo-attribute">15.4.2 A Pseudo Attribute</a></h3>
+<p>In the previous example, the attribute <code>counter</code> provides a direct
+representation of the value <code>foo</code> inside the object. Now let us add an attribute
+called <code>add_counter</code> that will increase <code>foo</code> by a given value when the
+attribute is set, and do nothing when the attribute is read. This would give us
+the following code:</p>
+<pre><code>static set_error_t
+set_add_counter(conf_object_t *obj, attr_value_t *val)
+{
+        my_object_t *mo = (my_object_t *)obj;
+
+        mo-&gt;foo += SIM_attr_integer(*val);
+        return Sim_Set_Ok;
+}
+</code></pre>
+<p>There is no need for a get function since this attribute only can be written.
+The semantics of <code>set_add_counter()</code> are also slightly different, since the
+function actually <em>adds</em> a value to <code>foo</code>.</p>
+<p>It is thus possible to create <em>real</em> attributes whose value corresponds to a
+real variable in an object, and <em>pseudo</em> attributes which are only used as
+object “methods”.</p>
+<p>Registering the <code>add_counter</code> attribute is straightforward:</p>
+<pre><code>SIM_register_attribute(class_name, "add_counter",
+                       NULL,
+                       set_add_counter,
+                       Sim_Attr_Pseudo,
+                       "i",
+                       "A sample pseudo attribute.");
+</code></pre>
+<h3 id="attribute-errors"><a href="#attribute-errors">15.4.3 Attribute Errors</a></h3>
+<p>Errors in attribute getter methods are signalled by calling
+<code>SIM_attribute_error</code> with an error description, and then returning an arbitrary
+value. An explicitly “invalid” value is usually returned in these cases, as
+generated by <code>SIM_make_attr_invalid</code>, but any value will do. In Python, <code>None</code>
+is a good choice.</p>
+<p>Errors in attribute setter methods are signalled by returning a <code>set_error_t</code>
+value other than <code>Sim_Set_Ok</code>. In most cases, returning <code>Sim_Set_Illegal_Value</code>
+is the appropriate way of indicating that the given value is not valid for the
+attribute. Optionally, <code>SIM_attribute_error</code> may be called in order to provide a
+more detailed error description, prior to returning.</p>
+<p>Attribute errors generally give rise to frontend exceptions. If the error
+occurred during the reading or writing of a checkpoint, that activity is
+aborted; any partially written checkpoint or created objects are removed.</p>
+<h2 id="interfaces"><a href="#interfaces">15.5 Interfaces</a></h2>
+<h3 id="using-interfaces"><a href="#using-interfaces">15.5.1 Using Interfaces</a></h3>
+<p>An object that wants to interact with another through an interface uses the
+<code>SIM_get_interface()</code> function to retrieve the interface structure. It can then
+call the other object using the functions defined in the structure.</p>
+<pre><code>conf_object_t *obj = SIM_get_object("phys_mem");
+const memory_space_interface_t *ifc;
+attr_value_t val;
+
+ifc = SIM_get_interface(obj, "memory_space");
+val = ifc-&gt;read(obj, SIM_get_object("cpu0"), 0x1234, 4, 0);
+</code></pre>
+<p>When you are using interfaces inside an object, you will often need to define
+which object you want to talk to via an attribute. Typically this is done by
+defining an attribute with type <code>o|n</code>, and checking if the object passed as
+argument implements the necessary interface:</p>
+<pre><code>static attr_value_t
+get_an_object(conf_object_t *obj)
+{
+        my_object_t *mo = (my_object_t *)obj;
+        return SIM_make_attr_object(mo-&gt;an_object);
+}
+
+static set_error_t
+set_an_object(conf_object_t *obj, attr_value_t *val)
+{
+        my_object_t *mo = (my_object_t *)obj;
+
+        if (SIM_attr_is_nil(*val)) {
+                mo-&gt;an_object = NULL;
+        } else {
+                foo_interface_t *foo_ifc =
+                    (foo_interface_t *)SIM_get_interface(
+                                           SIM_attr_object(*val), "foo");
+                if (SIM_clear_exception() != SimExc_No_Exception)
+                        return Sim_Set_Interface_Not_Found;
+                mo-&gt;an_object = SIM_attr_object(*val);                
+        }
+
+        return Sim_Set_Ok;
+}
+
+[…]
+
+SIM_register_attribute(class_name, "an_object",
+                       get_an_object,
+                       set_an_object,
+                       Sim_Attr_Optional,
+                       "o|n",
+                       "An object implementing the 'foo' interface");
+</code></pre>
+<h3 id="using-port-interfaces"><a href="#using-port-interfaces">15.5.2 Using Port Interfaces</a></h3>
+<p>A limitation of interfaces as described above is that each class can only
+implement each interface once, but you may need to implement an interface
+several times in the same device model. For example, consider an interrupt
+controller that has several interrupt inputs having to implement the <code>signal</code>
+interface once for each input.</p>
+<p>To get around this a device will usually use port objects. These are sub objects
+of the main device object that can be used to specify a particular interface
+instance when connecting objects, see <a class="reference" href="port-objects.html">35</a>. In this case using a
+port interface is identical to using a regular interface. You use
+<code>SIM_get_interface()</code> to get the interface implementation and do not have to
+care whether the object is a regular object or port object.</p>
+<p>However, if your model is required to interact with old models implemented in C
+or Python you may find that you also have to support an older port mechanism. In
+this case a port is identified by an object and a port name string.</p>
+<p>Your attribute then has to accept either an object or a list with an object and
+a name string. If a port name is specified you have to use
+<code>SIM_get_port_interface()</code> instead of <code>SIM_get_interface()</code> to get the interface
+implementation.</p>
+<p>The example code from <a class="reference" href="#using-interfaces">15.5.1</a> below is extended with support for
+the old port mechanism:</p>
+<pre><code>static attr_value_t
+get_an_object(conf_object_t *obj)
+{
+        my_object_t *mo = (my_object_t *)obj;
+        if (mo-&gt;a_portname != NULL)
+                return SIM_make_attr_list(
+                        2,
+                        SIM_make_attr_object(mo-&gt;an_object),
+                        SIM_make_attr_object(mo-&gt;n_portname));
+        return SIM_make_attr_object(mo-&gt;an_object);
+}
+
+static set_error_t
+set_an_object(conf_object_t *obj, attr_value_t *val)
+{
+        my_object_t *mo = (my_object_t *)obj;
+
+        if (SIM_attr_is_nil(*val)) {
+                mo-&gt;an_object = NULL;
+        } else if (SIM_attr_is_obj(*val)) {
+                foo_interface_t *foo_ifc =
+                    (foo_interface_t *)SIM_get_interface(
+                                           SIM_attr_object(*val), "foo");
+                if (SIM_clear_exception() != SimExc_No_Exception)
+                        return Sim_Set_Interface_Not_Found;
+                mo-&gt;an_object = SIM_attr_object(*val);
+        } else if (SIM_attr_is_list(*val)) {
+                conf_object_t *foo_obj =
+                    SIM_attr_object(SIM_attr_list_item(*val, 0));
+                const char *foo_port =
+                    SIM_attr_string(SIM_attr_list_item(*val, 1));
+                foo_interface_t *foo_ifc =
+                    (foo_interface_t *)SIM_get_port_interface(
+                                           foo_obj, "foo", foo_port);
+                if (SIM_clear_exception() != SimExc_No_Exception)
+                        return Sim_Set_Interface_Not_Found;
+                mo-&gt;an_object = foo_obj;
+        }
+        MM_FREE(mo-&gt;a_portname);
+        mo-&gt;a_portname = foo_port ? MM_STRDUP(PORT) : NULL;
+
+        return Sim_Set_Ok;
+}
+
+[…]
+
+SIM_register_attribute(class_name, "an_object",
+                       get_an_object,
+                       set_an_object,
+                       Sim_Attr_Optional,
+                       "o|n|[os]",
+                       "An object implementing the 'foo' interface");
+</code></pre>
+<h3 id="implementing-an-interface"><a href="#implementing-an-interface">15.5.3 Implementing an Interface</a></h3>
+<p>The implementation of an existing interface requires the population of all the
+function pointers that are listed in the interface definition with the functions
+that should be called. The interface should then be registered using the
+<code>SIM_register_interface()</code> function:</p>
+<pre><code>SIM_register_interface(conf_class_t *class, char *name, void *iface)
+</code></pre>
+<p>Where the parameters are:</p>
+<dl>
+<dt id="dt:class"><a href="#dt:class"><code>class</code></a></dt>
+<dd>The class that will advertise that it implements the interface</dd>
+<dt id="dt:name-2"><a href="#dt:name-2"><code>name</code></a></dt>
+<dd>The name of the interface</dd>
+<dt id="dt:iface"><a href="#dt:iface"><code>iface</code></a></dt>
+<dd>The filled interface structure.</dd>
+</dl>
+<p>This gives us the following code:</p>
+<pre><code>static cycles_t
+my_operate(conf_object_t *mem_hier, conf_object_t *space,
+           map_list_t *map, generic_transaction_t *mem_op)
+{
+        // do something
+}
+
+static conf_class_t *my_class;
+static timing_model_interface_t ifc;
+
+void
+init_local(void)
+{
+        […]
+        ifc.operate = my_operate;
+        SIM_register_interface(my_class, "timing_model", (void *) &amp;ifc);
+        […]
+}
+</code></pre>
+<p>If there is no predefined interface that suits your needs, you will need to
+define your own interface type. This is described in section
+<a class="reference" href="define-new-interface-type.html">11</a>.</p>
+<h3 id="implementing-interfaces-on-port-objects"><a href="#implementing-interfaces-on-port-objects">15.5.4 Implementing Interfaces on Port Objects</a></h3>
+<p>If your model needs to implement the same interface more than once, for example,
+consider the case of an interrupt controller with multiple interrupt inputs, it
+should do that by implementing the interface on multiple port objects.</p>
+<p>Port objects and how to use them from C are described in <a class="reference" href="port-objects.html">35</a>.</p>
+<h2 id="logging"><a href="#logging">15.6 Logging</a></h2>
+<p>Logging in C is handled by <code>SIM_log_register_group()</code> and the
+<code>SIM_LOG_*</code> macros.</p>
+<p>A single call to <code>SIM_log_register_groups()</code> registers all groups for the class.
+The function is used as:</p>
+<pre><code>SIM_log_register_groups(conf_class_t *cls, const char **gnames)
+</code></pre>
+<p>where the parameters are:</p>
+<dl>
+<dt id="dt:classname"><a href="#dt:classname"><code>classname</code></a></dt>
+<dd>The name of the Simics class in Python, and the class structure in C.</dd>
+<dt id="dt:groupnames"><a href="#dt:groupnames"><code>groupnames</code></a></dt>
+<dd>A tuple of strings in Python, and a NULL-terminated array of strings in C.</dd>
+</dl>
+<p>An example:</p>
+<pre><code>static char *groupnames[] = { "config", "request", "response", NULL };
+SIM_log_register_groups(my_class, &amp;groupnames);
+</code></pre>
+<p>The log group values will be defined by the order of the strings in the tuple as
+a power of 2 series, so in the example above <code>config</code> corresponds to 1,
+<code>request</code> corresponds to 2 and <code>response</code> corresponds to 4.</p>
+<p>Log outputs are handled with <code>SIM_LOG_INFO()</code> and corresponding macros. They
+take the following parameters:</p>
+<pre><code>SIM_LOG_INFO(int level, conf_object_t *obj, uint64 groups, const char *msg);
+</code></pre>
+<p>with the parameters meaning:</p>
+<dl>
+<dt id="dt:level"><a href="#dt:level"><code>level</code></a></dt>
+<dd>An integer from 1 through 4, determining the
+lowest verbosity level at which the message will be logged. The level does not
+exist for the <code>SIM_log_error()</code> function.</dd>
+<dt id="dt:obj"><a href="#dt:obj"><code>obj</code></a></dt>
+<dd>The log object instance.</dd>
+<dt id="dt:groups"><a href="#dt:groups"><code>groups</code></a></dt>
+<dd>The bitwise or:ed values of one or several
+log-groups. A value of 0 equals any group.</dd>
+<dt id="dt:msg"><a href="#dt:msg"><code>msg</code></a></dt>
+<dd>The string to log.</dd>
+</dl>
+<p>Logging from a Simics module written in C or C++ should be done with the following
+macros: <code>SIM_LOG_INFO()</code>, <code>SIM_LOG_ERROR()</code>, <code>SIM_LOG_UNDEFINED()</code>,
+<code>SIM_LOG_SPEC_VIOLATION()</code>, <code>SIM_LOG_WARNING()</code> and <code>SIM_LOG_UNIMPLEMENTED()</code>.
+These macros use the corresponding <code>SIM_log_&lt;type&gt;()</code> function internally, and
+should always be used instead for performance reasons.</p>
+<p>Note that the macros take a variable number of arguments to allow you to write
+<code>printf()</code>-like strings.</p>
+<p>A small example:</p>
+<pre><code>static attr_value_t
+get_counter_array(conf_object_t *obj, attr_value_t *idx)
+{
+        my_object_t *mo = (my_object_t *)obj;
+
+        SIM_LOG_INFO(4, obj, 0, "get_counter_array");
+        if (!SIM_att_is_nil(*idx)) {
+                if (!SIM_attr_is_integer(*idx))
+                        SIM_LOG_ERROR(obj, 0,
+                                      "Index must be integer");
+                        return SIM_make_attr_invalid();
+
+                return SIM_make_attr_uint64(
+                        mo-&gt;foo[SIM_attr_integer(*idx)]);
+        }
+        else {
+                attr_value_t ret = SIM_alloc_attr_list(10);
+                int i;
+                for (i = 0; i &lt; 10; i++) {
+                        SIM_attr_list_set_item(ret, i,
+                                SIM_make_attr_uint64(mo-&gt;foo[i]);
+                }
+                return ret;
+        }
+}
+</code></pre>
+<h2 id="events"><a href="#events">15.7 Events</a></h2>
+<p>Event classes are created with the <code>SIM_register_event()</code> function which should
+be called at module initialization time. The event class holds a pointer to the
+callback function. Here is an example from an UART model:</p>
+<pre><code>static event_class_t *transmit_event;
+
+static void
+uart_transmit(conf_object_t *obj, void *param)
+{
+        uart_device_t *uart = (uart_device_t *)obj;
+        SIM_LOG_INFO(4, &amp;uart-&gt;log, 0, "event called");
+}
+
+void
+init_local(void)
+{
+        conf_class_t *uart_class;
+        […]
+        uart_class = SIM_create_class(…);
+        […]
+        transmit_event = SIM_register_event(
+                "transmit character", uart_class, 0, uart_transmit,
+                0, 0, 0, 0);
+        […]
+}
+</code></pre>
+<p>To post an event in the future, based on time, the <code>SIM_event_post_time()</code> and
+<code>SIM_event_post_cycle()</code> functions are used. An example:</p>
+<pre><code>        SIM_event_post_time(&amp;uart-&gt;log.obj, transmit_event,
+                            &amp;uart-&gt;log.obj, 0.00001, NULL);
+</code></pre>
+<p>It is possible to specify an argument to be passed to the callback function, as
+the sixth parameter of <code>SIM_event_post_time</code>. In order for checkpointing to work
+correctly, you must in this case also specify user-data to <code>attr_value_t</code>
+conversion functions in the call to <code>SIM_register_event</code>.</p>
+<p>If for some reason you do want to remove a posted but not yet handled event, you
+can cancel it with a call to <code>SIM_event_cancel_time()</code>, specifying the object,
+event class and optionally a parameter.</p>
+<pre><code>        SIM_event_cancel_time(obj, transmit_event, obj, 0, NULL);
+</code></pre>
+<p>You can also check how long time is left until an event occurs using
+<code>SIM_event_find_next_cycle()</code>, again specifying the object, event class and
+parameter. The time left to the event is returned in cycles.</p>
+<p>If you want to post an event a number of simulated CPU steps into the future it
+should instead post to the step queue. Posting to the step queue is very similar
+to posting to the time queue, but the functions <code>SIM_event_post_step()</code>,
+<code>SIM_event_cancel_step()</code> and <code>SIM_event_find_next_step()</code> should be used
+instead.</p>
+<p>Refer to the <em>API Reference Manual</em> for more information on the function
+prototypes and their parameters.</p>
+<h2 id="haps"><a href="#haps">15.8 Haps</a></h2>
+<h3 id="providing-haps"><a href="#providing-haps">15.8.1 Providing Haps</a></h3>
+<p>As the Simics profiling and event viewing systems are based on listening to haps
+it can be useful for a device to directly trigger haps rather than relying on
+haps built into the memory, link, and processor models. In these situations the
+model has to choose between a standard Simics hap and a user defined hap.
+Standard haps have the benefit of documentation and predefined hap handlers.
+User defined haps have the advantage of specificity.</p>
+<h4 id="adding-a-new-type"><a href="#adding-a-new-type">15.8.1.1 Adding a New Type</a></h4>
+<p>Before handlers can be notified of a new hap, the hap must be known. A new hap
+type is made known through registration. Registering a new hap type is done with
+the function <code>SIM_hap_add_type()</code>. The signature is:</p>
+<pre><code>hap_type_t
+SIM_hap_add_type(const char *hap,
+                 const char *params,
+                 const char *param_desc,
+                 const char *index,
+                 const char *desc,
+                 int old_hap_obj);
+</code></pre>
+<p>where the parameters are:</p>
+<dl>
+<dt id="dt:hap"><a href="#dt:hap"><code>hap</code></a></dt>
+<dd>
+<p>The name of the hap, which must be unique</p>
+</dd>
+<dt id="dt:params"><a href="#dt:params"><code>params</code></a></dt>
+<dd>
+<p>A string specifying the number of
+parameters of the hap and their types. The return value and the first two
+parameters of the callback function are always the same and are not included
+in the list. A valid parameter description string contains only the following
+type description characters:</p>
+<ul>
+<li><code>i</code> – int</li>
+<li><code>I</code> – int64 (64 bit integer)</li>
+<li><code>e</code> – exception_type_t</li>
+<li><code>o</code> – object (i.e., void* in C and Python object in Python)</li>
+<li><code>s</code> – string</li>
+<li><code>m</code> – memory transaction (<code>generic_transaction_t *</code> in C)</li>
+<li><code>c</code> – configuration object (<code>conf_object_t *</code> in C)</li>
+</ul>
+</dd>
+<dt id="dt:param_desc"><a href="#dt:param_desc"><code>param_desc</code></a></dt>
+<dd>
+<p>space separated list of descriptive
+parameter names (in the same order as <code>params</code>, so that the first word is the
+name of the first parameter. If <code>param</code> is the empty string, <code>param_desc</code> may
+be None.</p>
+</dd>
+<dt id="dt:index"><a href="#dt:index"><code>index</code></a></dt>
+<dd>
+<p>A string describing the index value for the
+hap, or None if there is no index value. The meaning of indexes is up to you
+to define.</p>
+</dd>
+<dt id="dt:desc-2"><a href="#dt:desc-2"><code>desc</code></a></dt>
+<dd>
+<p>A human readable description of the hap.</p>
+</dd>
+<dt id="dt:old_hap_obj"><a href="#dt:old_hap_obj"><code>old_hap_obj</code></a></dt>
+<dd>
+<p>Always 0.</p>
+</dd>
+</dl>
+<p>The return value is a handle that must be saved for operations on the hap.</p>
+<p>Example:</p>
+<pre><code>void
+init_local()
+{
+        […]
+        hap_handle = SIM_hap_add_type("My_Special_Hap",
+                                      "ii",
+                                      "val1 val2",
+                                      NULL,
+                                      "Triggered when something special"
+                                      " happens in my module.",
+                                      0);
+        if (hap_handle &lt;= 0) {
+                /× error handling ×/
+                […]
+        }
+}
+</code></pre>
+<h4 id="triggering-a-hap"><a href="#triggering-a-hap">15.8.1.2 Triggering a Hap</a></h4>
+<p>Whenever the condition for the hap is met, the handlers for the hap should be
+notified. Triggering a hap incurs some overhead; if it occurs in
+performance-sensitive code, it may be beneficial to use one of the
+<code>SIM_hap_is_active_obj</code> or <code>SIM_hap_is_active_obj_idx</code> functions to check if
+there are any handlers prior to calling the notification function.</p>
+<pre><code>bool SIM_hap_is_active_obj(hap_type_t hap, conf_object_t *NOTNULL obj);
+
+bool SIM_hap_is_active_obj_idx(hap_type_t hap, conf_object_t *NOTNULL obj,
+                               int64 index);
+</code></pre>
+<p>where the parameter <code>hap</code> is the value returned from <code>SIM_hap_add_type()</code> or
+from <code>SIM_hap_get_number()</code> if using a standard hap type. These predicates are
+approximate, but if they return false, there is no need to trigger the hap since
+no installed functions would be called.</p>
+<p>The notification to handlers is normally done by calling one of
+<code>SIM_hap_occurred()</code>, <code>SIM_hap_occurred_vararg()</code>, <code>SIM_hap_occurred_always()</code>,
+and <code>SIM_hap_occurred_always_vararg()</code>. See the <em>API Reference Manual</em> for
+information about the differences.</p>
+<pre><code>int
+SIM_c_hap_occurred_always(hap_type_t     hap,
+                          conf_object_t *obj,
+                          int64          value,
+                          ...);
+</code></pre>
+<p>The parameters are:</p>
+<dl>
+<dt id="dt:hap-2"><a href="#dt:hap-2"><code>hap</code></a></dt>
+<dd>The handle to the hap type, as returned from
+<code>SIM_hap_add_type()</code> and <code>SIM_hap_get_number()</code>.</dd>
+<dt id="dt:obj-2"><a href="#dt:obj-2"><code>obj</code></a></dt>
+<dd>The object for which the condition is met.</dd>
+<dt id="dt:value"><a href="#dt:value"><code>value</code></a></dt>
+<dd>Only meaningful if the hap is indexed. The meaning is defined by you.</dd>
+<dt id="dt:list"><a href="#dt:list"><code>list</code></a></dt>
+<dd>In Python, the parameters to the hap callback as a Python list.</dd>
+</dl>
+<p>In C, hap parameters will be provided as additional parameters to the function.
+A short example:</p>
+<pre><code>static void
+some_func(conf_object_t *obj, int v1, int v2)
+{
+        if (some_condition) {
+                SIM_c_hap_occurred(hap_handle, obj, 0, v1, v2)
+        }
+}
+</code></pre>
+<h2 id="using-the-python-c-api"><a href="#using-the-python-c-api">15.9 Using the Python/C API</a></h2>
+<p>If you want to interact with the Python interpreter built into Simics from C,
+you will need to use the Python/C API. The Python/C API is defined by the
+<code>simics/python-header.h</code> header file. This file needs to be included before any
+other Simics API header files.</p>
+<p>In order to use the header file, you will need to include the following two
+statements in your module’s <code>Makefile</code>:</p>
+<pre><code>  MODULE_CFLAGS = $(PYTHON_INCLUDE)
+  MODULE_LDFLAGS = $(PYTHON_LDFLAGS)
+</code></pre>
+<p>These need to be set before the <code>include $(MODULE_MAKEFILE)</code> line and must use
+the lazy evaluation assignment operator (<code>=</code>) rather than <code>:=</code> or <code>+=</code>.</p>
+<p>See <a href="http://docs.python.org" rel="noopener noreferrer" target="_top">http://docs.python.org</a> for more information about
+the Python/C API.</p>
+<blockquote class="markdown-alert-note">
+<p>You should not include the standard <code>Python.h</code> header file directly as it
+contains errors which <code>simics/python-header.h</code> works around.</p>
+</blockquote>
+
+<div class="chain">
+<a href="new-commands.html">14 Adding New Commands</a>
+<a href="writing-module-with-python.html">16 Modeling with Python</a>
+</div>

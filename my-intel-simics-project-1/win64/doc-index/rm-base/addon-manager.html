@@ -1,0 +1,66 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.2 addon-manager</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simics.html">2.1 simics</a>
+<a href="craff.html">2.3 craff</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="command-line-tools-and-programs.html">2 Command-Line Tools and Programs</a>
+&nbsp;/&nbsp;</div><h1 id="addon-manager"><a href="#addon-manager">2.2 addon-manager</a></h1>
+<article class="not-numbered not-in-toc doc-item">
+<h2 id="synopsis"><a href="#synopsis">SYNOPSIS</a></h2>
+<pre><code>addon-manager [options] [-u path] [-s path] [-d path]
+</code></pre>
+<h2 id="description"><a href="#description">DESCRIPTION</a></h2>
+<p>Configure Simics add-on packages to work with the Simics installation. When
+run without any option, this script will list the current add-on packages
+configuration. If any package listed is invalid (for example, if the package
+has been deleted), the script will propose to update the configuration to
+remove the invalid packages.</p>
+<h2 id="options"><a href="#options">OPTIONS</a></h2>
+<dl>
+<dt id="dt:b-batch"><a href="#dt:b-batch"><code>-b</code>, <code>--batch</code></a></dt>
+<dd>The script will act according to the command-line arguments without
+asking any questions.</dd>
+<dt id="dt:c-create-empty"><a href="#dt:c-create-empty"><code>-c</code>, <code>--create-empty</code></a></dt>
+<dd>Create an empty package list in the project. This will cause the project
+to ignore any package associations of the main Simics installation. Only
+valid when operating on a project or together with the -f parameter.</dd>
+<dt id="dt:c-copy-from-simics-base"><a href="#dt:c-copy-from-simics-base"><code>-C</code>, <code>--copy-from-simics-base</code></a></dt>
+<dd>Create a new package list in a project, by copying the package list from
+the main Simics installation. Only valid when operating on a project or
+together with the -f parameter. Roughly equivalent to -u <code>simics_dir</code>.</dd>
+<dt id="dt:d-deselect-path"><a href="#dt:d-deselect-path"><code>-d</code>, <code>--deselect PATH</code></a></dt>
+<dd>Remove the package in <code>PATH</code> from the add-on package list. Note that
+listed packages that do not exist anymore will be removed automatically
+whenever this script runs.</dd>
+<dt id="dt:f-package-list"><a href="#dt:f-package-list"><code>-f</code>, <code>--package-list</code></a></dt>
+<dd>Specify the file containing the package list. This is an alternative to
+the default (storing the list in the main Simics installation) or running
+addon-manager in a project.</dd>
+<dt id="dt:s-select-path"><a href="#dt:s-select-path"><code>-s</code>, <code>--select PATH</code></a></dt>
+<dd>Add the package in <code>PATH</code> to the add-on package list.</dd>
+<dt id="dt:u-upgrade-path-file"><a href="#dt:u-upgrade-path-file"><code>-u</code>, <code>--upgrade [PATH|FILE]</code></a></dt>
+<dd>Re-use the add-on package list found as <code>FILE</code> or present in <code>PATH</code>. The
+current list is backed-up as with a .backup extension.</dd>
+<dt id="dt:v-version"><a href="#dt:v-version"><code>-v</code>, <code>--version</code></a></dt>
+<dd>Print the version of the script and the major version of Simics that it
+can be used with.</dd>
+<dt id="dt:p-project-path"><a href="#dt:p-project-path"><code>-p</code>, <code>--project PATH</code></a></dt>
+<dd>Handle the package associations of the project path instead of the base
+package. This can also be done by running the addon-manager script
+located in path/bin.</dd>
+</dl>
+</article>
+
+<div class="chain">
+<a href="simics.html">2.1 simics</a>
+<a href="craff.html">2.3 craff</a>
+</div>

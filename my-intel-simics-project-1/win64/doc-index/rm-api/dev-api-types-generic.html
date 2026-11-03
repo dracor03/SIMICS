@@ -1,0 +1,1291 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Generic Data Types</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="device-api-data-types.html">Device API Data Types</a>
+<a href="dev-api-types-transactions.html">Transactions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-data-types.html">Device API Data Types</a>
+&nbsp;/&nbsp;</div>
+<h1>Generic Data Types</h1>
+<h2 id="attr_value_t"><a href="#attr_value_t">attr_value_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>attr_value_t — attribute value</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct attr_value attr_value_t;
+</code></pre>
+<h2>Description</h2>
+<p>The <code>attr_value_t</code> is the type used for all values in the configuration system. It is a tagged union.</p>
+<p>The following table shows the different types of values, the type of their payload in C, and the corresponding Python types:</p>
+<table><thead><tr><th>Kind</th><th>C payload</th><th>Python type</th></tr></thead><tbody>
+<tr><td>Invalid</td><td>-</td><td>raises exception</td></tr>
+<tr><td>String</td><td>const char *</td><td>str</td></tr>
+<tr><td>Integer</td><td>int64 or uint64</td><td>int or long</td></tr>
+<tr><td>Boolean</td><td>bool</td><td>bool</td></tr>
+<tr><td>Floating</td><td>double</td><td>float</td></tr>
+<tr><td>Object</td><td>conf_object_t *</td><td>simics.conf_object_t</td></tr>
+<tr><td>List</td><td>array of attr_value_t</td><td>list</td></tr>
+<tr><td>Dict</td><td>array of pairs of attr_value_t</td><td>dict</td></tr>
+<tr><td>Data</td><td>array of bytes</td><td>tuple of small integers</td></tr>
+<tr><td>Nil</td><td>-</td><td>None</td></tr>
+</tbody></table>
+<p>The members inside <code>attr_value_t</code> should not be accessed directly. Instead, use the corresponding functions for each type:</p>
+<table><thead><tr><th></th><th>API Functions</th></tr></thead><tbody>
+<tr><td>Constructor</td><td><code>SIM_make_attr_</code><em>TYPE</em></td></tr>
+<tr><td>Destructor</td><td><code>SIM_attr_free</code></td></tr>
+<tr><td>Type predicate</td><td><code>SIM_attr_is_</code><em>TYPE</em></td></tr>
+<tr><td>Access</td><td><code>SIM_attr_</code><em>TYPE</em></td></tr>
+</tbody></table>
+<p>Values of type List and Dict can be modified using <a href="dev-api-attr-value-t.html#SIM_attr_list_set_item"><code>SIM_attr_list_set_item</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_dict_set_item"><code>SIM_attr_dict_set_item</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_list_resize"><code>SIM_attr_list_resize</code></a>, and <a href="dev-api-attr-value-t.html#SIM_attr_dict_resize"><code>SIM_attr_dict_resize</code></a>.</p>
+<p>None of these functions are available or needed in Python. The <code>attr_value_t</code> values are translated to the ordinary Python values as shown in the table above.</p>
+<p>Some values may have data in separate heap allocations. These are normally managed by the respective constructor and destructor methods, but careless copying of values may introduce aliasing errors. Use <a href="dev-api-attr-value-t.html#SIM_attr_copy"><code>SIM_attr_copy</code></a> to duplicate values. Again, this is of no concern in Python.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_make_attr_int64"><code>SIM_make_attr_int64</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_is_integer"><code>SIM_attr_is_integer</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_integer"><code>SIM_attr_integer</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_free"><code>SIM_attr_free</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_list_resize"><code>SIM_attr_list_resize</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_list_set_item"><code>SIM_attr_list_set_item</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_dict_resize"><code>SIM_attr_dict_resize</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_dict_set_item"><code>SIM_attr_dict_set_item</code></a>, <a href="dev-api-attr-value-t.html#SIM_attr_copy"><code>SIM_attr_copy</code></a></p>
+</section>
+<h2 id="break_net_cb_t"><a href="#break_net_cb_t">break_net_cb_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>break_net_cb_t — callback type used with network breakpoints</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/ethernet.h&gt; // in C
+import "simics/devs/ethernet.dml"; // in DML
+
+typedef int (*break_net_cb_t)(conf_object_t *obj, bytes_t data,
+                              int len, int64 break_id);
+</code></pre>
+<h2>Description</h2>
+<p>Callback function used by network breakpoint system, called when associated criteria has matched. The <code>obj</code> parameter is the ethernet link id where the breakpoint matched, <code>msg</code> is the message that is given back to the manager, <code>break_id</code> is the associated breakpoint id, returned by the <code>add</code> method in the <a href="model-to-model-interfaces.html#network_breakpoint_interface_t"><code>network_breakpoint</code></a> interface. The return value is ignored.</p>
+</section>
+<h2 id="buffer_t"><a href="#buffer_t">buffer_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>buffer_t — a reference to a mutable buffer</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct {
+        uint8 *data;
+        size_t len;
+} buffer_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.buffer_t
+</code></pre>
+<h2>Description</h2>
+<p>A reference to a (mutable) buffer. When used as a function parameter, the callee is permitted to write up to <code>len</code> bytes into the buffer pointed to by <code>data</code>.</p>
+<p>Returning values of this type from interface methods should be avoided. If this is the case the scope of the returned object should be documented.</p>
+<p>The corresponding Python type is called <code>buffer_t</code>, and behaves like a fixed-size mutable byte vector. The constructor takes as argument either a string, providing the initial value, or an integer, specifying the buffer size.</p>
+</section>
+<h2 id="bytes_t"><a href="#bytes_t">bytes_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>bytes_t — an immutable sequence of bytes</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct {
+        const uint8 *data;
+        size_t len;
+} bytes_t;
+</code></pre>
+<h2>Description</h2>
+<p>An immutable sequence of bytes. When used as a function parameter, the callee should treat the data as read-only.</p>
+<p>When used as a return value, the <code>data</code> member must point to a heap-allocated memory block whose ownership is transferred to the caller. The caller is then responsible for freeing the block.</p>
+<p>The corresponding Python type is Python’s built-in class ‘bytes’. Here are a few code examples that create ‘bytes’ objects in Python:</p>
+<pre><code>b'abcd'
+b'\xf0\xf1\xf2\xf3'
+bytes([0xf0, 0xf1, 0xf2, 0xf3])
+0xf3f2f1f0.to_bytes(length=4, byteorder='little')
+bytes.fromhex('f0f1f2f3')
+</code></pre>
+</section>
+<h2 id="cbdata_t"><a href="#cbdata_t">cbdata_t, cbdata_register_t, cbdata_call_t, cbdata_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>cbdata_t, cbdata_register_t, cbdata_call_t, cbdata_type_t — callback data types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct cbdata cbdata_t;
+typedef cbdata_t cbdata_register_t;
+typedef cbdata_t cbdata_call_t;
+
+typedef struct {
+        const char *name;
+        void (*dealloc)(void *data);
+} cbdata_type_t;
+</code></pre>
+<h2>Description</h2>
+<p>These data types are used by API functions and interface methods that provide callbacks with callback data. By using these data types instead of a simple <code>void *</code>, the callback data can be freed correctly when not needed anymore.</p>
+<p>The types <code>cbdata_register_t</code> and <code>cbdata_call_t</code> are only aliases for <code>cbdata_t</code>, used to annotate whether the object is passed to a registration function or a callback function. This is used by the automatic Python wrapping to ensure that the callback data is freed correctly.</p>
+<p>Objects of this type can be created by using either <a href="dev-api-callbacks.html#SIM_make_cbdata"><code>SIM_make_cbdata</code></a> or <a href="dev-api-callbacks.html#SIM_make_simple_cbdata"><code>SIM_make_simple_cbdata</code></a>. The latter creates an untyped objects with no deallocation function, while the former takes a <code>cbdata_type_t</code> argument, specifying a type name and a deallocation function.</p>
+<p>The following example shows how an API function could be defined using these data types:</p>
+<pre><code>   void for_all_ids(void (*callback)(const char *id,
+                                     cbdata_call_t data),
+                    cbdata_register_t data);
+</code></pre>
+<p>Note how the two flavors of <code>cbdata_t</code> are used. <code>cbdata_register_t</code> is used to pass some data to <code>for_all_ids</code> which passes the same data unmodified to <code>callback</code>. Here is an example of how this function could be called; from C:</p>
+<pre><code>static void callback(const char *id, cbdata_call_t data)
+{
+    const char *prefix = SIM_cbdata_data(&amp;data);
+    printf("%s %s\n", prefix, id);
+}
+      :
+    for_all_ids(callback, SIM_make_simple_cbdata("Testing"));
+</code></pre>
+<p>and from Python:</p>
+<pre><code>def callback(id, prefix):
+    print("%s %s" % (prefix, id))
+
+for_all_ids(callback, "Testing")
+</code></pre>
+<p>Note in particular that the Python code does not mention “cbdata” anywhere; it is all automatically handled by the Python wrapping code.</p>
+<p>The C version of the previous example used <a href="dev-api-callbacks.html#SIM_make_simple_cbdata"><code>SIM_make_simple_cbdata</code></a>, as the constant string <code>"Testing"</code> does not need any deallocation function. For dynamically allocated data, you must use <a href="dev-api-callbacks.html#SIM_make_cbdata"><code>SIM_make_cbdata</code></a> instead:</p>
+<pre><code>static const cbdata_type_t malloced_int_type = {
+    "integer",       // name
+    free             // dealloc
+};
+
+static void callback(const char *id, cbdata_call_t data)
+{
+    int *count = SIM_cbdata_data(&amp;amp;data);
+    printf("%d %s\n", *count, id);
+    ++*count;
+}
+      :
+    int *counter = malloc(sizeof *counter);
+    *counter = 1;
+    for_all_ids(callback, SIM_make_cbdata(malloced_int_type, counter));
+</code></pre>
+<p>In this example, <code>for_all_ids</code> is responsible for calling the deallocation function for the callback data after it has completed all calls to <code>callback</code>. It does this by calling <a href="dev-api-callbacks.html#SIM_free_cbdata"><code>SIM_free_cbdata</code></a>, which in turn will call <code>malloced_int_type.dealloc</code>; i.e., <code>free</code>.</p>
+<p>The same example in Python; we still do not have to call any cbdata function manually, but we do have to pass the counter in a one-element list since integers are immutable in Python:</p>
+<pre><code>def callback(id, count):
+    print("%s %s" % (prefix, count[0]))
+    count[0] += 1
+
+for_all_ids(callback, [1])
+</code></pre>
+<p>While the use of <code>cbdata_t</code> over a simple <code>void *</code> in these examples seems redundant, they are needed if <code>for_all_ids</code> does not call <code>callback</code> before returning, but asynchronously at some later point in time. The use of <code>cbdata_t</code> also ensures that the data is freed correctly even when any of the involved functions is implemented in Python. This case often arises in conjunction with Simics interfaces.</p>
+<p>See the <a href="../model-builder-user-guide/define-new-interface-type.html#callback-functions-in-interfaces">Callback Functions in Interfaces</a> section in the <em>Simics Model Builder User’s Guide</em> for more information on how to use the <code>cbdata_t</code> types.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#lang_void"><code>lang_void</code></a>, <a href="dev-api-callbacks.html#SIM_make_cbdata"><code>SIM_make_cbdata</code></a>, <a href="dev-api-callbacks.html#SIM_make_simple_cbdata"><code>SIM_make_simple_cbdata</code></a>, <a href="dev-api-callbacks.html#SIM_free_cbdata"><code>SIM_free_cbdata</code></a>, <a href="dev-api-callbacks.html#SIM_cbdata_data"><code>SIM_cbdata_data</code></a>, <a href="dev-api-callbacks.html#SIM_cbdata_type"><code>SIM_cbdata_type</code></a></p>
+</section>
+<h2 id="class_data_t"><a href="#class_data_t">class_data_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>class_data_t — type used when a new class is registered with <code>SIM_register_class</code></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct class_data {
+        conf_object_t *(*alloc_object)(lang_void *data);
+        lang_void *(*init_object)(conf_object_t *obj, lang_void *data);
+        void (*finalize_instance)(conf_object_t *obj);
+
+        void (*pre_delete_instance)(conf_object_t *obj);
+        int (*delete_instance)(conf_object_t *obj);
+
+        const char           *description;
+        const char           *class_desc;
+        class_kind_t          kind;
+} class_data_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.class_data_t(alloc_object=None, init_object=None,
+        finalize_instance=None, pre_delete_instance=None,
+        delete_instance=None, description=None, class_desc=None,
+        kind=Sim_Class_Kind_Vanilla)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>class_data_t</code> type is used when a new class is registered. Uninitialized fields should be set to zero before the structure is passed to <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class</code></a>.</p>
+<p>When a new object is created, memory for the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> is allocated by Simics unless <code>alloc_object</code> has been provided by the class. Classes written in C may implement <code>alloc_object</code> to have a single allocation and must then place <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> first in the object data structure. This has the advantage of allowing casts directly from a <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t *</code></a> to a pointer to the user structure instead of using <a href="dev-api-configuration.html#SIM_object_data"><code>SIM_object_data</code></a>.</p>
+<p>When the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> has been allocated, the <code>init_object</code> function is called. If the object instance needs additional storage, it may allocate its own memory and return a pointer to it from <code>init_object</code>. This pointer can later be obtained using <a href="dev-api-configuration.html#SIM_object_data"><code>SIM_object_data</code></a>. The return value from <code>init_object</code> has to be non-null to signal a successful object initialization. If a null value is returned, no configuration object will be created and an error will be reported. For classes that implement their own <code>alloc_object</code>, there is no need to allocate additional storage in the <code>init_object</code> function and they can simply return the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> pointer from <code>init_object</code>.</p>
+<p><code>alloc_object</code> and <code>init_object</code> both receive a <code>data</code> parameter; they are currently not used, and should be ignored.</p>
+<p>The optional <code>finalize_instance</code> function is called when all attributes have been initialized in the object, and in all other objects that are created at the same time.</p>
+<p>The <code>pre_delete_instance</code> and <code>delete_instance</code> fields can be set to let the objects of this class support deletion:</p>
+<ul>
+<li><code>pre_delete_instance</code> will be called in the first phase of the object deletion, during which objects are expected to clean-up their external links to other objects (breakpoints, hap callbacks, file or network resources, …). They may also trigger the deletion of other objects. <code>pre_delete_instance</code> is only called for objects that have reached at least <code>finalize_instance</code> during initialization.</li>
+<li><code>delete_instance</code> will be called in the second phase of the object deletion: objects are expected to deallocate the memory they use including the object data structure. They may not communicate with other objects as these may already have been destroyed. The return value from <code>delete_instance</code> is ignored for compatibility. <code>delete_instance</code> is always called unless <code>alloc_object</code> is not defined, or if it returned NULL.</li>
+</ul>
+<p>The delete functions may be called by Simics before an object is fully configured. That is, without any call to <code>finalize_instance</code> and possibly before all the attribute set methods have been called. This may happen when the object is part of a configuration that fails to load. The <a href="dev-api-configuration.html#SIM_object_is_configured"><code>SIM_object_is_configured</code></a> function can be used to determine if <code>finalize_instance</code> has run or not.</p>
+<p>The <code>description</code> string is used to describe the class in several sentences. It is used in the help commands and reference manuals. The <code>class_desc</code> string is a short class description beginning with lower case, without any trailing dot, and at most 50 characters long. It is used in help commands and for example in the GUI.</p>
+<blockquote class="markdown-alert-note">
+<p>The old class functions are legacy. New code should use <a href="dev-api-types-generic.html#class_info_t"><code>class_info_t</code></a> and <a href="dev-api-configuration.html#SIM_create_class"><code>SIM_create_class</code></a>.</p>
+</blockquote>
+</section>
+<h2 id="class_info_t"><a href="#class_info_t">class_kind_t, class_info_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>class_kind_t, class_info_t — type used when a new class is registered with <code>SIM_create_class</code></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Class_Kind_Vanilla = 0, /* object is saved at checkpoints */
+        Sim_Class_Kind_Session = 1, /* object is saved as part of a
+                                     * session only */
+        Sim_Class_Kind_Pseudo = 2,  /* object is never saved */
+
+        Sim_Class_Kind_Extension = 3, /* extension class
+                                         (see SIM_extend_class) */
+} class_kind_t;
+
+typedef struct class_info {
+        conf_object_t *(*alloc)(conf_class_t *cls);
+        lang_void *(*init)(conf_object_t *obj);
+        void (*finalize)(conf_object_t *obj);
+        void (*objects_finalized)(conf_object_t *obj);
+
+        void (*deinit)(conf_object_t *obj);
+        void (*dealloc)(conf_object_t *obj);
+
+        const char           *description;
+        const char           *short_desc;
+        class_kind_t          kind;
+} class_info_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Class_Kind_Vanilla
+simics.Sim_Class_Kind_Extension
+simics.Sim_Class_Kind_Pseudo
+simics.Sim_Class_Kind_Session
+class simics.class_info_t(alloc=None, init=None, finalize=None,
+        objects_finalized=None, deinit=None, dealloc=None, description=None,
+        short_desc=None, kind=Sim_Class_Kind_Vanilla)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>class_info_t</code> type is used when a new class is registered. Uninitialized fields should be set to zero before the structure is passed to <a href="dev-api-configuration.html#SIM_create_class"><code>SIM_create_class</code></a>.</p>
+<p>The <code>alloc</code> method is responsible for allocating memory for the object itself, i.e. the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> structure. If no <code>alloc</code> method is provided, Simics will use a default one, which uses <a href="dev-api-alloc.html#MM_MALLOC"><code>MM_MALLOC</code></a>. Classes written in C may implement <code>alloc</code> to have a single allocation and must then place <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> first in the object data structure. This has the advantage of allowing casts directly from a <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t *</code></a> to a pointer to the user structure instead of using <a href="dev-api-configuration.html#SIM_object_data"><code>SIM_object_data</code></a>. The <code>alloc</code> method can fail, e.g. if memory allocation fails, and signals this by returning NULL.</p>
+<p>After <code>alloc</code> has run on all objects being created, the <code>init</code> function is called, if defined. This method should do any class specific initialization, such as initializing internal data structures. The <code>init</code> method may also use <a href="sim-api-configuration.html#SIM_get_object"><code>SIM_get_object</code></a> to obtain pointers to other objects, and it can use <a href="dev-api-configuration.html#SIM_set_attribute_default"><code>SIM_set_attribute_default</code></a> on its descendants, but it may not call interfaces on other objects, or post events. If the object instance needs additional storage, it may allocate its own memory and return a pointer to it from <code>init</code>. This pointer can later be obtained using <a href="dev-api-configuration.html#SIM_object_data"><code>SIM_object_data</code></a>. However, for classes that implement their own <code>alloc</code>, there is no need for that, since it can be done by co-allocating the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> struct in a larger data structure, and simply return the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> pointer from <code>init</code>. The <code>init</code> method is allowed to fail, and it signals this by returning NULL.</p>
+<p>The <code>finalize</code> method, if defined, is called when all attributes have been initialized in the object. This method is supposed to do any object initialization that require attribute values. Communication with other objects, e.g. via interfaces, should be deferred until the <code>objects_finalized</code> method. For backwards compatibility, this is also allowed from <code>finalize</code> provided the calling object has invoked <a href="dev-api-configuration.html#SIM_require_object"><code>SIM_require_object</code></a> on the target object.</p>
+<p>The <code>objects_finalized</code> method, if defined, is called after <code>finalize</code> has been called on all objects, so in this method the configuration is ready, and communication with other objects is permitted without restrictions.</p>
+<p>The <code>deinit</code> and <code>dealloc</code> methods are called during object destruction. The <code>deinit</code> method, if defined, is called first on all objects being deleted, and is supposed to do the inverse of the <code>init</code> method. The <code>dealloc</code> method is supposed to free the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> itself, i.e. it should be the inverse of <code>alloc</code>. It is not defined, a default dealloc method is used, which uses <a href="dev-api-alloc.html#MM_FREE"><code>MM_FREE</code></a>.</p>
+<p>The delete functions may be called by Simics before an object is fully configured. That is, without any call to <code>finalize</code> and possibly before all the attribute set methods have been called. This may happen when the object is part of a configuration that fails to load. The <a href="dev-api-configuration.html#SIM_object_is_configured"><code>SIM_object_is_configured</code></a> function can be used to determine if <code>finalize</code> has run or not.</p>
+<p>All functions are called in hierarchical order, starting from the root, so each object can assume that in each case, a function has already been called on all its ancestors. This can be used to e.g. set attribute default values on descendants in the <code>init</code> method.</p>
+<p>If the initialization fails, i.e. if <code>init</code> fails, or if any attribute setter fails, then the configuration creation is rolled back. For those objects where init succeeded (or no init was defined), the <code>deinit</code> function will be called, and on all created objects (i.e. not ones where <code>alloc</code> failed) the <code>dealloc</code> method is called.</p>
+<p>The <code>description</code> string is used to describe the class in several sentences. It is used in the help commands and reference manuals. The <code>short_desc</code> string is a short class description beginning with lower case, without any trailing dot, and at most 50 characters long. It is used in help commands and for example in the GUI.</p>
+</section>
+<h2 id="concurrency_mode_t"><a href="#concurrency_mode_t">concurrency_mode_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>concurrency_mode_t — available concurrency modes</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/model-iface/concurrency.h&gt; // in C
+import "simics/model-iface/concurrency.dml"; // in DML
+
+typedef enum {
+        /* Model uses the Standard Device Model */
+        Sim_Concurrency_Mode_Serialized = 1,
+
+        /* Model uses the Threaded Device Model.
+           Direct memory pages are protected against concurrency. */
+        Sim_Concurrency_Mode_Serialized_Memory = 2,
+
+        /* Model uses the Threaded Device Model.
+           Concurrency can be observed on direct memory pages */
+        Sim_Concurrency_Mode_Full = 4,
+} concurrency_mode_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Concurrency_Mode_Serialized
+simics.Sim_Concurrency_Mode_Full
+simics.Sim_Concurrency_Mode_Serialized_Memory
+</code></pre>
+</section>
+<h2 id="conf_object_t"><a href="#conf_object_t">conf_object_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>conf_object_t — a configuration object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct conf_object conf_object_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.conf_object_t
+</code></pre>
+<h2>Description</h2>
+<p>All objects in the Simics simulator have an associated <code>conf_object_t</code> struct. Pointers to <code>conf_object_t</code> are used in the Simics simulator API to refer to a specific object in the current Simics session. <code>conf_object_t</code> is an opaque data structure whose members should only be accessed using the Simics API.</p>
+</section>
+<h2 id="data_or_instr_t"><a href="#data_or_instr_t">data_or_instr_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>data_or_instr_t — type used to differentiate between data and instruction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_DI_Instruction      = 0,
+        Sim_DI_Data             = 1
+} data_or_instr_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_DI_Instruction
+simics.Sim_DI_Data
+</code></pre>
+<h2>Description</h2>
+<p>This type is used to differentiate between data and instruction, usually in a TBL or memory transaction context.</p>
+</section>
+<h2 id="dbuffer_t"><a href="#dbuffer_t">dbuffer_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>dbuffer_t — type used to store blocks of binary data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct dbuffer dbuffer_t;
+</code></pre>
+<h2>Description</h2>
+<blockquote class="markdown-alert-note">
+<p>This is a legacy data type. New code should use one of <a href="dev-api-frags-t.html#frags_t"><code>frags_t</code></a>, <a href="dev-api-types-generic.html#bytes_t"><code>bytes_t</code></a> or <a href="dev-api-types-generic.html#buffer_t"><code>buffer_t</code></a>.</p>
+</blockquote>
+<p>This type is used to store blocks of binary data.  It is optimized for fast adding and removing of data, and does fast copying between buffers using copy-on-write semantics.</p>
+<p>The type is not inherently thread safe, so each instance must have a single thread as owner, and only the owner can read or write from the instance, however ownership can be transferred to another thread. To share the data with other threads, the instance must first be cloned using <a href="dev-api-obsolete.html#dbuffer_clone"><code>dbuffer_clone</code></a>.</p>
+</section>
+<h2 id="endianness_t"><a href="#endianness_t">endianness_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>endianness_t — endianness to use for certain memory operations</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Endian_Target,
+        Sim_Endian_Host_From_BE,
+        Sim_Endian_Host_From_LE
+} endianness_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Endian_Host_From_LE
+simics.Sim_Endian_Target
+simics.Sim_Endian_Host_From_BE
+</code></pre>
+<h2>Description</h2>
+<p>Specifies the endianness to use for certain memory operations. When <code>Sim_Endian_Target</code> is used, the data from memory is copied without any endian conversion. <code>Sim_Endian_Host_From_BE</code> and <code>Sim_Endian_Host_From_LE</code> copies data between a big-endian, or little-endian, memory and a host buffer.</p>
+</section>
+<h2 id="eth_frame_crc_status_t"><a href="#eth_frame_crc_status_t">eth_frame_crc_status_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>eth_frame_crc_status_t — values used to signal crc status on ethernet frames</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/ethernet.h&gt; // in C
+import "simics/devs/ethernet.dml"; // in DML
+
+typedef enum {
+        Eth_Frame_CRC_Match,
+        Eth_Frame_CRC_Mismatch,
+        Eth_Frame_CRC_Unknown
+} eth_frame_crc_status_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Eth_Frame_CRC_Unknown
+simics.Eth_Frame_CRC_Match
+simics.Eth_Frame_CRC_Mismatch
+</code></pre>
+<h2>Description</h2>
+<dl>
+<dt id="dt:eth_frame_crc_match"><a href="#dt:eth_frame_crc_match">Eth_Frame_CRC_Match</a></dt>
+<dd>the frame contents are correct. The CRC field in the frame should not be relied upon as its computation may have been skipped for optimization, and it may contain any value, including zero, a random value or a correctly computed CRC.</dd>
+<dt id="dt:eth_frame_crc_mismatch"><a href="#dt:eth_frame_crc_mismatch">Eth_Frame_CRC_Mismatch</a></dt>
+<dd>the frame contents are incorrect. The CRC field in the frame must contain a CRC that does not match the frame contents, i.e., to send an incorrect frame on the link, you must make sure that the CRC field will not match when computed.</dd>
+<dt id="dt:eth_frame_crc_unknown"><a href="#dt:eth_frame_crc_unknown">Eth_Frame_CRC_Unknown</a></dt>
+<dd>the relation between the frame contents and the CRC field is unknown. The relation can be established by computing the frame’s CRC and comparing it to the frame’s CRC field.</dd>
+</dl>
+</section>
+<h2 id="exception_type_t"><a href="#exception_type_t">exception_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>exception_type_t — exceptions for memory accesses</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        SIM_PSEUDO_EXC(SIM_PSEUDO_EXC_ENUM)
+} exception_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_PE_Deferred
+simics.Sim_PE_Instruction_Finished
+simics.Sim_PE_IO_Error
+simics.Sim_PE_No_Exception
+simics.Sim_PE_Execute_Outside_Memory
+simics.Sim_PE_Last
+simics.Sim_PE_IO_Not_Taken
+simics.Sim_PE_Ignore_Semantics
+simics.Sim_PE_Inquiry_Outside_Memory
+simics.Sim_PE_Default_Semantics
+simics.Sim_PE_Stall_Cpu
+simics.Sim_PE_Inquiry_Unhandled
+simics.Sim_PE_Cancelled
+simics.Sim_PE_Silent_Break
+simics.Sim_PE_Stop_Request
+simics.Sim_PE_Async_Required
+</code></pre>
+<h2>Description</h2>
+<p>Used to signal simulator exceptions for memory accesses. Errors usually correspond to hardware exceptions, but in some cases additional return values are needed, and then <em>pseudo exceptions</em> are used. The most common is <code>Sim_PE_No_Exception</code>, indicating that no error has occurred. Pseudo exceptions are used by devices, memory spaces, and Simics internally.</p>
+<dl>
+<dt id="dt:sim_pe_no_exception"><a href="#dt:sim_pe_no_exception">Sim_PE_No_Exception</a></dt>
+<dd>No error.</dd>
+<dt id="dt:sim_pe_deferred"><a href="#dt:sim_pe_deferred">Sim_PE_Deferred</a></dt>
+<dd>Transaction completion is deferred via the call to <a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a>.</dd>
+<dt id="dt:sim_pe_async_required"><a href="#dt:sim_pe_async_required">Sim_PE_Async_Required</a></dt>
+<dd>The endpoint tried to defer the transaction with <a href="dev-api-transactions.html#SIM_defer_transaction"><code>SIM_defer_transaction</code></a> but the transaction cannot be deferred.</dd>
+<dt id="dt:sim_pe_cancelled"><a href="#dt:sim_pe_cancelled">Sim_PE_Cancelled</a></dt>
+<dd>Special completion status passed to <a href="dev-api-types-transactions.html#transaction_completion_t"><code>transaction_completion_t</code></a> callbacks when asynchronous transactions are cancelled by Simics, for example, when simulation state is restored from a snapshot.</dd>
+<dt id="dt:sim_pe_io_not_taken"><a href="#dt:sim_pe_io_not_taken">Sim_PE_IO_Not_Taken</a></dt>
+<dd>Access to unmapped memory. In the PCI memory spaces interpreted as master abort.</dd>
+<dt id="dt:sim_pe_io_error"><a href="#dt:sim_pe_io_error">Sim_PE_IO_Error</a></dt>
+<dd>Accessed device returned error. In the PCI memory spaces interpreted as target abort.</dd>
+<dt id="dt:sim_pe_inquiry_outside_memory"><a href="#dt:sim_pe_inquiry_outside_memory">Sim_PE_Inquiry_Outside_Memory</a></dt>
+<dd>Same as Sim_PE_IO_Not_Taken, but for inquiry accesses.</dd>
+<dt id="dt:sim_pe_execute_outside_memory"><a href="#dt:sim_pe_execute_outside_memory">Sim_PE_Execute_Outside_Memory</a></dt>
+<dd>A processor tried to fetch instruction where no memory is defined.</dd>
+<dt id="dt:sim_pe_inquiry_unhandled"><a href="#dt:sim_pe_inquiry_unhandled">Sim_PE_Inquiry_Unhandled</a></dt>
+<dd>The accessed device does not support inquiry operations.</dd>
+<dt id="dt:sim_pe_stall_cpu"><a href="#dt:sim_pe_stall_cpu">Sim_PE_Stall_Cpu</a></dt>
+<dd>Timing model requested stall.</dd>
+<dt id="dt:sim_pe_default_semantics"><a href="#dt:sim_pe_default_semantics">Sim_PE_Default_Semantics</a></dt>
+<dd>Used by user decoders and user ASI handlers on SPARC to signal that the default semantics should be run.</dd>
+<dt id="dt:sim_pe_ignore_semantics"><a href="#dt:sim_pe_ignore_semantics">Sim_PE_Ignore_Semantics</a></dt>
+<dd>Used by user ASI handlers on SPARC to signal no update of destination registers.</dd>
+<dt id="dt:sim_pe_silent_break-sim_pe_instruction_finished-sim_pe_last"><a href="#dt:sim_pe_silent_break-sim_pe_instruction_finished-sim_pe_last">Sim_PE_Silent_Break, Sim_PE_Instruction_Finished, Sim_PE_Last</a></dt>
+<dd>Simics internal.</dd>
+</dl>
+</section>
+<h2 id="gen_spr_access_type_t"><a href="#gen_spr_access_type_t">gen_spr_access_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>gen_spr_access_type_t — list of access types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        /* Access from a mfspr/mtspr instruction */
+        Sim_Gen_Spr_Instruction_Access,
+
+        /* Access through attribute */
+        Sim_Gen_Spr_Attribute_Access,
+
+        /* Access through int_register interface */
+        Sim_Gen_Spr_Int_Register_Access,
+
+        /* For compatibility with former PPC-only implementation */
+        Sim_PPC_Spr_Instruction_Access  = Sim_Gen_Spr_Instruction_Access,
+        Sim_PPC_Spr_Attribute_Access    = Sim_Gen_Spr_Attribute_Access,
+        Sim_PPC_Spr_Int_Register_Access = Sim_Gen_Spr_Int_Register_Access
+} gen_spr_access_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Gen_Spr_Attribute_Access
+simics.Sim_Gen_Spr_Int_Register_Access
+simics.Sim_Gen_Spr_Instruction_Access
+</code></pre>
+</section>
+<h2 id="gen_spr_ret_t"><a href="#gen_spr_ret_t">gen_spr_ret_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>gen_spr_ret_t — list of access status</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Gen_Spr_Ok,        /* SPR access was OK */
+        Sim_Gen_Spr_Illegal,   /* SPR access should trigger illegal insn exc */
+        Sim_Gen_Spr_Privilege, /* SPR access should trigger privilege exc */
+
+        Sim_Gen_Spr_Processor_Sleeps, /* SPR access suspends the processor */
+
+        /* For compatibility with former PPC-only implementation */
+        Sim_PPC_Spr_Ok        = Sim_Gen_Spr_Ok,
+        Sim_PPC_Spr_Illegal   = Sim_Gen_Spr_Illegal,
+        Sim_PPC_Spr_Privilege = Sim_Gen_Spr_Privilege
+} gen_spr_ret_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Gen_Spr_Illegal
+simics.Sim_Gen_Spr_Processor_Sleeps
+simics.Sim_Gen_Spr_Ok
+simics.Sim_Gen_Spr_Privilege
+</code></pre>
+</section>
+<h2 id="gen_spr_user_getter_func_t"><a href="#gen_spr_user_getter_func_t">gen_spr_user_getter_func_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>gen_spr_user_getter_func_t — function type used with spr interfaces</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef gen_spr_ret_t (*gen_spr_user_getter_func_t)(
+        conf_object_t *cpu,
+        int64 spr_number,
+        gen_spr_access_type_t type,
+        lang_void *user_data);
+</code></pre>
+</section>
+<h2 id="gen_spr_user_setter_func_t"><a href="#gen_spr_user_setter_func_t">gen_spr_user_setter_func_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>gen_spr_user_setter_func_t — function type used with spr interfaces</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef gen_spr_ret_t (*gen_spr_user_setter_func_t)(
+        conf_object_t *cpu,
+        int64 spr_number,
+        uint64 value,
+        gen_spr_access_type_t type,
+        lang_void *user_data);
+</code></pre>
+</section>
+<h2 id="generic_transaction_t"><a href="#generic_transaction_t">generic_transaction_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>generic_transaction_t — represents a memory transaction</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct generic_transaction {
+        logical_address_t   logical_address;
+        physical_address_t  physical_address;
+        unsigned int        size;             /* size in bytes */
+        mem_op_type_t       type;             /* opaque */
+        unsigned int        atomic:1;         /* trans is part of an atomic
+                                                 sequence of mem ops */
+
+        unsigned int        inquiry:1;        /* set to 1 to indicate inquiry
+                                                 access */
+        unsigned int        non_coherent:1;   /* set to 1 to use
+                                                 direct_memory_update_interface_t.
+                                                 update_caching else
+                                                 update_permission */
+        unsigned int        _deprecated_ignore:1;
+        unsigned int        may_stall:1;      /* when set to 0, any stall time
+                                                 returned is ignored */
+        unsigned int        reissue:1;        /* If this is 1, the transaction
+                                                 will be reissued if a stall
+                                                 greater than 0 is returned */
+        unsigned int        block_STC:1;      /* blocks stc (compat. only) */
+        unsigned int        use_page_cache:1; /* internal - do not change */
+
+        unsigned int        inverse_endian:1; /* data transfer is
+                                                 byte-reversed */
+
+        unsigned int        page_cross:2;     /* page crossing
+                                                 0 - no crossing
+                                                 1 - first access
+                                                 2 - second access */
+
+        unsigned int        mem_hier_on_fetch:1; /* set to have fetches sent
+                                                    through mem hier */
+
+        unsigned int        block_flags;      /* what we wish to block
+                                                 from caching */
+
+        ini_type_t          ini_type;         /* cpu, device, or other */
+        conf_object_t      *ini_ptr;
+
+        exception_type_t    exception;        /* set if memhier throws
+                                                 exception, otherwise
+                                                 Sim_PE_No_Exception */
+#if !defined(PYWRAP)
+        void               *user_ptr;         /* user pointer that Simics never
+                                                 touches */
+
+
+        uint8              *real_address;     /* data pointer for the
+                                                 initiator */
+
+        int                 space_count;      /* internal, # of memory space
+                                                 transitions */
+#endif
+#if !defined(PYWRAP)
+        struct transaction *transaction;
+#else
+        transaction_t      *transaction;      /* associated transaction_t */
+#endif
+#if !defined(PYWRAP)
+        page_t             *reserved;         /* no longer used */
+        unsigned int        reserved2;        /* no longer used */
+#endif
+} generic_transaction_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.generic_transaction_t(logical_address = 0, physical_address = 0,
+        size = 0, type = Sim_Trans_Load, atomic = 0, inquiry = 0,
+        non_coherent = 0, may_stall = 0, reissue = 0,
+        block_STC = 0, use_page_cache = 0, inverse_endian = 0,
+        page_cross = 0, mem_hier_on_fetch = 0, block_flags = 0,
+        ini_type = Sim_Initiator_Illegal, ini_ptr = None, exception = 0,
+        transaction = None)
+</code></pre>
+<h2>Description</h2>
+<p>A <code>generic_transaction_t</code> represents a memory transaction. It should only be accessed via the accessor functions documented in <a href="dev-api-memory-transactions.html">Device API Functions: Memory Transactions</a></p>
+</section>
+<h2 id="global_notifier_type_t"><a href="#global_notifier_type_t">global_notifier_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>global_notifier_type_t — enum with predefined global notifiers</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Global_Notify_Object_Delete = 100,
+        Sim_Global_Notify_Objects_Finalized,
+        Sim_Global_Notify_Message,
+
+        Sim_Global_Notify_Before_Snapshot_Restore = 150,
+        Sim_Global_Notify_After_Snapshot_Restore,
+        Sim_Global_Notify_Snapshot_Created,
+        Sim_Global_Notify_Snapshot_Deleted,
+} global_notifier_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Global_Notify_Message
+simics.Sim_Global_Notify_Object_Delete
+simics.Sim_Global_Notify_Snapshot_Deleted
+simics.Sim_Global_Notify_Before_Snapshot_Restore
+simics.Sim_Global_Notify_Objects_Finalized
+simics.Sim_Global_Notify_After_Snapshot_Restore
+simics.Sim_Global_Notify_Snapshot_Created
+</code></pre>
+<h2>Description</h2>
+<p>This enum is used to identify pre-defined global notifier. The <code>Sim_Global_Notify_Object_Delete</code> notifier is triggered by Simics when objects are being deleted. In the callback, objects are still fully available, but <a href="dev-api-configuration.html#SIM_marked_for_deletion"><code>SIM_marked_for_deletion</code></a> can be used to determine if an object is being deleted.</p>
+<p>The <code>Sim_Global_Notify_Objects_Finalized</code> notifier is triggered by Simics when new objects have been finalized, after their <code>objects_finalized</code> methods have been called.</p>
+<p>The <code>Sim_Global_Notify_Message</code> notifier is used by <a href="sim-api-events.html#SIM_trigger_global_message"><code>SIM_trigger_global_message</code></a>.</p>
+<p>The corresponding names used in e.g. <a href="../rm-base/rm-cmd-list-notifiers.html"><code>list-notifiers</code></a> are as follows:</p>
+<ul>
+<li>“global-object-delete”, <code>Sim_Global_Notify_Object_Delete</code></li>
+<li>“global-objects-finalized”, <code>Sim_Global_Notify_Objects_Finalized</code></li>
+<li>“global-message”, <code>Sim_Global_Notify_Message</code></li>
+</ul>
+<h2>See Also</h2>
+<p><a href="dev-api-global-notifiers.html#SIM_add_global_notifier"><code>SIM_add_global_notifier</code></a>, <a href="dev-api-global-notifiers.html#SIM_add_global_notifier_once"><code>SIM_add_global_notifier_once</code></a>, <a href="dev-api-global-notifiers.html#SIM_delete_global_notifier"><code>SIM_delete_global_notifier</code></a>,</p>
+</section>
+<h2 id="hap_type_t"><a href="#hap_type_t">hap_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>hap_type_t — data type of hap types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef int hap_type_t;
+</code></pre>
+<h2>Description</h2>
+<p>This data type is used to represent hap (occurrence) types. This is a runtime number that may change between different Simics invocations. Haps are normally identified by strings, but by calling <a href="dev-api-haps.html#SIM_hap_get_number"><code>SIM_hap_get_number</code></a>, a lookup from such a name to a <code>hap_type_t</code> can be made.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-haps.html#SIM_get_all_hap_types"><code>SIM_get_all_hap_types</code></a>, <a href="dev-api-haps.html#SIM_hap_get_number"><code>SIM_hap_get_number</code></a>, <a href="dev-api-haps.html#SIM_hap_add_type"><code>SIM_hap_add_type</code></a></p>
+</section>
+<h2 id="init_arg_t"><a href="#init_arg_t">init_arg_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>init_arg_t — parameter type used to initialize an embedded Simulator</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+typedef struct {
+        const char *name;
+        bool boolean;
+        union {
+                const char *string;
+                bool enabled;
+        } u;
+} init_arg_t;
+</code></pre>
+<h2>Description</h2>
+<p>Data structure used to pass an initialization argument to the <a href="sim-api-embedding.html#SIM_init_simulator2"><code>SIM_init_simulator2</code></a> function. The <code>name</code> field is mandatory and the associated data is either a boolean or a string (<code>char *</code>). A list of <code>init_arg_t</code> is passed to <a href="sim-api-embedding.html#SIM_init_simulator2"><code>SIM_init_simulator2</code></a> where the last entry has the <code>name</code> field set to <code>NULL</code>.</p>
+</section>
+<h2 id="int8"><a href="#int8">int16, int32, int64, uint8, uint16, uint32, uint64, intptr_t, uintptr_t, int8</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>int16, int32, int64, uint8, uint16, uint32, uint64, intptr_t, uintptr_t, int8 — basic integer types</p>
+<h2>Description</h2>
+<p>These are basic integer data types defined by the Simics headers (unless defined by system header files).</p>
+<p>The <code>int</code><em>n</em> types are defined to be signed integers of exactly <em>n</em> bits. The <code>uint</code><em>n</em> types are their unsigned counterparts.</p>
+<p><code>intptr_t</code> and <code>uintptr_t</code> are signed and unsigned integer types of a size that lets any pointer to <code>void</code> be cast to it and then cast back to a pointer to <code>void</code>, and the result will compare equal to the original pointer. This typically means that the two types are 64 bits wide.</p>
+</section>
+<h2 id="interrupt_source_t"><a href="#interrupt_source_t">interrupt_source_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>interrupt_source_t — list of interrupt sources</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/devs/interrupt-subscriber.h&gt; // in C
+import "simics/devs/interrupt-subscriber.dml"; // in DML
+
+typedef enum {
+        Interrupt_Source_Icr_Ipr,
+        Interrupt_Source_Msi,
+        Interrupt_Source_Virtual_Wire,
+        Interrupt_Source_Nmi_Pin,
+        Interrupt_Source_Lvt,
+        Interrupt_Source_Iommu,
+        Interrupt_Source_Int2,
+        Interrupt_Source_Vmcs_Injection,
+        Interrupt_Source_Legacy_Apic_Vector,
+        Interrupt_Source_Self_Ipi,
+        Interrupt_Source_Unknown,
+} interrupt_source_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Interrupt_Source_Icr_Ipr
+simics.Interrupt_Source_Virtual_Wire
+simics.Interrupt_Source_Int2
+simics.Interrupt_Source_Nmi_Pin
+simics.Interrupt_Source_Self_Ipi
+simics.Interrupt_Source_Msi
+simics.Interrupt_Source_Vmcs_Injection
+simics.Interrupt_Source_Lvt
+simics.Interrupt_Source_Legacy_Apic_Vector
+simics.Interrupt_Source_Unknown
+simics.Interrupt_Source_Iommu
+</code></pre>
+<h2>Description</h2>
+<p>Sources of interrupts</p>
+<ul>
+<li><code>Interrupt_Source_Icr_Ipr</code> means that the source is the Interrupt Control Register - Inter Processor Interrupt.</li>
+<li><code>Interrupt_Source_Msi</code> means that the source is an MSI.</li>
+<li><code>Interrupt_Source_Virtual_Wire</code> means that the source is the Virtual Wire.</li>
+<li><code>Interrupt_Source_Nmi_Pin</code> means that the source is the external NMI pin.</li>
+<li><code>Interrupt_Source_Lvt</code> means that the source is the local vector table (LVT).</li>
+<li><code>Interrupt_Source_Iommu</code> means that the source is the IOMMU.</li>
+<li><code>Interrupt_Source_Int2</code> means that the source is the INT2 instruction.</li>
+<li><code>Interrupt_Source_Vmcs_Injection</code> means that the source is an interrupt injected through the VMCS.</li>
+<li><code>Interrupt_Source_Legacy_Apic_Vector</code> means that the source is the legacy APIC interrupt vector.</li>
+<li><code>Interrupt_Source_Self_Ipi</code> means that the source is the SELF IPI Register.</li>
+<li><code>Interrupt_Source_Unknown</code> means that the source is unknown.</li>
+</ul>
+<h2>See Also</h2>
+<p><a href="model-to-model-interfaces.html#interrupt_subscriber_interface_t"><code>interrupt_subscriber</code> interface</a></p>
+</section>
+<h2 id="lang_void"><a href="#lang_void">lang_void</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>lang_void — any data type in the current programming language</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef void lang_void;
+</code></pre>
+<h2>Description</h2>
+<p>In some places in the Simics API, arguments of type <code>lang_void *</code> are used. This data type is used to allow transparent passing of any data type in the current programming language as argument. In C, this works exactly like a <code>&lt;nobr&gt;void *&lt;/nobr&gt;</code> and in Python, it is any Python object.</p>
+<p>Typically, this is used by iterator functions in the API which take callback functions as arguments. The callback function is later called with the <code>lang_void</code> data and the object being iterated over.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-haps.html#SIM_hap_add_callback"><code>SIM_hap_add_callback</code></a>, <a href="dev-api-configuration.html#SIM_register_typed_attribute"><code>SIM_register_typed_attribute</code></a></p>
+</section>
+<h2 id="logical_address_t"><a href="#logical_address_t">logical_address_t, physical_address_t, generic_address_t, linear_address_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>logical_address_t, physical_address_t, generic_address_t, linear_address_t — target address types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef uint64 logical_address_t;
+typedef uint64 physical_address_t;
+typedef uint64 generic_address_t;
+typedef uint64 linear_address_t;
+</code></pre>
+<h2>Description</h2>
+<p>These are integer data types defined to reflect the nature of the simulated architecture.</p>
+<p><code>logical_address_t</code> is an unsigned integer sufficiently large to contain logical (virtual) addresses on the target machine.</p>
+<p><code>physical_address_t</code> is an unsigned integer sufficiently large to contain physical addresses on the target machine.</p>
+<p><code>generic_address_t</code> is defined to be the largest of the <code>logical_address_t</code> and <code>physical_address_t</code> types.</p>
+<p><code>linear_address_t</code> is used for linear addresses used on x86 machines after segmentation but before paging.</p>
+<p>Note that these data types are all defined to be 64-bit unsigned integers, and they can be printed by <code>printf</code> using the <code>ll</code> (ell-ell) size modifier.</p>
+</section>
+<h2 id="map_info_t"><a href="#map_info_t">swap_mode_t, map_info_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>swap_mode_t, map_info_t — describes a device mapping in a memory space</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum swap_mode {
+        Sim_Swap_None       = 0,
+        Sim_Swap_Bus        = 1,
+        Sim_Swap_Bus_Trans  = 2,
+        Sim_Swap_Trans      = 3
+} swap_mode_t;
+
+typedef struct map_info {
+        physical_address_t  base;
+        physical_address_t  start;
+        physical_address_t  length;
+        int                 function;
+        int16               priority;
+        int                 align_size;
+        swap_mode_t         reverse_endian;
+} map_info_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Swap_Trans
+simics.Sim_Swap_None
+simics.Sim_Swap_Bus_Trans
+simics.Sim_Swap_Bus
+class simics.map_info_t(base=0, start=0, length=0, function=0, priority=0,
+        align_size=0, reverse_endian=Sim_Swap_None)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>map_info_t</code> structure members have the following meaning:</p>
+<ul>
+<li><code>base</code>: The base address of the device mapping in the memory space.</li>
+<li><code>start</code>: The address inside the device memory space where the mapping starts.</li>
+<li><code>length</code>: The length of the mapped memory, in bytes.</li>
+<li><code>function</code>: Used to map the same object several times with different functionality. Corresponds to the function argument used when mapping devices into a memory space.</li>
+<li>If the map target does not support large accesses, then <code>align_size</code> can be set to the maximum allowed size. Accesses spanning align boundaries will be split into several smaller transactions. The align size must be a power of two, or zero (which means “use the default value”: 8 for devices and 8192 for memory).</li>
+<li>Mappings with an align size of 2, 4, or 8 may set the <code>reverse_endian</code> field to a non zero value. This can be used to model bridges that perform byte swapping on a specific bus width.</li>
+</ul>
+<p>If both <code>base</code> and <code>length</code> are 0 the map will become a <code>default_target</code>.</p>
+</section>
+<h2 id="map_list_t"><a href="#map_list_t">map_type_t, map_list_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>map_type_t, map_list_t — information about the set of mappings at an address</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Map_Ram,
+        Sim_Map_Rom,
+        Sim_Map_IO,
+        Sim_Map_Port,
+        Sim_Map_Translate = 0x100, /* pseudo - do not use */
+        Sim_Map_Translate_To_Space,
+        Sim_Map_Translate_To_Ram,
+        Sim_Map_Translate_To_Rom
+} map_type_t;
+
+typedef struct map_list {
+        map_type_t       map_type;
+        conf_object_t   *object;
+        const char      *port;
+#if !defined(PYWRAP)
+        const void      *interface_ptr;
+        const void      *target_interface;
+        const void      *breakpoint_interface;
+#if defined(SIMICS_6_API)
+        const void      *breakpoint_query_interface;
+#else
+        const void      *breakpoint_query_v2_interface;
+#endif
+        const void      *bridge_interface;
+#endif
+        conf_object_t   *target_object;
+        const char      *target_port;
+        conf_object_t   *bridge;
+        map_info_t       map_info;
+
+        physical_address_t map_size; /* not constant, use with caution */
+
+        int              deleted;  /* internal flag - should always be 0 ! */
+} map_list_t;
+
+// with SIMICS_API = 6
+typedef struct map_list {
+    map_type_t map_type;
+    conf_object_t *object;
+    const char *port;
+    const void *interface_ptr;
+    const void *target_interface;
+    const void *breakpoint_interface;
+    const void *breakpoint_query_interface;
+    const void *bridge_interface;
+    conf_object_t *target_object;
+    const char *target_port;
+    conf_object_t *bridge;
+    map_info_t map_info;
+    physical_address_t map_size;
+    int deleted;
+} map_list_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Map_Translate_To_Ram
+simics.Sim_Map_Translate_To_Rom
+simics.Sim_Map_Translate
+simics.Sim_Map_IO
+simics.Sim_Map_Rom
+simics.Sim_Map_Port
+simics.Sim_Map_Ram
+simics.Sim_Map_Translate_To_Space
+class simics.map_list_t
+</code></pre>
+<h2>Description</h2>
+<p>This data structure is used to pass information about the set of mappings a particular address in an address space contains.</p>
+</section>
+<h2 id="map_target_t"><a href="#map_target_t">map_target_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>map_target_t — opaque type of map-targets</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct map_target map_target_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+class simics.map_target_t()
+</code></pre>
+<h2>Description</h2>
+<p>A map target can be viewed as an opaque representation of an object/interface pair which can function either as an endpoint for a memory transaction or as an address space where a memory transaction can be performed. To create a <code>map_target_t</code> object one should use the <a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a> function.</p>
+<p>The <a href="dev-api-translators.html#SIM_free_map_target"><code>SIM_free_map_target</code></a> function frees a <code>map_target_t</code> object. In order to get better performance, it is better to allocate a map target once and reuse it rather than to allocate and free it every time.</p>
+<p>Examples of map targets include IO banks, RAM, ROM, memory spaces, port spaces, translators and bridges.</p>
+<p>For certain targets, e.g. bridges or translators, the map target also holds information about a chained, or default, target.</p>
+<h2>Python Specific</h2>
+<p>In Python, it is allowed to use arguments of the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> type with Simics API functions that have parameters of the <code>map_target_t</code> type. The arguments of the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> type will be converted to <code>map_target_t</code> values automatically, via the call to the <a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a> function. Here is an example where <code>memory_space</code> is a Simics object, i.e. has the <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> type:</p>
+<pre><code class="language-python">t = transaction_t(...)
+SIM_issue_transaction(memory_space, t, addr)
+</code></pre>
+<p>In Python, the objects of the <code>map_target_t</code> type have read-only <code>obj</code>, <code>port</code>, and <code>target</code> attributes. These attributes correspond to the arguments given to <a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a> that created a <code>map_target_t</code> object.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-translators.html#SIM_new_map_target"><code>SIM_new_map_target</code></a>, <a href="dev-api-translators.html#SIM_free_map_target"><code>SIM_free_map_target</code></a>, <a href="dev-api-translators.html#SIM_map_target_object"><code>SIM_map_target_object</code></a>, <a href="dev-api-translators.html#SIM_map_target_object"><code>SIM_map_target_port</code></a>, <a href="dev-api-translators.html#SIM_map_target_object"><code>SIM_map_target_target</code></a>, <a href="model-to-model-interfaces.html#translator_interface_t"><code>translator</code></a></p>
+</section>
+<h2 id="mem_op_type_t"><a href="#mem_op_type_t">mem_op_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>mem_op_type_t — enum that identifies the type of a memory operation</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Trans_Load          = 0,
+        Sim_Trans_Store         = Sim_Trn_Write,
+        Sim_Trans_Instr_Fetch   = Sim_Trn_Instr,
+        Sim_Trans_Prefetch      = Sim_Trn_Prefetch | Sim_Trn_Control,
+        Sim_Trans_Cache         = Sim_Trn_Control
+} mem_op_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Trans_Load
+simics.Sim_Trans_Store
+simics.Sim_Trans_Instr_Fetch
+simics.Sim_Trans_Prefetch
+simics.Sim_Trans_Cache
+</code></pre>
+<h2>Description</h2>
+<p>This enum is used to identify the type of a memory operation. The function <a href="dev-api-memory-transactions.html#SIM_get_mem_op_type"><code>SIM_get_mem_op_type()</code></a> returns the type of a <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a>, and <a href="dev-api-memory-transactions.html#SIM_set_mem_op_type"><code>SIM_set_mem_op_type()</code></a> is used to set it.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-memory-transactions.html#SIM_get_mem_op_type"><code>SIM_get_mem_op_type</code></a>, <a href="dev-api-memory-transactions.html#SIM_set_mem_op_type"><code>SIM_set_mem_op_type</code></a>, <a href="dev-api-memory-transactions.html#SIM_get_mem_op_type_name"><code>SIM_get_mem_op_type_name</code></a> <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a>,</p>
+</section>
+<h2 id="notifier_type_t"><a href="#notifier_type_t">notifier_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>notifier_type_t — predefined notifiers</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+/* Note that notifier types can be added either by modifying this enum or
+   by using SIM_notifier_type. The latter is typically preferred since it does
+   not change the Simics API. */
+typedef enum {
+        Sim_Notify_Queue_Change,
+        Sim_Notify_Cell_Change,
+        Sim_Notify_Frequency_Change,
+        Sim_Notify_Concurrency_Change,
+        Sim_Notify_Object_Delete,
+        Sim_Notify_Map_Change,
+        Sim_Notify_State_Change,
+        Sim_Notify_Freerunning_Mode_Change,
+        Sim_Notify_Bank_Register_Value_Change,
+} notifier_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Notify_Concurrency_Change
+simics.Sim_Notify_Object_Delete
+simics.Sim_Notify_Bank_Register_Value_Change
+simics.Sim_Notify_Freerunning_Mode_Change
+simics.Sim_Notify_Cell_Change
+simics.Sim_Notify_Queue_Change
+simics.Sim_Notify_State_Change
+simics.Sim_Notify_Frequency_Change
+simics.Sim_Notify_Map_Change
+</code></pre>
+<h2>Description</h2>
+<p>Values of the <code>notifier_type_t</code> type identify notification events. A <code>notifier_type_t</code> value should be obtained from the <a href="dev-api-notifiers.html#SIM_notifier_type"><code>SIM_notifier_type</code></a> function and can then be used in other functions such as <a href="dev-api-notifiers.html#SIM_register_notifier"><code>SIM_register_notifier</code></a>, <a href="dev-api-notifiers.html#SIM_add_notifier"><code>SIM_add_notifier</code></a>, <a href="dev-api-notifiers.html#SIM_notify"><code>SIM_notify</code></a>.</p>
+<p>A few notification events have predefined (constant) values. They are listed below where a notifier type in the form of a string (as accepted by <a href="dev-api-notifiers.html#SIM_notifier_type"><code>SIM_notifier_type</code></a>) is followed by the constant of the <code>notifier_type_t</code> type corresponding to the notification event (as returned by <a href="dev-api-notifiers.html#SIM_notifier_type"><code>SIM_notifier_type</code></a>):</p>
+<ul>
+<li>“queue-change” (<code>Sim_Notify_Queue_Change</code>)</li>
+<li>“cell-change” (<code>Sim_Notify_Cell_Change</code>)</li>
+<li>“frequency-change” (<code>Sim_Notify_Frequency_Change</code>)</li>
+<li>“concurrency-change” (<code>Sim_Notify_Concurrency_Change</code>)</li>
+<li>“object-delete” (<code>Sim_Notify_Object_Delete</code>)</li>
+<li>“map-change” (<code>Sim_Notify_Map_Change</code>)</li>
+<li>“state-change” (<code>Sim_Notify_State_Change</code>)</li>
+<li>“freerunning-mode-change” (<code>Sim_Notify_Freerunning_Mode_Change</code>)</li>
+<li>“bank-register-value-change” (<code>Sim_Notify_Bank_Register_Value_Change</code>)</li>
+</ul>
+<h2>See Also</h2>
+<p><a href="dev-api-notifiers.html#SIM_notify"><code>SIM_notify</code></a>, <a href="dev-api-notifiers.html#SIM_add_notifier"><code>SIM_add_notifier</code></a>, <a href="dev-api-notifiers.html#SIM_register_notifier"><code>SIM_register_notifier</code></a>, <a href="dev-api-notifiers.html#SIM_notifier_type"><code>SIM_notifier_type</code></a>, <a href="dev-api-notifiers.html#SIM_describe_notifier"><code>SIM_describe_notifier</code></a>, <a href="dev-api-notifiers.html#SIM_describe_notifier"><code>SIM_notifier_description</code></a></p>
+</section>
+<h2 id="processor_mode_t"><a href="#processor_mode_t">processor_mode_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>processor_mode_t — type for generic CPU-modes</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_CPU_Mode_User       = 0,
+        Sim_CPU_Mode_Supervisor = 1,
+        Sim_CPU_Mode_Hypervisor
+} processor_mode_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_CPU_Mode_User
+simics.Sim_CPU_Mode_Hypervisor
+simics.Sim_CPU_Mode_Supervisor
+</code></pre>
+<h2>Description</h2>
+<p>The <code>processor_mode_t</code> data type is used to specify if a CPU is running in user mode or in a privileged mode (often called supervisor mode). For processor architectures with several privilege levels, the non-user levels are all identified as <code>Sim_CPU_Mode_Supervisor</code>.</p>
+</section>
+<h2 id="read_or_write_t"><a href="#read_or_write_t">read_or_write_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>read_or_write_t — read or write memory access kind enumeration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_RW_Read  = 0,
+        Sim_RW_Write = 1
+} read_or_write_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_RW_Write
+simics.Sim_RW_Read
+</code></pre>
+<h2>Description</h2>
+<p>Whether a memory access is a <em>read</em> (from memory) or a <em>write</em> (to memory).</p>
+</section>
+<h2 id="set_error_t"><a href="#set_error_t">set_error_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>set_error_t — type for errors that an attribute setter can return</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Set_Ok,
+        Sim_Set_Object_Not_Found,
+        Sim_Set_Interface_Not_Found,
+        Sim_Set_Illegal_Value,
+        Sim_Set_Illegal_Type,
+        Sim_Set_Illegal_Index,
+        Sim_Set_Attribute_Not_Found,
+        Sim_Set_Not_Writable,
+
+        Sim_Set_Error_Types     /* number of error types */
+} set_error_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Set_Not_Writable
+simics.Sim_Set_Error_Types
+simics.Sim_Set_Illegal_Type
+simics.Sim_Set_Attribute_Not_Found
+simics.Sim_Set_Object_Not_Found
+simics.Sim_Set_Ok
+simics.Sim_Set_Interface_Not_Found
+simics.Sim_Set_Illegal_Index
+simics.Sim_Set_Illegal_Value
+</code></pre>
+<h2>Description</h2>
+<p>The <a href="sim-api-configuration.html#SIM_set_attribute"><code>SIM_set_attribute()</code></a> family of functions and the set functions registered with the <a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_attribute()</code></a> family of functions return a <code>set_error_t</code> value to report success or failure.</p>
+<dl>
+<dt id="dt:sim_set_ok"><a href="#dt:sim_set_ok">Sim_Set_Ok</a></dt>
+<dd>
+<p>The attribute was successfully set.</p>
+</dd>
+<dt id="dt:sim_set_object_not_found"><a href="#dt:sim_set_object_not_found">Sim_Set_Object_Not_Found</a></dt>
+<dd>
+<p>The string value does not match any object name. Deprecated, use attributes of object type instead of string attributes referring to object names.</p>
+</dd>
+<dt id="dt:sim_set_interface_not_found"><a href="#dt:sim_set_interface_not_found">Sim_Set_Interface_Not_Found</a></dt>
+<dd>
+<p>The object value does not implement an interface required by the attribute.</p>
+</dd>
+<dt id="dt:sim_set_illegal_value"><a href="#dt:sim_set_illegal_value">Sim_Set_Illegal_Value</a></dt>
+<dd>
+<p>The value is of a legal type for the attribute, but outside the legal range.</p>
+</dd>
+<dd>
+<p>Sim_Set_Illegal_Type The value is of an illegal type for the attribute.</p>
+</dd>
+<dt id="dt:sim_set_attribute_not_found"><a href="#dt:sim_set_attribute_not_found">Sim_Set_Attribute_Not_Found</a></dt>
+<dd>
+<p>The object has no attribute with the specified name. Should only be returned by <a href="sim-api-configuration.html#SIM_set_attribute"><code>SIM_set_attribute()</code></a> family of functions, not by attribute set functions.</p>
+</dd>
+<dt id="dt:sim_set_not_writable"><a href="#dt:sim_set_not_writable">Sim_Set_Not_Writable</a></dt>
+<dd>
+<p>The attribute is read-only.</p>
+</dd>
+<dt id="dt:sim_set_error_types"><a href="#dt:sim_set_error_types">Sim_Set_Error_Types</a></dt>
+<dd>
+<p>This is the number of valid error values and should not be used as an error code.</p>
+</dd>
+</dl>
+</section>
+<h2 id="simtime_t"><a href="#simtime_t">pc_step_t, simtime_t, cycles_t, nano_secs_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pc_step_t, simtime_t, cycles_t, nano_secs_t — types used for time keeping</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef simtime_t pc_step_t;
+
+// always available in DML
+
+typedef int64 simtime_t;
+typedef simtime_t cycles_t;
+typedef int64 nano_secs_t;
+</code></pre>
+<h2>Description</h2>
+<p>These are the types used for keeping track of time in Simics.</p>
+<p><code>cycles_t</code> is used when the time is specified in cycles.</p>
+<p><code>pc_step_t</code> is used when the time is specified in steps.</p>
+<p><code>simtime_t</code> is used in places where it is unknown whether the time is in steps or cycles.</p>
+<p>See the <code>Understanding Simics Timing</code> application note for a discussion about the difference between steps and cycles.</p>
+<p><code>nano_secs_t</code> is used to express a number of nanoseconds (10^-9 seconds).</p>
+</section>
+<h2 id="sub_object_flags_t"><a href="#sub_object_flags_t">sub_object_flags_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>sub_object_flags_t — bitmask used to configure how sub-objects are registered</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef uint64 sub_object_flags_t;
+</code></pre>
+<h2>Description</h2>
+<p>The type <code>sub_object_flags_t</code> is a bitmask used to configure how sub-objects registered through <a href="dev-api-configuration.html#SIM_register_sub_object"><code>SIM_register_sub_object()</code></a> behave, such as their visibility or how tight the connection is between the sub-object and its parent.</p>
+<dl>
+<dt id="dt:sim_sub_obj_default"><a href="#dt:sim_sub_obj_default"><code>Sim_Sub_Obj_Default</code></a></dt>
+<dd>The sub-object will be listed as a normal full object and is an independent object that can be scheduled separately to its parent. The sub-object is only allowed to access its parent through interfaces and attributes.</dd>
+<dt id="dt:sim_reduced_visibility"><a href="#dt:sim_reduced_visibility"><code>Sim_Reduced_Visibility</code></a></dt>
+<dd>The sub-object will only be listed when port-objects are asked for.</dd>
+<dt id="dt:sim_dependent"><a href="#dt:sim_dependent"><code>Sim_Dependent</code></a></dt>
+<dd>The sub-object can be seen as a port of its parent and is free to access data there directly. Dependent sub-objects are always scheduled together with its parent.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="device-api-data-types.html">Device API Data Types</a>
+<a href="dev-api-types-transactions.html">Transactions</a>
+</div>

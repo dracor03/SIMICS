@@ -1,0 +1,47 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;x86_msr&gt;.bp-trace-msr</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-x86_msr.bp-run-until-msr.html">&lt;x86_msr&gt;.bp-run-until-msr</a>
+<a href="rm-cmd-x86_msr.bp-wait-for-msr.html">&lt;x86_msr&gt;.bp-wait-for-msr</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="x86_msr.bp-trace-msr"></a>
+<h1 id="x86_msr.bp-trace-msr"><a href="#x86_msr.bp-trace-msr">&lt;x86_msr&gt;.bp-trace-msr</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;x86_msr&gt;.bp-trace-msr</b> (<i>"name"</i>|<i>number</i>|-all) [<i>value</i>] [<i>mask</i>] [-r] [-w] [-only-changes] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Enables tracing of MSR updates via architectural means. When this is enabled, every time the specified MSR is updated during simulation a message is printed. The message will name the MSR being updated, and the new value. The new value will be printed even if it is identical to the previous value.
+<p>
+The <i>name</i> or <i>number</i> parameter specifies which MSR is considered. The available MSRs depend on the simulated target. Only MSRs implemented in CPU model are supported. MSRs are supported by x86 CPUs starting from Pentium®. If the <tt>-all</tt> flag is specified, all MSRs are considered. Usage of -all could degrade performance.
+</p><p>
+If <tt>-r</tt> is specified, only MSR read accesses are considered. If <tt>-w</tt> is specified, only MSR write accesses are considered. The default is to consider both reads and writes.
+</p><p>
+If <tt>-only-changes</tt> is specified, only write accesses that change the MSR value are considered. In this case, if <i>mask</i> is specified, only changes affecting this mask of the MSR are considered.
+</p><p>
+If <i>value</i> is specified, only write accesses that results in the MSR having this value are considered, or read accesses when the MSR has this value. If <i>mask</i> is specified, only this mask of the MSR and given value are considered.
+</p><p>
+If no processor object is specified, the currently selected processor is used. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-x86_msr.bp-run-until-msr.html">&lt;x86_msr&gt;.bp-run-until-msr</a>
+<a href="rm-cmd-x86_msr.bp-wait-for-msr.html">&lt;x86_msr&gt;.bp-wait-for-msr</a>
+</div>

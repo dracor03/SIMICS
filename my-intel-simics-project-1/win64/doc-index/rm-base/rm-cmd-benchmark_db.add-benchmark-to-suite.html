@@ -1,0 +1,45 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;benchmark_db&gt;.add-benchmark-to-suite</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.add-benchmark.html">&lt;benchmark_db&gt;.add-benchmark</a>
+<a href="rm-cmd-benchmark_db.add-host.html">&lt;benchmark_db&gt;.add-host</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="benchmark_db.add-benchmark-to-suite"></a>
+<h1 id="benchmark_db.add-benchmark-to-suite"><a href="#benchmark_db.add-benchmark-to-suite">&lt;benchmark_db&gt;.add-benchmark-to-suite</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;benchmark_db&gt;.add-benchmark-to-suite</b> <i>"suite-name"</i> ([ <i>"benchmark-name"</i> ... ] | list of <i>"benchmark-name"</i>) [<i>"benchmark-regexp"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ To a specified <i>suite-name</i> add one or more <i>benchmark-name</i> to it. Alternatively, specify a regular expression with the <i>benchmark-regexp</i> argument which matches the available benchmarks that should be added.
+<p>
+The baseline runs for each benchmark added, will automatically default to the first run of each benchmark. Use the <code>&lt;benchmark_db&gt;.set-suite-baseline</code> command to manually configure the baseline.
+</p><p>
+The score for each individual benchmark is calculated by the ratio: <tt>baseline-time / time</tt>. Thus, a result of 2.0 means the benchmark is now 2X as fast. A degraded benchmark of 0.5 means it a now runs at half the speed compared to the benchmark run. The total suite-score is then calculated as doing a calculated by geometric mean of all individual benchmark scores.
+</p><p>
+Important note:
+</p><p>
+If the suite already has many runs stored in the database, adding a new benchmark can affect the overall suite score. Any previous sessions that didn’t include the newly added benchmark will be considered incomplete. For these incomplete sessions, the score for the missing benchmark will default to 1.0, which may impact the total suite score. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.benchmark-database.html">benchmark-database</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.add-benchmark.html">&lt;benchmark_db&gt;.add-benchmark</a>
+<a href="rm-cmd-benchmark_db.add-host.html">&lt;benchmark_db&gt;.add-host</a>
+</div>

@@ -1,0 +1,139 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ich10_rtc</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_lpc.html">ich10_lpc</a>
+<a href="rm-class-ich10_sata_f2.html">ich10_sata_f2</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ich10_rtc"><a href="#ich10_rtc">ich10_rtc</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Real time clock in Intel® ICH10.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-fixed_io"><a href="#dt:bank-fixed_io">bank.fixed_io</a></dt>
+<dd>
+<a href="rm-class-ich10_rtc.html#ich10_rtc.fixed_io">ich10_rtc.fixed_io</a>
+</dd>
+<dt id="dt:bank-rtc"><a href="#dt:bank-rtc">bank.rtc</a></dt>
+<dd>
+<a href="rm-class-ich10_rtc.html#ich10_rtc.rtc">ich10_rtc.rtc</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_rtc.html#ich10_rtc.HRESET">ich10_rtc.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_rtc.html#ich10_rtc.SRESET">ich10_rtc.SRESET</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ich10_rtc.get-date-time.html">get-date-time</a>
+ – get date and time</li>
+<li>
+<a href="rm-cmd-ich10_rtc.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ich10_rtc.set-date-time.html">set-date-time</a>
+ – set date and time</li>
+<li>
+<a href="rm-cmd-ich10_rtc.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:irq_dev"><a href="#dt:irq_dev">
+<i>irq_dev</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connect to serial interrupt controller</dd>
+<dt id="dt:irq_level"><a href="#dt:irq_level">
+<i>irq_level</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt level for RTC device</dd>
+<dt id="dt:next_alarm_time"><a href="#dt:next_alarm_time">
+<i>next_alarm_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Simulation time to alarm again</dd>
+<dt id="dt:next_periodic_time"><a href="#dt:next_periodic_time">
+<i>next_periodic_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Simulation time to set periodic interrupt flag bit again</dd>
+<dt id="dt:next_update_time"><a href="#dt:next_update_time">
+<i>next_update_time</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Simulation time to update ram values again</dd>
+<dt id="dt:time"><a href="#dt:time">
+<i>time</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Time of RTC in format "YY-MM-DD hh:mm:ss".</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ICH10.html">ICH10</a>
+</section>
+<h2 id="ich10_rtc.HRESET"><a href="#ich10_rtc.HRESET">ich10_rtc.HRESET</a></h2>
+<h2 id="ich10_rtc.SRESET"><a href="#ich10_rtc.SRESET">ich10_rtc.SRESET</a></h2>
+<h2 id="ich10_rtc.fixed_io"><a href="#ich10_rtc.fixed_io">ich10_rtc.fixed_io</a></h2>
+<h2 id="ich10_rtc.rtc"><a href="#ich10_rtc.rtc">ich10_rtc.rtc</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_lpc.html">ich10_lpc</a>
+<a href="rm-class-ich10_sata_f2.html">ich10_sata_f2</a>
+</div>

@@ -1,0 +1,173 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>probe_streamer</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-probe_monitor.html">probe_monitor</a>
+<a href="rm-class-probe_system_perfmeter.html">probe_system_perfmeter</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="probe_streamer"><a href="#probe_streamer">probe_streamer</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Probe sampler and data collector that streams collected data out.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-probe_streamer.add-probe.html">add-probe</a>
+ – add a probe to the streamer</li>
+<li>
+<a href="rm-cmd-probe_streamer.delete.html">delete</a>
+ – delete streamer</li>
+<li>
+<a href="rm-cmd-probe_streamer.force-sample.html">force-sample</a>
+ – manually trigger a sample</li>
+<li>
+<a href="rm-cmd-probe_streamer.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-probe_streamer.list-probe-collection.html">list-probe-collection</a>
+ – list defined probe-collections</li>
+<li>
+<a href="rm-cmd-probe_streamer.load-probe-collection.html">load-probe-collection</a>
+ – load probe-collection from json file</li>
+<li>
+<a href="rm-cmd-probe_streamer.remove-probe.html">remove-probe</a>
+ – remove probe from streamer</li>
+<li>
+<a href="rm-cmd-probe_streamer.reset-session.html">reset-session</a>
+ – reset the probes' session start values</li>
+<li>
+<a href="rm-cmd-probe_streamer.sampling-settings.html">sampling-settings</a>
+ – set sampling settings</li>
+<li>
+<a href="rm-cmd-probe_streamer.start.html">start</a>
+ – start the streamer</li>
+<li>
+<a href="rm-cmd-probe_streamer.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-probe_streamer.stop.html">stop</a>
+ – stop the streamer</li>
+<li>
+<a href="rm-cmd-probe_streamer.summary.html">summary</a>
+ – show total summary of probes</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:mode"><a href="#dt:mode">
+<i>mode</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Sampling mode used.</dd>
+<dt id="dt:interval"><a href="#dt:interval">
+<i>interval</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Sampling interval.</dd>
+<dt id="dt:clock"><a href="#dt:clock">
+<i>clock</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Master clock.</dd>
+<dt id="dt:notifier_type"><a href="#dt:notifier_type">
+<i>notifier_type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Notifier type.</dd>
+<dt id="dt:notifier_obj"><a href="#dt:notifier_obj">
+<i>notifier_obj</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Object where the notifier is installed.</dd>
+<dt id="dt:timestamp_file_name"><a href="#dt:timestamp_file_name">
+<i>timestamp_file_name</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>Sampler timestamp file to read/write.</dd>
+<dt id="dt:csv_output_file_name"><a href="#dt:csv_output_file_name">
+<i>csv_output_file_name</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>CSV output file name.</dd>
+<dt id="dt:metadata_enabled"><a href="#dt:metadata_enabled">
+<i>metadata_enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enable metadata.</dd>
+<dt id="dt:timestamping"><a href="#dt:timestamping">
+<i>timestamping</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Enable timestamping.</dd>
+<dt id="dt:timestamp_probe"><a href="#dt:timestamp_probe">
+<i>timestamp_probe</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|s</code>
+<br>Probe used for timestamping.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probe-monitor.html">probe-monitor</a>
+</section>
+<div class="chain">
+<a href="rm-class-probe_monitor.html">probe_monitor</a>
+<a href="rm-class-probe_system_perfmeter.html">probe_system_perfmeter</a>
+</div>

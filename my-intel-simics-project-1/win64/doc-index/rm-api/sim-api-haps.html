@@ -1,0 +1,171 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Haps</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-embedding.html">Embedding Simics</a>
+<a href="sim-api-logging.html">Logging</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Haps</h1>
+<h2 id="SIM_get_all_hap_types"><a href="#SIM_get_all_hap_types">SIM_get_all_hap_types</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_all_hap_types — get list of all hap types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_all_hap_types();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_all_hap_types(...)
+</code></pre>
+<h2>Description</h2>
+<p>Get a list of the names of all registered hap types.</p>
+<h2>Return Value</h2>
+<p>Attribute list of strings.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-haps.html#SIM_hap_get_number"><code>SIM_hap_get_number</code></a>, <a href="dev-api-haps.html#SIM_hap_add_type"><code>SIM_hap_add_type</code></a></p>
+</section>
+<h2 id="SIM_hap_add_callback"><a href="#SIM_hap_add_callback">SIM_hap_add_callback</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_add_callback — install callback on a hap</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+hap_handle_t
+SIM_hap_add_callback(const char *NOTNULL hap,
+                     NOTNULL obj_hap_func_t func,
+                     lang_void *user_data);
+
+hap_handle_t
+SIM_hap_add_callback_index(const char *NOTNULL hap,
+                           NOTNULL obj_hap_func_t func,
+                           lang_void *user_data,
+                           int64 index);
+
+hap_handle_t
+SIM_hap_add_callback_range(const char *NOTNULL hap,
+                           NOTNULL obj_hap_func_t func,
+                           lang_void *user_data,
+                           int64 start,
+                           int64 end);
+
+hap_handle_t
+SIM_hap_add_callback_obj(const char *NOTNULL hap,
+                         conf_object_t *NOTNULL obj,
+                         int flags,
+                         NOTNULL obj_hap_func_t func,
+                         lang_void *user_data);
+
+hap_handle_t
+SIM_hap_add_callback_obj_index(const char *NOTNULL hap,
+                               conf_object_t *NOTNULL obj,
+                               int flags,
+                               NOTNULL obj_hap_func_t func,
+                               lang_void *user_data,
+                               int64 index);
+
+hap_handle_t
+SIM_hap_add_callback_obj_range(const char *NOTNULL hap,
+                               conf_object_t *NOTNULL obj,
+                               int flags,
+                               NOTNULL obj_hap_func_t func,
+                               lang_void *user_data,
+                               int64 start,
+                               int64 end);
+
+typedef int hap_handle_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_add_callback(...)
+simics.SIM_hap_add_callback_index(...)
+simics.SIM_hap_add_callback_range(...)
+simics.SIM_hap_add_callback_obj(...)
+simics.SIM_hap_add_callback_obj_index(...)
+simics.SIM_hap_add_callback_obj_range(...)
+</code></pre>
+<h2>Description</h2>
+<p>Registers a function, pointed to by <code>func</code>, to be called when <code>hap</code> occurs for object <code>obj</code>. If a hap add function that does not have the <code>obj</code> argument is used, then the callback function will be called regardless of what object that triggers the hap. The <code>user_data</code> argument is the callback-specific data, and it will be passed as first argument to the installed callback function.</p>
+<p>Some hap add functions also take a <code>flags</code> argument. This flag is currently Simics internal and should be set to 0.</p>
+<p>The hap callback functions should not return any data. In C, the functions are declared to have a <code>void</code> return type and in Python, any return value is ignored. Since callback functions with different arguments may be installed using the same API function, the compiler may warn about a type mismatch. The solution is to cast the callback function pointer to the <code>obj_hap_func_t</code> type.</p>
+<p>The callback will be called in <em>Cell Context</em>, unless the documentation for the hap states otherwise.</p>
+<p>In hap functions, the execution can be interrupted by calling <a href="sim-api-control.html#SIM_break_simulation"><code>SIM_break_simulation</code></a>. If a frontend or Python exception is raised, an error message will be printed including a stack trace if the callback is written in Python.</p>
+<p>The <code>_index_</code> and <code>_range_</code> versions will install callbacks that only trigger for a specified index, or range of indices. The index is specific for each hap type, see the hap documentation. The index and range must be non-negative and the end of the range must not be lower than the start.</p>
+<h2>Return Value</h2>
+<p>The return value is a hap callback handle (identifier) of the type <code>hap_handle_t</code>, or -1 on error. This handle can be used to remove the installed callback with <a href="sim-api-haps.html#SIM_hap_delete_callback"><code>SIM_hap_delete_callback_id</code></a>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Lookup</strong> Thrown if the hap does not exist.</p>
+<p><strong>SimExc_Attribute</strong> Thrown if the index is negative or if the range is negative in value or size.</p>
+<h2>Execution Context</h2>
+<p><em>Cell Context</em> for hap callbacks tied to an object, and <em>Global Context</em> for hap callbacks not tied to an object. An exception is made for callbacks on <a href="../rm-base/rm-haps.html#Core_Breakpoint_Memop"><code>Core_Breakpoint_Memop</code></a>, which can be installed with <a href="sim-api-haps.html#SIM_hap_add_callback"><code>SIM_hap_add_callback_index</code></a> even in <em>Cell Context</em>.</p>
+</section>
+<h2 id="SIM_hap_delete_callback"><a href="#SIM_hap_delete_callback">SIM_hap_delete_callback</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_hap_delete_callback — delete installed hap callback</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_hap_delete_callback(const char *NOTNULL hap,
+                        NOTNULL obj_hap_func_t func, lang_void *user_data);
+
+void
+SIM_hap_delete_callback_obj(const char *NOTNULL hap,
+                            conf_object_t *NOTNULL obj,
+                            NOTNULL obj_hap_func_t func, lang_void *user_data);
+
+void
+SIM_hap_delete_callback_id(const char *NOTNULL hap, hap_handle_t handle);
+
+void
+SIM_hap_delete_callback_obj_id(const char *NOTNULL hap,
+                               conf_object_t *NOTNULL obj, hap_handle_t handle);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_hap_delete_callback(...)
+simics.SIM_hap_delete_callback_obj(...)
+simics.SIM_hap_delete_callback_id(...)
+simics.SIM_hap_delete_callback_obj_id(...)
+</code></pre>
+<h2>Description</h2>
+<p>Removes a callback for a hap type specified by the <code>hap</code> argument.</p>
+<p>The <code>SIM_hap_delete_callback_obj...</code> functions will remove a callback that is installed on the specified object <code>obj</code>.</p>
+<p><code>SIM_hap_delete_callback</code> removes a callback not associated with any object, with the callback function <code>func</code> and the same <code>user_data</code>.</p>
+<p>The <code>SIM_hap_delete_callback_..._id</code> functions take a hap handle argument instead, as returned by the <a href="sim-api-haps.html#SIM_hap_add_callback"><code>SIM_hap_add_callback...</code></a> functions.</p>
+<p>These functions will trigger the <a href="../rm-base/rm-haps.html#Core_Hap_Callback_Removed"><code>Core_Hap_Callback_Removed</code></a> hap for each removed callback.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Lookup</strong> Thrown if the specified hap does not exist.</p>
+<h2>Execution Context</h2>
+<p>Cell Context for callbacks tied to an object. Global Context for callbacks not tied to an object.</p>
+</section>
+<div class="chain">
+<a href="sim-api-embedding.html">Embedding Simics</a>
+<a href="sim-api-logging.html">Logging</a>
+</div>

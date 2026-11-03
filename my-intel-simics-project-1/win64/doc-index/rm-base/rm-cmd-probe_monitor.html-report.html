@@ -1,0 +1,72 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;probe_monitor&gt;.html-report</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-probe_monitor.html-diff-report.html">&lt;probe_monitor&gt;.html-diff-report</a>
+<a href="rm-cmd-probe_monitor.info.html">&lt;probe_monitor&gt;.info</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="probe_monitor.html-report"></a>
+<h1 id="probe_monitor.html-report"><a href="#probe_monitor.html-report">&lt;probe_monitor&gt;.html-report</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;probe_monitor&gt;.html-report</b> [<i>html-dir</i>] [<i>probe-json-file</i>] [<i>graph-spec-json-file</i>] [-open-browser] [-one-page] [-ai] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Produce a performance report in HTML. The graphs that are included depend on the probes that have been monitored. The <i>html-dir</i> argument specifies the directory for the HTML report. If not specified, a temporary directory will be created. The file "index.html" is the start page.
+<p>
+The <i>probe-json-file</i> can specify an already generated json file containing the probe information, and a report of its data will be presented (instead of the current session).
+</p><p>
+The <i>graph-spec-json-file</i> argument points out an json file used for selecting which graphs to produce. If not specified, a default file will be used.
+</p><p>
+The <tt>-open-browser</tt> switch starts a web-browser directly on the generated file.
+</p><p>
+To decrease browser load time, and to make the main-page more high-level, some graphs can request to be added to sub-pages instead of the main page. The <tt>-one-page</tt> switch prevents this and puts all graphs on the same page.
+</p><p>
+The <tt>-ai</tt> switch enables AI-powered analysis of the benchmark results. This requires that the Simics <tt>ai-mode</tt> feature is enabled and functional in the current session.
+</p><p>
+Note that the JSON graph-specification format is not yet finalized. Future improvements to the graph generation process may result in changes, additions, or removals of the supported key/value pairs. Therefore, backward compatibility of the JSON file is not guaranteed.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probe-monitor.html">probe-monitor</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-probe_monitor.add-probe.html">&lt;probe_monitor&gt;.add-probe</a>, 
+<a href="rm-cmd-probe_monitor.clear-history.html">&lt;probe_monitor&gt;.clear-history</a>, 
+<a href="rm-cmd-probe_monitor.delete.html">&lt;probe_monitor&gt;.delete</a>, 
+<a href="rm-cmd-probe_monitor.export-json.html">&lt;probe_monitor&gt;.export-json</a>, 
+<a href="rm-cmd-probe_monitor.export-to-db.html">&lt;probe_monitor&gt;.export-to-db</a>, 
+<a href="rm-cmd-probe_monitor.force-sample.html">&lt;probe_monitor&gt;.force-sample</a>, 
+<a href="rm-cmd-probe_monitor.html-diff-report.html">&lt;probe_monitor&gt;.html-diff-report</a>, 
+<a href="rm-cmd-probe_monitor.list-probe-collection.html">&lt;probe_monitor&gt;.list-probe-collection</a>, 
+<a href="rm-cmd-probe_monitor.load-probe-collection.html">&lt;probe_monitor&gt;.load-probe-collection</a>, 
+<a href="rm-cmd-probe_monitor.merge-json.html">&lt;probe_monitor&gt;.merge-json</a>, 
+<a href="rm-cmd-probe_monitor.plot-graph.html">&lt;probe_monitor&gt;.plot-graph</a>, 
+<a href="rm-cmd-probe_monitor.print-history.html">&lt;probe_monitor&gt;.print-history</a>, 
+<a href="rm-cmd-probe_monitor.profile-probes.html">&lt;probe_monitor&gt;.profile-probes</a>, 
+<a href="rm-cmd-probe_monitor.remove-probe.html">&lt;probe_monitor&gt;.remove-probe</a>, 
+<a href="rm-cmd-probe_monitor.reset-session.html">&lt;probe_monitor&gt;.reset-session</a>, 
+<a href="rm-cmd-probe_monitor.sampling-settings.html">&lt;probe_monitor&gt;.sampling-settings</a>, 
+<a href="rm-cmd-probe_monitor.start.html">&lt;probe_monitor&gt;.start</a>, 
+<a href="rm-cmd-probe_monitor.stop.html">&lt;probe_monitor&gt;.stop</a>, 
+<a href="rm-cmd-probe_monitor.summary.html">&lt;probe_monitor&gt;.summary</a>, 
+<a href="rm-cmd-probe_monitor.table-settings.html">&lt;probe_monitor&gt;.table-settings</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-probe_monitor.html-diff-report.html">&lt;probe_monitor&gt;.html-diff-report</a>
+<a href="rm-cmd-probe_monitor.info.html">&lt;probe_monitor&gt;.info</a>
+</div>

@@ -1,0 +1,105 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample_i2c_device</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample_generic_message_device.html">sample_generic_message_device</a>
+<a href="rm-class-sample_i3c_master.html">sample_i3c_master</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample_i2c_device"><a href="#sample_i2c_device">sample_i2c_device</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The is the <tt>sample_i2c_device</tt> class which is an example of how I2C slave devices can be written in Simics.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, i2c_slave_v2
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:i2c_link_v2-optional"><a href="#dt:i2c_link_v2-optional">i2c_link_v2 (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_master_v2
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample_i2c_device.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample_i2c_device.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:address"><a href="#dt:address">
+<i>address</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>7-bit address on the i2c bus. It can be any valid i2c address in range of [0, 127].</dd>
+<dt id="dt:i2c_link_v2"><a href="#dt:i2c_link_v2">
+<i>i2c_link_v2</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>I2C link Connection
+<p>
+Required interface: <tt>i2c_master_v2</tt></p></dd>
+<dt id="dt:read_value"><a href="#dt:read_value">
+<i>read_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Value to return on reads.</dd>
+<dt id="dt:written_value"><a href="#dt:written_value">
+<i>written_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Last byte written to this device.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-i2c-device.html">sample-i2c-device</a>
+</section>
+<div class="chain">
+<a href="rm-class-sample_generic_message_device.html">sample_generic_message_device</a>
+<a href="rm-class-sample_i3c_master.html">sample_i3c_master</a>
+</div>

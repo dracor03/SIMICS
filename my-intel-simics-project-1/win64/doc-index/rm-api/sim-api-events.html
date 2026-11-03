@@ -1,0 +1,73 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Time and Events</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-stalling.html">Stalling</a>
+<a href="sim-api-ui.html">User Interface</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Time and Events</h1>
+<h2 id="SIM_get_global_message"><a href="#SIM_get_global_message">SIM_get_global_message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_global_message — obtain current global message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+const char *
+SIM_get_global_message(void *ref);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_global_message(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return the global message currently being triggered, if <code>ref</code> does not match the reference of the source trigger, otherwise return <code>NULL</code>.</p>
+<p>This function must only be called from a callback of the global notifier <a href="dev-api-types-generic.html#global_notifier_type_t"><code>Sim_Global_Notify_Message</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-events.html#SIM_trigger_global_message"><code>SIM_trigger_global_message</code></a></p>
+</section>
+<h2 id="SIM_trigger_global_message"><a href="#SIM_trigger_global_message">SIM_trigger_global_message</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_trigger_global_message — queue up a global message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_trigger_global_message(const char *msg, void *ref);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_trigger_global_message(...)
+</code></pre>
+<h2>Description</h2>
+<p>This queues up a global message, which will be dispatched shortly in global context, to all listeners of the <a href="dev-api-types-generic.html#global_notifier_type_t"><code>Sim_Global_Notify_Message</code></a> global notifier. The <code>ref</code> parameter is the reference of the source, or <code>NULL</code> to dispatch to all listeners.</p>
+<p>The notifier callbacks should use <a href="sim-api-events.html#SIM_get_global_message"><code>SIM_get_global_message</code></a> to retrieve the message. Only callbacks that provide a <code>NULL</code> reference or a reference different from <code>ref</code> will obtain the message.</p>
+<h2>Execution Context</h2>
+<p>All contexts including Threaded Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-events.html#SIM_get_global_message"><code>SIM_get_global_message</code></a></p>
+</section>
+<div class="chain">
+<a href="sim-api-stalling.html">Stalling</a>
+<a href="sim-api-ui.html">User Interface</a>
+</div>

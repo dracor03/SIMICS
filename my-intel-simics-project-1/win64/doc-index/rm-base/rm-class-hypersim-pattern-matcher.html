@@ -1,0 +1,127 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>hypersim-pattern-matcher</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-hostfs.html">hostfs</a>
+<a href="rm-class-i210.html">i210</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="hypersim-pattern-matcher"><a href="#hypersim-pattern-matcher">hypersim-pattern-matcher</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Framework for instruction pattern detection and protection. This class requires other classes, which define the patterns to be detected and uses this class, to be any useful. Instruction patterns can be defined to identify specific idle loops, busy-wait loops, spinlocks etc in memory which can be fast forwarded in the simulators time
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, hypersim_pattern_matcher
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-hypersim-pattern-matcher.delete-pattern.html">delete-pattern</a>
+ – remove a pattern from the matcher</li>
+<li>
+<a href="rm-cmd-hypersim-pattern-matcher.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-hypersim-pattern-matcher.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:memory_space"><a href="#dt:memory_space">
+<i>memory_space</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Physical memory space, must implement <tt>memory_space</tt> and <tt>breakpoint</tt> interfaces.</dd>
+<dt id="dt:cpus"><a href="#dt:cpus">
+<i>cpus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>CPUs handling pattern matcher events.</dd>
+<dt id="dt:patterns"><a href="#dt:patterns">
+<i>patterns</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[o*]</code>
+<br>Installed pattern objects.</dd>
+<dt id="dt:search_interval"><a href="#dt:search_interval">
+<i>search_interval</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[ii]</code>
+<br>Pattern search interval in steps, [<i>lower</i>, <i>upper</i>].</dd>
+<dt id="dt:cpu_ffwd_steps"><a href="#dt:cpu_ffwd_steps">
+<i>cpu_ffwd_steps</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[oii]*]</code>
+<br>(cpu, ffwd_idle_steps, ffwd_steps)* List of how many steps each CPU has been fast-forwarded (for all hypersim patterns)</dd>
+<dt id="dt:total_ffwd_steps"><a href="#dt:total_ffwd_steps">
+<i>total_ffwd_steps</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[ii]</code>
+<br>(ffwd_idle_steps, ffwd_steps) Total amount of steps that has been fast-forwarded (for all hypersim patterns and all CPUs)</dd>
+<dt id="dt:pattern_info"><a href="#dt:pattern_info">
+<i>pattern_info</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[os[[ii[[oii]*]]*]iii]*]</code>
+<br>(pattern_obj, pattern_name, (paddr, active, (cpu, ffwd_idle_steps, ffwd_steps)*, failed_examine_calls, successful_trigger_calls, failed_trigger_calls)*)* List of each pattern and the physical addresses the patterns have been found and how many steps each CPU has been fast-forwarded for the physical address.</dd>
+<dt id="dt:detected_patterns"><a href="#dt:detected_patterns">
+<i>detected_patterns</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[[os[i*]]*]</code>
+<br>(pattern_obj, pattern_name, (physical_address)*)* List of each pattern and each physical address where the pattern have been detected (and currently active)</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.hypersim-pattern-matcher.html">hypersim-pattern-matcher</a>
+</section>
+<div class="chain">
+<a href="rm-class-hostfs.html">hostfs</a>
+<a href="rm-class-i210.html">i210</a>
+</div>

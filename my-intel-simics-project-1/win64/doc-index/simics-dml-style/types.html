@@ -1,0 +1,40 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 Types</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="naming.html">5 Naming</a>
+<a href="various-issues.html">7 Various issues</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for DML</a>
+&nbsp;/&nbsp;</div><h1 id="types"><a href="#types">6 Types</a></h1>
+<ul>
+<li><strong>TY1</strong> Where possible, make struct definitions private to code if other parts
+of the source only need to handle pointers to the struct.</li>
+<li><strong>TY2</strong> Avoid casts whenever possible, since this can hide errors while
+suppressing warnings.</li>
+<li><strong>TY3</strong> Do not cast pointers to/from <code>(void *)</code></li>
+<li><strong>TY4</strong> Use intermediate variables to convert a <code>(void   *)</code> to a specific pointer.</li>
+<li><strong>TY5</strong> Take the address of substructures instead of casting struct pointers.</li>
+</ul>
+<p>Examples:</p>
+<pre><code>local void *p = ...
+local int strength = cast(p, (troll_t *))-&gt;strength;  // BAD
+
+local troll_t *t = p;
+local int strength = t-&gt;strength;                     // GOOD
+
+save_object(cast(cpu, (conf_object_t *)));      // BAD
+save_object(&amp;cpu-&gt;log.obj);                     // GOOD
+
+local uint32 k = get_key();
+</code></pre>
+
+<div class="chain">
+<a href="naming.html">5 Naming</a>
+<a href="various-issues.html">7 Various issues</a>
+</div>

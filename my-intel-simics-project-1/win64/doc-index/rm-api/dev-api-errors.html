@@ -1,0 +1,114 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Errors and Exceptions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-callbacks.html">Callbacks</a>
+<a href="dev-api-notifiers.html">Notifiers</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Errors and Exceptions</h1>
+<h2 id="SIM_clear_exception"><a href="#SIM_clear_exception">SIM_clear_exception</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_clear_exception — clear pending exception</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+sim_exception_t
+SIM_clear_exception();
+</code></pre>
+<h2>Description</h2>
+<p>Clears the currently pending frontend exception and returns the value of it.</p>
+<h2>Return Value</h2>
+<p>Returns the exception that was pending before the call, or <a href="frontend-exceptions.html#sim_exception_t"><code>SimExc_No_Exception</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-errors.html#SIM_get_pending_exception"><code>SIM_get_pending_exception</code></a>, <a href="dev-api-errors.html#SIM_last_error"><code>SIM_last_error</code></a></p>
+</section>
+<h2 id="SIM_describe_pseudo_exception"><a href="#SIM_describe_pseudo_exception">SIM_describe_pseudo_exception</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_describe_pseudo_exception — return pseudo exception description</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+const char *
+SIM_describe_pseudo_exception(exception_type_t ex);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_describe_pseudo_exception(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function returns a descriptive string for the specified <a href="dev-api-types-generic.html#exception_type_t"><code>exception_type_t</code></a>.</p>
+<h2>Return Value</h2>
+<p>Exception description, or an error message if input is not a known pseudo-exception.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-types-generic.html#exception_type_t"><code>exception_type_t</code></a></p>
+</section>
+<h2 id="SIM_get_pending_exception"><a href="#SIM_get_pending_exception">SIM_get_pending_exception</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_pending_exception — get current pending exception</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+sim_exception_t
+SIM_get_pending_exception();
+</code></pre>
+<h2>Description</h2>
+<p>This function returns the exception type of the current pending exception, or <a href="frontend-exceptions.html#sim_exception_t"><code>SimExc_No_Exception</code></a> if none available.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-errors.html#SIM_clear_exception"><code>SIM_clear_exception</code></a>, <a href="dev-api-errors.html#SIM_last_error"><code>SIM_last_error</code></a></p>
+</section>
+<h2 id="SIM_last_error"><a href="#SIM_last_error">SIM_last_error</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_last_error — get error message from last frontend exception</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+const char *
+SIM_last_error();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_last_error(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the error message associated with the most recently raised frontend exception, even if that exception has been cleared.</p>
+<p>The returned string is only valid until the next use of the Simics API in the same thread.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-errors.html#SIM_clear_exception"><code>SIM_clear_exception</code></a>, <a href="dev-api-errors.html#SIM_get_pending_exception"><code>SIM_get_pending_exception</code></a></p>
+</section>
+<div class="chain">
+<a href="dev-api-callbacks.html">Callbacks</a>
+<a href="dev-api-notifiers.html">Notifiers</a>
+</div>

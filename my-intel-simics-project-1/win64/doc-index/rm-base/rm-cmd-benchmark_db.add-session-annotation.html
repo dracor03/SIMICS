@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;benchmark_db&gt;.add-session-annotation</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.add-run-annotation.html">&lt;benchmark_db&gt;.add-run-annotation</a>
+<a href="rm-cmd-benchmark_db.add-suite.html">&lt;benchmark_db&gt;.add-suite</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="benchmark_db.add-session-annotation"></a>
+<h1 id="benchmark_db.add-session-annotation"><a href="#benchmark_db.add-session-annotation">&lt;benchmark_db&gt;.add-session-annotation</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;benchmark_db&gt;.add-session-annotation</b> <i>session-id</i> <i>"annotation"</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Add a user annotation to a specific session. This serves as a comment for the session and is displayed in the output of <code>&lt;benchmark_db&gt;.list-session-scores</code>. The <i>session-id</i> argument specifies the unique session number to annotate. The <i>annotation</i> argument is a string containing the comment to associate with the run. Multiple annotations can be added to the same session; they will be separated by new lines. 
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.benchmark-database.html">benchmark-database</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-benchmark_db.add-run-annotation.html">&lt;benchmark_db&gt;.add-run-annotation</a>
+<a href="rm-cmd-benchmark_db.add-suite.html">&lt;benchmark_db&gt;.add-suite</a>
+</div>

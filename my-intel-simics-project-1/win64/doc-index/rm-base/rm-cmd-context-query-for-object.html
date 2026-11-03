@@ -1,0 +1,47 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>context-query-for-object</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-connect-real-network-port-out.html">connect-real-network-port-out</a>
+<a href="rm-cmd-context-query-for-object-list.html">context-query-for-object-list</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="context-query-for-object"></a>
+<h1 id="context-query-for-object"><a href="#context-query-for-object">context-query-for-object</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>context-query-for-object</b> <i>object</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Returns a context query that matches a Simics <i>object</i>.
+<p>
+This returned context query can then be used with other commands that take a context query as argument to match only the specified Simics object.
+</p><p>
+The printed output is formatted for use with CLI commands.
+</p><p>
+An error will be raised if the <i>object</i> doesn't have a backing debug context or isn't a debug context object. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-context-query-for-object-list.html">context-query-for-object-list</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-connect-real-network-port-out.html">connect-real-network-port-out</a>
+<a href="rm-cmd-context-query-for-object-list.html">context-query-for-object-list</a>
+</div>

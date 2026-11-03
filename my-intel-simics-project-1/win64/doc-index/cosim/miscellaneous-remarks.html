@@ -1,0 +1,30 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8 Miscellaneous Remarks</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simics-api-functions.html">7 Simics API Functions</a>
+</div>
+<div class="path">
+<a href="index.html">Processor Model Integration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="miscellaneous-remarks"><a href="#miscellaneous-remarks">8 Miscellaneous Remarks</a></h1>
+<ul>
+<li>Partial implementation of interfaces is most often not allowed.
+If the interface documentation states that a function is optional, then it does not have to be implemented and can be initialized to NULL.</li>
+<li>Not all features of Simics standard processor models are covered by the API described in this document.
+List of features and interfaces not covered in this document:
+<ul>
+<li>Profiling with the <code>attach-branch-recorder</code>, <code>detach-branch-recorder</code>, and <code>start-instruction-profiling</code> commands.</li>
+<li>Displays in the native GUI, including the <code>win-cpu-registers</code>, <code>win-disassembly</code>, <code>win-source-view</code>, and <code>win-stack-trace</code> commands.</li>
+<li>The <code>aprof-views</code> command to show profiling data in disassembly.</li>
+<li>The protocol used between processor tracker classes and the processor.</li>
+</ul>
+</li>
+</ul>
+
+<div class="chain">
+<a href="simics-api-functions.html">7 Simics API Functions</a>
+</div>

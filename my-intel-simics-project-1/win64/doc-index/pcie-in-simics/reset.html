@@ -1,0 +1,35 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Reset templates</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="error.html">Error templates</a>
+<a href="commands.html">Simics Commands</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;
+<a href="dml-template-reference.html">DML template reference</a>
+&nbsp;/&nbsp;</div>
+<h1>Reset templates</h1>
+<p>Templates for conditionally resetting an object depending on a run-time predicate.
+Their purpose is to manage conflicts with OSDML implementation of the reset methods.
+A Template-Qualified Method Implementation Call (TQMIC) adapter can then use an
+<code>in each</code> expression on the two templates to resolve the conflict.</p>
+<h2 id="conditional_hard_reset"><a href="#conditional_hard_reset">conditional_hard_reset</a></h2>
+<p>Provides a conditional implementation of <code>hard_reset</code>.
+<code>hard_reset</code> is only performed if the <code>reset_predicate</code> evaluates to true.</p>
+<h2 id="conditional_pcie_function_level_reset"><a href="#conditional_pcie_function_level_reset">conditional_pcie_function_level_reset</a></h2>
+<p>Provides a conditional implementation of <code>pcie_function_level_reset</code>.
+<code>pcie_function_level_reset</code> is only performed if the <code>reset_predicate</code> evaluates to true.</p>
+<h2 id="conditional_soft_reset"><a href="#conditional_soft_reset">conditional_soft_reset</a></h2>
+<p>Provides a conditional implementation of <code>soft_reset</code>.
+<code>soft_reset</code> is only performed if the <code>reset_predicate</code> evaluates to true.</p>
+
+<div class="chain">
+<a href="error.html">Error templates</a>
+<a href="commands.html">Simics Commands</a>
+</div>

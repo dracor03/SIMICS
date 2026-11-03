@@ -1,0 +1,244 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ide</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-id-splitter.html">id-splitter</a>
+<a href="rm-class-ide-cdrom.html">ide-cdrom</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ide"><a href="#ide">ide</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The IDE class implements the functionality of an IDE controller and its interaction with the DMA controller. Transfer timing (command start -&gt; interrupt) for DMA is properly modelled.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, transaction, ide_dma, ide_dma_v2
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-dma_dack"><a href="#dt:port-dma_dack">port.DMA_DACK</a></dt>
+<dd>
+<a href="rm-class-ide.html#ide.DMA_DACK">ide.DMA_DACK</a>
+</dd>
+<dt id="dt:port-dma_ddone"><a href="#dt:port-dma_ddone">port.DMA_DDONE</a></dt>
+<dd>
+<a href="rm-class-ide.html#ide.DMA_DDONE">ide.DMA_DDONE</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ide.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ide.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="commands-for-interface-transaction">
+<a href="#commands-for-interface-transaction">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:irq_dev"><a href="#dt:irq_dev">
+<i>irq_dev</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Interrupt target implementing the signal interface. It also supports simple_interrupt interface, this will be deprecated in the future.</dd>
+<dt id="dt:irq_level"><a href="#dt:irq_level">
+<i>irq_level</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt level. If the <tt>irq_dev</tt> attribute is set with an object that implements the simple_interrupt interface, this attribute controls the interrupt level.</dd>
+<dt id="dt:control"><a href="#dt:control">
+<i>control</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Control register (shared between master/slave).</dd>
+<dt id="dt:selected_drive"><a href="#dt:selected_drive">
+<i>selected_drive</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Currently selected drive (bit 4 in the drive/head register).</dd>
+<dt id="dt:lba_mode"><a href="#dt:lba_mode">
+<i>lba_mode</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Currently selected addressing mode (bit 6 in the drive/head register).</dd>
+<dt id="dt:interrupt_pin"><a href="#dt:interrupt_pin">
+<i>interrupt_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt request status.</dd>
+<dt id="dt:interrupt_delay"><a href="#dt:interrupt_delay">
+<i>interrupt_delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Time in seconds between state changes.</dd>
+<dt id="dt:primary"><a href="#dt:primary">
+<i>primary</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Set to one if this is a primary IDE controller.</dd>
+<dt id="dt:model_dma_delay"><a href="#dt:model_dma_delay">
+<i>model_dma_delay</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>If set, the controller will accurately model DMA transfer bandwidth (infinite bandwidth otherwise).</dd>
+<dt id="dt:master"><a href="#dt:master">
+<i>master</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Master device. Must implement the ide-device interface.</dd>
+<dt id="dt:slave"><a href="#dt:slave">
+<i>slave</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Slave device. Must implement the ide-device interface.</dd>
+<dt id="dt:bus_master_dma"><a href="#dt:bus_master_dma">
+<i>bus_master_dma</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>DMA controller implementing bus-master-ide.</dd>
+<dt id="dt:dma_ready"><a href="#dt:dma_ready">
+<i>dma_ready</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Non-zero if the DMA controller is ready for transfer.</dd>
+<dt id="dt:dma_dreq_target"><a href="#dt:dma_dreq_target">
+<i>dma_dreq_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>DMA controller implementing signal interface. Upon a DMA request, the DREQ signal will be held high.</dd>
+<dt id="dt:dma_dack_level"><a href="#dt:dma_dack_level">
+<i>dma_dack_level</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>DMA controller implementing signal interface. Upon a DMA request, the DREQ signal will be held high.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ide.html">ide</a>
+</section>
+<h2 id="ide.DMA_DACK"><a href="#ide.DMA_DACK">ide.DMA_DACK</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="ide.DMA_DDONE"><a href="#ide.DMA_DDONE">ide.DMA_DDONE</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-id-splitter.html">id-splitter</a>
+<a href="rm-class-ide-cdrom.html">ide-cdrom</a>
+</div>

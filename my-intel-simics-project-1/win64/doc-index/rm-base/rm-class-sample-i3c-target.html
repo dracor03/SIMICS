@@ -1,0 +1,113 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample-i3c-target</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample-device-c.html">sample-device-c</a>
+<a href="rm-class-sample-memhier.html">sample-memhier</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample-i3c-target"><a href="#sample-i3c-target">sample-i3c-target</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Sample i3c target device
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, i3c_slave
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:bus-optional"><a href="#dt:bus-optional">bus (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i3c_master
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample-i3c-target.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample-i3c-target.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:bus"><a href="#dt:bus">
+<i>bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connect to I3C bus
+<p>
+Required interface: <tt>i3c_master</tt></p></dd>
+<dt id="dt:dcr"><a href="#dt:dcr">
+<i>dcr</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>I3C Device Characteristic Register</dd>
+<dt id="dt:provisional_id"><a href="#dt:provisional_id">
+<i>provisional_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Unique ID for dynamic address assigning, only the lower 48 bits are valid</dd>
+<dt id="dt:read_value"><a href="#dt:read_value">
+<i>read_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>8-bit value for read response</dd>
+<dt id="dt:static_address"><a href="#dt:static_address">
+<i>static_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>7 bits static address, set as 0xff to disable it</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-i3c-devices.html">sample-i3c-devices</a>
+</section>
+<div class="chain">
+<a href="rm-class-sample-device-c.html">sample-device-c</a>
+<a href="rm-class-sample-memhier.html">sample-memhier</a>
+</div>

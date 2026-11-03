@@ -1,0 +1,139 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 DML Tips and Tricks</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="building-well-behaved-models.html">6 Building Well-Behaved Models</a>
+<a href="development-checklist.html">8 Model Development Checklist</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;</div><h1 id="dml-tips-and-tricks"><a href="#dml-tips-and-tricks">7 DML Tips and Tricks</a></h1>
+<p>This chapter contains some tips and tricks which are useful when developing with
+DML. It also warns about some common errors which are easy to do, but which can
+be hard to track down if you are not aware of them.</p>
+<h2 id="register-instead-of-attributes"><a href="#register-instead-of-attributes">7.1 Register instead of attributes</a></h2>
+<p>It can sometimes be convenient to use registers instead of attributes. Each
+register is represented as a Simics attribute and an unmapped register works the
+same way as an integer attribute. For example, a register can be divided into
+fields which is not possible for an attribute. A register is unmapped if its
+offset is <code>undefined</code>, this can be done by using the template <code>unmapped</code> for the
+register. Note also that the default reset behavior differs between attributes
+and registers: A register will by default be restored to its <code>hard_reset_value</code>
+upon a hard reset, while an integer attribute won’t.</p>
+<h2 id="misspelled-identifiers"><a href="#misspelled-identifiers">7.2 Misspelled identifiers</a></h2>
+<p>Misspelling an identifier in DML can be very frustrating. The DML compiler
+removes all unused code when generating C code. A misspelled identifier can be
+considered as unused code by the DML compiler. Assume you want to override the
+default read method but you misspell read. Your new read method will be removed
+as it is considered as unused code. Be careful when overriding methods and
+parameters.</p>
+<pre><code>register a is (unmapped, read) {
+    method read() -&gt; (value) {
+        value = 0x10101;
+    }
+}
+</code></pre>
+<h2 id="alias-registers"><a href="#alias-registers">7.3 Alias registers</a></h2>
+<p>An alias register is a register which contains another register’s value. Below
+is an example how this can be handled using an <code>alias</code> template:</p>
+<pre><code>bank regs {
+    register X size 4 @ 0x00 "the X register";
+    register Y size 4 @ 0x04 is alias { param alias_reg = X; }
+}
+
+template alias is (register, desc) {
+    param alias_reg;
+    param desc = "alias of " + alias_reg.name;
+
+    method read_register(uint64 enabled_bytes, void *aux)-&gt; (uint64) {
+        log info, 4: "Redirecting read access to %s", alias_reg.qname;
+        return alias_reg.read_register(enabled_bytes, aux);
+    }
+
+    method write_register(uint64 value, uint64 enabled_bytes, void *aux) {
+        log info, 4: "Redirecting write access to %s", alias_reg.qname;
+        alias_reg.write_register(value, enabled_bytes, aux);
+    }
+}
+</code></pre>
+<p> This
+causes the Y register to become an alias register to X. The Y register does not
+hold any state of its own; instead it redirects any accesses to the X register.</p>
+<h2 id="field-set-order"><a href="#field-set-order">7.4 Field set order</a></h2>
+<p>Fields in register are accessed least significant field first. Here is an
+example of a little endian device:</p>
+<pre><code>bank regs {
+    method triggered() {
+        log info: "pow!!!";
+    }
+    register r size 4 @ 0x0000 {
+        field Trigger @ [0] is write {
+            method write(uint64 value) {
+                log info: "Writing Trigger";
+                if (Enabled.val)
+                    triggered();
+            }
+        }
+        field Enabled @ [1] is write {
+            method write(uint64 value) {
+                this.val = value;
+                log info: "Writing Enabled";
+            }
+        }
+    }
+}
+</code></pre>
+<p>
+Writing to the register <code>r</code> will result in this output:</p>
+<pre><code class="language-simics">simics&gt; <strong>phys_mem.write 0x0 3 -l</strong>
+[tst info] Writing Trigger
+[tst info] Writing Enabled
+</code></pre>
+<p>The <code>Trigger</code> field is accessed first and then the <code>Enabled</code> field, writing <code>1</code>
+to both. The intention was to trigger the <code>pow!!!</code> output, but <code>Enabled</code> is set
+after <code>Trigger</code> and is therefore still <code>0</code>. In this situation it is better to
+use the <code>write</code> method and hook in our side-effect after the write is executed:</p>
+<pre><code>bank regs {
+    method triggered() {
+        log info: "pow!!!";
+    }
+    register r size 4 @ 0x0000 is write {
+        field Trigger @ [0] is write {
+            method write(uint64 value) {
+                this.val = value;
+                log info: "Writing Trigger";
+            }
+        }
+        field Enabled @  [1] is write {
+            method write(uint64 value) {
+                this.val = value;
+                log info: "Writing Enabled";
+            }
+        }
+        method write(uint64 mop) {
+            default(mop);
+            if (Enabled.val &amp;&amp; Trigger.val) {
+                Trigger.val = 0;
+                triggered();
+            }
+        }
+    }
+}
+</code></pre>
+<p>Now it behaves as expected:</p>
+<pre><code class="language-simics">simics&gt; <strong>phys_mem.write 0x0 3 -l</strong>
+[tst info] Writing Trigger
+[tst info] Writing Enabled
+[tst info] pow!!!
+</code></pre>
+
+<div class="chain">
+<a href="building-well-behaved-models.html">6 Building Well-Behaved Models</a>
+<a href="development-checklist.html">8 Model Development Checklist</a>
+</div>

@@ -1,0 +1,232 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Breakpoints</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+<a href="sim-api-configuration.html">Configuration</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Breakpoints</h1>
+<h2 id="SIM_break_cycle"><a href="#SIM_break_cycle">SIM_break_cycle</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_break_cycle — insert breakpoint in time queue</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_break_cycle(conf_object_t *NOTNULL obj, int64 cycles);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_break_cycle(...)
+</code></pre>
+<h2>Description</h2>
+<p>Insert a breakpoint event at <code>cycles</code> clock cycles from now, causing simulation to stop when reached by <code>obj</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_break_step"><a href="#SIM_break_step">SIM_break_step</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_break_step — set a step breakpoint</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_break_step(conf_object_t *NOTNULL obj, int64 steps);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_break_step(...)
+</code></pre>
+<h2>Description</h2>
+<p>Sets a step breakpoint on a processor. The <code>steps</code> argument is the number of instructions until the break occurs.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_InterfaceNotFound</strong> Thrown if the <code>obj</code> object doesn’t implement the <a href="model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a> interface.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_breakpoint"><a href="#SIM_breakpoint">SIM_breakpoint</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_breakpoint — set breakpoint</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+breakpoint_id_t
+SIM_breakpoint(conf_object_t *NOTNULL obj,
+               breakpoint_kind_t kind,
+               access_t access,
+               uint64 address,
+               uint64 length,
+               breakpoint_flag_t flags);
+
+typedef enum breakpoint_flag {
+        Sim_Breakpoint_Temporary = 1,
+        Sim_Breakpoint_Simulation = 2,
+        Sim_Breakpoint_Private = 4
+} breakpoint_flag_t;
+
+#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Break_Physical = 0,
+        Sim_Break_Virtual  = 1,
+        Sim_Break_Linear   = 2      /* x86 only */
+} breakpoint_kind_t;
+
+typedef int breakpoint_id_t;
+
+// always available in DML
+
+typedef enum {
+        Sim_Access_Read = 1,
+        Sim_Access_Write = 2,
+        Sim_Access_Execute = 4
+} access_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_breakpoint(...)
+simics.Sim_Break_Virtual
+simics.Sim_Break_Linear
+simics.Sim_Break_Physical
+simics.Sim_Access_Execute
+simics.Sim_Access_Write
+simics.Sim_Access_Read
+simics.Sim_Breakpoint_Private
+simics.Sim_Breakpoint_Simulation
+simics.Sim_Breakpoint_Temporary
+</code></pre>
+<h2>Description</h2>
+<p>Add breakpoint on an <code>object</code> implementing the <a href="model-to-simulator-interfaces.html#breakpoint_interface_t"><code>breakpoint</code></a> interface. This is typically a memory space object such as physical memory.</p>
+<p>Please note that breakpoints set by this function may not appear in the output from <a href="../rm-base/rm-cmd-bp_manager.list.html"><code>bp.list</code></a>. It’s recommended to use the <a href="../rm-base/rm-cmd-bp-manager.memory.break.html"><code>bp.memory.break</code></a> command to set breakpoints.</p>
+<p>The <code>kind</code> argument sets what type of address to break on.</p>
+<p>The <code>access</code> argument is a bit-field setting the type of access. Any combination of the three alternatives can be given (added together).</p>
+<p>The <code>address</code> is the start of the breakpoint range and <code>length</code> is its length in bytes. This range will be truncated as necessary to fit in the address space. An access intersecting the given range will trigger the breakpoint. If <code>length</code> is zero, the breakpoint range will be the entire address space.</p>
+<p>The <code>flags</code> argument should be the sum of zero or more enumeration constants from <code>breakpoint_flag_t</code>.</p>
+<p>If the <code>Sim_Breakpoint_Temporary</code> bit is set, the breakpoint is automatically disabled when triggered the first time.</p>
+<p>If the <code>Sim_Breakpoint_Simulation</code> bit is set, the breakpoint will not show up in the <a href="../rm-base/rm-cmd-bp_manager.list.html"><code>bp.list</code></a> command, nor can it be removed by the <a href="../rm-base/rm-cmd-bp_manager.delete.html"><code>bp.delete</code></a> command. Also, there will be no message printed on the Simics console when this breakpoint is triggered. This bit should be set when using breakpoints to simulate the target system.</p>
+<p>If the <code>Sim_Breakpoint_Private</code> bit is set, the breakpoint will not show up in the <a href="../rm-base/rm-cmd-bp_manager.list.html"><code>bp.list</code></a> command, nor can it be removed by the <a href="../rm-base/rm-cmd-bp_manager.delete.html"><code>bp.delete</code></a> command.</p>
+<p>The default action for a triggered breakpoint is to return to the frontend (this can be changed  by using haps). On execution breakpoints Simics will return to the frontend before the instructions is executed, while instructions triggering read or write breakpoints will complete before control is returned to the frontend.</p>
+<p>Several breakpoints can be set on the same address and Simics will break on them in turn. If hap handlers are connected to the breakpoints they will also be executed in turn. Hap handlers are called before the access is performed, allowing the user to read a memory value that may be overwritten by the access. See the Simics Reference Manual for a description of hap handlers.</p>
+<p>Several attributes can be set for a breakpoint for breaking only when some conditions are true. See the <code>breakpoints</code> attribute in the <a href="../rm-base/rm-class-sim.html"><code>sim</code></a> class.</p>
+<p>This function returns the breakpoint id which is used for further reference to the breakpoint.</p>
+<p>Breakpoints can be removed using <a href="sim-api-breakpoints.html#SIM_delete_breakpoint"><code>SIM_delete_breakpoint</code></a>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the type or access arguments are illegal. Also thrown if obj cannot handle breakpoints of the given kind.</p>
+<h2>Return Value</h2>
+<p>Breakpoint id, -1 on exception.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-breakpoints.html#SIM_breakpoint_remove"><code>SIM_breakpoint_remove</code></a>, <a href="sim-api-breakpoints.html#SIM_delete_breakpoint"><code>SIM_delete_breakpoint</code></a></p>
+</section>
+<h2 id="SIM_breakpoint_remove"><a href="#SIM_breakpoint_remove">SIM_breakpoint_remove</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_breakpoint_remove — delete breakpoint range</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_breakpoint_remove(int id,
+                      access_t access,
+                      generic_address_t address,
+                      generic_address_t length);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_breakpoint_remove(...)
+</code></pre>
+<h2>Description</h2>
+<p>Deletes a breakpoint range from an existing breakpoint. Can thus be used to create holes in the breakpoint range. <code>id</code> is the breakpoint to operate on, as returned by <a href="sim-api-breakpoints.html#SIM_breakpoint"><code>SIM_breakpoint</code></a>. A value of zero will operate on all breakpoints that were not set using the <a href="sim-api-breakpoints.html#SIM_breakpoint"><code>Sim_Breakpoint_Simulation</code></a> flag.</p>
+<p><code>access</code> is a bitfield describing the type of breakpoint to remove using the enumeration constants of the <a href="sim-api-breakpoints.html#SIM_breakpoint"><code>access_t</code></a> enum.</p>
+<p><code>address</code> is the start address of the range and <code>length</code> is the length of the range in bytes.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Index</strong> Thrown if illegal breakpoint</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-breakpoints.html#SIM_breakpoint"><code>SIM_breakpoint</code></a>, <a href="sim-api-breakpoints.html#SIM_delete_breakpoint"><code>SIM_delete_breakpoint</code></a></p>
+</section>
+<h2 id="SIM_delete_breakpoint"><a href="#SIM_delete_breakpoint">SIM_delete_breakpoint</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_delete_breakpoint — delete breakpoint</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_delete_breakpoint(breakpoint_id_t id);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_delete_breakpoint(...)
+</code></pre>
+<h2>Description</h2>
+<p>Deletes breakpoint <code>id</code> as returned by <a href="sim-api-breakpoints.html#SIM_breakpoint"><code>SIM_breakpoint</code></a>. A value of zero will delete all breakpoints that were set without the <a href="sim-api-breakpoints.html#SIM_breakpoint"><code>Sim_Breakpoint_Simulation</code></a> flag.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Index</strong> Thrown if no breakpoint with the id is found.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_disable_breakpoint"><a href="#SIM_disable_breakpoint">SIM_disable_breakpoint, SIM_enable_breakpoint</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_disable_breakpoint, SIM_enable_breakpoint — disable breakpoint</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_disable_breakpoint(breakpoint_id_t id);
+
+void
+SIM_enable_breakpoint(breakpoint_id_t id);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_disable_breakpoint(...)
+simics.SIM_enable_breakpoint(...)
+</code></pre>
+<h2>Description</h2>
+<p>Enables and disables breakpoint <code>id</code>, as returned by <a href="sim-api-breakpoints.html#SIM_breakpoint"><code>SIM_breakpoint</code></a>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Index</strong> Thrown if no breakpoint with the id is found.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+<a href="sim-api-configuration.html">Configuration</a>
+</div>

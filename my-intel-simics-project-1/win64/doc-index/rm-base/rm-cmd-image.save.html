@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;image&gt;.save</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-image.load-vmem.html">&lt;image&gt;.load-vmem</a>
+<a href="rm-cmd-image.save-diff-file.html">&lt;image&gt;.save-diff-file</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="image.save"></a>
+<h1 id="image.save"><a href="#image.save">&lt;image&gt;.save</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;image&gt;.save</b> <i>filename</i> [<i>start-byte</i>] [<i>length</i>] [-save-craff|-save-raw|-save-vhdx] [-overwrite] [-u] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Writes the image contents to <i>filename</i> in the specified format.
+<p>
+If <i>start-byte</i> and/or <i>length</i> are given, they specify the start offset address and number of bytes to write respectively; otherwise, the whole image is copied.
+</p><p>
+If <tt>-save-craff</tt> is specified, data is saved in craff format, using compression unless <tt>-u</tt> is specified. If <tt>-save-raw</tt> is specified, data is saved in raw format, which is also the default option. If <tt>-save-vhdx</tt> is specified, data is saved in VHDX format.
+</p><p>
+The command will fail if the destination file already exists, unless <tt>-overwrite</tt> is specified. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-save-image-contents.html">save-image-contents</a>, 
+<a href="rm-cmd-image.save-diff-file.html">&lt;image&gt;.save-diff-file</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-image.load-vmem.html">&lt;image&gt;.load-vmem</a>
+<a href="rm-cmd-image.save-diff-file.html">&lt;image&gt;.save-diff-file</a>
+</div>

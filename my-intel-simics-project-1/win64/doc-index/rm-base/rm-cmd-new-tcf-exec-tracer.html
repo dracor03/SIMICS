@@ -1,0 +1,58 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>new-tcf-exec-tracer</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-new-tcf-agent.html">new-tcf-agent</a>
+<a href="rm-cmd-new-time-server.html">new-time-server</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="new-tcf-exec-tracer"></a>
+<h1 id="new-tcf-exec-tracer"><a href="#new-tcf-exec-tracer">new-tcf-exec-tracer</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>new-tcf-exec-tracer</b> [<i>processor</i>] [-disable-disassembly] [-disable-exception-tracing] [-disable-instruction-tracing] [-disable-memory-tracing] [-disable-register-tracing] ([ <i>"address-types"</i> ... ] | list of <i>"address-types"</i>) [<i>traces-count-limit</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command will create a new <tt>tcf_exec_tracer</tt> object that will collect traces during simulation. When the necessary traces has been collected, run the <code>&lt;tcf_exec_tracer&gt;.save</code> to save the traces to a file.
+<p>
+By default, only the last 1000000 traces will be kept, and the traces will be collected from the current processor using all supported trace types.
+</p><p>
+To change the number of traces changed, set the <i>traces-count-limit</i> argument.
+</p><p>
+To specify the <i>processor</i> on which traces, are collected, set the <i>processor</i> argument. If a single processor exists, this will be used, but if several exists, <i>processor</i> need to be specified.
+</p><p>
+If only specific trace types should be collected, use the <tt>-disable-disassembly</tt>, <tt>-disable-exception-tracing</tt>, <tt>-disable-instruction-tracing</tt>, <tt>-disable-memory-tracing</tt>, <tt>-disable-register-tracing</tt>, to disable trace types that is not of interest. Using only a selection of trace types can improve simulation speed and also reduce the size of the traces.
+</p><p>
+For traces types that contain addresses, it is also possible to select the type of address collected, by setting the <i>address-types</i> argument. The default types are <i>virtual</i> and <i>physical</i>.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.tcf-agent.html">tcf-agent</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-pselect.html">pselect</a>, 
+<a href="rm-cmd-tcf_exec_tracer.clear.html">&lt;tcf_exec_tracer&gt;.clear</a>, 
+<a href="rm-cmd-tcf_exec_tracer.delete.html">&lt;tcf_exec_tracer&gt;.delete</a>, 
+<a href="rm-cmd-tcf_exec_tracer.disable.html">&lt;tcf_exec_tracer&gt;.disable</a>, 
+<a href="rm-cmd-tcf_exec_tracer.enable.html">&lt;tcf_exec_tracer&gt;.enable</a>, 
+<a href="rm-cmd-tcf_exec_tracer.properties.html">&lt;tcf_exec_tracer&gt;.properties</a>, 
+<a href="rm-cmd-tcf_exec_tracer.save.html">&lt;tcf_exec_tracer&gt;.save</a>, 
+<a href="rm-cmd-tcf_exec_tracer.status.html">&lt;tcf_exec_tracer&gt;.status</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-new-tcf-agent.html">new-tcf-agent</a>
+<a href="rm-cmd-new-time-server.html">new-time-server</a>
+</div>

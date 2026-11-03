@@ -1,0 +1,66 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 Communication Interfaces</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="link-specific-interfaces.html">5 Link-Specific Interfaces</a>
+<a href="link-components.html">7 Link Components</a>
+</div>
+<div class="path">
+<a href="index.html">Link Library Programming Guide</a>
+&nbsp;/&nbsp;</div><h1 id="communication-interfaces"><a href="#communication-interfaces">6 Communication Interfaces</a></h1>
+<p>The link model needs to define a structure that represents all kinds of messages that can be sent over the link.
+This structure should “inherit” from <code>link_message_t</code>, by placing it first in the <code>struct</code> (so that a pointer to a <code>datagram_link_message_t</code> can be cast to a <code>link_message_t</code> pointer).</p>
+<pre><code>typedef struct {
+        link_message_t common;               /* should always be first */
+        /* The actual data in the message - in our case an allocated
+           byte string owned by this structure. */
+        bytes_t payload;
+} datagram_link_message_t;
+</code></pre>
+<p>New messages are allocated with <code>MM_MALLOC()</code>, and <code>SIMLINK_init_message()</code> is used to fill in the “common” part:</p>
+<pre><code>static link_message_t *
+new_datagram_message(const uint8 *data, size_t len)
+{
+        datagram_link_message_t *m = MM_MALLOC(1, datagram_link_message_t);
+        SIMLINK_init_message(&amp;m-&gt;common);
+        uint8 *d = MM_MALLOC(len, uint8);
+        memcpy(d, data, len);
+        m-&gt;payload = (bytes_t){.data = d, .len = len};
+        return &amp;m-&gt;common;
+}
+</code></pre>
+<p>Finally, the message is dispatched using the <code>SIMLINK_send_message()</code> or <code>SIMLINK_send_message_multi()</code> functions.</p>
+<pre><code>static void
+receive(conf_object_t *NOTNULL ep, bytes_t msg)
+{
+        SIMLINK_send_message(ep, LINK_BROADCAST_ID,
+                             new_datagram_message(msg.data, msg.len));
+}
+</code></pre>
+<p>Messages are delivered to the endpoints’ <code>deliver()</code> callback registered by the link.
+The callback is responsible for translating the message into something the receiving device will understand.</p>
+<pre><code>static void
+deliver(conf_object_t *ep, const link_message_t *lm)
+{
+        const datagram_link_message_t *m =
+                (const datagram_link_message_t *)lm;
+        conf_object_t *dev = SIMLINK_endpoint_device(ep);
+        const char *port = SIMLINK_endpoint_port(ep);
+        const datagram_link_interface_t *dli =
+                SIM_c_get_port_interface(dev, "datagram_link", port);
+        if (dli)
+                dli-&gt;receive(dev, m-&gt;payload);
+        else
+                SIM_LOG_ERROR(ep, 0, "Device does not implement"
+                              " datagram_link interface");
+}
+</code></pre>
+
+<div class="chain">
+<a href="link-specific-interfaces.html">5 Link-Specific Interfaces</a>
+<a href="link-components.html">7 Link Components</a>
+</div>

@@ -1,0 +1,103 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>system_panel_state_manager</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-system_panel_number.html">system_panel_number</a>
+<a href="rm-class-tcf-agent.html">tcf-agent</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="system_panel_state_manager"><a href="#system_panel_state_manager">system_panel_state_manager</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Store panel objects whose state have changed, and propagate them to frontend when ready.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, recorded, system_panel, system_panel_state_manager
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:front_end-pseudo"><a href="#dt:front_end-pseudo">front_end (pseudo)</a></dt>
+<dd>
+<b>Required interfaces</b>: system_panel_frontend
+</dd>
+<dt id="dt:panel_component-required"><a href="#dt:panel_component-required">panel_component (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: component
+</dd>
+<dt id="dt:recorder-optional"><a href="#dt:recorder-optional">recorder (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: recorder_v2
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-system_panel_state_manager.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-system_panel_state_manager.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:notification_sent"><a href="#dt:notification_sent">
+<i>notification_sent</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>This flag indicates if state changes notification has been sent to front end. If true, means state changes existed locally and the notification of the changes has been sent to front end.</dd>
+<dt id="dt:panel_component"><a href="#dt:panel_component">
+<i>panel_component</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>The containing component. Used to look up slot names for panel input.
+<p>
+Required interfaces: <tt>component</tt>.</p></dd>
+<dt id="dt:use_recorder"><a href="#dt:use_recorder">
+<i>use_recorder</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If this attribute is true, the recorder is used for all input. If this is false, the recorder is bypassed.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.system-panel.html">system-panel</a>
+</section>
+<div class="chain">
+<a href="rm-class-system_panel_number.html">system_panel_number</a>
+<a href="rm-class-tcf-agent.html">tcf-agent</a>
+</div>

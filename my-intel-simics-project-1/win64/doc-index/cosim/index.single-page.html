@@ -1,0 +1,316 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Processor Model Integration Guide</title>
+
+<section class="page" id="index.html"><h1 id="index.html:processor-model-integration-guide"><a href="#index.html:processor-model-integration-guide">Processor Model Integration Guide</a></h1>
+<p>This document describes the API used to implement models of processors in Simics.
+Simics handles the simulation framework, including the user interfaces, standardized APIs, plug-in administration, and commonly used utilities and resources.
+The processor models use and implement the standardized APIs, which allows mixing simulation models and creating a uniform interface to the user.</p>
+<p>The processor API is the part of the API that gives a model to get control over simulator scheduling.
+It includes processor specific interfaces to enable standard functions and commands for the processor models as well as efficient memory interfaces to allow fast simulation.
+The most important interfaces are covered in this document, for the other interfaces please refer to the <a href="../rm-api/index.html">API Reference Manual</a>.</p>
+<p>Depending on use, the processors should implement and use different parts of the interfaces described.</p>
+<p>A number of areas that a processor model may support can be identified as follows:</p>
+<dl>
+<dt id="index.html:dt:simulation-scheduling"><a href="#index.html:dt:simulation-scheduling">Simulation scheduling</a></dt>
+<dd>There must be basic support for advancing the simulation.
+This support must be present for any fast functional processor model.
+Cycle driven models may be designed using the built-in clock class that handles the scheduling interaction with the framework.</dd>
+<dt id="index.html:dt:direct-access-to-memory"><a href="#index.html:dt:direct-access-to-memory">Direct Access to Memory</a></dt>
+<dd>Interfaces used to cache pointers to memory, allowing accesses to be carried out without involving the API.</dd>
+<dt id="index.html:dt:inspection-and-control-of-processor-models"><a href="#index.html:dt:inspection-and-control-of-processor-models">Inspection and control of processor models</a></dt>
+<dd>As processors are very visible to the user of the simulator, there are several standardized ways for the user to access and control a processor.
+To support these, the processor models in turn have to implement interfaces and trigger haps.</dd>
+<dt id="index.html:dt:breakpoints"><a href="#index.html:dt:breakpoints">Breakpoints</a></dt>
+<dd>The processor model is fully responsible for triggering virtual address breakpoints.
+For physical address breakpoints, the processor model needs to check if ranges mapped with direct memory access contain breakpoints and then either request more fine grained regions of memory without breakpoints or fall back to explicit memory operations, where the explicit memory operations will handle breakpoints if they happen to match.</dd>
+<dt id="index.html:dt:simulation-of-models"><a href="#index.html:dt:simulation-of-models">Simulation of models</a></dt>
+<dd>Covers the mechanisms used to communicate between processors and devices.</dd>
+</dl>
+<p>Like any other model, processor models should be written to integrate well into the Simics environment.
+See the <a href="../model-builder-user-guide/development-checklist.html">Simics Model Development Checklist</a> section for a good checklist to follow when designing and implementing the model.
+See also the <a href="../simics-user-guide/index.html">Simics User’s Guide</a> for more information about the features discussed in this document.</p>
+<p>How to configure a system and create start scripts is described in <a href="../model-builder-user-guide/machine-creation.html">System Configurations</a> in Model Builder User’s Guide.
+Example system configurations can be found in <code>[simics]/targets/cosim/</code>.</p>
+</section><section class="page" id="cosimulator-examples.html"><h1 id="cosimulator-examples.html:processor-scheduling-examples"><a href="#cosimulator-examples.html:processor-scheduling-examples">1 Processor Scheduling Examples</a></h1>
+<p>This chapter describes how to interface processors to Simics depending on the requirements on the simulation.</p>
+<p>A processor model defines one or more classes to integrate with the Simics environment.
+Simics classes have attributes and implement interfaces.
+Even though Simics classes can be written in <em>DML</em>, <em>C</em>, <em>C++</em>, or <em>Python</em>, only <em>C</em> and <em>C++</em> is currently supported for writing processor models.
+See the <a href="../simics-user-guide/configuration.html">Configuration and Checkpointing</a> chapter in the <em>Simics User’s Guide</em> for more information about classes in Simics and how to instantiate them into Simics objects.</p>
+<p>A key issue for fast simulation is how it is scheduled.
+A <em>scheduler</em> is an object that implements the <code>execute</code> interface.
+Such an object advances virtual time for itself and for the objects associated with it.
+A processor that also is a scheduler can thus simulate a sequence of instructions that occur at different points in virtual time without having to return back to the framework.</p>
+<p>Processors can be scheduled in any of the following ways:</p>
+<dl>
+<dt id="cosimulator-examples.html:dt:processors-without-custom-scheduling"><a href="#cosimulator-examples.html:dt:processors-without-custom-scheduling">Processors without custom scheduling</a></dt>
+<dd>Processors models do not have any customized scheduling, but rather use event callbacks to perform simulation.
+This setup is suitable for clock cycle driven simulation as it performs simulation in strict virtual time order.
+See figure <a class="reference" href="#cosimulator-examples.html:exact_time_model">1</a>.</dd>
+<dt id="cosimulator-examples.html:dt:scheduling-a-set-of-processors"><a href="#cosimulator-examples.html:dt:scheduling-a-set-of-processors">Scheduling a set of processors</a></dt>
+<dd>The processors are scheduled together, and a single object implements the <code>execute</code> and <code>cycle</code> interfaces used by the framework to schedule the set of processors.
+See figure <a class="reference" href="#cosimulator-examples.html:cosim_queue_in_blobb">2</a>.
+This type of scheduling allows the simulation to run faster since it requires less synchronization and fewer context switches.
+The drawback is that both the <code>cycle</code> interface and the optional <code>step</code> interface are hard to implement.</dd>
+<dt id="cosimulator-examples.html:dt:scheduling-each-processor"><a href="#cosimulator-examples.html:dt:scheduling-each-processor">Scheduling each processor</a></dt>
+<dd>The <code>execute</code> and <code>cycle</code> interfaces are here implemented in each thread/core objects instead of in a central scheduler object.
+See figure <a class="reference" href="#cosimulator-examples.html:execute_per_thread">3</a>.
+This is the model used by all standard Simics processors models.
+The multiple clocks in this type of setup are kept by Simics within a defined window of virtual time.
+As the clocks are driven individually, this leads to temporal decoupling between the processors.</dd>
+</dl>
+<p>The documentation for the <a href="../rm-api/model-to-simulator-interfaces.html#execute_interface_t"><code>execute</code></a> interface describes how the Simics core controls the simulation.</p>
+<h2 id="cosimulator-examples.html:processor-models-without-custom-scheduling"><a href="#cosimulator-examples.html:processor-models-without-custom-scheduling">1.1 Processor Models without Custom Scheduling</a></h2>
+<p>Cycle driven models are typically slow because all objects run in lock-step mode, advancing one cycle at a time.
+The setup has a single clock object that handles timing for all objects.</p>
+<p>Figure <a class="reference" href="#cosimulator-examples.html:exact_time_model">1</a> shows an example setup of event driven processors.
+This type of setup is suitable for clock-cycle-accurate HDL simulator models.</p>
+<figure id="cosimulator-examples.html:exact_time_model">
+<p><img alt="" src="exact_time_model.png"> </p><figcaption>Figure 1. Event driven processors in Simics.</figcaption><p></p>
+</figure>
+<p>The objects in figure <a class="reference" href="#cosimulator-examples.html:exact_time_model">1</a> are:</p>
+<dl>
+<dt id="cosimulator-examples.html:dt:simics-core"><a href="#cosimulator-examples.html:dt:simics-core">Simics core</a></dt>
+<dd>The Simics core providing simulation services through the Simics API.</dd>
+<dt id="cosimulator-examples.html:dt:clock"><a href="#cosimulator-examples.html:dt:clock">clock</a></dt>
+<dd>The Simics clock object implementing the <code>execute</code> interface and the <code>cycle</code> interface.
+The clock handles all timing in the system.</dd>
+<dt id="cosimulator-examples.html:dt:thread-core"><a href="#cosimulator-examples.html:dt:thread-core">thread/core</a></dt>
+<dd>The thread/core objects are placeholders for each simulated thread/core.
+They implement standard processor interfaces such as the <code>processor_info_v2</code>, <code>int_register</code>, and <code>exception</code> interfaces.
+These interfaces are used by standard Simics commands for showing time, events, register contents, instruction disassemble, etc.</dd>
+<dt id="cosimulator-examples.html:dt:memory-space"><a href="#cosimulator-examples.html:dt:memory-space">memory-space</a></dt>
+<dd>Generic Simics memory-space objects handling memory accesses.</dd>
+<dt id="cosimulator-examples.html:dt:device"><a href="#cosimulator-examples.html:dt:device">device</a></dt>
+<dd>Device models for the system.</dd>
+</dl>
+<h2 id="cosimulator-examples.html:scheduling-a-set-of-processors"><a href="#cosimulator-examples.html:scheduling-a-set-of-processors">1.2 Scheduling a Set of Processors</a></h2>
+<p>In the setup shown in figure <a class="reference" href="#cosimulator-examples.html:cosim_queue_in_blobb">2</a>, the processors export one implementation of the time event queue instead of having a Simics object do that.
+The result is that the processor model has better control of when new events are added, and the processor model itself triggers the events.
+The Simics core instructs the scheduler to run the simulation forward through the <code>execute</code> interface.
+All objects in a cell implementing the <code>execute</code> interface will be kept within a time window defined by the <code>time_quantum</code> attribute of the cell.
+Having a quantum that is significantly larger than a single cycle (as in a cycle driven model) allows for faster simulation since optimizations such as binary translation and hypersimulation can then be employed.</p>
+<figure id="cosimulator-examples.html:cosim_queue_in_blobb">
+<p><img alt="" src="cosim_queue_in_blobb.png"> </p><figcaption>Figure 2. Scheduling a set of processors.</figcaption><p></p>
+</figure>
+<p>The objects in figure <a class="reference" href="#cosimulator-examples.html:cosim_queue_in_blobb">2</a> are:</p>
+<dl>
+<dt id="cosimulator-examples.html:dt:simics-core-2"><a href="#cosimulator-examples.html:dt:simics-core-2">Simics core</a></dt>
+<dd>The Simics core providing simulation services through the Simics API.</dd>
+<dt id="cosimulator-examples.html:dt:scheduler"><a href="#cosimulator-examples.html:dt:scheduler">scheduler</a></dt>
+<dd>Implements the <code>execute</code> and <code>cycle</code> interfaces.
+Simics core and devices will use this object for posting events and for driving the simulation.
+The scheduler object may correspond to something particular in hardware, such as a processor with multiple cores.</dd>
+<dt id="cosimulator-examples.html:dt:thread-core-2"><a href="#cosimulator-examples.html:dt:thread-core-2">thread/core</a></dt>
+<dd>The thread/core objects are placeholders for each simulated thread/core.
+They implement standard processor interfaces for example the <code>processor_info_v2</code> interface.
+These interfaces are used by standard Simics commands for showing time, events, register contents, instruction disassemble, etc.</dd>
+<dt id="cosimulator-examples.html:dt:memory-space-2"><a href="#cosimulator-examples.html:dt:memory-space-2">memory-space</a></dt>
+<dd>Generic Simics memory-space objects handling memory accesses.</dd>
+<dt id="cosimulator-examples.html:dt:device-2"><a href="#cosimulator-examples.html:dt:device-2">device</a></dt>
+<dd>Device models for the system.</dd>
+</dl>
+<p>The processor model has control of time and can optimize for running long quanta.
+The Simics core notifies the execute object that it can start to execute and it is up to the implementation to control how everything is scheduled.
+The threads/cores may be simulated in parallel with multiple threads.
+Note that care must be taken if for example deterministic execution should be supported.</p>
+<p>An example system with this setup can be found in <code>[simics]/targets/cosim/queues-in-cosimulator.simics</code>.
+The source code for the example can be found in <code>[simics]/src/extensions/sample-risc</code>.</p>
+<h2 id="cosimulator-examples.html:scheduling-each-processor"><a href="#cosimulator-examples.html:scheduling-each-processor">1.3 Scheduling Each Processor</a></h2>
+<p>In the setup shown in figure <a class="reference" href="#cosimulator-examples.html:execute_per_thread">3</a>, each processor implements the scheduling interfaces.
+This is a special case of the previous mechanism where each set of processors only include a single processor.
+The Simics core instructs the scheduler to run the simulation forward through the <code>execute</code> interface.
+All objects in a cell implementing the <code>execute</code> interface will be kept within a time window defined by the <code>time_quantum</code> attribute of the cell.
+Having a quantum that is significantly larger than a single cycle (as in a cycle driven model) allows for faster simulation since optimizations such as binary translation and hypersimulation can then be employed.</p>
+<figure id="cosimulator-examples.html:execute_per_thread">
+<p><img alt="" src="execute_per_thread.png"> </p><figcaption>Figure 3. Scheduling Each Processor.</figcaption><p></p>
+</figure>
+<p>The objects in figure <a class="reference" href="#cosimulator-examples.html:execute_per_thread">3</a> are:</p>
+<dl>
+<dt id="cosimulator-examples.html:dt:simics-core-3"><a href="#cosimulator-examples.html:dt:simics-core-3">Simics core</a></dt>
+<dd>The Simics core providing simulation services through the Simics API.</dd>
+<dt id="cosimulator-examples.html:dt:thread-core-3"><a href="#cosimulator-examples.html:dt:thread-core-3">thread/core</a></dt>
+<dd>The thread/core objects implement both the execution related interfaces (<code>execute</code> and <code>cycle</code>), and the interfaces used to control and inspect the individual cores (<code>processor_info_v2</code>, <code>step</code>, <code>int_register</code>, etc).</dd>
+<dt id="cosimulator-examples.html:dt:memory-space-3"><a href="#cosimulator-examples.html:dt:memory-space-3">memory-space</a></dt>
+<dd>Generic Simics memory-space objects handling memory accesses.</dd>
+<dt id="cosimulator-examples.html:dt:device-3"><a href="#cosimulator-examples.html:dt:device-3">device</a></dt>
+<dd>Device models for the system.</dd>
+</dl>
+<p>This model is similar to the previous model with the difference that each thread/core defines its own time domain.
+This also means that each object will be driven individually by the Simics core.
+This is the type of model used by all standard processor models in Simics.</p>
+</section><section class="page" id="simulation-scheduling.html"><h1 id="simulation-scheduling.html:simulation-scheduling"><a href="#simulation-scheduling.html:simulation-scheduling">2 Simulation Scheduling</a></h1>
+<p>This chapter lists the interfaces used for customized simulation scheduling.</p>
+<h2 id="simulation-scheduling.html:execute-interface"><a href="#simulation-scheduling.html:execute-interface">2.1 Execute Interface</a></h2>
+<p>See <a href="../rm-api/model-to-simulator-interfaces.html#execute_interface_t"><code>execute</code></a> for the documentation of the interface.</p>
+<p>In figure <a class="reference" href="#simulation-scheduling.html:execute_fig">4</a> there is an example call-graph of Simics core and processor scheduler communication.
+Simics posts events on the processor’s event queues to be triggered, for instance, at the end of the allowed time window.
+Simics then calls the <code>run</code> function in the <code>execute</code> interface and the processor starts executing instructions.
+The processor which implements the event queues will after a while execute an event callback for the event posted by the Simics core in one of the event queues.
+The Simics core handles the event which will trigger a stop request via the <code>stop</code> function.
+Note that not all events will trigger a stop request.
+Having received <code>stop</code>, the processor model must stop the simulation as soon as possible and return to the Simics core.
+This is typically done as soon as the currently executing instruction is committed.</p>
+<figure id="simulation-scheduling.html:execute_fig">
+<p><img alt="" src="execute_scheduler.png"> </p><figcaption>Figure 4. An example of Simics core and scheduler communication.</figcaption><p></p>
+</figure>
+<h2 id="simulation-scheduling.html:other-interfaces"><a href="#simulation-scheduling.html:other-interfaces">2.2 Other Interfaces</a></h2>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#cell_inspection_interface_t"><code>cell_inspection</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#cycle_interface_t"><code>cycle</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#co_execute_interface_t"><code>co_execute</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#synchronous_mode_interface_t"><code>synchronous_mode</code></a></li>
+</ul>
+</section><section class="page" id="direct-access-to-memory.html"><h1 id="direct-access-to-memory.html:direct-access-to-memory"><a href="#direct-access-to-memory.html:direct-access-to-memory">3 Direct Access to Memory</a></h1>
+<p>The processor API includes support for caching pointers to simulated memory so that the model can perform accesses directly instead of having to use the API for every individual access.</p>
+<p>This chapter lists the interfaces used to setup and handle direct access to memory.</p>
+<p>The <code>direct_memory_lookup</code> and <code>direct_memory</code> interfaces replace the <code>memory_page</code> interface of Simics 4.8.</p>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_lookup_interface_t"><code>direct_memory_lookup</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_interface_t"><code>direct_memory</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_flush_interface_t"><code>direct_memory_flush</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_update_interface_t"><code>direct_memory_update</code></a></li>
+</ul>
+</section><section class="page" id="controlling-and-inspecting-processor-state.html"><h1 id="controlling-and-inspecting-processor-state.html:controlling-and-inspecting-processor-state"><a href="#controlling-and-inspecting-processor-state.html:controlling-and-inspecting-processor-state">4 Controlling and Inspecting Processor State</a></h1>
+<p>The processor state can be controlled and inspected using commands or GUI controls.
+This chapter describes the interfaces, haps, and breakpoint functionality required for supporting this.</p>
+<h2 id="controlling-and-inspecting-processor-state.html:commands"><a href="#controlling-and-inspecting-processor-state.html:commands">4.1 Commands</a></h2>
+<p>Several generic Simics commands work automatically when standard interfaces are implemented. How the interfaces map onto objects depends on how the model is designed, for example the type of models described in Chapter <a class="reference" href="#cosimulator-examples.html">1</a>.</p>
+<h2 id="controlling-and-inspecting-processor-state.html:interfaces"><a href="#controlling-and-inspecting-processor-state.html:interfaces">4.2 Interfaces</a></h2>
+<p>This section lists the interfaces that can be implemented by the processor model to enable certain Simics features.
+They are not required, but implementing them will allow user defined processor models to support the same generic feature set as Simics standard processor models.
+If you intend to plug your model into an existing Simics-provided platform, then many of these interfaces are actually required for such a platform to function.</p>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#processor_info_v2_interface_t"><code>processor_info_v2</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#processor_cli_interface_t"><code>processor_cli</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#processor_gui_interface_t"><code>processor_gui</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#step_cycle_ratio_interface_t"><code>step_cycle_ratio</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#stall_interface_t"><code>stall</code></a></li>
+<li><a href="../rm-api/model-to-model-interfaces.html#int_register_interface_t"><code>int_register</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#decoder_interface_t"><code>decoder</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#exception_interface_t"><code>exception</code></a> <br>
+The <code>exception</code> interface is used together with the Core_Exception hap to enable inspection abilities for triggered exceptions.</li>
+<li><a href="../rm-api/simulator-to-simulator-interfaces.html#context_handler_interface_t"><code>context_handler</code></a></li>
+<li><a href="../rm-api/model-to-model-interfaces.html#exec_trace_interface_t"><code>exec_trace</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#opcode_info_interface_t"><code>opcode_info</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#virtual_data_breakpoint_interface_t"><code>virtual_data_breakpoint</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#virtual_instruction_breakpoint_interface_t"><code>virtual_instruction_breakpoint</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#describe_registers_interface_t"><code>describe_registers</code></a></li>
+</ul>
+<h2 id="controlling-and-inspecting-processor-state.html:using-haps"><a href="#controlling-and-inspecting-processor-state.html:using-haps">4.3 Using Haps</a></h2>
+<p>A hap is an event or occurrence in Simics with some specific semantic meaning, either related to the target or to the internals of the simulator.
+Haps can for instance be used by the cosimulator to trigger events on control register reads or writes.</p>
+<p>The cosimulator calls one of the <code>SIM_c_hap_occurred...</code> functions to trigger a hap.
+The <a href="../simics-user-guide/script-support-in-simics.html#haps">Simics User’s Guide</a> document describes how to get a callback when a hap is triggered.</p>
+<p>To be fully compatible with regular Simics CPU models, a cosimulator should trigger the following haps:</p>
+<ul>
+<li><a href="../rm-base/rm-haps.html#Core_Exception">Core_Exception</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Exception_Return">Core_Exception_Return</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Asynchronous_Trap">Core_Asynchronous_Trap</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Control_Register_Read">Core_Control_Register_Read</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Control_Register_Write">Core_Control_Register_Write</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_External_Interrupt">Core_External_Interrupt</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Sync_Instruction">Core_Sync_Instruction</a></li>
+<li>Core_Mode_Switch (x86 processors only)</li>
+<li>Core_Interrupt_Status (x86 processors only)</li>
+<li><a href="../rm-base/rm-haps.html#Core_Magic_Instruction">Core_Magic_Instruction</a></li>
+<li><a href="../rm-base/rm-haps.html#Core_Mode_Change">Core_Mode_Change</a></li>
+</ul>
+<p>Details about the haps can be found in the <em>Simics Reference Manual</em>, or online with the <code>list-haps</code> command.
+The <code>sample-risc</code> module in <code>[simics]/src/extensions/sample-risc/</code> contains example code how to raise <em>Core_Control_Register_Read</em> and <em>Core_Control_Register_Write</em> haps.</p>
+<p>The cosimulator should not trigger the following haps as they are triggered by the Simics core:</p>
+<ul>
+<li>Core_Breakpoint</li>
+<li><a href="../rm-base/rm-haps.html#Core_Breakpoint_Memop">Core_Breakpoint_Memop</a></li>
+</ul>
+</section><section class="page" id="processor-api-breakpoints.html"><h1 id="processor-api-breakpoints.html:breakpoints"><a href="#processor-api-breakpoints.html:breakpoints">5 Breakpoints</a></h1>
+<p>Breakpoints in Simics are set on physical, linear, or virtual address for read, write, or execute accesses.
+Linear address breakpoints are usually only supported by x86 processors.
+Figure <a class="reference" href="#processor-api-breakpoints.html:processor_api_breakpoints">5</a> shows how to carry out a memory access to support breakpoints.</p>
+<figure id="processor-api-breakpoints.html:processor_api_breakpoints">
+<p><img alt="" src="processor_api_breakpoints.png"> </p><figcaption>Figure 5. Memory access path with breakpoint support and direct access to memory.</figcaption><p></p>
+</figure>
+<p>Simics keeps an updated list of virtual breakpoints for a given virtual context in a context object.
+A processor object must make sure that all accesses are checked against the list and trigger a breakpoint when there is a hit.</p>
+<p>The processor object may cache the list internally for efficiency.
+A processor that does not optimize the breakpoint checking internally can request that the context checks and triggers breakpoints.
+It does that by calling the <code>trigger_breakpoint</code> function in the <a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_trigger_interface_t"><code>breakpoint_trigger</code></a> interface with the <em>handle</em> set to <em>BREAKPOINT_HANDLE_ANY</em>.</p>
+<p>There are two ways that the list of virtual address breakpoints can change and the processor must then refresh or invalidate its breakpoint information cache:</p>
+<ul>
+<li>Breakpoints may be added to or removed from a context.</li>
+<li>The current active context may change to another context.</li>
+</ul>
+<p>Breakpoint changes can be listened for either using the <em>Core_Breakpoint_Change</em> hap, or by registering callbacks through the <a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_change_interface_t"><code>breakpoint_change</code></a> interface.</p>
+<p>The active context is changed through the <code>set_context</code> function in the <a href="../rm-api/simulator-to-simulator-interfaces.html#context_handler_interface_t"><code>context_handler</code></a> interface.</p>
+<p>The <a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_lookup_interface_t"><code>direct_memory_lookup</code></a> interface will return information flagging if breakpoints or tracers are present on a returned lookup.
+If breakpoints or tracers are flagged and overlap with the access type the direct memory user wants to perform, then the access should be performed using the <a href="../rm-api/model-to-model-interfaces.html#memory_space_interface_t"><code>memory_space</code></a> interface.
+When accessing memory through the <code>memory_space</code> interface, physical address breakpoints will be handled by the memory-space and do not need to be handled in the cosimulator.
+Unlike for virtual breakpoints, the cosimulator does not need to listen for new or changed physical breakpoints.
+Any change to a physical breakpoint on a requested page will result in the page being invalidated through the <a href="../rm-api/model-to-simulator-interfaces.html#direct_memory_update_interface_t"><code>direct_memory_update</code></a> interface.</p>
+<p>The interfaces directly related to implementing breakpoint support are:</p>
+<ul>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_query_v2_interface_t"><code>breakpoint_query</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_change_interface_t"><code>breakpoint_change</code></a></li>
+<li><a href="../rm-api/model-to-simulator-interfaces.html#breakpoint_trigger_interface_t"><code>breakpoint_trigger</code></a></li>
+</ul>
+</section><section class="page" id="simics-environment-interaction.html"><h1 id="simics-environment-interaction.html:simics-environment-interaction"><a href="#simics-environment-interaction.html:simics-environment-interaction">6 Simics Environment Interaction</a></h1>
+<p>How a processor model fits into the Simics environment is the topic of this Chapter.</p>
+<dl>
+<dt id="simics-environment-interaction.html:dt:simics-api"><a href="#simics-environment-interaction.html:dt:simics-api">Simics API</a></dt>
+<dd>Although the processor model does not directly expose any part of the Simics API, many API calls make use of the interfaces described in this document.</dd>
+<dt id="simics-environment-interaction.html:dt:command-line-interface"><a href="#simics-environment-interaction.html:dt:command-line-interface">Command Line Interface</a></dt>
+<dd>Some commands are bound to interfaces, and a processor model that implements a set of interfaces therefore automatically gets a set of commands defined.
+See Section <a class="reference" href="#controlling-and-inspecting-processor-state.html:commands">4.1</a> for more information about such commands.
+The processor model can implement additional commands beyond the pre-defined commands.</dd>
+<dt id="simics-environment-interaction.html:dt:debug-functionality"><a href="#simics-environment-interaction.html:dt:debug-functionality">Debug Functionality</a></dt>
+<dd>Low-level debug functionality that can be supported by a processor model is breakpoints (see Chapter <a class="reference" href="#processor-api-breakpoints.html">5</a>) and the <code>context_handler</code> interface.
+The <code>context_handler</code> interface is used by a context switcher object to change target software context based on information from an operating system awareness module.</dd>
+<dt id="simics-environment-interaction.html:dt:checkpointing"><a href="#simics-environment-interaction.html:dt:checkpointing">Checkpointing</a></dt>
+<dd>Just like any other model, a processor model needs to properly save and restore all simulated state through attributes to support checkpointing.</dd>
+<dt id="simics-environment-interaction.html:dt:snapshots-in-memory"><a href="#simics-environment-interaction.html:dt:snapshots-in-memory">Snapshots (In-memory)</a></dt>
+<dd>In-memory snapshots have the same requirements as checkpoints written to disk.</dd>
+<dt id="simics-environment-interaction.html:dt:system-model-devices"><a href="#simics-environment-interaction.html:dt:system-model-devices">System Model Devices</a></dt>
+<dd>Device models interact with the processor model through interfaces and can be reused as is when using a new processor model.
+Naturally, modifications need to be made if a different system is to be simulated.
+Close interaction with the system model builder is typically needed when changing the CPU model.
+For some system models, information about this is covered in the associated target guide.</dd>
+<dt id="simics-environment-interaction.html:dt:system-model-components"><a href="#simics-environment-interaction.html:dt:system-model-components">System Model Components</a></dt>
+<dd>Components are usually built to abstract away the low-level configuration of a model.
+Components for a user defined processor model can usually be derived from a Simics-provided component with only minor changes needed to bridge low-level differences in attributes and configuration.</dd>
+<dt id="simics-environment-interaction.html:dt:operating-system-awareness"><a href="#simics-environment-interaction.html:dt:operating-system-awareness">Operating System Awareness</a></dt>
+<dd>The Simics environment provides support for application debugging and analysis through operating system awareness modules that define process tracker objects.
+The operating system awareness models need to be modified to support new architectures, new revisions of operating systems, and also for completely new operating systems.
+When using an existing operating system awareness module with a user defined processor model, the naming of registers in the <code>int_register</code> interface needs to be consistent.</dd>
+<dt id="simics-environment-interaction.html:dt:software-development-environment-awareness"><a href="#simics-environment-interaction.html:dt:software-development-environment-awareness">Software Development Environment Awareness</a></dt>
+<dd>Software development environments such as WindRiver Workbench are supported on multiple levels, including symbolic debugging capabilities and integration with vendor IDEs.
+The software development environment awareness support in Simics can be used as-is with a user defined processor model.</dd>
+</dl>
+</section><section class="page" id="simics-api-functions.html"><h1 id="simics-api-functions.html:simics-api-functions"><a href="#simics-api-functions.html:simics-api-functions">7 Simics API Functions</a></h1>
+<p>This section lists Simics API functions that a processor model may need to use beyond what is described in other parts of this document.</p>
+<ul>
+<li><a href="../rm-api/dev-api-configuration.html#SIM_register_clock"><code>SIM_register_clock</code></a></li>
+<li><a href="../rm-api/processor-api-functions.html#VT_check_async_events"><code>VT_check_async_events</code></a></li>
+<li><a href="../rm-api/processor-api-functions.html#VT_new_code_block"><code>VT_new_code_block</code></a></li>
+<li><a href="../rm-api/processor-api-functions.html#VT_set_object_clock"><code>VT_set_object_clock</code></a></li>
+<li><a href="../rm-api/processor-api-functions.html#VT_clock_frequency_about_to_change"><code>VT_clock_frequency_about_to_change</code></a></li>
+<li><a href="../rm-api/processor-api-functions.html#VT_clock_frequency_change"><code>VT_clock_frequency_change</code></a></li>
+<li><a href="../rm-api/processor-api-functions.html#VT_stop_event_processing"><code>VT_stop_event_processing</code></a></li>
+</ul>
+</section><section class="page" id="miscellaneous-remarks.html"><h1 id="miscellaneous-remarks.html:miscellaneous-remarks"><a href="#miscellaneous-remarks.html:miscellaneous-remarks">8 Miscellaneous Remarks</a></h1>
+<ul>
+<li>Partial implementation of interfaces is most often not allowed.
+If the interface documentation states that a function is optional, then it does not have to be implemented and can be initialized to NULL.</li>
+<li>Not all features of Simics standard processor models are covered by the API described in this document.
+List of features and interfaces not covered in this document:
+<ul>
+<li>Profiling with the <code>attach-branch-recorder</code>, <code>detach-branch-recorder</code>, and <code>start-instruction-profiling</code> commands.</li>
+<li>Displays in the native GUI, including the <code>win-cpu-registers</code>, <code>win-disassembly</code>, <code>win-source-view</code>, and <code>win-stack-trace</code> commands.</li>
+<li>The <code>aprof-views</code> command to show profiling data in disassembly.</li>
+<li>The protocol used between processor tracker classes and the processor.</li>
+</ul>
+</li>
+</ul>
+</section>

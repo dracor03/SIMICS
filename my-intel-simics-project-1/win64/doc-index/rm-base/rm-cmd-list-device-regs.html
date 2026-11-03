@@ -1,0 +1,50 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-device-regs</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-debug-contexts.html">list-debug-contexts</a>
+<a href="rm-cmd-list-directories.html">list-directories</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-device-regs"></a>
+<h1 id="list-device-regs"><a href="#list-device-regs">list-device-regs</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-device-regs</b> [<i>root-of-search</i>] <i>"pattern"</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ List all registers whose name matches <i>pattern</i>.
+<p>
+The <i>pattern</i> argument supports Unix shell-style wildcards. For more information, see <a href="https://docs.python.org/3.10/library/fnmatch.html" rel="noopener noreferrer" target="_top">https://docs.python.org/3.10/library/fnmatch.html</a>.
+</p><p>
+If the optional argument <i>root-of-search</i> is set, the search is limited to this object and all its child objects. When not set, all objects in the simulation will be searched.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-get-device-reg.html">get-device-reg</a>, 
+<a href="rm-cmd-get-device-offset.html">read-device-offset</a>, 
+<a href="rm-cmd-set-device-offset.html">set-device-offset</a>, 
+<a href="rm-cmd-set-device-reg.html">set-device-reg</a>, 
+<a href="rm-cmd-print-device-reg-info.html">print-device-reg-info</a>, 
+<a href="rm-cmd-print-device-regs.html">print-device-regs</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-debug-contexts.html">list-debug-contexts</a>
+<a href="rm-cmd-list-directories.html">list-directories</a>
+</div>

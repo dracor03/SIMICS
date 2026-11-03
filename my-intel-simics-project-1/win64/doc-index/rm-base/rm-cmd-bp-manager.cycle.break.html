@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.cycle.break</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.cr.wait-for.html">bp.cr.wait-for</a>
+<a href="rm-cmd-bp-manager.cycle.run-until.html">bp.cycle.run-until</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.cycle.break"></a>
+<h1 id="bp-manager.cycle.break"><a href="#bp-manager.cycle.break">bp.cycle.break</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.cycle&gt;.break</b> [<i>object</i>] <i>cycle</i> [-absolute] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Sets a breakpoint that will trigger when the processor's cycle counter has reached the <i>cycle</i> number of cycles from the time the command was issued. If <tt>-absolute</tt> is specified, the number of cycles is counted from the start of the simulation instead.
+<p>
+If no processor is specified, the currently selected frontend processor is used. If <i>object</i> is provided, then the breakpoint functionality is added on that object.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.cr.wait-for.html">bp.cr.wait-for</a>
+<a href="rm-cmd-bp-manager.cycle.run-until.html">bp.cycle.run-until</a>
+</div>

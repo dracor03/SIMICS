@@ -1,0 +1,102 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Global Notifiers</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="dev-api-notifiers.html">Notifiers</a>
+<a href="dev-api-haps.html">Haps</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="device-api-functions.html">Device API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Global Notifiers</h1>
+<h2 id="SIM_add_global_notifier"><a href="#SIM_add_global_notifier">SIM_add_global_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_add_global_notifier — add a global notifier callback</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+global_notifier_callback_t *
+SIM_add_global_notifier(
+        global_notifier_type_t type,
+        conf_object_t *subscriber,
+        void (*callback)(conf_object_t *subscriber, lang_void *data),
+        lang_void *data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_add_global_notifier(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_add_global_notifier</code> installs a callback on the global notifier of type <code>type</code>. The callback will be executed in Global Context. The callback can uninstall itself, using <a href="dev-api-global-notifiers.html#SIM_delete_global_notifier"><code>SIM_delete_global_notifier</code></a>, but must not uninstall any other global notifiers.</p>
+<p>The <code>subscriber</code> argument should be the object listening on the notifier; this object is passed as the first argument to the callback. The installed callback is automatically removed if the subscriber object is deleted. It is legal to pass <code>NULL</code> in the <code>subscriber</code> argument if there is no object associated with the callback.</p>
+<p>The function returns a handle to the installed callback or <code>NULL</code> if the notifier type is unknown.</p>
+<p>Adding a notifier callback from another notifier callback of the same notifier type does not trigger an immediate callback invocation.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_add_global_notifier_once"><a href="#SIM_add_global_notifier_once">SIM_add_global_notifier_once</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_add_global_notifier_once — add a global notifier callback</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+global_notifier_callback_t *
+SIM_add_global_notifier_once(
+        global_notifier_type_t type,
+        conf_object_t *subscriber,
+        void (*callback)(conf_object_t *subscriber, lang_void *data),
+        lang_void *data);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_add_global_notifier_once(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_add_global_notifier_once</code> is similar to <a href="dev-api-global-notifiers.html#SIM_add_global_notifier"><code>SIM_add_global_notifier</code></a>, except that the notifier will be removed automatically after the callback has been called once.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_delete_global_notifier"><a href="#SIM_delete_global_notifier">SIM_delete_global_notifier</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_delete_global_notifier — delete global notifier callback</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_delete_global_notifier(global_notifier_callback_t *handle);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_delete_global_notifier(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_delete_global_notifier</code> deletes the global notifier callback specified by the handle <code>handle</code>.</p>
+<p>Global notifier callbacks are deleted automatically when the subscribing object is deleted.</p>
+<p>Deleting a notifier callback from another notifier callback of the same notifier type may or may not inhibit the last invocation of the deleted callback; this is undefined.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<div class="chain">
+<a href="dev-api-notifiers.html">Notifiers</a>
+<a href="dev-api-haps.html">Haps</a>
+</div>

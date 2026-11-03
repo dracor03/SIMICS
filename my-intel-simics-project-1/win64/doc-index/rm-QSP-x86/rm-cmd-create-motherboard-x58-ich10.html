@@ -1,0 +1,71 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>create-motherboard-x58-ich10</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-create-chassis-x58-ich10.html">create-chassis-x58-ich10</a>
+<a href="rm-cmd-create-qsp-nic-comp.html">create-qsp-nic-comp</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">1 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">1.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="create-motherboard-x58-ich10"></a>
+<h1 id="create-motherboard-x58-ich10"><a href="#create-motherboard-x58-ich10">create-motherboard-x58-ich10</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>create-motherboard-x58-ich10</b> [<i>"name"</i>] [<i>acpi</i>] [<i>"apic_bus_class"</i>] [<i>"bios"</i>] [<i>break_on_reboot</i>] [<i>do_not_initialize_mtrr</i>] [<i>"lan_bios"</i>] [<i>"mac_address"</i>] [<i>num_sockets</i>] [<i>"root_port_class"</i>] [<i>"rtc_time"</i>] [<i>smbus_use_i2c_v2</i>] [<i>"spi_flash"</i>] [<i>system_clock</i>] [<i>"system_clock_class"</i>] [<i>"uefi_device_name"</i>] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command creates a non-instantiated component of the class <tt>motherboard_x58_ich10</tt>.
+<p>
+The class description for the <tt>motherboard_x58_ich10</tt> class: Motherboard with Intel® X58 Express Chipset (northbridge) and Intel® ICH10 (southbridge).
+</p><p>
+</p><dl><dt id="dt:name-is-optional"><a href="#dt:name-is-optional"><i>name</i> is Optional</a></dt><dd>If not specified, the component will get a class-specific default name.</dd>
+<p>
+</p><dt id="dt:acpi-is-optional"><a href="#dt:acpi-is-optional"><i>acpi</i> is Optional</a></dt><dd>Use ACPI when True, default value is True.</dd>
+<p>
+</p><dt id="dt:apic_bus_class-is-optional"><a href="#dt:apic_bus_class-is-optional"><i>apic_bus_class</i> is Optional</a></dt><dd>APIC bus classname</dd>
+<p>
+</p><dt id="dt:bios-is-optional"><a href="#dt:bios-is-optional"><i>bios</i> is Optional</a></dt><dd>The x86 BIOS file to use.</dd>
+<p>
+</p><dt id="dt:break_on_reboot-is-optional"><a href="#dt:break_on_reboot-is-optional"><i>break_on_reboot</i> is Optional</a></dt><dd>If true, the simulation will stop when machine is rebooted.</dd>
+<p>
+</p><dt id="dt:do_not_initialize_mtrr-is-optional"><a href="#dt:do_not_initialize_mtrr-is-optional"><i>do_not_initialize_mtrr</i> is Optional</a></dt><dd>Set to True to prevent this component from initializing the mtrr registers of the cores.</dd>
+<p>
+</p><dt id="dt:lan_bios-is-optional"><a href="#dt:lan_bios-is-optional"><i>lan_bios</i> is Optional</a></dt><dd>The Expansion ROM BIOS file for the ICH10 LAN.</dd>
+<p>
+</p><dt id="dt:mac_address-is-optional"><a href="#dt:mac_address-is-optional"><i>mac_address</i> is Optional</a></dt><dd>MAC address</dd>
+<p>
+</p><dt id="dt:num_sockets-is-optional"><a href="#dt:num_sockets-is-optional"><i>num_sockets</i> is Optional</a></dt><dd>Number of CPU sockets or modules that can be connected.</dd>
+<p>
+</p><dt id="dt:root_port_class-is-optional"><a href="#dt:root_port_class-is-optional"><i>root_port_class</i> is Optional</a></dt><dd>The class used for the root port. Defaults to x58-pcie-port.</dd>
+<p>
+</p><dt id="dt:rtc_time-is-optional"><a href="#dt:rtc_time-is-optional"><i>rtc_time</i> is Optional</a></dt><dd>The date and time of the Real-Time clock. Please note that time-zone information is not supported and will be silently dropped when passed to the RTC object.</dd>
+<p>
+</p><dt id="dt:smbus_use_i2c_v2-is-optional"><a href="#dt:smbus_use_i2c_v2-is-optional"><i>smbus_use_i2c_v2</i> is Optional</a></dt><dd>Set to True if i2c v2 shall be used by smbus controller.</dd>
+<p>
+</p><dt id="dt:spi_flash-is-optional"><a href="#dt:spi_flash-is-optional"><i>spi_flash</i> is Optional</a></dt><dd>The ICH10 SPI flash file to use.</dd>
+<p>
+</p><dt id="dt:system_clock-is-optional"><a href="#dt:system_clock-is-optional"><i>system_clock</i> is Optional</a></dt><dd>If true, the motherboard will contain a clock separate from the processor, which will be used as queue for all devices. The class used for the clock is taken from system_clock_class.</dd>
+<p>
+</p><dt id="dt:system_clock_class-is-optional"><a href="#dt:system_clock_class-is-optional"><i>system_clock_class</i> is Optional</a></dt><dd>The class used for the system_clock.</dd>
+<p>
+</p><dt id="dt:uefi_device_name-is-optional"><a href="#dt:uefi_device_name-is-optional"><i>uefi_device_name</i> is Optional</a></dt><dd>Name of Simics UEFI device. Will not be instantiated if set to empty string (the default).</dd></dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.x58-ich10-comp.html">x58-ich10-comp</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-create-chassis-x58-ich10.html">create-chassis-x58-ich10</a>
+<a href="rm-cmd-create-qsp-nic-comp.html">create-qsp-nic-comp</a>
+</div>

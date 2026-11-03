@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-blueprint-state</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-blueprint-params.html">list-blueprint-params</a>
+<a href="rm-cmd-list-blueprints.html">list-blueprints</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-blueprint-state"></a>
+<h1 id="list-blueprint-state"><a href="#list-blueprint-state">list-blueprint-state</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-blueprint-state</b> <i>"blueprint"</i> [-expected] [-show-used] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ List state structures used by <i>blueprint</i>.
+<p>
+If <tt>-expected</tt> is TRUE, list state accessed by the blueprint but not published, i.e. the expected input state. Otherwise display the published state, by default only those which are not used by the blueprint, i.e. the "connection points". If <tt>-show-used</tt> is set, also list state used by the blueprint. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.blueprints.html">blueprints</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-blueprint-params.html">list-blueprint-params</a>
+<a href="rm-cmd-list-blueprints.html">list-blueprints</a>
+</div>

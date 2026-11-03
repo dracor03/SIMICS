@@ -1,0 +1,224 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Bridge and Type 1 templates</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="upstream_xgress.html">Upstream Egress and Ingress templates</a>
+<a href="capabilities-list.html">List of capability templates</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;
+<a href="dml-template-reference.html">DML template reference</a>
+&nbsp;/&nbsp;</div>
+<h1>Bridge and Type 1 templates</h1>
+<h2 id="pcie_bridge"><a href="#pcie_bridge">pcie_bridge</a></h2>
+<p>To be used by devices bridging PCIe to/from e.g. host memory. Inherits
+<code>pcie_upstream_translator</code>. Defines a port object <code>downstream_port</code> and a
+connect <code>host_memory</code> to which upstream <strong>Mem</strong> transactions are forwarded,
+by default. Defines a port <code>message</code>, to which <strong>Msg</strong> transactions are
+forwarded, by default. The <code>message</code> port inherits the <code>message_port</code>
+template. Other transaction types are terminated, by default.</p>
+<h2 id="pcie_port"><a href="#pcie_port">pcie_port</a></h2>
+<p>Inherits <code>pcie_device</code> and <code>pcie_upstream_translator</code>. Defines a connect
+<code>upstream_target</code> and a port object <code>downstream_port</code>. Defines a port
+<code>upstream_message_router</code> which routes upstream messages either to itself or
+forwards them further upstream or reroutes them downstream. Defines a port
+<code>upstream_message</code> which handles upstream transactions of type <strong>Msg</strong>
+directed at this PCIe port.</p>
+<h2 id="pcie_downstream_port"><a href="#pcie_downstream_port">pcie_downstream_port</a></h2>
+<p>To be used by Downstream Switch Ports. Inherits <code>pcie_port</code> and
+<code>pcie_hotplug_port</code>.</p>
+<h2 id="pcie_root_port"><a href="#pcie_root_port">pcie_root_port</a></h2>
+<p>To be used by Root Ports. Inherits <code>pcie_downstream_port.</code></p>
+<h4 id="transmit_error_message-pcie_error_severity_t-severity-atom_t-extra_atoms-pcie_error_t"><a href="#transmit_error_message-pcie_error_severity_t-severity-atom_t-extra_atoms-pcie_error_t"><code>transmit_error_message(pcie_error_severity_t severity, atom_t *extra_atoms) -&gt; (pcie_error_t)</code></a></h4>
+<p>The PCIe Root Port template overrides the default implementation of
+the
+<a href="error.html#transmit_error_message-pcie_error_severity_t-severity-atom_t-extra_atoms-pcie_error_t"><code>transmit_error_message()</code></a>
+method from the <a class="reference" href="error.html#pcie_error_reporter">pcie_error_reporter</a> template. This is
+to ensure that the error message is consumed internally rather than
+being transmitted upstream to a potential host bridge. It can be
+further overridden for custom error transmission.</p>
+<h2 id="pcie_upstream_port"><a href="#pcie_upstream_port">pcie_upstream_port</a></h2>
+<p>To be used by Upstream Switch Ports. Inherits <code>pcie_port</code>.</p>
+<h2 id="message_port"><a href="#message_port">message_port</a></h2>
+<p>Implements <code>transaction</code> interface where it receives and dispatches
+transactions of type <strong>Msg</strong> to instances (on the same level) of the
+<code>handling_messages</code> template. Unhandled messages will be terminated
+with error or silently dropped depending on type of <strong>Msg</strong>.</p>
+<h2 id="message_translator"><a href="#message_translator">message_translator</a></h2>
+<p>Implements <code>transaction_translator</code> interface where it receives translator
+requests of type <strong>Msg</strong> from downstream. Forwards messages depending
+on <code>pcie_msg_route</code> atom. Messages to be routed upstream are forwarded to
+parameter <code>default_target</code>, messages to be routed downstream are forwarded to
+<code>downstream_port</code> and messages targeting this PCIe port are forwarded to
+parameter <code>local_target</code> for local handling of the message.
+parameter <code>is_root_port</code> is used to determine if messages with routing type
+of <code>PCIE_Msg_Route_Upstream</code> should be forwarded to <code>local_target</code> instead of
+<code>default_target</code> for Error Messages.</p>
+<h2 id="handling_messages"><a href="#handling_messages">handling_messages</a></h2>
+<p>Should be implemented by (DML) objects that wants to handle PCIe messages
+dispatched by the <code>message_port</code> template. When a message is received on a
+<code>message_port</code> instance, it will iterate over instances of this template (in
+an undefined order) and call the <code>message</code> method. Note that downstream
+messages have stub-methods in the <code>pcie_config.message</code> group and are not
+handled by instancing this template.</p>
+<h3 id="methods"><a href="#methods">Methods</a></h3>
+<h4 id="message-transaction_t-t-uint64-addr-pcie_message_type_t-type-pcie_error_t"><a href="#message-transaction_t-t-uint64-addr-pcie_message_type_t-type-pcie_error_t">message(transaction_t *t, uint64 addr, pcie_message_type_t type) -&gt; (pcie_error_t)</a></h4>
+<p>Called by the <code>message_port</code> template when a PCIe message is received.
+Must return <code>PCIE_Error_Not_Set</code> if the message is <em>not</em>
+handled. Returning anything else means that the message was handled by
+this method call. Note that message handlers that implement handling of
+VDM messages must still return <code>PCIE_Error_Not_Set</code> for messages it has
+no handler for. The handler should thus not assume that the message is
+handled by this method. Other atoms such as <code>pcie_msg_vdm_vendor_id</code>
+and/or <code>pcie_msg_vdm_subtype</code> (or other custom atoms) should be
+inspected.</p>
+<h2 id="handling_drs_messages"><a href="#handling_drs_messages">handling_drs_messages</a></h2>
+<p>Handles Device Readiness Status messages. Sets the values in the “DRS Message
+Received”, “Flit Mode Status” and “Downstream Presence Detected” fields
+accordingly. Does not handle any other type of PCIe VDM Message.</p>
+<h2 id="handling_ats_messages"><a href="#handling_ats_messages">handling_ats_messages</a></h2>
+<p>Stub methods for an RC receiving ATS messages. Inherits
+<code>handling_messages</code></p>
+<h4 id="ats_invalidate_completion-transaction_t-t-uint64-addr-bool"><a href="#ats_invalidate_completion-transaction_t-t-uint64-addr-bool">ats_invalidate_completion(transaction_t *t, uint64 addr) -&gt; (bool)</a></h4>
+<p>Called when a ATS Invalidation Completion message is received. Device model
+has to override the default implementation to process the message.
+Returns <code>true</code> if processing of the message was successful.
+Default implementation always returns <code>false</code>.</p>
+<h2 id="handling_prs_messages"><a href="#handling_prs_messages">handling_prs_messages</a></h2>
+<p>Template for an RC receiving and sending PRS messages. Method
+<code>page_request_received</code> must be overridden to implement the
+logic to handle a page request message. Inherits <code>handling_messages</code>.</p>
+<h4 id="method-page_group_response-map_target_t-mt-uint16-target_id-uint16-prs_group_idx-pcie_prs_response_code_t-response_code-pcie_pasid_info_t-pasid-pcie_error_t"><a href="#method-page_group_response-map_target_t-mt-uint16-target_id-uint16-prs_group_idx-pcie_prs_response_code_t-response_code-pcie_pasid_info_t-pasid-pcie_error_t">method page_group_response(map_target_t *mt, uint16 target_id, uint16 prs_group_idx, pcie_prs_response_code_t response_code, pcie_pasid_info_t *pasid) -&gt; (pcie_error_t)</a></h4>
+<p>Sends a Page Response message to <strong>target_id</strong> via <strong>mt</strong>.
+Argument <strong>pasid</strong> can be set to NULL to leave out the PASID
+from the transaction.</p>
+<h4 id="page_request_received-transaction_t-t-uint64-addr-bool"><a href="#page_request_received-transaction_t-t-uint64-addr-bool">page_request_received(transaction_t *t, uint64 addr) -&gt; (bool)</a></h4>
+<p>Stub method, called when a Page Request message is received.  Should
+return <code>true</code> if the message was handled correctly or <code>false</code> if the
+message could not be handled. The default implementation logs an
+<strong>unimpl</strong> message and returns <code>false</code>.</p>
+<h2 id="pcie_upstream_translator"><a href="#pcie_upstream_translator">pcie_upstream_translator</a></h2>
+<p>Default PCIe upstream translator, implementing <code>transaction_translator</code>.
+Redirects transactions based on the <code>pcie_type</code> atom.  Transactions are
+forwarded according to parameters <code>msg</code>, <code>mem</code>, <code>io</code> and <code>cfg</code> in the group
+<code>txl_target</code>. By default, all parameters point to the parameter <code>def</code> which
+defaults to <code>NULL</code>, i.e. transactions are terminated.</p>
+<h2 id="ats_upstream_translator"><a href="#ats_upstream_translator">ats_upstream_translator</a></h2>
+<p>Stub template for handling ATS transactions. Inherits
+<code>pcie_upstream_translator</code>. Defines the ports <code>ats_untranslated</code>,
+<code>ats_translated</code> and <code>ats_request</code> to which <strong>Memory</strong> transactions are
+forwarded according to the <code>pcie_at</code> atom. All other transactions are handled
+according to the default behavior of <code>pcie_upstream_translator</code>. The port
+<code>ats_request</code> implements <code>transaction</code> with the method <code>issue</code> which by
+default logs an <strong>unimpl</strong> message and returns <code>PCIE_Error_Completer_Abort</code>.
+The two other ports implement <code>transaction_translator</code> and forward all
+transactions to <code>host_memory.map_target</code>, by default.</p>
+<h4 id="ats_invalidate-map_target_t-mt-uint16-target_id-const-pcie_pasid_info_t-pasid-uint64-untranslated_addr-uint64-size-bool-global-uint8-itag-pcie_error_t"><a href="#ats_invalidate-map_target_t-mt-uint16-target_id-const-pcie_pasid_info_t-pasid-uint64-untranslated_addr-uint64-size-bool-global-uint8-itag-pcie_error_t">ats_invalidate(map_target_t *mt, uint16 target_id, const pcie_pasid_info_t *pasid, uint64 untranslated_addr, uint64 size, bool global, uint8 itag) -&gt; (pcie_error_t)`</a></h4>
+<p>Sends an ATS invalidation message via <strong>mt</strong> to an endpoint to
+invalidate a translated address. The method automatically masks the lower
+bits of the provided <code>untranslated_addr</code> according to PCIe specification
+based on the <code>size</code> argument. Argument <code>pasid</code> can be set to NULL
+in order to leave out the <code>pcie_pasid</code> atom from the transaction.</p>
+<h4 id="ats_invalidate_from_payload-map_target_t-mt-uint16-target_id-const-pcie_pasid_info_t-pasid-pcie_ats_invalidate_request_payload_t-payload-uint8-itag-pcie_error_t"><a href="#ats_invalidate_from_payload-map_target_t-mt-uint16-target_id-const-pcie_pasid_info_t-pasid-pcie_ats_invalidate_request_payload_t-payload-uint8-itag-pcie_error_t">ats_invalidate_from_payload(map_target_t *mt, uint16 target_id, const pcie_pasid_info_t *pasid, pcie_ats_invalidate_request_payload_t payload, uint8 itag) -&gt; (pcie_error_t)`</a></h4>
+<p>A variant of <code>ats_invalidate()</code> for callers that already have an
+encoded <code>pcie_ats_invalidate_request_payload_t</code> (e.g. forwarding one
+built upstream) and want to avoid a decode/re-encode round-trip.</p>
+<h2 id="type_1_bank"><a href="#type_1_bank">type_1_bank</a></h2>
+<p>Inherits <strong>physical_config_bank</strong> and adds Type 1 specific registers.
+Automatically handles mapping of the downstream_target, according to the
+secondary/subordinate and base/limit registers. Handles broadcasting of
+downstream messages to downstream_target.</p>
+<h3 id="type-1-specific-message-issuing"><a href="#type-1-specific-message-issuing">Type 1 Specific Message Issuing</a></h3>
+<p>Type 1 devices has support for issuing PCIe messages downstream. The
+methods <code>send_bytes_downstream()</code>, <code>send_downstream()</code> and
+<code>send_custom_downstream()</code> are provided for this purpose. These work
+in a similar way as the upstream message sending methods.</p>
+<p>These methods may not be issued with the routing type
+<code>PCIE_Msg_Route_Upstream</code>. Only root ports may issue broadcast
+messages.</p>
+<h4 id="message-send_downstream-uint64-addr-pcie_message_type_t-type-pcie_msg_route_t-route-pcie_error_t"><a href="#message-send_downstream-uint64-addr-pcie_message_type_t-type-pcie_msg_route_t-route-pcie_error_t"><code>message.send_downstream(uint64 addr, pcie_message_type_t type, pcie_msg_route_t route) -&gt; (pcie_error_t)</code></a></h4>
+<h4 id="message-send_bytes_downstream-uint64-addr-pcie_message_type_t-type-pcie_msg_route_t-route-bytes_t-bytes"><a href="#message-send_bytes_downstream-uint64-addr-pcie_message_type_t-type-pcie_msg_route_t-route-bytes_t-bytes"><code>message.send_bytes_downstream(uint64 addr, pcie_message_type_t type, pcie_msg_route_t route, bytes_t bytes</code></a></h4>
+<h4 id="message-send_custom_downstream-uint64-addr-pcie_message_type_t-type-pcie_msg_route_t-route-bytes_t-bytes-atom_t-extra_atoms"><a href="#message-send_custom_downstream-uint64-addr-pcie_message_type_t-type-pcie_msg_route_t-route-bytes_t-bytes-atom_t-extra_atoms"><code>message.send_custom_downstream(uint64 addr, pcie_message_type_t type, pcie_msg_route_t route, bytes_t bytes, atom_t extra_atoms[]</code></a></h4>
+<h2 id="type_1_base_address"><a href="#type_1_base_address">type_1_base_address</a></h2>
+<p>Implements the common functionality of Type 1 base address groups such as
+<code>io</code>, <code>memory</code> and <code>prefetchable</code>. Handles mapping of the relevant
+downstream ranges into the upstream target address spaces. Inherits
+<code>abstract_base_address</code>.</p>
+<h2 id="downstream_port"><a href="#downstream_port">downstream_port</a></h2>
+<p>Can be applied to a connect to automatically create a <code>pcie-downstream-port</code>
+object with map targets for <code>cfg</code>, <code>msg</code>, <code>mem</code> and <code>io</code>. The interface
+<code>pcie_port_control</code> and <code>transaction</code> are connected to the <code>downstream</code> port
+of the automatically created object.</p>
+<h2 id="pcie_hotplug_port"><a href="#pcie_hotplug_port">pcie_hotplug_port</a></h2>
+<p>This template should only be applied to a Downstream Port of PCI Express
+Switch or a Root Port of PCI Express Root Complex.</p>
+<p>When instantiating this template, an implementation of the
+<code>pcie_hotplug_events</code> interface will be added to the device. When a method of
+this interface is invoked, it will check if the device has a PCI Express
+Capability Structure that has support for the incoming Hot-Plug event. If it
+does, it will trigger a Hot-Plug event.</p>
+<p>This template also adds handling of the Hot-Plug PCIe message types defined
+in this library.</p>
+<h2 id="pcie_link_training"><a href="#pcie_link_training">pcie_link_training</a></h2>
+<p>Can be applied to objects that inherit the pcie_downstream_port or the
+pcie_root_port template. Applying this template will implement the
+pcie_link_training interface. Implementing this interface will allow the
+object to initiate link training by the trigger method being invoked.</p>
+<p>The template will also set the link_training_target in the link group of the
+PCI Express Capability Structure in the device.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>pcie_link_training_target</code>: A map_target_t pointer that is not <code>NULL</code>
+during <code>post_init</code>, default <code>downstream_port.phy.map_target</code></li>
+</ul>
+<h2 id="switch_p2p"><a href="#switch_p2p">switch_p2p</a></h2>
+<p>Enables peer-to-peer (P2P) routing for PCIe switch downstream ports.
+When a downstream port sends a transaction upstream, this template
+intercepts it in the upstream egress path and checks whether the
+destination falls within the address range or bus number range of
+another downstream port on the same switch. If a match is found and
+<code>can_route_p2p</code> permits it, the transaction is redirected to the
+ingress of the matching downstream port rather than being forwarded
+upstream, implementing switch-internal peer-to-peer routing.</p>
+<p>The template supports:</p>
+<ul>
+<li>Memory transactions: matched against Type 1 BAR address ranges of
+each downstream port</li>
+<li>ID-routed messages: matched by checking whether the target bus
+number falls within the secondary/subordinate bus number range of
+a downstream port</li>
+</ul>
+<p>Unlike <code>device_local_p2p</code>, the <code>can_route_p2p</code> method returns
+<code>PCIE_P2P_ROUTE_P2P</code> as its first return value by default since P2P
+routing is the standard behavior for switches.</p>
+<p>This template is intended to be instantiated on each downstream port
+subdevice of a switch.</p>
+<h4 id="parameters"><a href="#parameters">Parameters</a></h4>
+<ul>
+<li><code>downstream_ports</code>: A sequence containing all downstream ports of the switch.
+This is used to determine the set of ports to check for P2P routing.
+The order of ports in this sequence does not matter, as the template will
+sort them by BDF for consistent behavior.</li>
+</ul>
+<h4 id="overridable-methods"><a href="#overridable-methods">Overridable methods</a></h4>
+<ul>
+<li><code>can_route_p2p(uint64 target_port_index, transaction_t *t, uint64 addr) -&gt; (pcie_p2p_routing_decision_t, transaction_t*)</code>:
+Called when a P2P-routable transaction matches a downstream port.
+The meaning of the <code>pcie_p2p_routing_decision_t</code> return
+value is interpreted as follows: <code>PCIE_P2P_BLOCK</code> means the transaction
+shall not proceed at all, <code>PCIE_P2P_ROUTE_UPSTREAM</code> means it shall proceed
+upstream, and <code>PCIE_P2P_ROUTE_P2P</code> means it shall be routed peer-to-peer.
+Returns <code>(PCIE_P2P_ROUTE_P2P, t)</code> by default. The <code>target_port_index</code>
+identifies the downstream port that the transaction
+is supposed to be routed to.</li>
+</ul>
+
+<div class="chain">
+<a href="upstream_xgress.html">Upstream Egress and Ingress templates</a>
+<a href="capabilities-list.html">List of capability templates</a>
+</div>

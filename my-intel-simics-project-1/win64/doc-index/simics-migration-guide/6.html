@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Migrating from Simics 6</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="overview.html">3 Migrating to a New Simics Version</a>
+<a href="from-io-mem-2-trans.html">5 Migrating from IO Memory to Transactions</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Migration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="migrating-from-simics-6"><a href="#migrating-from-simics-6">4 Migrating from Simics 6</a></h1>
+<h2 id="introduction"><a href="#introduction">4.1 Introduction</a></h2>
+<p>This chapter describes issues related to migrating to Simics 7 from Simics 6.
+For information about what is new in Simics 7, read the product release notes.</p>
+<h2 id="launching-simics"><a href="#launching-simics">4.2 Launching Simics</a></h2>
+<p>When launching Simics 5 or 6 on Linux, the shell script file
+<code>$HOME/.simics-5.sh</code> was sourced if it existed. In Simics 7 this is no longer
+done.</p>
+<h2 id="dml-migration"><a href="#dml-migration">4.3 DML migration</a></h2>
+<p>When migrating to Simics API 7 from Simics API 6, there are a few differences
+that may need to be addressed for DML code or modules. It is important to note
+that the migration to the Simics 7 API can be performed gradually. A single
+module in a large system can be migrated individually and each feature to be
+migrated can be migrated individually.</p>
+<p>A comprehensive description of migration concerns and a process for migration is
+documented in <a href="../dml-1.4-reference-manual/deprecations-auto.html"><code>Appendix C</code></a>
+of the <a href="../dml-1.4-reference-manual/index.html"><code>Device Modeling Language 1.4 Reference Manual</code></a> . The section below provides a
+brief list and brief description of some items to be addressed in the migration.</p>
+<ul>
+<li>The <code>transaction</code> interface was introduced in API 6, and will eventually
+replace the <code>io_memory</code> interface. In API 7, bank objects will by default
+implement the <code>transaction</code> interface.</li>
+<li>Log statements in shared methods now log on the nearest enclosing
+configuration object like non-shared methods. A common example of this is that
+logs from certain register/field templates which appeared on the device
+objects in API 6 will instead appear on the bank objects in API 7.</li>
+<li>The common error of mixing up log level and log group in log statements gives
+a warning in Simics API 7.</li>
+</ul>
+<p>For migrating DML 1.2 code, please refer to <a href="../dml-1.4-reference-manual/provisional-auto.html"><code>Appendix B</code></a> of the <a href="../dml-1.4-reference-manual/index.html"><code>Device Modeling Language 1.4 Reference Manual</code></a> .</p>
+
+<div class="chain">
+<a href="overview.html">3 Migrating to a New Simics Version</a>
+<a href="from-io-mem-2-trans.html">5 Migrating from IO Memory to Transactions</a>
+</div>

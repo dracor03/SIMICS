@@ -1,0 +1,738 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>21 Modeling Interconnects</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="modeling-i2c-devices.html">20 Modeling I2C Devices</a>
+<a href="frags_t.html">22 Representing Network Packets with frags_t</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-common-hardware-components.html">III Modeling Common Hardware Components</a>
+&nbsp;/&nbsp;</div><h1 id="modeling-interconnects"><a href="#modeling-interconnects">21 Modeling Interconnects</a></h1>
+<p>Modeling interconnects is a central part of building a hardware platform in
+Simics. Sometimes it is as easy as filling in a <code>memory-space</code> map with the
+devices and the offsets and connecting it to the processor. Other times it is
+much more complex. Simics provides a rich toolkit to model many variants of
+interconnects. For modelers it is important to understand the available options
+and when each of them is suited for the application.</p>
+<h2 id="interconnects-with-a-static-memory-view"><a href="#interconnects-with-a-static-memory-view">21.1 Interconnects with a Static Memory View</a></h2>
+<p>This type of interconnect is best modelled by a <code>memory-space</code> in Simics.
+The memory-view shall be defined in the Python component code where all
+devices are created.</p>
+<figure id="memory-space-setup">
+<pre><code>phys_mem.map = [
+    # Offset    Device                    Fun   Start                 Size
+    [0x00001000, boot,                     0,    0,    boot.image.attr.size],
+    [0x02000000, clint.bank.regs,          0,    0,                  0xc000],
+    [0x10000000, uart.bank.regs,           0,    0,                    0x11],
+    [0x10080000, virtio_entropy.bank.mmio, 0,    0,                 64 * KB],
+    [0x80000000, ram,                      0,    0,     ram.image.attr.size]
+]
+# Connect RISC-V HART to interconnect
+hart.physical_memory = phys_mem
+</code></pre>
+<figcaption>Figure 12. Memory map taken from the Simics RISC-V Public</figcaption>
+</figure>
+<figure id="memory-space-view">
+<pre><code>simics&gt; memory-map object = board.phys_mem
+┌───────────────────────────────────────────────────────┐
+│                    board.phys_mem                     │
+├──────────┬──────────┬─────────────────────────────────┤
+│     Start│       End│Object                           │
+├──────────┼──────────┼─────────────────────────────────┤
+│0x00001000│0x00040fff│board.boot                       │
+│0x02000000│0x0200bfff│board.clint.bank.regs            │
+│0x0c000000│0x0fffffff│board.plic.bank.regs             │
+│0x10000000│0x10000010│board.uart0.bank.regs            │
+│0x10010000│0x1001ffff│board.virtio_net.bank.mmio       │
+│0x10020000│0x1002ffff│board.disk0.virtio_disk.bank.mmio│
+│0x10030000│0x1003ffff│board.disk1.virtio_disk.bank.mmio│
+│0x10040000│0x1004ffff│board.disk2.virtio_disk.bank.mmio│
+│0x10080000│0x1008ffff│board.virtio_entropy.bank.mmio   │
+│0x80000000│0xffffffff│board.ram                        │
+└──────────┴──────────┴─────────────────────────────────┘
+</code></pre>
+<figcaption>Figure 13. Memory map of the HART in Simics RISC-V Public Reference Platform</figcaption>
+</figure>
+<h2 id="interconnects-with-a-dynamic-memory-view"><a href="#interconnects-with-a-dynamic-memory-view">21.2 Interconnects with a Dynamic Memory View</a></h2>
+<p>Memory views that are dynamic must map in devices during runtime. An example
+would be PCIe where software can:</p>
+<ul>
+<li>program the BARs to map in resources</li>
+<li>program the <code>secondary bus number</code> and <code>subordinate bus number</code> of bridges to
+access downstream devices</li>
+<li>hot-plug PCIe devices</li>
+</ul>
+<p>In all these cases the mapping must now be done at runtime in the device models
+and <em>not</em> statically in the Python component code.
+The recommended approach is the usage of the <code>memory-space</code> class
+and use its <code>map_demap</code> interface for dynamic mapping.</p>
+<figure id="map-demap-bars">
+<pre><code>
+dml 1.4;
+
+device sample_map_demap;
+param classname = "sample-map-demap";
+param desc = "sample map-demap";
+
+import "utility.dml";
+import "simics/devs/map-demap.dml";
+
+
+connect memory {
+    is init_as_subobj;
+    interface map_demap;
+    param classname = "memory-space";
+}
+
+bank regs {
+    group BARS[i &lt; 2] {
+        param map_obj = i == 0 ? app0.obj : app1.obj;
+        register addr size 8 @ i * 0x10 {
+            field addr @ [63:12];
+        }
+        register sz size 4 @ i * 0x10 + 0x8;
+        register enable size 1 @ i * 0x10 + 0xC {
+            field enable @ [0] is (write) {
+                method write(uint64 value) {
+                    if (value == this.val)
+                        return;
+
+                    /* Enable BAR */
+                    if (value == 1) {
+                        local map_info_t map_info = { .base = addr.addr.val &lt;&lt; 12,
+                                                      .length = sz.val,
+                                                      ...
+                                                    };
+                        memory.map_demap.map_simple(map_obj, NULL, map_info);
+                    } else {  /* Disable BAR */
+                        memory.map_demap.unmap(map_obj, NULL);
+                    }
+                    this.val = value;
+                }
+            }
+        }
+    }
+}
+
+/* BAR0 maps internal bank from device model */
+bank app0;
+
+/* BAR1 maps an external device */
+connect app1 is map_target "application resource" {
+    param configuration = "required";
+}
+
+</code></pre>
+<figcaption>Figure 14. Example device mapping objects into an internal memory-space dynamically</figcaption>
+</figure>
+<figure id="map-demap-configure">
+<pre><code class="language-simics">simics&gt; <strong>@dummy = simics.SIM_create_object("set-memory", "dummy")</strong>
+simics&gt; <strong>@dev = simics.SIM_create_object("sample-map-demap", "dev", app1=dummy)</strong>
+simics&gt; <strong>memory-map dev.memory</strong>
+┌────────────────┐
+│   dev.memory   │
+├─────┬───┬──────┤
+│Start│End│Object│
+├─────┼───┼──────┤
+└─────┴───┴──────┘
+simics&gt; <strong>write-device-reg register = "dev.bank.regs.BARS[0].addr" data = 0x800000000</strong>
+simics&gt; <strong>write-device-reg register = "dev.bank.regs.BARS[0].sz" data = 0x10000</strong>
+simics&gt; <strong>write-device-reg register = "dev.bank.regs.BARS[0].enable" data = 0x1</strong>
+simics&gt; <strong>memory-map dev.memory</strong>
+┌─────────────────────────────────────┐
+│             dev.memory              │
+├───────────┬───────────┬─────────────┤
+│      Start│        End│Object       │
+├───────────┼───────────┼─────────────┤
+│0x800000000│0x80000ffff│dev.bank.app0│
+└───────────┴───────────┴─────────────┘
+simics&gt; <strong>write-device-reg register = "dev.bank.regs.BARS[1].addr" data = 0x820000000</strong>
+simics&gt; <strong>write-device-reg register = "dev.bank.regs.BARS[1].sz" data = 0x4000</strong>
+simics&gt; <strong>write-device-reg register = "dev.bank.regs.BARS[1].enable" data = 0x1</strong>
+simics&gt; <strong>memory-map dev.memory</strong>
+┌─────────────────────────────────────┐
+│             dev.memory              │
+├───────────┬───────────┬─────────────┤
+│      Start│        End│Object       │
+├───────────┼───────────┼─────────────┤
+│0x800000000│0x80000ffff│dev.bank.app0│
+│0x820000000│0x820003fff│dummy        │
+└───────────┴───────────┴─────────────┘
+</code></pre>
+<figcaption>Figure 15. Instantiate the sample-map-demap device and program it</figcaption>
+</figure>
+<p>Another type of interconnect routes all incoming transactions to either one of
+two destinations, i.e. a demultiplexer. The routing is decided by the internal
+state of the interconnect. In Simics this type of interconnect
+is best modelled by implementing the <code>translator</code> interface.</p>
+<figure id="demux">
+<pre><code>
+dml 1.4;
+
+device sample_interconnect_demux;
+param classname = "sample-interconnect-demux";
+param desc = "sample interconnect";
+
+import "utility.dml";
+
+connect target_dev1 is map_target;
+connect target_dev2 is map_target;
+
+param rwx = Sim_Access_Read | Sim_Access_Write | Sim_Access_Execute;
+port demux_signal is signal_port {
+    implement signal {
+        method signal_raise() {
+            default();
+            /* Tell Simics Core that any cached lookup through
+             * the demux is no longer valid.
+             */
+            if (!SIM_map_target_flush(target_dev2.map_target, 0, ~0, rwx)) {
+                log info, 1: "Failed to flush target_dev2 map target";
+                SIM_translation_changed(dev.obj);
+            }
+        }
+        method signal_lower() {
+            default();
+            if (!SIM_map_target_flush(target_dev1.map_target, 0, ~0, rwx)) {
+                log info, 1: "Failed to flush target_dev1 map target";
+                SIM_translation_changed(dev.obj);
+            }
+        }
+    }
+}
+
+implement translator {
+    method translate(uint64 addr, access_t access,
+                     const map_target_t *default_target) -&gt; (translation_t) {
+        local translation_t t;
+
+        if (demux_signal.signal.high)
+            t.target = target_dev1.map_target;
+        else
+            t.target = target_dev2.map_target;
+        return t;
+    }
+}
+
+</code></pre>
+<figcaption>Figure 16. Example Transaction Demultiplexer</figcaption>
+</figure>
+<figure id="demux-tinker">
+<pre><code class="language-simics">simics&gt; <strong>@dummy1 = simics.SIM_create_object("set-memory", "dummy1")</strong>
+simics&gt; <strong>@dummy2 = simics.SIM_create_object("set-memory", "dummy2")</strong>
+simics&gt; <strong>@demux = simics.SIM_create_object("sample-interconnect-demux", "demux", target_dev1=dummy1, target_dev2=dummy2)</strong>
+simics&gt; <strong>memory-map demux</strong>
+┌───────────────────────────────┐
+│             demux             │
+├─────┬──────────────────┬──────┤
+│Start│               End│Object│
+├─────┼──────────────────┼──────┤
+│  0x0│0xffffffffffffffff│dummy2│
+└─────┴──────────────────┴──────┘
+simics&gt; <strong>@demux.port.demux_signal.iface.signal.signal_raise()</strong>
+simics&gt; <strong>memory-map demux</strong>
+┌───────────────────────────────┐
+│             demux             │
+├─────┬──────────────────┬──────┤
+│Start│               End│Object│
+├─────┼──────────────────┼──────┤
+│  0x0│0xffffffffffffffff│dummy1│
+└─────┴──────────────────┴──────┘
+</code></pre>
+<figcaption>Figure 17. Interconnect forwarding all transactions to one of two targets</figcaption>
+</figure>
+<h2 id="initiator-dependent-memory-view"><a href="#initiator-dependent-memory-view">21.3 Initiator Dependent Memory View</a></h2>
+<p>Interconnects providing a limited memory view for each initiator are best
+modelled using <code>atoms</code> which are part of the transaction in Simics. The <code>atoms</code>
+carry the necessary information about initiator for the interconnect to handle
+the routing. When the transaction passes through the interconnect it can inspect
+the atoms and take a routing decision. In Simics an interconnect must implement
+the <code>transaction_translator</code> interface in order to inspect the <code>atoms</code> of the
+transaction.</p>
+<h3 id="pcie-memory-and-config-routing-example"><a href="#pcie-memory-and-config-routing-example">21.3.1 PCIe Memory and Config Routing Example</a></h3>
+<p>PCIe transactions are of type Config, Memory, IO or Messages. In the example
+below we create an interconnect that demuxes incoming transactions depending
+on the <code>pcie_type</code></p>
+<figure id="pcie-router">
+<pre><code>
+dml 1.4;
+
+device sample_interconnect_pcie_router;
+param classname = "sample-interconnect-pcie-router";
+param desc = "sample interconnect";
+
+import "utility.dml";
+import "simics/devs/pci.dml";
+
+connect downstream_mem is map_target {
+    param documentation = "Downstream PCIe memory space";
+    param configuration = "required";
+}
+connect downstream_cfg is map_target {
+    param documentation = "Downstream PCIe config space";
+    param configuration = "required";
+}
+
+implement transaction_translator {
+    method translate(uint64 addr,
+                     access_t access,
+                     transaction_t *t,
+                     exception_type_t (*callback)(translation_t txl,
+                                                  transaction_t *tx,
+                                                  cbdata_call_t cbd),
+                     cbdata_register_t cbdata) -&gt; (exception_type_t) {
+
+        local translation_t txl;
+        local pcie_type_t type = ATOM_get_transaction_pcie_type(t);
+        if (type == PCIE_Type_Not_Set) {
+            log info, 1:
+                "Downstream PCIe transaction @ 0x%08x is missing type", addr;
+            return callback(txl, t, cbdata);
+        }
+
+        if (type == PCIE_Type_Cfg) {
+            txl.target = downstream_cfg.map_target;
+        } else if (type == PCIE_Type_Mem) {
+            txl.target = downstream_mem.map_target;
+        } else {
+            log info, 1: "Unsupported PCIe Type atom %d"
+                + " terminating downstream transaction", type;
+        }
+        return callback(txl, t, cbdata);
+    }
+}
+</code></pre>
+<figcaption>Figure 18. Example Transaction Translator</figcaption>
+</figure>
+<figure id="pcie-router-demo">
+<pre><code class="language-simics">simics&gt; <strong>@pcie_mem = simics.SIM_create_object("set-memory", "pcie_mem")</strong>
+simics&gt; <strong>@pcie_cfg = simics.SIM_create_object("set-memory", "pcie_cfg")</strong>
+simics&gt; <strong>@dev = simics.SIM_create_object("sample-interconnect-pcie-router", "dev", downstream_mem=pcie_mem, downstream_cfg=pcie_cfg)</strong>
+
+simics&gt; <strong>probe-address obj = dev -add-atoms ATOM_pcie_type = 1 address = 0x1000</strong>
+Translating virtual address to physical: 0x1000 -&gt; p:0x1000
+┌────────┬──────────┬─────┬───────────────┐
+│ Target │  Offset  │Notes│Inspected Atoms│
+├────────┼──────────┼─────┼───────────────┤
+│dev     │0x00001000│~    │pcie_type      │
+│        │          │     │               │
+├────────┼──────────┼─────┼───────────────┤
+│pcie_mem│0x00001000│     │               │
+└────────┴──────────┴─────┴───────────────┘
+'~' - Translator implementing 'transaction_translator' interface
+Destination: pcie_mem offset 0x1000 - no register information available
+simics&gt; <strong>probe-address obj = dev -add-atoms ATOM_pcie_type = 3 address = 0x1000</strong>
+Translating virtual address to physical: 0x1000 -&gt; p:0x1000
+┌────────┬──────────┬─────┬───────────────┐
+│ Target │  Offset  │Notes│Inspected Atoms│
+├────────┼──────────┼─────┼───────────────┤
+│dev     │0x00001000│~    │pcie_type      │
+│        │          │     │               │
+├────────┼──────────┼─────┼───────────────┤
+│pcie_cfg│0x00001000│     │               │
+└────────┴──────────┴─────┴───────────────┘
+'~' - Translator implementing 'transaction_translator' interface
+Destination: pcie_cfg offset 0x1000 - no register information available
+</code></pre>
+<figcaption>Figure 19. Interconnect forwarding transactions base on PCIe Type atom</figcaption>
+</figure>
+<h3 id="pcie-pasid-routing-example"><a href="#pcie-pasid-routing-example">21.3.2 PCIe PASID Routing Example</a></h3>
+<p>In PCIe the Process Address Space ID (PASID), is an example of an identifier for
+the transaction initiator which is used by the Address Translation Services
+(ATS) in PCIe. In Simics the PASID has the corresponding atom <code>pcie_pasid</code> which
+are added by PCIe Endpoints when issuing ATS related PCIe Transactions. An IOMMU
+can then inspect the <code>pcie_pasid</code> atom to decide the routing of the incoming
+transaction.</p>
+<figure id="paisd">
+<pre><code>
+dml 1.4;
+
+device sample_interconnect_pcie_pasid;
+param classname = "sample-interconnect-pcie-pasid";
+param desc = "sample interconnect";
+
+import "utility.dml";
+import "simics/devs/pci.dml";
+
+bank regs {
+    register allowed_pasid size 4 @ 0x0 {
+        field pasid @ [19:0] "Allowed PASID";
+    }
+}
+
+connect host_memory is map_target {
+    param documentation = "Host memory";
+    param configuration = "required";
+}
+
+implement transaction_translator {
+    session bool emitted_warning;
+    method translate(uint64 addr,
+                     access_t access,
+                     transaction_t *t,
+                     exception_type_t (*callback)(translation_t txl,
+                                                  transaction_t *tx,
+                                                  cbdata_call_t cbd),
+                     cbdata_register_t cbdata) -&gt; (exception_type_t) {
+
+        local translation_t txl;
+        local const uint32 *pasid_val = ATOM_transaction_pcie_pasid(t);
+        if (pasid_val == NULL) {
+            if (!emitted_warning) {
+                log warning:
+                    "Denying request: AT translated request @ 0x%08x is missing PASID", addr;
+                emitted_warning = true;
+            }
+            return callback(txl, t, cbdata);
+        }
+
+        local pcie_pasid_info_t pasid = {
+            .u32 = *pasid_val,
+            ...
+        };
+        if (pasid.field.pasid == regs.allowed_pasid.pasid.val) {
+            txl.target = host_memory.map_target;
+        } else {
+            log info, 1 then 3:
+                "Denying request @ 0x%08x for PASID %d", addr, pasid.field.pasid;
+        }
+        return callback(txl, t, cbdata);
+    }
+}
+implement translation_flush {
+    method flush_range(uint64 base, uint64 size, access_t access,
+                       const map_target_t *default_target) -&gt; (bool) default {
+        local bool ret = true;
+        ret = SIM_map_target_flush(host_memory.map_target, base, size,
+                                   access);
+        if (!ret) {
+            log info, 1 then 2: "Failed flushing map_target %s",
+                SIM_object_name(SIM_map_target_object(host_memory.map_target));
+        }
+        return ret;
+    }
+}
+</code></pre>
+<figcaption>Figure 20. Example Transaction Translator</figcaption>
+</figure>
+<figure id="pasid-demo">
+<pre><code class="language-simics">simics&gt; <strong>@host_mem = simics.SIM_create_object("set-memory", "host_mem")</strong>
+simics&gt; <strong>@dev = simics.SIM_create_object("sample-interconnect-pcie-pasid", "dev", host_memory=host_mem)</strong>
+simics&gt; <strong>write-device-reg register = "dev.bank.regs.allowed_pasid" data = 0x100</strong>
+simics&gt; <strong>memory-map object = dev</strong>
+[dev warning] Denying request: AT translated request @ 0x00000000 is missing PASID
+┌────────────────┐
+│      dev       │
+├─────┬───┬──────┤
+│Start│End│Object│
+├─────┼───┼──────┤
+└─────┴───┴──────┘
+simics&gt; <strong>memory-map object = dev -add-atoms ATOM_pcie_pasid = 1</strong>
+[dev info] Denying request @ 0x00000000 for PASID 1
+┌────────────────┐
+│      dev       │
+├─────┬───┬──────┤
+│Start│End│Object│
+├─────┼───┼──────┤
+└─────┴───┴──────┘
+simics&gt; <strong>memory-map object = dev -add-atoms ATOM_pcie_pasid = 0x100</strong>
+┌─────────────────────────────────┐
+│               dev               │
+├─────┬──────────────────┬────────┤
+│Start│               End│Object  │
+├─────┼──────────────────┼────────┤
+│  0x0│0xffffffffffffffff│host_mem│
+└─────┴──────────────────┴────────┘
+</code></pre>
+<figcaption>Figure 21. Interconnect blocking transactions with wrong PASID</figcaption>
+</figure>
+<h2 id="interconnects-adding-metadata-to-the-transaction"><a href="#interconnects-adding-metadata-to-the-transaction">21.4 Interconnects Adding Metadata to the Transaction</a></h2>
+<h3 id="interconnects-that-are-bridging-one-domain-with-another"><a href="#interconnects-that-are-bridging-one-domain-with-another">21.4.1 Interconnects that are Bridging One Domain with Another</a></h3>
+<p>This type of interconnect needs to convert a transaction
+from the source type to the destination type before passing
+it through.</p>
+<p>One such example is the PCIe Host Bridge connecting the
+Host interconnect with a PCIe bus.</p>
+<p>Downstream memory transactions from a host interconnect
+routed into the PCIe subsystem must be converted
+to PCIe packets by the PCIe Host Bridge.
+Simics does not operate on the packet level, but
+some metadata are important for functional simulation.</p>
+<p>In Simics the PCIe atom <code>pcie_type</code> has to be set
+for all transactions operating in the PCIe domain, and it can hold the values:
+<code>PCIE_Type_Mem</code>, <code>PCIE_Type_Cfg</code>, <code>PCIE_Type_IO</code> and <code>PCIE_Type_Msg</code>.</p>
+<p>To automatically add the <code>pcie_type</code> atom to all Host transactions one should
+use the <code>transaction_translator</code> interface and chain the original
+<code>transaction_t</code> with a new one that appends the relevant <code>atoms</code>. Details about
+transaction chaining can be found <a href="transactions.html#transaction-chaining">here</a></p>
+<figure id="pcie-bridge">
+<pre><code>
+dml 1.4;
+
+device sample_interconnect_pcie_bridge;
+param classname = "sample-interconnect-pcie-bridge";
+param desc = "sample interconnect";
+
+import "utility.dml";
+import "simics/devs/pci.dml";
+
+connect host_memory is map_target {
+    param documentation = "Host memory";
+    param configuration = "required";
+}
+
+connect pcie_downstream is map_target {
+    param documentation = "PCIe downstream";
+    param configuration = "required";
+}
+
+template host_to_pcie {
+    param pcie_type : pcie_type_t;
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *prev,
+                         exception_type_t (*callback)(translation_t translation,
+                                                      transaction_t *transaction,
+                                                      cbdata_call_t cbdata),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) {
+            local atom_t atoms[2] = {
+                ATOM_pcie_type(pcie_type),
+                ATOM_LIST_END,
+            };
+            local transaction_t t = { .atoms = atoms, .prev = prev, ... };
+            local translation_t txl = { .target = pcie_downstream.map_target, ... };
+            return callback(txl, &amp;t, cbdata);
+        }
+    }
+}
+
+port host_to_pcie_cfg is host_to_pcie {
+    param documentation = "Host downstream PCIe Config transactions";
+    param pcie_type = PCIE_Type_Cfg;
+}
+port host_to_pcie_mem is host_to_pcie {
+    param documentation = "Host downstream PCIe Memory transactions";
+    param pcie_type = PCIE_Type_Mem;
+}
+
+port pcie_upstream {
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *t,
+                         exception_type_t (*callback)(translation_t txl,
+                                                      transaction_t *tx,
+                                                      cbdata_call_t cbd),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) {
+
+            local translation_t txl;
+            if (ATOM_get_transaction_pcie_type(t) != PCIE_Type_Mem) {
+                log info, 1:
+                    "Upstream transaction @ 0x%08x, only forwarding PCIE_MEM"
+                  + " transactions to host memory", addr;
+                return callback(txl, t, cbdata);
+            }
+
+            txl.target = host_memory.map_target;
+            return callback(txl, t, cbdata);
+        }
+    }
+}
+</code></pre>
+<figcaption>Figure 22. Dummy PCIe Host Bridge</figcaption>
+</figure>
+<blockquote class="markdown-alert-note">
+<p>A real Simics PCIe Host bridge shall use the Simics PCIe Modeling Library
+which does this automatically. See manual <a href="../pcie-in-simics/index.html">PCIe Modeling
+Library</a> for documentation of the library.</p>
+</blockquote>
+<blockquote class="markdown-alert-note">
+<p>The downstream <b>transaction_translators</b>,
+(<b>host_to_pcie_mem</b> and <b>host_to_pcie_cfg</b>),
+do not support deferred transactions. The necessary code to support
+deferred transactions is outside the scope of this example.</p>
+</blockquote>
+<figure id="pcie-bridge-demo">
+<pre><code class="language-simics">simics&gt; <strong>@host_mem = simics.SIM_create_object("set-memory", "host_mem")</strong>
+simics&gt; <strong>@pcie_downstream = simics.SIM_create_object("set-memory", "pcie_downstream")</strong>
+simics&gt; <strong>@dev = simics.SIM_create_object("sample-interconnect-pcie-bridge", "dev", host_memory=host_mem, pcie_downstream=pcie_downstream)</strong>
+simics&gt; <strong>probe-address obj = dev.port.host_to_pcie_mem address = 0x8010001000</strong>
+Translating virtual address to physical: 0x8010001000 -&gt; p:0x8010001000
+┌─────────────────────────┬──────────────────┬─────┬───────────────────────────────────┐
+│         Target          │      Offset      │Notes│            Added Atoms            │
+├─────────────────────────┼──────────────────┼─────┼───────────────────────────────────┤
+│dev.port.host_to_pcie_mem│0x0000008010001000│~    │pcie_type=pcie_type_t.PCIE_Type_Mem│
+│                         │                  │     │                                   │
+├─────────────────────────┼──────────────────┼─────┼───────────────────────────────────┤
+│pcie_downstream          │0x0000008010001000│     │                                   │
+└─────────────────────────┴──────────────────┴─────┴───────────────────────────────────┘
+'~' - Translator implementing 'transaction_translator' interface
+Destination: pcie_downstream offset 0x8010001000 - no register information available
+simics&gt; <strong>probe-address obj = dev.port.host_to_pcie_cfg address = 0x1000000</strong>
+Translating virtual address to physical: 0x1000000 -&gt; p:0x1000000
+┌─────────────────────────┬──────────┬─────┬───────────────────────────────────┐
+│         Target          │  Offset  │Notes│            Added Atoms            │
+├─────────────────────────┼──────────┼─────┼───────────────────────────────────┤
+│dev.port.host_to_pcie_cfg│0x01000000│~    │pcie_type=pcie_type_t.PCIE_Type_Cfg│
+│                         │          │     │                                   │
+├─────────────────────────┼──────────┼─────┼───────────────────────────────────┤
+│pcie_downstream          │0x01000000│     │                                   │
+└─────────────────────────┴──────────┴─────┴───────────────────────────────────┘
+'~' - Translator implementing 'transaction_translator' interface
+Destination: pcie_downstream offset 0x1000000 - no register information available
+</code></pre>
+<figcaption>Figure 23. Dummy PCIe bridge device inspected using `probe-address` command</figcaption>
+</figure>
+<h3 id="combining-interconnect-elements-into-a-hierarchy"><a href="#combining-interconnect-elements-into-a-hierarchy">21.4.2 Combining Interconnect Elements into a Hierarchy</a></h3>
+<p>Because every sample interconnect above utilize the standard
+memory interfaces part of the Simics product it is possible to connect them
+together and build a hierarchical memory view. Each interconnect in the path
+impacts the memory view of the initiator.</p>
+<p>In the example below the hierarchy starts with the <code>pcie_bridge</code>. It will add
+the PCIe Type atom and then forward the transactions to the <code>pcie_router</code>. The
+<code>pcie_router</code> then forwards the PCIe memory access to the <code>map_demap1</code> device
+and PCIe config access to the <code>map_demap2</code> device. The dummy endpoints
+<code>dummy_endpoint1</code> and <code>dummy_endpoint2</code> sits behind these two devices.</p>
+<figure id="combining-interconnects">
+<pre><code class="language-simics">simics&gt; <strong>probe-address obj = pcie_bridge.port.host_to_pcie_mem address = 0x820000000</strong>
+Translating virtual address to physical: 0x820000000 -&gt; p:0x820000000
+┌─────────────────────────────────┬──────────────────┬─────┬───────────────────────────────────┬───────────────┐
+│             Target              │      Offset      │Notes│            Added Atoms            │Inspected Atoms│
+├─────────────────────────────────┼──────────────────┼─────┼───────────────────────────────────┼───────────────┤
+│pcie_bridge.port.host_to_pcie_mem│0x0000000820000000│~    │pcie_type=pcie_type_t.PCIE_Type_Mem│               │
+│                                 │                  │     │                                   │               │
+├─────────────────────────────────┼──────────────────┼─────┼───────────────────────────────────┼───────────────┤
+│pcie_router                      │0x0000000820000000│~    │                                   │pcie_type      │
+│                                 │                  │     │                                   │               │
+├─────────────────────────────────┼──────────────────┼─────┼───────────────────────────────────┼───────────────┤
+│map_demap1.memory                │0x0000000820000000│     │                                   │               │
+├─────────────────────────────────┼──────────────────┼─────┼───────────────────────────────────┼───────────────┤
+│dummy_endpoint1                  │0x0000000000000000│     │                                   │               │
+└─────────────────────────────────┴──────────────────┴─────┴───────────────────────────────────┴───────────────┘
+simics&gt; <strong>memory-map object = pcie_bridge.port.host_to_pcie_mem</strong>
+┌────────────────────────────────────────────┐
+│     pcie_bridge.port.host_to_pcie_mem      │
+├───────────┬───────────┬────────────────────┤
+│      Start│        End│Object              │
+├───────────┼───────────┼────────────────────┤
+│0x800000000│0x80000ffff│map_demap1.bank.app0│
+│0x820000000│0x820003fff│dummy_endpoint1     │
+└───────────┴───────────┴────────────────────┘
+simics&gt; <strong>memory-map object = pcie_bridge.port.host_to_pcie_cfg</strong>
+┌────────────────────────────────────────────┐
+│     pcie_bridge.port.host_to_pcie_cfg      │
+├───────────┬───────────┬────────────────────┤
+│      Start│        End│Object              │
+├───────────┼───────────┼────────────────────┤
+│0x900000000│0x90000ffff│map_demap2.bank.app0│
+│0x920000000│0x920003fff│dummy_endpoint2     │
+└───────────┴───────────┴────────────────────┘
+</code></pre>
+<figcaption>Figure 24. Combining interconnect elements</figcaption>
+</figure>
+<h3 id="interconnects-adding-security-information-depending-on-access-path"><a href="#interconnects-adding-security-information-depending-on-access-path">21.4.3 Interconnects Adding Security Information Depending on Access Path</a></h3>
+<p>Interconnects can carry security information used by ports or receivers to limit
+the access rights of the initiator. An interconnect could for instance have two
+access ports one for secure and one for nonsecure accesses. All transactions
+entering the interconnect on the nonsecure port will have their atom lists
+amended with a nonsecure tag. Then as the transaction is routed across the
+system another port, or the receiver itself, can inspect the nonsecure tag and
+act on it.</p>
+<figure id="arm-nonsecure">
+<pre><code>
+dml 1.4;
+
+device sample_interconnect_arm_nonsecure;
+param classname = "sample-interconnect-arm-nonsecure";
+param desc = "sample interconnect";
+
+import "utility.dml";
+import "simics/arch/arm.dml";
+
+connect memory is map_target {
+    param documentation = "Host memory";
+    param configuration = "required";
+}
+
+template nonsecure_translator {
+    param nonsecure : bool;
+    implement transaction_translator {
+        method translate(uint64 addr,
+                         access_t access,
+                         transaction_t *prev,
+                         exception_type_t (*callback)(translation_t translation,
+                                                      transaction_t *transaction,
+                                                      cbdata_call_t cbdata),
+                         cbdata_register_t cbdata) -&gt; (exception_type_t) {
+            local atom_t atoms[2] = {
+                ATOM_arm_nonsecure(nonsecure),
+                ATOM_LIST_END,
+            };
+            local transaction_t t = { .atoms = atoms, .prev = prev, ... };
+            local translation_t txl = { .target = memory.map_target, ... };
+            return callback(txl, &amp;t, cbdata);
+        }
+    }
+    implement translation_flush {
+        method flush_range(uint64 base, uint64 size, access_t access,
+                           const map_target_t *default_target) -&gt; (bool) default {
+            local bool ret = true;
+            ret = SIM_map_target_flush(memory.map_target, base, size, access);
+            if (!ret) {
+                log info, 1 then 2: "Failed flushing map_target %s",
+                    SIM_object_name(SIM_map_target_object(memory.map_target));
+            }
+            return ret;
+        }
+    }
+}
+
+port nonsecure is nonsecure_translator {
+    param nonsecure = true;
+}
+port secure is nonsecure_translator {
+    param nonsecure = false;
+}
+
+</code></pre>
+<figcaption>Figure 25. Sample device adding the ARM security atom</figcaption>
+</figure>
+<blockquote class="markdown-alert-note">
+<p>The <b>transaction_translators</b>,
+(<b>secure</b> and <b>nonsecure</b>),
+do not support deferred transactions. The necessary code to support
+deferred transactions is outside the scope of this example.</p>
+</blockquote>
+<h3 id="interconnects-supporting-deferred-transactions"><a href="#interconnects-supporting-deferred-transactions">21.4.4 Interconnects Supporting Deferred Transactions</a></h3>
+<p>Interconnects passing through transactions only has to take deferred
+transactions into account when it adds atoms within <code>transaction_translator</code>
+interface calls. The previous sample devices <code>sample-interconnect-pcie-bridge</code>
+and <code>sample-interconnect-arm-nonsecure</code> are such examples. See details about
+deferred transaction in <a href="transactions.html#asynchronous-completion">Transactions</a>.</p>
+<p>When a transaction is deferred the atoms can no longer reside on the stack but
+must instead be moved to the heap so the endpoint can access them asynchronously
+outside the transaction interface call stack. Secondly to support checkpointing
+the heap allocated atoms must be serialized and deserialized during storing and
+loading of a checkpoint.</p>
+<p>To support deferred transactions in the <code>sample-interconnect-arm-nonsecure</code>
+device the <code>VECT</code> library is used to store the deferred transactions and its
+atoms in a linked list. Attribute <code>chained_transactions</code>, is added that
+implements <code>get/set</code> to serialize and deserialize the linked list of deferred
+transactions.</p>
+<figure id="arm-nonsecure-deferred">
+<p>{{include
+../../../devices/doc-interconnects/arm-nonsecure-deferred.dml#example_code}}</p>
+<figcaption>Figure 26. Sample device adding the ARM security atom with deferred transaction support</figcaption>
+</figure>
+
+<div class="chain">
+<a href="modeling-i2c-devices.html">20 Modeling I2C Devices</a>
+<a href="frags_t.html">22 Representing Network Packets with frags_t</a>
+</div>

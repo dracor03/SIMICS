@@ -1,0 +1,62 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>table_core.cell</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="table_core.border.html">table_core.border</a>
+<a href="table_core.cell_props.html">table_core.cell_props</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;
+<a href="table.html">table</a>
+&nbsp;/&nbsp;</div><h1 id="table_core.cell"><a href="#table_core.cell">table_core.cell</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>table_core.cell</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import table_core.cell
+</code></pre>
+</section>
+<h2 id="table_core.cell.Cell"><a href="#table_core.cell.Cell">class table_core.cell.Cell</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class table_core.cell.Cell(s, props, override_alignment=None)
+</code></pre>
+<h2>Description</h2>
+<p>Representation of all cells, converted to strings. Handles new-line characters in the input string and converts these to multiple lines instead. If lines are longer than a certain max_width, long lines are wrapped into multiple lines. All strings are represented as unidecoded utf-8 strings to properly handle strange characters.</p>
+</section>
+<h2 id="table_core.cell.Cell.max_len"><a href="#table_core.cell.Cell.max_len">table_core.cell.Cell.max_len</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table_core.cell.Cell.max_len()
+</code></pre>
+<h2>Description</h2>
+<p>string length of the longest string</p>
+</section>
+<h2 id="table_core.cell.Cell.narrow_width"><a href="#table_core.cell.Cell.narrow_width">table_core.cell.Cell.narrow_width</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table_core.cell.Cell.narrow_width(max_width, force_max_width)
+</code></pre>
+<h2>Description</h2>
+<p>Try to make the cells row fit within max_width, by creating multiple lines. If force_max_width is False, we allow a delimiter character to included on the same line even if this makes the line one character longer than max_width</p>
+</section>
+<h2 id="table_core.cell.Cell.num_lines"><a href="#table_core.cell.Cell.num_lines">table_core.cell.Cell.num_lines</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table_core.cell.Cell.num_lines()
+</code></pre>
+<h2>Description</h2>
+<p>number of lines the string represents</p>
+</section>
+<div class="chain">
+<a href="table_core.border.html">table_core.border</a>
+<a href="table_core.cell_props.html">table_core.cell_props</a>
+</div>

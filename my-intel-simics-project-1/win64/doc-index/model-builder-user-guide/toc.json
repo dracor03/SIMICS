@@ -1,0 +1,3127 @@
+{
+  "is_book": true,
+  "anchor": "users_guides",
+  "style": "unstyled",
+  "file": "index.html",
+  "name": "Model Builder User’s Guide",
+  "headings": [],
+  "children": [
+    {
+      "file": "introduction-and-preparation.html",
+      "name": "I Introduction and Preparation",
+      "headings": [],
+      "children": [
+        {
+          "file": "introduction.html",
+          "name": "1 Introduction",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "what-is-a-model",
+              "text": "1.1 What is a Model?"
+            },
+            {
+              "level": 1,
+              "anchor": "what-is-a-functional-model",
+              "text": "1.2 What is a Functional Model?"
+            },
+            {
+              "level": 1,
+              "anchor": "what-is-a-systems-model",
+              "text": "1.3 What is a Systems Model?"
+            },
+            {
+              "level": 1,
+              "anchor": "simics-team",
+              "text": "1.4 Simics Team"
+            },
+            {
+              "level": 1,
+              "anchor": "the-modeling-process",
+              "text": "1.5 The Modeling Process"
+            },
+            {
+              "level": 1,
+              "anchor": "modeling-in-simics",
+              "text": "1.6 Modeling in Simics"
+            },
+            {
+              "level": 2,
+              "anchor": "transaction-level-device-modeling",
+              "text": "1.6.1 Transaction-Level Device Modeling"
+            },
+            {
+              "level": 2,
+              "anchor": "memory-system-modeling-and-address-maps",
+              "text": "1.6.2 Memory System Modeling and Address Maps"
+            },
+            {
+              "level": 2,
+              "anchor": "processor-modeling",
+              "text": "1.6.3 Processor Modeling"
+            },
+            {
+              "level": 2,
+              "anchor": "reusing-systemc-and-other-types-of-models",
+              "text": "1.6.4 Reusing SystemC and Other Types of Models"
+            },
+            {
+              "level": 2,
+              "anchor": "simics-high-level-modeling-approach",
+              "text": "1.6.5 Simics High Level Modeling Approach"
+            },
+            {
+              "level": 1,
+              "anchor": "preparing-for-system-modeling",
+              "text": "1.7 Preparing for System Modeling"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "modeling-techniques.html",
+          "name": "2 Modeling Techniques",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "device-modeling-methodology",
+              "text": "2.1 Device Modeling Methodology"
+            },
+            {
+              "level": 2,
+              "anchor": "follow-the-hardware",
+              "text": "2.1.1 Follow the Hardware"
+            },
+            {
+              "level": 2,
+              "anchor": "follow-the-software",
+              "text": "2.1.2 Follow the Software"
+            },
+            {
+              "level": 2,
+              "anchor": "do-not-model-unnecessary-detail",
+              "text": "2.1.3 Do Not Model Unnecessary Detail"
+            },
+            {
+              "level": 2,
+              "anchor": "reuse-and-adapt-existing-components",
+              "text": "2.1.4 Reuse and Adapt Existing Components"
+            },
+            {
+              "level": 2,
+              "anchor": "develop-device-models-using-dml",
+              "text": "2.1.5 Develop Device Models Using DML"
+            },
+            {
+              "level": 1,
+              "anchor": "testing-device-models",
+              "text": "2.2 Testing Device Models"
+            },
+            {
+              "level": 1,
+              "anchor": "abstraction-of-time",
+              "text": "2.3 Abstraction of Time"
+            },
+            {
+              "level": 2,
+              "anchor": "provide-reaction-immediately",
+              "text": "2.3.1 Provide Reaction Immediately"
+            },
+            {
+              "level": 2,
+              "anchor": "cluster-events",
+              "text": "2.3.2 Cluster Events"
+            },
+            {
+              "level": 2,
+              "anchor": "transform-events-into-functions-of-time",
+              "text": "2.3.3 Transform Events into Functions of Time"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "build-environment.html",
+          "name": "3 Build Environment",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "notes-for-windows-users",
+              "text": "3.1 Notes for Windows Users"
+            },
+            {
+              "level": 1,
+              "anchor": "notes-for-linux-users",
+              "text": "3.2 Notes for Linux Users"
+            },
+            {
+              "level": 1,
+              "anchor": "setting-up-a-project",
+              "text": "3.3 Setting up a Project"
+            },
+            {
+              "level": 2,
+              "anchor": "project-setup-script-invocation",
+              "text": "3.3.1 Project Setup Script Invocation"
+            },
+            {
+              "level": 2,
+              "anchor": "updating-projects",
+              "text": "3.3.2 Updating Projects"
+            },
+            {
+              "level": 1,
+              "anchor": "adding-modules-to-a-project",
+              "text": "3.4 Adding Modules to a Project"
+            },
+            {
+              "level": 2,
+              "anchor": "creating-a-new-dml-module",
+              "text": "3.4.1 Creating a New DML Module"
+            },
+            {
+              "level": 2,
+              "anchor": "creating-a-new-c-or-c-module",
+              "text": "3.4.2 Creating a New C or C++ Module"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-an-existing-module",
+              "text": "3.4.3 Adding an Existing Module"
+            },
+            {
+              "level": 1,
+              "anchor": "advanced-tweaks",
+              "text": "3.5 Advanced Tweaks"
+            },
+            {
+              "level": 2,
+              "anchor": "compiling-modules-in-debug-mode",
+              "text": "3.5.1 Compiling Modules in Debug Mode"
+            },
+            {
+              "level": 2,
+              "anchor": "platform-specific-notes",
+              "text": "3.5.2 Platform Specific Notes"
+            },
+            {
+              "level": 2,
+              "anchor": "module-makefiles",
+              "text": "3.5.3 Module Makefiles"
+            },
+            {
+              "level": 2,
+              "anchor": "standard-module-host-defines-in-c-and-c",
+              "text": "3.5.4 Standard Module Host Defines in C and C++"
+            },
+            {
+              "level": 2,
+              "anchor": "user-defined-module-version-strings",
+              "text": "3.5.5 User Defined Module Version Strings"
+            },
+            {
+              "level": 2,
+              "anchor": "module-loading-support",
+              "text": "3.5.6 Module Loading Support"
+            },
+            {
+              "level": 2,
+              "anchor": "extra-libraries",
+              "text": "3.5.7 Extra libraries"
+            },
+            {
+              "level": 1,
+              "anchor": "emacs-dml-editing-mode",
+              "text": "3.6 Emacs DML Editing Mode"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "part-device-modeling.html",
+      "name": "II Device Modeling",
+      "headings": [],
+      "children": [
+        {
+          "file": "device-modeling-overview.html",
+          "name": "4 Overview",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "build-environment",
+              "text": "4.1 Build Environment"
+            },
+            {
+              "level": 2,
+              "anchor": "dml-compiler",
+              "text": "4.1.1 DML Compiler"
+            },
+            {
+              "level": 2,
+              "anchor": "installation",
+              "text": "4.1.2 Installation"
+            },
+            {
+              "level": 2,
+              "anchor": "editing-dml-code",
+              "text": "4.1.3 Editing DML Code"
+            },
+            {
+              "level": 2,
+              "anchor": "example-device-models",
+              "text": "4.1.4 Example Device Models"
+            },
+            {
+              "level": 1,
+              "anchor": "device-modeling",
+              "text": "4.2 Device Modeling"
+            },
+            {
+              "level": 2,
+              "anchor": "simple-memory-mapped-device",
+              "text": "4.2.1 Simple Memory Mapped Device"
+            },
+            {
+              "level": 2,
+              "anchor": "setup",
+              "text": "4.2.2 Setup"
+            },
+            {
+              "level": 2,
+              "anchor": "testing-the-model",
+              "text": "4.2.3 Testing the Model"
+            },
+            {
+              "level": 2,
+              "anchor": "editing-the-module",
+              "text": "4.2.4 Editing the Module"
+            },
+            {
+              "level": 2,
+              "anchor": "simple-configuration",
+              "text": "4.2.5 Simple Configuration"
+            },
+            {
+              "level": 2,
+              "anchor": "logging",
+              "text": "4.2.6 Logging"
+            },
+            {
+              "level": 2,
+              "anchor": "configuration-attributes",
+              "text": "4.2.7 Configuration Attributes"
+            },
+            {
+              "level": 3,
+              "anchor": "using-register-attributes",
+              "text": "4.2.7.1 Using Register Attributes"
+            },
+            {
+              "level": 3,
+              "anchor": "user-defined-attributes",
+              "text": "4.2.7.2 User-defined Attributes"
+            },
+            {
+              "level": 3,
+              "anchor": "attribute-initialization",
+              "text": "4.2.7.3 Attribute Initialization"
+            },
+            {
+              "level": 1,
+              "anchor": "simics-interfaces",
+              "text": "4.3 Simics Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "introduction",
+              "text": "4.3.1 Introduction"
+            },
+            {
+              "level": 2,
+              "anchor": "implementing-an-interface",
+              "text": "4.3.2 Implementing an Interface"
+            },
+            {
+              "level": 2,
+              "anchor": "connecting-objects",
+              "text": "4.3.3 Connecting Objects"
+            },
+            {
+              "level": 3,
+              "anchor": "connection-example",
+              "text": "4.3.3.1 Connection Example"
+            },
+            {
+              "level": 3,
+              "anchor": "sharing-definitions",
+              "text": "4.3.3.2 Sharing Definitions"
+            },
+            {
+              "level": 3,
+              "anchor": "a-plug-in-module",
+              "text": "4.3.3.3 A Plug-in Module"
+            },
+            {
+              "level": 3,
+              "anchor": "testing-the-connection",
+              "text": "4.3.3.4 Testing the Connection"
+            },
+            {
+              "level": 1,
+              "anchor": "components",
+              "text": "4.4 Components"
+            },
+            {
+              "level": 2,
+              "anchor": "building-a-simple-component",
+              "text": "4.4.1 Building a Simple Component"
+            },
+            {
+              "level": 2,
+              "anchor": "loading-and-connecting-components",
+              "text": "4.4.2 Loading and Connecting Components"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "programming-with-dml.html",
+          "name": "5 Programming with DML",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "modules-classes-and-objects",
+              "text": "5.1 Modules, Classes, and Objects"
+            },
+            {
+              "level": 1,
+              "anchor": "parameters",
+              "text": "5.2 Parameters"
+            },
+            {
+              "level": 1,
+              "anchor": "attributes",
+              "text": "5.3 Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "a-simple-example",
+              "text": "5.3.1 A Simple Example"
+            },
+            {
+              "level": 2,
+              "anchor": "a-pseudo-attribute",
+              "text": "5.3.2 A Pseudo Attribute"
+            },
+            {
+              "level": 2,
+              "anchor": "attribute-errors",
+              "text": "5.3.3 Attribute Errors"
+            },
+            {
+              "level": 1,
+              "anchor": "banks-and-registers",
+              "text": "5.4 Banks and Registers"
+            },
+            {
+              "level": 2,
+              "anchor": "register-banks",
+              "text": "5.4.1 Register Banks"
+            },
+            {
+              "level": 2,
+              "anchor": "registers",
+              "text": "5.4.2 Registers"
+            },
+            {
+              "level": 2,
+              "anchor": "register-fields",
+              "text": "5.4.3 Register Fields"
+            },
+            {
+              "level": 2,
+              "anchor": "the-get-and-set-methods-of-registers",
+              "text": "5.4.4 The get and set methods of registers"
+            },
+            {
+              "level": 2,
+              "anchor": "bank-and-register-arrays",
+              "text": "5.4.5 Bank and Register Arrays"
+            },
+            {
+              "level": 1,
+              "anchor": "interfaces",
+              "text": "5.5 Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "using-interfaces",
+              "text": "5.5.1 Using Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "implementing-an-interface",
+              "text": "5.5.2 Implementing an Interface"
+            },
+            {
+              "level": 2,
+              "anchor": "ports",
+              "text": "5.5.3 Ports"
+            },
+            {
+              "level": 2,
+              "anchor": "defining-a-new-interface-type",
+              "text": "5.5.4 Defining a New Interface Type"
+            },
+            {
+              "level": 1,
+              "anchor": "templates",
+              "text": "5.6 Templates"
+            },
+            {
+              "level": 1,
+              "anchor": "logging",
+              "text": "5.7 Logging"
+            },
+            {
+              "level": 2,
+              "anchor": "log-groups",
+              "text": "5.7.1 Log Groups"
+            },
+            {
+              "level": 2,
+              "anchor": "log-levels",
+              "text": "5.7.2 Log Levels"
+            },
+            {
+              "level": 1,
+              "anchor": "events",
+              "text": "5.8 Events"
+            },
+            {
+              "level": 2,
+              "anchor": "event-data",
+              "text": "5.8.1 Event data"
+            },
+            {
+              "level": 2,
+              "anchor": "managing-posted-events",
+              "text": "5.8.2 Managing posted events"
+            },
+            {
+              "level": 2,
+              "anchor": "after",
+              "text": "5.8.3 After"
+            },
+            {
+              "level": 2,
+              "anchor": "event-example",
+              "text": "5.8.4 Event Example"
+            },
+            {
+              "level": 1,
+              "anchor": "haps",
+              "text": "5.9 Haps"
+            },
+            {
+              "level": 2,
+              "anchor": "providing-haps",
+              "text": "5.9.1 Providing Haps"
+            },
+            {
+              "level": 3,
+              "anchor": "adding-a-new-type",
+              "text": "5.9.1.1 Adding a New Type"
+            },
+            {
+              "level": 3,
+              "anchor": "triggering-a-hap",
+              "text": "5.9.1.2 Triggering a Hap"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "building-well-behaved-models.html",
+          "name": "6 Building Well-Behaved Models",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "structuring-dml-code",
+              "text": "6.1 Structuring DML Code"
+            },
+            {
+              "level": 2,
+              "anchor": "device-names",
+              "text": "6.1.1 Device Names"
+            },
+            {
+              "level": 2,
+              "anchor": "file-names",
+              "text": "6.1.2 File Names"
+            },
+            {
+              "level": 2,
+              "anchor": "bank-names",
+              "text": "6.1.3 Bank Names"
+            },
+            {
+              "level": 2,
+              "anchor": "register-fields",
+              "text": "6.1.4 Register Fields"
+            },
+            {
+              "level": 2,
+              "anchor": "structuring-dml-files",
+              "text": "6.1.5 Structuring DML Files"
+            },
+            {
+              "level": 2,
+              "anchor": "object-members-and-scope",
+              "text": "6.1.6 Object Members and Scope"
+            },
+            {
+              "level": 1,
+              "anchor": "general-usability",
+              "text": "6.2 General Usability"
+            },
+            {
+              "level": 2,
+              "anchor": "checkpointing",
+              "text": "6.2.1 Checkpointing"
+            },
+            {
+              "level": 2,
+              "anchor": "deterministic-models",
+              "text": "6.2.2 Deterministic Models"
+            },
+            {
+              "level": 2,
+              "anchor": "saving-data",
+              "text": "6.2.3 Saving Data"
+            },
+            {
+              "level": 2,
+              "anchor": "support-inquiry-accesses",
+              "text": "6.2.4 Support inquiry accesses"
+            },
+            {
+              "level": 2,
+              "anchor": "error-reporting",
+              "text": "6.2.5 Error Reporting"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "dml-tips-and-tricks.html",
+          "name": "7 DML Tips and Tricks",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "register-instead-of-attributes",
+              "text": "7.1 Register instead of attributes"
+            },
+            {
+              "level": 1,
+              "anchor": "misspelled-identifiers",
+              "text": "7.2 Misspelled identifiers"
+            },
+            {
+              "level": 1,
+              "anchor": "alias-registers",
+              "text": "7.3 Alias registers"
+            },
+            {
+              "level": 1,
+              "anchor": "field-set-order",
+              "text": "7.4 Field set order"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "development-checklist.html",
+          "name": "8 Model Development Checklist",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "generic-checklist",
+              "text": "8.1 Generic Checklist"
+            },
+            {
+              "level": 1,
+              "anchor": "device-checklist",
+              "text": "8.2 Device Checklist"
+            },
+            {
+              "level": 2,
+              "anchor": "ethernet-devices",
+              "text": "8.2.1 Ethernet Devices"
+            },
+            {
+              "level": 2,
+              "anchor": "interrupt-devices",
+              "text": "8.2.2 Interrupt Devices"
+            },
+            {
+              "level": 2,
+              "anchor": "pci-devices",
+              "text": "8.2.3 PCI Devices"
+            },
+            {
+              "level": 2,
+              "anchor": "serial-devices",
+              "text": "8.2.4 Serial Devices"
+            },
+            {
+              "level": 1,
+              "anchor": "processor-model-checklist",
+              "text": "8.3 Processor Model Checklist"
+            },
+            {
+              "level": 1,
+              "anchor": "component-checklist",
+              "text": "8.4 Component Checklist"
+            },
+            {
+              "level": 1,
+              "anchor": "system-checklist",
+              "text": "8.5 System Checklist"
+            },
+            {
+              "level": 1,
+              "anchor": "target-script-checklist",
+              "text": "8.6 Target Script Checklist"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "advanced-programming-with-dml.html",
+          "name": "9 Advanced Programming with DML",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "using-the-simics-api",
+              "text": "9.1 Using the Simics API"
+            },
+            {
+              "level": 1,
+              "anchor": "embedding-c-code",
+              "text": "9.2 Embedding C Code"
+            },
+            {
+              "level": 1,
+              "anchor": "calling-back-from-c",
+              "text": "9.3 Calling Back From C"
+            },
+            {
+              "level": 1,
+              "anchor": "integrating-with-c",
+              "text": "9.4 Integrating with C++"
+            },
+            {
+              "level": 1,
+              "anchor": "dividing-a-device-into-classes",
+              "text": "9.5 Dividing a Device into Classes"
+            },
+            {
+              "level": 2,
+              "anchor": "one-class-only",
+              "text": "9.5.1 One Class Only"
+            },
+            {
+              "level": 2,
+              "anchor": "one-class-for-each-logical-unit",
+              "text": "9.5.2 One Class for Each Logical Unit"
+            },
+            {
+              "level": 1,
+              "anchor": "device-sharing-dml-code",
+              "text": "9.6 Device Sharing DML Code"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "example-models.html",
+          "name": "10 Example Models",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "am79c960",
+              "text": "10.1 AM79C960"
+            },
+            {
+              "level": 2,
+              "anchor": "architecture-design",
+              "text": "10.1.1 Architecture Design"
+            },
+            {
+              "level": 2,
+              "anchor": "interfaces-design",
+              "text": "10.1.2 Interfaces Design"
+            },
+            {
+              "level": 2,
+              "anchor": "registers-design",
+              "text": "10.1.3 Registers Design"
+            },
+            {
+              "level": 2,
+              "anchor": "other-elements-design",
+              "text": "10.1.4 Other Elements Design"
+            },
+            {
+              "level": 2,
+              "anchor": "run-the-am79c960-model-tests",
+              "text": "10.1.5 Run the AM79C960 model tests"
+            },
+            {
+              "level": 1,
+              "anchor": "ds12887",
+              "text": "10.2 DS12887"
+            },
+            {
+              "level": 2,
+              "anchor": "architecture-design-2",
+              "text": "10.2.1 Architecture Design"
+            },
+            {
+              "level": 2,
+              "anchor": "registers-design-2",
+              "text": "10.2.2 Registers Design"
+            },
+            {
+              "level": 2,
+              "anchor": "interfaces-design-2",
+              "text": "10.2.3 Interfaces Design"
+            },
+            {
+              "level": 2,
+              "anchor": "other-elements-design-2",
+              "text": "10.2.4 Other Elements Design"
+            },
+            {
+              "level": 2,
+              "anchor": "running-the-ds12887-model",
+              "text": "10.2.5 Running the DS12887 model"
+            },
+            {
+              "level": 1,
+              "anchor": "dec21140a",
+              "text": "10.3 DEC21140A"
+            },
+            {
+              "level": 2,
+              "anchor": "architecture-design-3",
+              "text": "10.3.1 Architecture Design"
+            },
+            {
+              "level": 2,
+              "anchor": "interfaces-design-3",
+              "text": "10.3.2 Interfaces Design"
+            },
+            {
+              "level": 2,
+              "anchor": "registers-design-3",
+              "text": "10.3.3 Registers Design"
+            },
+            {
+              "level": 2,
+              "anchor": "other-elements-design-3",
+              "text": "10.3.4 Other Elements Design"
+            },
+            {
+              "level": 2,
+              "anchor": "run-the-dec21140a-dml-module",
+              "text": "10.3.5 Run the DEC21140A-dml Module"
+            },
+            {
+              "level": 1,
+              "anchor": "ethernet-phy-chip",
+              "text": "10.4 Ethernet PHY chip"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "define-new-interface-type.html",
+          "name": "11 Defining New Interface Types",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "example",
+              "text": "11.1 Example"
+            },
+            {
+              "level": 1,
+              "anchor": "restrictions",
+              "text": "11.2 Restrictions"
+            },
+            {
+              "level": 1,
+              "anchor": "callback-functions-in-interfaces",
+              "text": "11.3 Callback Functions in Interfaces"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "memory-transactions.html",
+          "name": "12 Memory Transactions in DML",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "introduction",
+              "text": "12.1 Introduction"
+            },
+            {
+              "level": 1,
+              "anchor": "issuing-transactions",
+              "text": "12.2 Issuing Transactions"
+            },
+            {
+              "level": 1,
+              "anchor": "receiving-transactions",
+              "text": "12.3 Receiving Transactions"
+            },
+            {
+              "level": 1,
+              "anchor": "defining-custom-user-atoms",
+              "text": "12.4 Defining Custom User Atoms"
+            },
+            {
+              "level": 1,
+              "anchor": "issuing-transactions-with-custom-atoms",
+              "text": "12.5 Issuing Transactions with Custom Atoms"
+            },
+            {
+              "level": 1,
+              "anchor": "receiving-transactions-with-custom-atoms",
+              "text": "12.6 Receiving Transactions with Custom Atoms"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "python-in-modules.html",
+          "name": "13 Using Python in a Simics module",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "python-in-older-versions-of-simics",
+              "text": "13.1 Python in older versions of Simics"
+            },
+            {
+              "level": 1,
+              "anchor": "recommendations-on-style",
+              "text": "13.2 Recommendations on style"
+            },
+            {
+              "level": 2,
+              "anchor": "importing-python-modules-within-a-simics-module",
+              "text": "13.2.1 Importing Python modules within a Simics module"
+            },
+            {
+              "level": 2,
+              "anchor": "sharing-python-code-between-simics-modules",
+              "text": "13.2.2 Sharing Python code between Simics modules"
+            },
+            {
+              "level": 2,
+              "anchor": "side-effects-in-modules",
+              "text": "13.2.3 Side-effects in modules"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "new-commands.html",
+          "name": "14 Adding New Commands",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "example-of-a-new-command",
+              "text": "14.1 Example of a New Command"
+            },
+            {
+              "level": 1,
+              "anchor": "the-new_command-function",
+              "text": "14.2 The new_command Function"
+            },
+            {
+              "level": 1,
+              "anchor": "the-arg-function",
+              "text": "14.3 The arg Function"
+            },
+            {
+              "level": 1,
+              "anchor": "polyvalues",
+              "text": "14.4 Polyvalues"
+            },
+            {
+              "level": 1,
+              "anchor": "command-errors",
+              "text": "14.5 Command Errors"
+            },
+            {
+              "level": 1,
+              "anchor": "human-readable-messages",
+              "text": "14.6 Human-readable Messages"
+            },
+            {
+              "level": 1,
+              "anchor": "info-and-status-commands",
+              "text": "14.7 Info and Status Commands"
+            },
+            {
+              "level": 2,
+              "anchor": "example",
+              "text": "14.7.1 Example"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "writing-module-with-c.html",
+          "name": "15 Modeling with C",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "module-loading",
+              "text": "15.1 Module Loading"
+            },
+            {
+              "level": 1,
+              "anchor": "classes",
+              "text": "15.2 Classes"
+            },
+            {
+              "level": 1,
+              "anchor": "objects",
+              "text": "15.3 Objects"
+            },
+            {
+              "level": 1,
+              "anchor": "attributes",
+              "text": "15.4 Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "a-simple-example",
+              "text": "15.4.1 A Simple Example"
+            },
+            {
+              "level": 2,
+              "anchor": "a-pseudo-attribute",
+              "text": "15.4.2 A Pseudo Attribute"
+            },
+            {
+              "level": 2,
+              "anchor": "attribute-errors",
+              "text": "15.4.3 Attribute Errors"
+            },
+            {
+              "level": 1,
+              "anchor": "interfaces",
+              "text": "15.5 Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "using-interfaces",
+              "text": "15.5.1 Using Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "using-port-interfaces",
+              "text": "15.5.2 Using Port Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "implementing-an-interface",
+              "text": "15.5.3 Implementing an Interface"
+            },
+            {
+              "level": 2,
+              "anchor": "implementing-interfaces-on-port-objects",
+              "text": "15.5.4 Implementing Interfaces on Port Objects"
+            },
+            {
+              "level": 1,
+              "anchor": "logging",
+              "text": "15.6 Logging"
+            },
+            {
+              "level": 1,
+              "anchor": "events",
+              "text": "15.7 Events"
+            },
+            {
+              "level": 1,
+              "anchor": "haps",
+              "text": "15.8 Haps"
+            },
+            {
+              "level": 2,
+              "anchor": "providing-haps",
+              "text": "15.8.1 Providing Haps"
+            },
+            {
+              "level": 3,
+              "anchor": "adding-a-new-type",
+              "text": "15.8.1.1 Adding a New Type"
+            },
+            {
+              "level": 3,
+              "anchor": "triggering-a-hap",
+              "text": "15.8.1.2 Triggering a Hap"
+            },
+            {
+              "level": 1,
+              "anchor": "using-the-python-c-api",
+              "text": "15.9 Using the Python/C API"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "writing-module-with-python.html",
+          "name": "16 Modeling with Python",
+          "headings": [],
+          "children": [
+            {
+              "file": "writing-module-with-pyobj.html",
+              "name": "16.1 Modeling with Python (pyobj)",
+              "headings": [
+                {
+                  "level": 1,
+                  "anchor": "creating-a-new-python-device",
+                  "text": "16.1.1 Creating a New Python Device"
+                },
+                {
+                  "level": 1,
+                  "anchor": "the-pyobj-python-module",
+                  "text": "16.1.2 The pyobj Python Module"
+                },
+                {
+                  "level": 1,
+                  "anchor": "confobject-class-basic-methods",
+                  "text": "16.1.3 ConfObject Class Basic Methods"
+                },
+                {
+                  "level": 1,
+                  "anchor": "confobject-class-parameters",
+                  "text": "16.1.4 ConfObject Class Parameters"
+                },
+                {
+                  "level": 1,
+                  "anchor": "attributes",
+                  "text": "16.1.5 Attributes"
+                },
+                {
+                  "level": 1,
+                  "anchor": "class-attributes",
+                  "text": "16.1.6 Class Attributes"
+                },
+                {
+                  "level": 1,
+                  "anchor": "the-_up-member",
+                  "text": "16.1.7 The _up Member"
+                },
+                {
+                  "level": 1,
+                  "anchor": "interfaces",
+                  "text": "16.1.8 Interfaces"
+                },
+                {
+                  "level": 1,
+                  "anchor": "port-objects",
+                  "text": "16.1.9 Port Objects"
+                },
+                {
+                  "level": 1,
+                  "anchor": "events",
+                  "text": "16.1.10 Events"
+                }
+              ],
+              "children": []
+            },
+            {
+              "file": "writing-module-with-confclass.html",
+              "name": "16.2 Modeling with Python (confclass)",
+              "headings": [
+                {
+                  "level": 1,
+                  "anchor": "overview",
+                  "text": "16.2.1 Overview"
+                },
+                {
+                  "level": 1,
+                  "anchor": "creating-an-example-device-class",
+                  "text": "16.2.2 Creating an example Device Class"
+                },
+                {
+                  "level": 1,
+                  "anchor": "creating-a-device-class",
+                  "text": "16.2.3 Creating a Device Class"
+                },
+                {
+                  "level": 1,
+                  "anchor": "class-documentation",
+                  "text": "16.2.4 Class Documentation"
+                },
+                {
+                  "level": 1,
+                  "anchor": "overriding-conf-object-methods",
+                  "text": "16.2.5 Overriding Conf Object Methods"
+                },
+                {
+                  "level": 1,
+                  "anchor": "accessing-the-python-object",
+                  "text": "16.2.6 Accessing the Python Object"
+                },
+                {
+                  "level": 1,
+                  "anchor": "attributes",
+                  "text": "16.2.7 Attributes"
+                },
+                {
+                  "level": 2,
+                  "anchor": "examples",
+                  "text": "16.2.7.1 Examples"
+                },
+                {
+                  "level": 2,
+                  "anchor": "default-values",
+                  "text": "16.2.7.2 Default Values"
+                },
+                {
+                  "level": 1,
+                  "anchor": "info-and-status-commands",
+                  "text": "16.2.8 Info and Status Commands"
+                },
+                {
+                  "level": 1,
+                  "anchor": "prevent-registration",
+                  "text": "16.2.9 Prevent Registration"
+                },
+                {
+                  "level": 1,
+                  "anchor": "interfaces",
+                  "text": "16.2.10 Interfaces"
+                },
+                {
+                  "level": 1,
+                  "anchor": "port-objects",
+                  "text": "16.2.11 Port Objects"
+                },
+                {
+                  "level": 2,
+                  "anchor": "basic-examples",
+                  "text": "16.2.11.1 Basic Examples"
+                },
+                {
+                  "level": 2,
+                  "anchor": "add-an-interface",
+                  "text": "16.2.11.2 Add an Interface"
+                },
+                {
+                  "level": 2,
+                  "anchor": "add-an-attribute",
+                  "text": "16.2.11.3 Add an Attribute"
+                },
+                {
+                  "level": 2,
+                  "anchor": "attribute-conflicts",
+                  "text": "16.2.11.4 Attribute Conflicts"
+                },
+                {
+                  "level": 2,
+                  "anchor": "advanced-port-object-examples",
+                  "text": "16.2.11.5 Advanced Port Object Examples"
+                },
+                {
+                  "level": 3,
+                  "anchor": "two-interfaces",
+                  "text": "16.2.11.5.1 Two Interfaces"
+                },
+                {
+                  "level": 2,
+                  "anchor": "using-an-existing-class",
+                  "text": "16.2.11.6 Using an existing class"
+                },
+                {
+                  "level": 1,
+                  "anchor": "port-interfaces",
+                  "text": "16.2.12 Port Interfaces"
+                },
+                {
+                  "level": 1,
+                  "anchor": "events",
+                  "text": "16.2.13 Events"
+                },
+                {
+                  "level": 2,
+                  "anchor": "declaration",
+                  "text": "16.2.13.1 Declaration"
+                },
+                {
+                  "level": 2,
+                  "anchor": "posting-cancelling-finding",
+                  "text": "16.2.13.2 Posting/Cancelling/Finding"
+                },
+                {
+                  "level": 2,
+                  "anchor": "see-also",
+                  "text": "16.2.13.3 See also"
+                },
+                {
+                  "level": 1,
+                  "anchor": "inheritance",
+                  "text": "16.2.14 Inheritance"
+                }
+              ],
+              "children": []
+            },
+            {
+              "file": "migrate-pyobj-to-confclass.html",
+              "name": "16.3 Migrating to confclass",
+              "headings": [
+                {
+                  "level": 1,
+                  "anchor": "basic-class",
+                  "text": "16.3.1 Basic Class"
+                },
+                {
+                  "level": 2,
+                  "anchor": "pyobj",
+                  "text": "16.3.1.1 pyobj"
+                },
+                {
+                  "level": 2,
+                  "anchor": "confclass",
+                  "text": "16.3.1.2 confclass"
+                },
+                {
+                  "level": 1,
+                  "anchor": "overriding-object-callbacks",
+                  "text": "16.3.2 Overriding Object Callbacks"
+                },
+                {
+                  "level": 2,
+                  "anchor": "pyobj-2",
+                  "text": "16.3.2.1 pyobj"
+                },
+                {
+                  "level": 2,
+                  "anchor": "confclass-2",
+                  "text": "16.3.2.2 confclass"
+                },
+                {
+                  "level": 1,
+                  "anchor": "hierarchy-_up",
+                  "text": "16.3.3 Hierarchy (_up)"
+                },
+                {
+                  "level": 1,
+                  "anchor": "attributes",
+                  "text": "16.3.4 Attributes"
+                },
+                {
+                  "level": 2,
+                  "anchor": "simple-attribute",
+                  "text": "16.3.4.1 Simple Attribute"
+                },
+                {
+                  "level": 3,
+                  "anchor": "pyobj-3",
+                  "text": "16.3.4.1.1 pyobj"
+                },
+                {
+                  "level": 3,
+                  "anchor": "confclass-3",
+                  "text": "16.3.4.1.2 confclass"
+                },
+                {
+                  "level": 2,
+                  "anchor": "attribute-with-getter-and-setter",
+                  "text": "16.3.4.2 Attribute with Getter and Setter"
+                },
+                {
+                  "level": 3,
+                  "anchor": "pyobj-4",
+                  "text": "16.3.4.2.1 pyobj"
+                },
+                {
+                  "level": 3,
+                  "anchor": "confclass-4",
+                  "text": "16.3.4.2.2 confclass"
+                },
+                {
+                  "level": 1,
+                  "anchor": "interfaces",
+                  "text": "16.3.5 Interfaces"
+                },
+                {
+                  "level": 2,
+                  "anchor": "pyobj-5",
+                  "text": "16.3.5.1 pyobj"
+                },
+                {
+                  "level": 2,
+                  "anchor": "confclass-5",
+                  "text": "16.3.5.2 confclass"
+                },
+                {
+                  "level": 1,
+                  "anchor": "port-objects",
+                  "text": "16.3.6 Port Objects"
+                },
+                {
+                  "level": 2,
+                  "anchor": "pyobj-6",
+                  "text": "16.3.6.1 pyobj"
+                },
+                {
+                  "level": 2,
+                  "anchor": "confclass-6",
+                  "text": "16.3.6.2 confclass"
+                },
+                {
+                  "level": 1,
+                  "anchor": "events",
+                  "text": "16.3.7 Events"
+                },
+                {
+                  "level": 2,
+                  "anchor": "pyobj-7",
+                  "text": "16.3.7.1 pyobj"
+                },
+                {
+                  "level": 2,
+                  "anchor": "confclass-7",
+                  "text": "16.3.7.2 confclass"
+                }
+              ],
+              "children": []
+            }
+          ]
+        },
+        {
+          "file": "writing-model-tests.html",
+          "name": "17 Writing Model Tests",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "overview",
+              "text": "17.1 Overview"
+            },
+            {
+              "level": 1,
+              "anchor": "sample-tests",
+              "text": "17.2 Sample Tests"
+            },
+            {
+              "level": 1,
+              "anchor": "writing-tests",
+              "text": "17.3 Writing Tests"
+            },
+            {
+              "level": 2,
+              "anchor": "anatomy-of-a-test-suite",
+              "text": "17.3.1 Anatomy of a Test Suite"
+            },
+            {
+              "level": 2,
+              "anchor": "configuration",
+              "text": "17.3.2 Configuration"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-device-registers-from-tests",
+              "text": "17.3.3 Accessing Device Registers from Tests"
+            },
+            {
+              "level": 2,
+              "anchor": "responding-to-memory-accesses-from-models",
+              "text": "17.3.4 Responding to Memory Accesses From Models"
+            },
+            {
+              "level": 3,
+              "anchor": "testing-memory-access-using-legacy-dev_util-layout-and-dev_util-memory",
+              "text": "17.3.4.1 Testing memory access using legacy dev_util.Layout and dev_util.Memory"
+            },
+            {
+              "level": 2,
+              "anchor": "calling-interfaces-on-devices",
+              "text": "17.3.5 Calling interfaces on devices"
+            },
+            {
+              "level": 2,
+              "anchor": "working-with-transactions-sent-into-and-received-from-devices-under-test",
+              "text": "17.3.6 Working with transactions sent into and received from devices under test"
+            },
+            {
+              "level": 2,
+              "anchor": "test-coverage-and-speed",
+              "text": "17.3.7 Test Coverage and Speed"
+            },
+            {
+              "level": 2,
+              "anchor": "documenting-tests",
+              "text": "17.3.8 Documenting Tests"
+            },
+            {
+              "level": 2,
+              "anchor": "arranging-test-code",
+              "text": "17.3.9 Arranging Test Code"
+            },
+            {
+              "level": 1,
+              "anchor": "appendix-full-test-code-for-responding-to-memory-accesses-from-models",
+              "text": "17.4 Appendix: Full test code for Responding to Memory Accesses From Models"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "part-common-hardware-components.html",
+      "name": "III Modeling Common Hardware Components",
+      "headings": [],
+      "children": [
+        {
+          "file": "modeling-interrupt-controllers.html",
+          "name": "18 Modeling Interrupt Controllers",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "edge-triggered-and-level-triggered",
+              "text": "18.1 Edge Triggered and Level Triggered"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "dma.html",
+          "name": "19 Modeling Direct Memory Access (DMA)",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "simulating-time",
+              "text": "19.1 Simulating Time"
+            },
+            {
+              "level": 1,
+              "anchor": "interrupting-on-completion",
+              "text": "19.2 Interrupting on Completion"
+            },
+            {
+              "level": 1,
+              "anchor": "supporting-scatter-gather-lists-using-layouts",
+              "text": "19.3 Supporting Scatter Gather Lists Using Layouts"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "modeling-i2c-devices.html",
+          "name": "20 Modeling I2C Devices",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "introduction",
+              "text": "20.1 Introduction"
+            },
+            {
+              "level": 1,
+              "anchor": "high-level-i2c-device-modeling",
+              "text": "20.2 High-Level I2C Device Modeling"
+            },
+            {
+              "level": 1,
+              "anchor": "low-level-i2c-device-modeling",
+              "text": "20.3 Low-Level I2C Device Modeling"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "modeling-interconnects.html",
+          "name": "21 Modeling Interconnects",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "interconnects-with-a-static-memory-view",
+              "text": "21.1 Interconnects with a Static Memory View"
+            },
+            {
+              "level": 1,
+              "anchor": "interconnects-with-a-dynamic-memory-view",
+              "text": "21.2 Interconnects with a Dynamic Memory View"
+            },
+            {
+              "level": 1,
+              "anchor": "initiator-dependent-memory-view",
+              "text": "21.3 Initiator Dependent Memory View"
+            },
+            {
+              "level": 2,
+              "anchor": "pcie-memory-and-config-routing-example",
+              "text": "21.3.1 PCIe Memory and Config Routing Example"
+            },
+            {
+              "level": 2,
+              "anchor": "pcie-pasid-routing-example",
+              "text": "21.3.2 PCIe PASID Routing Example"
+            },
+            {
+              "level": 1,
+              "anchor": "interconnects-adding-metadata-to-the-transaction",
+              "text": "21.4 Interconnects Adding Metadata to the Transaction"
+            },
+            {
+              "level": 2,
+              "anchor": "interconnects-that-are-bridging-one-domain-with-another",
+              "text": "21.4.1 Interconnects that are Bridging One Domain with Another"
+            },
+            {
+              "level": 2,
+              "anchor": "combining-interconnect-elements-into-a-hierarchy",
+              "text": "21.4.2 Combining Interconnect Elements into a Hierarchy"
+            },
+            {
+              "level": 2,
+              "anchor": "interconnects-adding-security-information-depending-on-access-path",
+              "text": "21.4.3 Interconnects Adding Security Information Depending on Access Path"
+            },
+            {
+              "level": 2,
+              "anchor": "interconnects-supporting-deferred-transactions",
+              "text": "21.4.4 Interconnects Supporting Deferred Transactions"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "frags_t.html",
+          "name": "22 Representing Network Packets with frags_t",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "background",
+              "text": "22.1 Background"
+            },
+            {
+              "level": 1,
+              "anchor": "fragment-lists",
+              "text": "22.2 Fragment lists"
+            },
+            {
+              "level": 1,
+              "anchor": "getting-to-the-data",
+              "text": "22.3 Getting to the data"
+            },
+            {
+              "level": 1,
+              "anchor": "avoiding-allocation",
+              "text": "22.4 Avoiding allocation"
+            },
+            {
+              "level": 1,
+              "anchor": "keeping-the-data",
+              "text": "22.5 Keeping the data"
+            },
+            {
+              "level": 1,
+              "anchor": "multithreading",
+              "text": "22.6 Multithreading"
+            },
+            {
+              "level": 1,
+              "anchor": "conventions",
+              "text": "22.7 Conventions"
+            },
+            {
+              "level": 1,
+              "anchor": "how-to-use-frags_t-to",
+              "text": "22.8 How to use frags_t to…"
+            },
+            {
+              "level": 1,
+              "anchor": "api",
+              "text": "22.9 API"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "modeling-network-communication.html",
+          "name": "23 Modeling Network Communication",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "modeling-ethernet-devices.html",
+          "name": "24 Modeling Ethernet Devices",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "common-ethernet-interface",
+              "text": "24.1 Common Ethernet Interface"
+            },
+            {
+              "level": 1,
+              "anchor": "ethernet-component",
+              "text": "24.2 Ethernet Component"
+            },
+            {
+              "level": 1,
+              "anchor": "ethernet-transceiver",
+              "text": "24.3 Ethernet Transceiver"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "part-system-modeling.html",
+      "name": "IV Creating Virtual Systems",
+      "headings": [],
+      "children": [
+        {
+          "file": "memory-space.html",
+          "name": "25 Memory Spaces",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "memory-space-basics",
+              "text": "25.1 Memory Space Basics"
+            },
+            {
+              "level": 1,
+              "anchor": "memory-space-commands",
+              "text": "25.2 Memory Space Commands"
+            },
+            {
+              "level": 1,
+              "anchor": "memory-mapping-use-cases",
+              "text": "25.3 Memory Mapping Use Cases"
+            },
+            {
+              "level": 1,
+              "anchor": "avoiding-circular-mappings",
+              "text": "25.4 Avoiding Circular Mappings"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "creating-configurations.html",
+          "name": "26 Components",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "introduction",
+              "text": "26.1 Introduction"
+            },
+            {
+              "level": 2,
+              "anchor": "component-class",
+              "text": "26.1.1 Component Class"
+            },
+            {
+              "level": 2,
+              "anchor": "component-module",
+              "text": "26.1.2 Component Module"
+            },
+            {
+              "level": 2,
+              "anchor": "components-in-project",
+              "text": "26.1.3 Components in Project"
+            },
+            {
+              "level": 1,
+              "anchor": "namespace-hierarchies",
+              "text": "26.2 Namespace Hierarchies"
+            },
+            {
+              "level": 2,
+              "anchor": "namespaces",
+              "text": "26.2.1 Namespaces"
+            },
+            {
+              "level": 2,
+              "anchor": "precedence",
+              "text": "26.2.2 Precedence"
+            },
+            {
+              "level": 1,
+              "anchor": "component-hierarchies",
+              "text": "26.3 Component Hierarchies"
+            },
+            {
+              "level": 1,
+              "anchor": "connecting-components",
+              "text": "26.4 Connecting Components"
+            },
+            {
+              "level": 2,
+              "anchor": "connector-properties",
+              "text": "26.4.1 Connector Properties"
+            },
+            {
+              "level": 2,
+              "anchor": "connector-objects",
+              "text": "26.4.2 Connector Objects"
+            },
+            {
+              "level": 2,
+              "anchor": "connecting-connectors",
+              "text": "26.4.3 Connecting Connectors"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-connector-references",
+              "text": "26.4.4 Adding Connector References"
+            },
+            {
+              "level": 2,
+              "anchor": "ethernet-link-connections",
+              "text": "26.4.5 Ethernet Link Connections"
+            },
+            {
+              "level": 1,
+              "anchor": "life-of-a-component",
+              "text": "26.5 Life of a Component"
+            },
+            {
+              "level": 2,
+              "anchor": "creation-phase",
+              "text": "26.5.1 Creation Phase"
+            },
+            {
+              "level": 2,
+              "anchor": "setup-phase",
+              "text": "26.5.2 Setup Phase"
+            },
+            {
+              "level": 2,
+              "anchor": "connect-phase",
+              "text": "26.5.3 Connect Phase"
+            },
+            {
+              "level": 2,
+              "anchor": "instantiate-phase",
+              "text": "26.5.4 Instantiate Phase"
+            },
+            {
+              "level": 1,
+              "anchor": "implementing-components",
+              "text": "26.6 Implementing Components"
+            },
+            {
+              "level": 2,
+              "anchor": "creating-a-new-component",
+              "text": "26.6.1 Creating a New Component"
+            },
+            {
+              "level": 2,
+              "anchor": "the-comp-python-module",
+              "text": "26.6.2 The comp Python Module"
+            },
+            {
+              "level": 2,
+              "anchor": "standardcomponent-class-basic-methods",
+              "text": "26.6.3 StandardComponent Class Basic Methods"
+            },
+            {
+              "level": 2,
+              "anchor": "standardcomponent-class-parameters",
+              "text": "26.6.4 StandardComponent Class Parameters"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-attributes",
+              "text": "26.6.5 Adding Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-config-attributes",
+              "text": "26.6.6 Adding Config Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "overriding-attributes",
+              "text": "26.6.7 Overriding Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "the-_up-member",
+              "text": "26.6.8 The _up Member"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-objects-to-slots",
+              "text": "26.6.9 Adding Objects to Slots"
+            },
+            {
+              "level": 3,
+              "anchor": "adding-single-object",
+              "text": "26.6.9.1 Adding Single Object"
+            },
+            {
+              "level": 3,
+              "anchor": "adding-array-of-objects",
+              "text": "26.6.9.2 Adding Array of Objects"
+            },
+            {
+              "level": 3,
+              "anchor": "lazy-slot-object-assignment",
+              "text": "26.6.9.3 Lazy Slot Object Assignment"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-connectors",
+              "text": "26.6.10 Adding Connectors"
+            },
+            {
+              "level": 3,
+              "anchor": "defining-connector-explicitly",
+              "text": "26.6.10.1 Defining Connector Explicitly"
+            },
+            {
+              "level": 3,
+              "anchor": "connector-classes",
+              "text": "26.6.10.2 Connector Classes"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-components",
+              "text": "26.6.11 Adding Components"
+            },
+            {
+              "level": 3,
+              "anchor": "adding-sub-component",
+              "text": "26.6.11.1 Adding Sub Component"
+            },
+            {
+              "level": 3,
+              "anchor": "adding-and-connecting-sub-components",
+              "text": "26.6.11.2 Adding and Connecting Sub Components"
+            },
+            {
+              "level": 2,
+              "anchor": "overriding-interfaces",
+              "text": "26.6.12 Overriding Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "adding-dynamic-connectors",
+              "text": "26.6.13 Adding Dynamic Connectors"
+            },
+            {
+              "level": 1,
+              "anchor": "example-component",
+              "text": "26.7 Example Component"
+            },
+            {
+              "level": 2,
+              "anchor": "sample-component",
+              "text": "26.7.1 Sample Component"
+            },
+            {
+              "level": 2,
+              "anchor": "hierarchical-component-example",
+              "text": "26.7.2 Hierarchical Component Example"
+            },
+            {
+              "level": 2,
+              "anchor": "flat-component-example",
+              "text": "26.7.3 Flat Component Example"
+            },
+            {
+              "level": 1,
+              "anchor": "component-reference",
+              "text": "26.8 Component Reference"
+            },
+            {
+              "level": 2,
+              "anchor": "component-interfaces",
+              "text": "26.8.1 Component Interfaces"
+            },
+            {
+              "level": 2,
+              "anchor": "component-commands",
+              "text": "26.8.2 Component Commands"
+            },
+            {
+              "level": 2,
+              "anchor": "component-attributes",
+              "text": "26.8.3 Component Attributes"
+            },
+            {
+              "level": 3,
+              "anchor": "attributes",
+              "text": "26.8.3.1 Attributes"
+            },
+            {
+              "level": 3,
+              "anchor": "class-attributes",
+              "text": "26.8.3.2 Class Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "standard-attributes",
+              "text": "26.8.4 Standard Attributes"
+            },
+            {
+              "level": 2,
+              "anchor": "standard-interfaces",
+              "text": "26.8.5 Standard Interfaces"
+            },
+            {
+              "level": 1,
+              "anchor": "various-component-features",
+              "text": "26.9 Various Component Features"
+            },
+            {
+              "level": 2,
+              "anchor": "checkpointing",
+              "text": "26.9.1 Checkpointing"
+            },
+            {
+              "level": 2,
+              "anchor": "automatic-queue-assignment",
+              "text": "26.9.2 Automatic Queue Assignment"
+            },
+            {
+              "level": 2,
+              "anchor": "automatic-recorder-assignment",
+              "text": "26.9.3 Automatic Recorder Assignment"
+            },
+            {
+              "level": 2,
+              "anchor": "inheritance",
+              "text": "26.9.4 Inheritance"
+            },
+            {
+              "level": 2,
+              "anchor": "hotplugging",
+              "text": "26.9.5 Hotplugging"
+            },
+            {
+              "level": 1,
+              "anchor": "standard-connector-types",
+              "text": "26.10 Standard Connector Types"
+            },
+            {
+              "level": 1,
+              "anchor": "the-comp-component",
+              "text": "26.11 The comp Component"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-add_slot",
+              "text": "comp.StandardComponent.component.add_slot()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-create_cell",
+              "text": "comp.StandardComponent.component.create_cell()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-del_slot",
+              "text": "comp.StandardComponent.component.del_slot()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-get_slot_objects",
+              "text": "comp.StandardComponent.component.get_slot_objects()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-get_slot_value",
+              "text": "comp.StandardComponent.component.get_slot_value()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-get_slots",
+              "text": "comp.StandardComponent.component.get_slots()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-has_slot",
+              "text": "comp.StandardComponent.component.has_slot()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-post_instantiate",
+              "text": "comp.StandardComponent.component.post_instantiate()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-pre_instantiate",
+              "text": "comp.StandardComponent.component.pre_instantiate()"
+            },
+            {
+              "level": 2,
+              "anchor": "comp-standardcomponent-component-set_slot_value",
+              "text": "comp.StandardComponent.component.set_slot_value()"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "adding-flash-to-a-system.html",
+          "name": "27 Adding Flash to a System",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "instantiating-flash-memory",
+              "text": "27.1 Instantiating Flash Memory"
+            },
+            {
+              "level": 1,
+              "anchor": "adding-new-flash-models",
+              "text": "27.2 Adding New Flash Models"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "software-domains.html",
+          "name": "28 Software Domains",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "domain-definition-in-simics",
+              "text": "28.1 Domain Definition in Simics"
+            },
+            {
+              "level": 1,
+              "anchor": "finding-the-processors",
+              "text": "28.2 Finding the Processors"
+            },
+            {
+              "level": 1,
+              "anchor": "software-trackers",
+              "text": "28.3 Software Trackers"
+            },
+            {
+              "level": 1,
+              "anchor": "cells-and-software-domains",
+              "text": "28.4 Cells and Software Domains"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "machine-creation.html",
+          "name": "29 System Configurations",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "simple-command-script",
+              "text": "29.1 Simple Command Script"
+            },
+            {
+              "level": 1,
+              "anchor": "creating-new-machine-scripts",
+              "text": "29.2 Creating New Machine Scripts"
+            },
+            {
+              "level": 1,
+              "anchor": "multi-machine-scripts",
+              "text": "29.3 Multi-Machine Scripts"
+            },
+            {
+              "level": 1,
+              "anchor": "testing-machines",
+              "text": "29.4 Testing Machines"
+            },
+            {
+              "level": 2,
+              "anchor": "checkpoint-test",
+              "text": "29.4.1 Checkpoint Test"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "part-packages-creation.html",
+      "name": "V Creating Own Packages",
+      "headings": [],
+      "children": [
+        {
+          "file": "project-packager-introduction.html",
+          "name": "30 Introduction",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "create-customer-packages.html",
+          "name": "31 Create Customer Packages",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "examples.html",
+          "name": "32 Examples",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "creating-a-custom-project-package",
+              "text": "32.1 Creating a Custom Project Package"
+            },
+            {
+              "level": 2,
+              "anchor": "create-a-development-project-and-build-a-sample-device",
+              "text": "32.1.1 Create a Development Project and Build a Sample Device"
+            },
+            {
+              "level": 2,
+              "anchor": "create-the-target-system-scripts",
+              "text": "32.1.2 Create the Target System Scripts"
+            },
+            {
+              "level": 2,
+              "anchor": "convert-the-project-to-a-package",
+              "text": "32.1.3 Convert the Project to a Package"
+            },
+            {
+              "level": 2,
+              "anchor": "test-installation-of-the-thirdstep-package",
+              "text": "32.1.4 Test Installation of the Thirdstep Package"
+            },
+            {
+              "level": 2,
+              "anchor": "create-a-test-project-and-test-the-installed-packages",
+              "text": "32.1.5 Create a Test Project and Test the Installed Packages"
+            },
+            {
+              "level": 1,
+              "anchor": "additional-project-packager-script-parameters",
+              "text": "32.2 Additional project-packager Script Parameters"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "part-simics-programming.html",
+      "name": "VI Simics API",
+      "headings": [],
+      "children": [
+        {
+          "file": "attributes.html",
+          "name": "33 Attributes",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "definition",
+              "text": "33.1 Definition"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "object-hierarchy.html",
+          "name": "34 Object Hierarchy",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "accessing-objects",
+              "text": "34.1 Accessing Objects"
+            },
+            {
+              "level": 1,
+              "anchor": "object-creation",
+              "text": "34.2 Object Creation"
+            },
+            {
+              "level": 1,
+              "anchor": "special-object-classes",
+              "text": "34.3 Special Object Classes"
+            },
+            {
+              "level": 1,
+              "anchor": "naming-conventions",
+              "text": "34.4 Naming Conventions"
+            },
+            {
+              "level": 1,
+              "anchor": "clock-and-cell-inheritance",
+              "text": "34.5 Clock and Cell Inheritance"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "object-lifetime.html",
+          "name": "Object Lifetime",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "getting-and-setting-attributes",
+              "text": "Getting and Setting Attributes"
+            },
+            {
+              "level": 1,
+              "anchor": "common-patterns",
+              "text": "Common Patterns"
+            },
+            {
+              "level": 2,
+              "anchor": "delay-final-initialization",
+              "text": "Delay Final Initialization"
+            },
+            {
+              "level": 2,
+              "anchor": "constant-state",
+              "text": "Constant State"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "port-objects.html",
+          "name": "35 Port Objects",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "registering-port-objects",
+              "text": "35.1 Registering Port Objects"
+            },
+            {
+              "level": 1,
+              "anchor": "hierarchical-class-names",
+              "text": "35.2 Hierarchical Class Names"
+            },
+            {
+              "level": 1,
+              "anchor": "using-existing-classes-as-port-objects",
+              "text": "35.3 Using Existing Classes as Port Objects"
+            },
+            {
+              "level": 1,
+              "anchor": "setting-port-object-state",
+              "text": "35.4 Setting Port Object State"
+            },
+            {
+              "level": 1,
+              "anchor": "pre-conf-object-support",
+              "text": "35.5 Pre Conf Object Support"
+            },
+            {
+              "level": 1,
+              "anchor": "port-object-parent",
+              "text": "35.6 Port Object Parent"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "notifiers.html",
+          "name": "36 Notifiers",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "notifier-subscription",
+              "text": "36.1 Notifier Subscription"
+            },
+            {
+              "level": 1,
+              "anchor": "notifier-publication",
+              "text": "36.2 Notifier Publication"
+            },
+            {
+              "level": 1,
+              "anchor": "custom-notifier-types",
+              "text": "36.3 Custom Notifier Types"
+            },
+            {
+              "level": 1,
+              "anchor": "global-notifiers",
+              "text": "36.4 Global Notifiers"
+            },
+            {
+              "level": 1,
+              "anchor": "sample-code",
+              "text": "36.5 Sample Code"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "extension-classes.html",
+          "name": "37 Extension Classes",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "usage-example",
+              "text": "37.1 Usage Example"
+            },
+            {
+              "level": 1,
+              "anchor": "defining-an-extension-class",
+              "text": "37.2 Defining an Extension Class"
+            },
+            {
+              "level": 1,
+              "anchor": "defining-an-extension-class-in-python",
+              "text": "37.3 Defining an Extension Class in Python"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "transactions.html",
+          "name": "38 Transactions",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "transaction-atoms",
+              "text": "38.1 Transaction Atoms"
+            },
+            {
+              "level": 1,
+              "anchor": "transaction-datatype",
+              "text": "38.2 Transaction Datatype"
+            },
+            {
+              "level": 1,
+              "anchor": "transaction-api-overview",
+              "text": "38.3 Transaction API Overview"
+            },
+            {
+              "level": 1,
+              "anchor": "transaction-interface",
+              "text": "38.4 Transaction Interface"
+            },
+            {
+              "level": 1,
+              "anchor": "synchronous-completion",
+              "text": "38.5 Synchronous Completion"
+            },
+            {
+              "level": 1,
+              "anchor": "asynchronous-completion",
+              "text": "38.6 Asynchronous Completion"
+            },
+            {
+              "level": 1,
+              "anchor": "creating-transactions",
+              "text": "38.7 Creating Transactions"
+            },
+            {
+              "level": 1,
+              "anchor": "issuing-a-synchronous-transaction",
+              "text": "38.8 Issuing a Synchronous Transaction"
+            },
+            {
+              "level": 1,
+              "anchor": "issuing-an-asynchronous-transaction",
+              "text": "38.9 Issuing an Asynchronous Transaction"
+            },
+            {
+              "level": 1,
+              "anchor": "python-support",
+              "text": "38.10 Python Support"
+            },
+            {
+              "level": 2,
+              "anchor": "accessing-transaction-atoms",
+              "text": "38.10.1 Accessing Transaction Atoms"
+            },
+            {
+              "level": 2,
+              "anchor": "sample-code-to-create-and-issue-a-transaction",
+              "text": "38.10.2 Sample Code to Create and Issue a Transaction"
+            },
+            {
+              "level": 1,
+              "anchor": "custom-atom-types",
+              "text": "38.11 Custom Atom Types"
+            },
+            {
+              "level": 1,
+              "anchor": "transaction-chaining",
+              "text": "38.12 Transaction Chaining"
+            },
+            {
+              "level": 2,
+              "anchor": "transaction-chaining-example-python",
+              "text": "38.12.1 Transaction Chaining Example Python"
+            },
+            {
+              "level": 2,
+              "anchor": "transaction-chaining-example-c",
+              "text": "38.12.2 Transaction Chaining Example C"
+            },
+            {
+              "level": 1,
+              "anchor": "transaction-checkpointing",
+              "text": "38.13 Transaction Checkpointing"
+            },
+            {
+              "level": 1,
+              "anchor": "snapshots",
+              "text": "38.14 Snapshots"
+            },
+            {
+              "level": 1,
+              "anchor": "legacy-support",
+              "text": "38.15 Legacy Support"
+            },
+            {
+              "level": 1,
+              "anchor": "transaction-wait",
+              "text": "38.16 Transaction Wait"
+            },
+            {
+              "level": 1,
+              "anchor": "cli-support-for-transactions",
+              "text": "38.17 CLI support for transactions"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "checkpoint-compatibility.html",
+          "name": "39 Checkpoint Compatibility",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "first-example-a-simple-case",
+              "text": "39.1 First Example: A Simple Case"
+            },
+            {
+              "level": 1,
+              "anchor": "second-example-changing-the-class-of-an-object",
+              "text": "39.2 Second Example: Changing the Class of an Object"
+            },
+            {
+              "level": 1,
+              "anchor": "third-example-creating-new-objects",
+              "text": "39.3 Third Example: Creating New Objects"
+            },
+            {
+              "level": 1,
+              "anchor": "last-example-changing-the-name-of-an-object",
+              "text": "39.4 Last Example: Changing the Name of an Object"
+            },
+            {
+              "level": 1,
+              "anchor": "upgrade-functions-in-more-details",
+              "text": "39.5 Upgrade Functions in More Details"
+            },
+            {
+              "level": 2,
+              "anchor": "choosing-and-setting-a-build-id",
+              "text": "39.5.1 Choosing and Setting a Build-Id"
+            },
+            {
+              "level": 2,
+              "anchor": "checkpoint-format",
+              "text": "39.5.2 Checkpoint Format"
+            },
+            {
+              "level": 2,
+              "anchor": "utility-functions",
+              "text": "39.5.3 Utility Functions"
+            },
+            {
+              "level": 2,
+              "anchor": "class-upgrade-functions",
+              "text": "39.5.4 Class Upgrade Functions"
+            },
+            {
+              "level": 2,
+              "anchor": "generic-upgrade-functions",
+              "text": "39.5.5 Generic Upgrade Functions"
+            },
+            {
+              "level": 2,
+              "anchor": "manipulating-standard-simics-objects",
+              "text": "39.5.6 Manipulating Standard Simics Objects"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "logging.html",
+          "name": "40 Logging and output",
+          "headings": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "extension-builder.html",
+      "name": "VII Extending Simics",
+      "headings": [],
+      "children": [
+        {
+          "file": "eb-introduction.html",
+          "name": "41 Introduction",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "processor-api",
+              "text": "41.1 Processor API"
+            },
+            {
+              "level": 1,
+              "anchor": "simulator-api",
+              "text": "41.2 Simulator API"
+            },
+            {
+              "level": 1,
+              "anchor": "building-modules",
+              "text": "41.3 Building Modules"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "instrumentation.html",
+          "name": "42 Instrumentation",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "instrumentation-api-overview",
+              "text": "42.1 Instrumentation API Overview"
+            },
+            {
+              "level": 1,
+              "anchor": "tool-and-connection-api",
+              "text": "42.2 Tool and Connection API"
+            },
+            {
+              "level": 2,
+              "anchor": "multithreading-aspects",
+              "text": "42.2.1 Multithreading Aspects"
+            },
+            {
+              "level": 1,
+              "anchor": "instrumentation-filter-api",
+              "text": "42.3 Instrumentation Filter API"
+            },
+            {
+              "level": 1,
+              "anchor": "provider-api",
+              "text": "42.4 Provider API"
+            },
+            {
+              "level": 2,
+              "anchor": "cpu-instrumentation-api",
+              "text": "42.4.1 CPU Instrumentation API"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "probes-api.html",
+          "name": "43 Probes API",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "inspecting-and-controlling-the-virtual-system.html",
+          "name": "44 Inspecting and Controlling the Virtual System",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "using-haps-to-catch-simulator-events",
+              "text": "44.1 Using Haps to Catch Simulator Events"
+            },
+            {
+              "level": 2,
+              "anchor": "reacting-to-haps",
+              "text": "44.1.1 Reacting to Haps"
+            },
+            {
+              "level": 1,
+              "anchor": "tracing-memory-accesses",
+              "text": "44.2 Tracing Memory Accesses"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "memory-and-timing.html",
+          "name": "45 Memory Tracing and Timing",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "tracing-instruction-execution",
+              "text": "45.1 Tracing Instruction Execution"
+            },
+            {
+              "level": 1,
+              "anchor": "tracing-memory-transactions",
+              "text": "45.2 Tracing Memory Transactions"
+            },
+            {
+              "level": 2,
+              "anchor": "observing-memory-transactions",
+              "text": "45.2.1 Observing Memory Transactions"
+            },
+            {
+              "level": 2,
+              "anchor": "observing-instruction-fetches",
+              "text": "45.2.2 Observing Instruction Fetches"
+            },
+            {
+              "level": 2,
+              "anchor": "observing-page-table-accesses",
+              "text": "45.2.3 Observing Page-table Accesses"
+            },
+            {
+              "level": 2,
+              "anchor": "simulator-translation-cache-stc",
+              "text": "45.2.4 Simulator Translation Cache (STC)"
+            },
+            {
+              "level": 2,
+              "anchor": "summary-of-simics-memory-system",
+              "text": "45.2.5 Summary of Simics Memory System"
+            },
+            {
+              "level": 2,
+              "anchor": "implementing-the-interface",
+              "text": "45.2.6 Implementing the Interface"
+            },
+            {
+              "level": 2,
+              "anchor": "chaining-timing-models",
+              "text": "45.2.7 Chaining Timing Models"
+            },
+            {
+              "level": 1,
+              "anchor": "modifying-memory-transactions",
+              "text": "45.3 Modifying Memory Transactions"
+            },
+            {
+              "level": 2,
+              "anchor": "stalling-transactions",
+              "text": "45.3.1 Stalling Transactions"
+            },
+            {
+              "level": 2,
+              "anchor": "changing-the-behavior-of-a-memory-transaction",
+              "text": "45.3.2 Changing the Behavior of a Memory Transaction"
+            },
+            {
+              "level": 3,
+              "anchor": "in-a-timing-model",
+              "text": "45.3.2.1 In a Timing Model"
+            },
+            {
+              "level": 3,
+              "anchor": "in-a-snoop-device",
+              "text": "45.3.2.2 In a Snoop Device"
+            },
+            {
+              "level": 1,
+              "anchor": "memory-features-availability",
+              "text": "45.4 Memory Features Availability"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "external-world.html",
+          "name": "46 Connecting to the External World",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "recording-external-input",
+              "text": "46.1 Recording External Input"
+            },
+            {
+              "level": 2,
+              "anchor": "recording-and-simulator-interaction",
+              "text": "46.1.1 Recording and Simulator Interaction"
+            },
+            {
+              "level": 2,
+              "anchor": "interfacing-the-recorder",
+              "text": "46.1.2 Interfacing the Recorder"
+            },
+            {
+              "level": 1,
+              "anchor": "external-connection-servers",
+              "text": "46.2 External connection servers"
+            },
+            {
+              "level": 2,
+              "anchor": "setup",
+              "text": "46.2.1 Setup"
+            },
+            {
+              "level": 2,
+              "anchor": "connection-flow",
+              "text": "46.2.2 Connection flow"
+            },
+            {
+              "level": 2,
+              "anchor": "read-write-protocol",
+              "text": "46.2.3 Read/write protocol"
+            },
+            {
+              "level": 1,
+              "anchor": "threading-considerations",
+              "text": "46.3 Threading considerations"
+            },
+            {
+              "level": 1,
+              "anchor": "socket-programming-in-simics",
+              "text": "46.4 Socket Programming in Simics"
+            },
+            {
+              "level": 1,
+              "anchor": "writing-portable-code",
+              "text": "46.5 Writing Portable Code"
+            },
+            {
+              "level": 1,
+              "anchor": "writing-debugger-connections",
+              "text": "46.6 Writing Debugger Connections"
+            },
+            {
+              "level": 2,
+              "anchor": "connect-and-disconnect",
+              "text": "46.6.1 Connect and Disconnect"
+            },
+            {
+              "level": 2,
+              "anchor": "starting-and-stopping-the-simulation",
+              "text": "46.6.2 Starting and Stopping the Simulation"
+            },
+            {
+              "level": 2,
+              "anchor": "contexts-and-process-tracking",
+              "text": "46.6.3 Contexts and Process Tracking"
+            },
+            {
+              "level": 1,
+              "anchor": "synchronizing-virtual-time",
+              "text": "46.7 Synchronizing Virtual Time"
+            },
+            {
+              "level": 2,
+              "anchor": "the-time-server-and-the-time-client",
+              "text": "46.7.1 The Time Server and the Time Client"
+            },
+            {
+              "level": 3,
+              "anchor": "time-client-library",
+              "text": "46.7.1.1 Time Client Library"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "time-synchronization-library.html",
+          "name": "47 Time Synchronization Library",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "introduction",
+              "text": "47.1 Introduction"
+            },
+            {
+              "level": 1,
+              "anchor": "overview",
+              "text": "47.2 Overview"
+            },
+            {
+              "level": 1,
+              "anchor": "time",
+              "text": "47.3 Time"
+            },
+            {
+              "level": 1,
+              "anchor": "the-follower",
+              "text": "47.4 The follower"
+            },
+            {
+              "level": 1,
+              "anchor": "the-follower-agent",
+              "text": "47.5 The follower agent"
+            },
+            {
+              "level": 1,
+              "anchor": "saving-and-restoring-configurations",
+              "text": "47.6 Saving and restoring configurations"
+            },
+            {
+              "level": 1,
+              "anchor": "code-example",
+              "text": "47.7 Code example"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "other-applications.html",
+          "name": "48 Integrating with Other Applications",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "linking-simics-into-another-application",
+              "text": "48.1 Linking Simics into Another Application"
+            },
+            {
+              "level": 1,
+              "anchor": "integrating-another-application-into-simics",
+              "text": "48.2 Integrating Another Application into Simics"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "writing-hypersim-patterns.html",
+          "name": "49 Writing Hypersim Patterns",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "overview",
+              "text": "49.1 Overview"
+            },
+            {
+              "level": 2,
+              "anchor": "locating-idle-loops",
+              "text": "49.1.1 Locating Idle Loops"
+            },
+            {
+              "level": 2,
+              "anchor": "creating-pattern-classes",
+              "text": "49.1.2 Creating Pattern Classes"
+            },
+            {
+              "level": 2,
+              "anchor": "determine-conditions",
+              "text": "49.1.3 Determine Conditions"
+            },
+            {
+              "level": 2,
+              "anchor": "test-correctness",
+              "text": "49.1.4 Test Correctness"
+            },
+            {
+              "level": 2,
+              "anchor": "measure-performance-improvements",
+              "text": "49.1.5 Measure Performance Improvements"
+            },
+            {
+              "level": 1,
+              "anchor": "advanced-topics",
+              "text": "49.2 Advanced Topics"
+            },
+            {
+              "level": 2,
+              "anchor": "handling-small-variations-in-patterns",
+              "text": "49.2.1 Handling Small Variations in Patterns"
+            },
+            {
+              "level": 2,
+              "anchor": "subpatterns",
+              "text": "49.2.2 Subpatterns"
+            },
+            {
+              "level": 2,
+              "anchor": "handling-time-dependent-loops",
+              "text": "49.2.3 Handling Time-Dependent Loops"
+            },
+            {
+              "level": 2,
+              "anchor": "object-structure",
+              "text": "49.2.4 Object Structure"
+            },
+            {
+              "level": 1,
+              "anchor": "references",
+              "text": "49.3 References"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "writing-os-awareness-software-trackers.html",
+          "name": "50 Writing OS Awareness Software Trackers",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "basic-concepts-of-the-software-tracker",
+              "text": "50.1 Basic concepts of the software tracker"
+            },
+            {
+              "level": 2,
+              "anchor": "framework-benefits",
+              "text": "50.1.1 Framework benefits"
+            },
+            {
+              "level": 2,
+              "anchor": "node-tree",
+              "text": "50.1.2 Node tree"
+            },
+            {
+              "level": 2,
+              "anchor": "empty-skeleton-from-a-tracker",
+              "text": "50.1.3 Empty skeleton from a tracker"
+            },
+            {
+              "level": 2,
+              "anchor": "linux-tracker-example",
+              "text": "50.1.4 Linux tracker example"
+            },
+            {
+              "level": 1,
+              "anchor": "writing-a-tracker",
+              "text": "50.2 Writing a Tracker"
+            },
+            {
+              "level": 2,
+              "anchor": "tracker-and-mapper-communication",
+              "text": "50.2.1 Tracker and mapper communication"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_tracker_state_admin-interface",
+              "text": "50.2.1.1 osa_tracker_state_admin interface"
+            },
+            {
+              "level": 2,
+              "anchor": "retrieving-and-monitoring-the-machine-state",
+              "text": "50.2.2 Retrieving and monitoring the machine state"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_machine_query-interface",
+              "text": "50.2.2.1 osa_machine_query interface"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_machine_notification-interface",
+              "text": "50.2.2.2 osa_machine_notification interface"
+            },
+            {
+              "level": 2,
+              "anchor": "interfaces-that-the-tracker-is-required-to-implement",
+              "text": "50.2.3 Interfaces that the tracker is required to implement"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_tracker_control-interface",
+              "text": "50.2.3.1 osa_tracker_control interface"
+            },
+            {
+              "level": 1,
+              "anchor": "writing-a-mapper",
+              "text": "50.3 Writing a Mapper"
+            },
+            {
+              "level": 2,
+              "anchor": "interfaces-that-the-mapper-should-implement",
+              "text": "50.3.1 Interfaces that the mapper should implement"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_mapper_control-interface",
+              "text": "50.3.1.1 osa_mapper_control interface"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_mapper_admin-interface",
+              "text": "50.3.1.2 osa_mapper_admin interface"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_mapper_query-interface",
+              "text": "50.3.1.3 osa_mapper_query interface"
+            },
+            {
+              "level": 2,
+              "anchor": "retrieving-tracker-state",
+              "text": "50.3.2 Retrieving tracker state"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_tracker_state_query",
+              "text": "50.3.2.1 osa_tracker_state_query"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_tracker_state_notification",
+              "text": "50.3.2.2 osa_tracker_state_notification"
+            },
+            {
+              "level": 2,
+              "anchor": "creating-a-node-tree",
+              "text": "50.3.3 Creating a node tree"
+            },
+            {
+              "level": 3,
+              "anchor": "osa_node_tree_admin-interface",
+              "text": "50.3.3.1 osa_node_tree_admin interface"
+            },
+            {
+              "level": 3,
+              "anchor": "properties-with-special-meaning",
+              "text": "50.3.3.2 Properties with special meaning"
+            },
+            {
+              "level": 1,
+              "anchor": "writing-a-composition-class",
+              "text": "50.4 Writing a Composition Class"
+            },
+            {
+              "level": 2,
+              "anchor": "creating-the-composition-class",
+              "text": "50.4.1 Creating the composition class"
+            },
+            {
+              "level": 2,
+              "anchor": "methods-that-need-to-be-implemented",
+              "text": "50.4.2 Methods that need to be implemented"
+            },
+            {
+              "level": 2,
+              "anchor": "supporting-parameters",
+              "text": "50.4.3 Supporting Parameters"
+            },
+            {
+              "level": 1,
+              "anchor": "checkpointing",
+              "text": "50.5 Checkpointing"
+            },
+            {
+              "level": 2,
+              "anchor": "support-checkpointing-in-models",
+              "text": "50.5.1 Support checkpointing in models"
+            },
+            {
+              "level": 2,
+              "anchor": "snapshots",
+              "text": "50.5.2 Snapshots"
+            }
+          ],
+          "children": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>5 Variables</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="structures-of-data.html">4 Structures of data</a>
+<a href="loops.html">6 Loops</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="variables"><a href="#variables">5 Variables</a></h1>
+<p>Avoid global variables.
+In particular, do not use them as a way to pass parameters.
+Using variables that are initialised once and never changed can be acceptable:</p>
+<pre><code>address_cache = {}         # Only initialised, then never assigned to
+def lookup_address(desc):
+    if desc not in address_cache:
+        address_cache[desc] = calculate_address(desc)
+    return address_cache[desc]
+</code></pre>
+<p>but most uses of the <code>global</code> keyword are a sign that something is wrong.
+Consider using a class or object instead; this way, all state is contained in
+one place and it is clear which functions have access to it.
+This also makes the code easier to test.</p>
+<p>As Python supports multiple return values (using tuples), most code can be
+written in a fairly functional style, passing all needed information explicitly
+between functions.</p>
+
+<div class="chain">
+<a href="structures-of-data.html">4 Structures of data</a>
+<a href="loops.html">6 Loops</a>
+</div>

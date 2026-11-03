@@ -1,0 +1,55 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>table.exported_functions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="table.cmd.html">table.cmd</a>
+<a href="table.stream_column.html">table.stream_column</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;
+<a href="table.html">table</a>
+&nbsp;/&nbsp;</div><h1 id="table.exported_functions"><a href="#table.exported_functions">table.exported_functions</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>table.exported_functions</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import table.exported_functions
+</code></pre>
+</section>
+<h2 id="table.exported_functions.column_names"><a href="#table.exported_functions.column_names">table.exported_functions.column_names</a></h2>
+<p>Alias of <a href="table.html#table.column_names"><code>table.column_names</code></a>.</p>
+<h2 id="table.exported_functions.get"><a href="#table.exported_functions.get">table.exported_functions.get</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table.exported_functions.get(properties, data, *table_args)
+</code></pre>
+<h2>Description</h2>
+<p>Fetch the formatted table.</p>
+<p>Similar to the <a href="table.html#table.show"><code>table.show</code></a> but this function returns the table as a multi-line string.</p>
+<h2>See Also</h2>
+<p><a href="table.html#table.new_table_command"><code>table.new_table_command</code></a>, <a href="table.html#table.get"><code>table.get</code></a></p>
+</section>
+<h2 id="table.exported_functions.show"><a href="#table.exported_functions.show">table.exported_functions.show</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>table.exported_functions.show(properties, data, *table_args)
+</code></pre>
+<h2>Description</h2>
+<p>Format and print the table.</p>
+<p>This function should be used from a command function registered through the <a href="table.html#table.new_table_command"><code>table.new_table_command()</code></a> function to print out the table according to the user arguments. The <code>properties</code> argument is a list of key/value pairs setting table properties for the table. The <code>data</code> argument contains the two-dimensional data to be printed where the inner list contains the columns and the outer list the rows of the table. See the <a href="simulator-to-simulator-interfaces.html#table_interface_t"><code>table</code></a> interface for more information.</p>
+<p>The <code>*table_args</code> argument represents the standard table arguments, received last in the <a href="table.html#table.new_table_command"><code>table.new_table_command()</code></a> callback function.</p>
+<h2>See Also</h2>
+<p><a href="table.html#table.new_table_command"><code>table.new_table_command</code></a>, <a href="table.html#table.get"><code>table.get</code></a></p>
+</section>
+<div class="chain">
+<a href="table.cmd.html">table.cmd</a>
+<a href="table.stream_column.html">table.stream_column</a>
+</div>

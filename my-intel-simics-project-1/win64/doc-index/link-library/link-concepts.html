@@ -1,0 +1,34 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Link Concepts</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="linking-and-initialization.html">3 Linking and Initialization</a>
+</div>
+<div class="path">
+<a href="index.html">Link Library Programming Guide</a>
+&nbsp;/&nbsp;</div><h1 id="link-concepts"><a href="#link-concepts">2 Link Concepts</a></h1>
+<p>A link consists of two Simics configuration classes: link and endpoint.
+In a running simulation, there will exist one link object per link, and one endpoint object per device connected to the link.</p>
+<p>The link and endpoint classes use the link library to handle many of the details of link operation.
+The link library keeps its state in opaque data structures attached to the link and endpoint objects.
+Some of this information can be queried via the link library API.</p>
+<p>When devices connect to the link, they really contact a freshly created endpoint object, usually provided by the link component.
+Any interaction between the device and the link goes through that endpoint object.</p>
+<p>When running in a distributed simulation, a link is represented by an identically named instance in each process of the simulation.</p>
+<p>Link objects may have configuration parameters, which are represented as Simics attributes in the link class.
+These parameters should only be changed when the simulation is not running, to avoid indeterminism.
+In a distributed setup, configuration parameters should also be shared with the other instances of the same link: the link library provides the <code>SIMLINK_config_update_value()</code> and <code>SIMLINK_config_remove_value()</code> functions for that purpose.
+For example, the <code>goal_latency</code> of the link is implemented as a global configuration parameter.
+More information is available in the <a href="../rm-api/link-api.html">Link Library API reference</a>.</p>
+<p>Endpoint objects may contain configuration parameters, as well as simulation state that can be changed at runtime, since they are only involved with one device on the link.
+For example, the <code>ethernet_switch</code> implementation keeps a translation table from MAC addresses to endpoint IDs in each endpoint on the link, allowing them to be updated as endpoints learn about the connected devices.</p>
+
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="linking-and-initialization.html">3 Linking and Initialization</a>
+</div>

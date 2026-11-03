@@ -1,0 +1,47 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.notify.break</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.msr.wait-for.html">bp.msr.wait-for</a>
+<a href="rm-cmd-bp-manager.notify.run-until.html">bp.notify.run-until</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.notify.break"></a>
+<h1 id="bp-manager.notify.break"><a href="#bp-manager.notify.break">bp.notify.break</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.notify&gt;.break</b> [<i>object</i>|-global] <i>"name"</i> [-once] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Enables breaking simulation on notifiers. When this is enabled, every time the specified notifier is triggered a message is printed and simulation is stopped.
+<p>
+The <i>name</i> parameter specifies the notifier. If <tt>-global</tt> is specified, then the notifier must be global, otherwise the notifier must be registered on <i>object</i>.
+</p><p>
+If <i>name</i> is the name of a global notifier, then <tt>-global</tt> is not needed. If <i>name</i> is the name of a non-global notifier and <i>object</i> is not provided, then the breakpoint is added on all objects that have this notifier registered.
+</p><p>
+For the global notifiers, see the documentation of the <tt>global_notifier_type_t</tt> enum about which names should be used.
+</p><p>
+For the predefined non-global notifiers, see the documentation of the <tt>notifier_type_t</tt> enum about which names should be used.
+</p><p>
+The <tt>-once</tt> flag causes the breakpoint to automatically be removed after it has triggered. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.msr.wait-for.html">bp.msr.wait-for</a>
+<a href="rm-cmd-bp-manager.notify.run-until.html">bp.notify.run-until</a>
+</div>

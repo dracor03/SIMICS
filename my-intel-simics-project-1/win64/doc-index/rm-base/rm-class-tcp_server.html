@@ -1,0 +1,73 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>tcp_server</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-tcp-server.html">tcp-server</a>
+<a href="rm-class-telemetry_manager.html">telemetry_manager</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="tcp_server"><a href="#tcp_server">tcp_server</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+An example of a TCP server.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, recorded
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:port"><a href="#dt:port">
+<i>port</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>TCP port number to listen on. If 0 or omitted, an available port is chosen when the object is created.</dd>
+<dt id="dt:recipient"><a href="#dt:recipient">
+<i>recipient</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Object receiving the data. It must implement the tcp_served interface.</dd>
+<dt id="dt:recorder"><a href="#dt:recorder">
+<i>recorder</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Recorder object.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.notifier-example.html">notifier-example</a>
+</section>
+<div class="chain">
+<a href="rm-class-tcp-server.html">tcp-server</a>
+<a href="rm-class-telemetry_manager.html">telemetry_manager</a>
+</div>

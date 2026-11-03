@@ -1,0 +1,683 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Simics CMake Reference Manual</title>
+
+<section class="page" id="README.html"><h1 id="README.html:simics-cmake-reference-manual"><a href="#README.html:simics-cmake-reference-manual">Simics CMake Reference Manual</a></h1>
+<p>The Simics CMake package provides functions and macros for building Simics
+modules and light-weight add-on packages.</p>
+<p>The design goal of the Simics CMake package is to not reinvent functionality or
+wrap it when the standard CMake API can be used directly.</p>
+<p>See <a href="../cmake/README.html">Using CMake in Simics</a> for detailed usage, BKMs and
+current limitations.</p>
+<h2 id="README.html:basic-usage"><a href="#README.html:basic-usage">1 Basic Usage</a></h2>
+<p>To load the Simics CMake package into the current CMake project, use the
+<code>find_package()</code> command:</p>
+<pre><code>    find_package(Simics REQUIRED)
+</code></pre>
+<p>or</p>
+<pre><code>    find_package(Simics REQUIRED CONFIG NO_DEFAULT_PATH HINTS ${SIMICS_BASE}/cmake)
+</code></pre>
+<p>The former usage requires that <code>CMAKE_PREFIX_PATH</code> has been set to
+<code>${SIMICS_BASE}/cmake</code> and the later usage explicitly provides the path
+(not trusting any default paths).</p>
+<p>The Simics.cmake file contains the bulk of the implementation and provides
+these utility functions:</p>
+<ul>
+<li><code>simics_find_and_add_modules()</code> - Locates Simics CMake modules and adds them to the CMake project</li>
+<li><code>generate_dml_compile_commands_json</code> - Adds a build target that generates the <code>dml_compile_commands.json</code> file</li>
+<li><code>simics_add_module()</code> - Adds a Simics module to the CMake project.</li>
+<li><code>simics_add_systemc_module()</code> - Adds a Simics SystemC module to the CMake project.</li>
+<li><code>simics_copy_python_files</code> - Utility to copy python files from other modules</li>
+<li><code>simics_add_sanitizers</code> - Adds support for building with sanitizers</li>
+<li><code>simics_add_test()</code> - Adds a Simics test to the CMake project; so that it can be run with CTest</li>
+<li><code>simics_package()</code> - Creates a package info file; so that the Simics project used to build the Simics modules can be used as an add-on package from some other Simics project.</li>
+<li><code>simics_add_dead_methods_check</code> - Adds post build check for dead DML methods</li>
+<li><code>simics_add_documentation</code> - Adds documentation; wrapper around Simics’ <code>dodoc</code> tool</li>
+<li><code>simics_copy_file</code> - Creates a custom command that copies a file</li>
+</ul>
+<h2 id="README.html:functions"><a href="#README.html:functions">2 Functions</a></h2>
+<h3 id="README.html:simics_global_cmake_properties"><a href="#README.html:simics_global_cmake_properties">2.1 simics_global_cmake_properties()</a></h3>
+<p><strong>NOTE:</strong> <em>This function is invoked automatically by <code>find_package(Simics)</code>; listed for reference only.</em></p>
+<p>Sets up the global properties required by Simics such as:</p>
+<ul>
+<li>Builds with position independent code (<code>-fPIC</code>)</li>
+<li>Builds with GNU extensions for both C and C++</li>
+</ul>
+<h3 id="README.html:simics_project_setup"><a href="#README.html:simics_project_setup">2.2 simics_project_setup()</a></h3>
+<p><strong>NOTE:</strong> <em>This function is invoked automatically by <code>find_package(Simics)</code>; listed for reference only.</em></p>
+<p>The main setup function that configures the build-tree for building Simics
+modules with CMake. It detects and sets up the Simics project required by the
+build. The following modes are supported:</p>
+<ol>
+<li>
+<p>User provides the path to a Simics project via the <code>SIMICS_PROJECT_DIR</code>
+variable, and the CMake project gets associated with this Simics
+project. This mode overrides/takes precedence over (2), so it does not
+matter if user runs from within a Simics project or not.</p>
+</li>
+<li>
+<p>Simics project exists at the root of the CMake project, pointed to by the
+<code>CMAKE_CURRENT_SOURCE_DIR</code> variable. This is the traditional Simics setup,
+and is automatically detected.</p>
+</li>
+<li>
+<p>Simics.cmake will implicitly create a Simics project in the root of the
+<em>build tree</em>, pointed to by the <code>CMAKE_CURRENT_BINARY_DIR</code> variable, if a path
+is not provided (1) and project could not be detected (2). This requires that
+Simics.cmake is found within a Simics Base package, which is the common case.</p>
+</li>
+</ol>
+<p>For all cases 1-3 the Simics modules are emitted into the
+<code>${SIMICS_HOST_LIB_DIR}</code> folder as expected by Simics,
+e.g. <code>&lt;project&gt;/linux64/lib</code>. This can be overridden by providing the standard
+<code>CMAKE_LIBRARY_OUTPUT_DIRECTORY</code> cache variable, in which case the modules are
+emitted to this directory instead.</p>
+<p>The <code>simics_project_setup()</code> function also sets up a few <a href="#README.html:targets">targets</a> and <a href="#README.html:variables">variables</a>.</p>
+<h3 id="README.html:generate_dml_compile_commands_json"><a href="#README.html:generate_dml_compile_commands_json">2.3 generate_dml_compile_commands_json()</a></h3>
+<p>If invoked and the <code>CMAKE_EXPORT_COMPILE_COMMANDS</code> option has been enabled, a
+build target that generates a <code>dml_compile_commands.json</code> file in the build
+directory will be added to the project. This file can be used by the <a href="https://marketplace.visualstudio.com/items?itemName=intel-corporation.simics-modeling" rel="noopener noreferrer" target="_top">Simics
+Modeling VS Code
+extension</a>
+and its accompanying language server.</p>
+<p>Please note that, for practical reasons, the <code>--</code> and <code>-</code> prefixes of each DMLC
+flag have been stripped prior to adding them to the .json file.</p>
+<h3 id="README.html:simics_add_module"><a href="#README.html:simics_add_module">2.4 simics_add_module()</a></h3>
+<p>Adds a Simics module to the project using the specified source files.</p>
+<p>Module sources can be a mix of C, C++, DML and Python files.</p>
+<p>Please note that even though it is possible to provide classes, components and
+interfaces using a single module this should be avoided. The traditional way to
+model classes, components and interfaces is to wrap them in separate modules;
+as this makes it easier to locate and re-use the components and interfaces
+later on. Typically interfaces are used between two classes provided by two
+different modules; so it makes sense to keep the interface as a separate entity
+for testing. Similarly components provide a higher level abstraction to
+creating Simics configurations, and while it might seem useful to provide the
+component as part of the module that provides the class(es) it’s usually better
+to provide the component as a separate entity.</p>
+<p>Providing multiple interfaces or components or classes within the same module
+is not a problem if it makes sense to do so.</p>
+<p>Multiple calls to <code>simics_add_module()</code> can be made from within the same
+<code>CMakeLists.txt</code> file. Each call defines a new module.</p>
+<h4 id="README.html:usage"><a href="#README.html:usage">2.4.1 Usage</a></h4>
+<pre><code>    simics_add_module(&lt;module-name&gt;
+        {CLASSES | COMPONENTS | INTERFACES} &lt;name&gt; ...
+        [SOURCES &lt;file&gt; ...]
+        [PYWRAP &lt;file&gt; ...]        
+        [IFACE_FILES &lt;file&gt; ...]
+        [SIMICS_API &lt;6|7|latest&gt;]
+        [INIT_LOCAL]
+    )
+</code></pre>
+<h4 id="README.html:arguments"><a href="#README.html:arguments">2.4.2 Arguments</a></h4>
+<ul>
+<li>
+<p>module-name ; is the name of the module to register. This also creates a CMake
+target with the same name, in the form of a <code>MODULE</code> type library (see <a href="https://cmake.org/cmake/help/latest/command/add_library.html#normal-libraries" rel="noopener noreferrer" target="_top">cmake.org:add_library</a> for details).</p>
+</li>
+<li>
+<p><code>CLASSES</code>, <code>COMPONENTS</code> and <code>INTERFACES</code> ; must list all the corresponding
+classes, components and interfaces provided by the module. This is added as
+meta-data to the Simics module and is used by Simics to locate a suitable
+module to load when looking for a specific class, component or interface.</p>
+</li>
+<li>
+<p><code>SOURCES</code> ; lists all the sources that go into creating the classes,
+components or interfaces. Please note that only top-level DML files that
+contain the <code>device</code>-statement should be added for DML modules.</p>
+</li>
+<li>
+<p><code>PYWRAP</code> ; Header files that declares types or functions that should be
+python wrapped.
+Header files listed in <code>SOURCES</code> that look like interface files are automatically python wrapped,
+namely <code>.h</code> files that exist and are located in the module’s source directory, and contain one of the substrings <code>SIM_INTERFACE</code>, <code>SIM_PY_ALLOCATABLE</code> or <code>SIM_CUSTOM_ATOM</code>.
+Header files other than these need to be added to PYWRAP explicitly to get python wrapped.</p>
+</li>
+<li>
+<p><code>IFACE_FILES</code> ; <em>DEPRECATED</em> use <code>SOURCES</code> or <code>PYWRAP</code> instead.</p>
+</li>
+<li>
+<p><code>SIMICS_API</code> ; sets the API used by this module and should be provided, but if
+it’s not provided it defaults to <code>latest</code>; which means it will be the version
+of the associated Simics Base package.</p>
+</li>
+<li>
+<p><code>INIT_LOCAL</code> ; must be given if a module is providing its own <code>init_local</code> entry
+point.</p>
+</li>
+</ul>
+<h4 id="README.html:example-usages-from-our-sample-modules"><a href="#README.html:example-usages-from-our-sample-modules">2.4.3 Example usages (from our sample modules)</a></h4>
+<pre><code>    simics_add_module(sample-device-cpp
+        CLASSES sample_device_cpp
+        SOURCES sample-device.cc
+        INIT_LOCAL)
+</code></pre>
+<pre><code>    simics_add_module(sample-device-c
+        CLASSES sample-device-c
+        SOURCES sample-device.c
+        INIT_LOCAL)
+</code></pre>
+<pre><code>    simics_add_module(sample-device-dml
+        CLASSES sample_device_dml
+        SOURCES sample-device-dml.dml)
+</code></pre>
+<pre><code>    simics_add_module(sample-device-mixed
+        CLASSES sample_device_mixed
+        SOURCES sample-device-mixed.dml sample-device-mixed.c
+        INIT_LOCAL)
+</code></pre>
+<pre><code>    simics_add_module(sample-device-python
+        CLASSES sample_device_python
+        SOURCES sample_device_python.py)
+</code></pre>
+<pre><code>    simics_add_module(sample-interface
+        INTERFACES sample
+        IFACE_FILES sample-interface.h)
+</code></pre>
+<pre><code>    simics_add_module(sample-comp
+        COMPONENTS sample_comp
+        SOURCES sample_comp.py)
+</code></pre>
+<h3 id="README.html:simics_add_systemc_module"><a href="#README.html:simics_add_systemc_module">2.5 simics_add_systemc_module()</a></h3>
+<p>Adds a Simics SystemC module to the project using the specified source files.</p>
+<p>This works exactly like <code>simics_add_module()</code> and takes the same set of
+arguments in addition to a couple of extra SystemC-specific arguments. Only the
+SystemC arguments are listed below.</p>
+<h4 id="README.html:usage-2"><a href="#README.html:usage-2">2.5.1 Usage</a></h4>
+<pre><code>    simics_add_systemc_module(&lt;module-name&gt;
+    ...
+        [GASKET_OBJECTS]
+        [CHECKPOINTING]
+        [SC_FACTORY]
+        [KERNEL &lt;version&gt;]
+        [ISCTLM]
+        [IOSF]
+    )
+</code></pre>
+<h4 id="README.html:arguments-2"><a href="#README.html:arguments-2">2.5.2 Arguments</a></h4>
+<ul>
+<li><code>GASKET_OBJECTS</code> ; enables the ‘Gasket Objects’ feature. See <a href="../systemc-library/connecting-systemc-and-simics-models.html#gasket-objects">SystemC Programming Guide</a> for details.</li>
+<li><code>CHECKPOINTING</code> ; enables the ‘Checkpointing’ feature. See <a href="../systemc-library/overview_of_systemc_features.html#checkpointing">SystemC Programming Guide</a> for details.</li>
+<li><code>SC_FACTORY</code> ; enables the simplified integration mechanism provided by <code>sc-factory.h</code>.</li>
+<li><code>KERNEL</code> ; sets the kernel version used by this module. If not provided, the <code>SYSTEMC_KERNEL_VERSION</code> directory property will be used. The property currently defaults to <code>2.3.3</code>.</li>
+<li><code>ISCTLM</code> ; enables support for ISCTLM, if the 7213 add-on package has been installed.</li>
+<li><code>IOSF</code> ; enables support for IOSF, if the 7213 add-on package has been installed.</li>
+</ul>
+<h4 id="README.html:example-usages-from-our-sample-modules-2"><a href="#README.html:example-usages-from-our-sample-modules-2">2.5.3 Example usages (from our sample modules)</a></h4>
+<pre><code>    simics_add_systemc_module(sample-tlm2-dma-device
+        CLASSES sample_tlm2_dma_device
+        SOURCES simics-init.cc module_load.py
+        INIT_LOCAL
+        GASKET_OBJECTS)
+</code></pre>
+<pre><code>    simics_add_systemc_module(sample-tlm2-checkpoint-device
+        CLASSES sample_tlm2_checkpoint_device
+        SOURCES simics-init.cc module_load.py
+        INIT_LOCAL
+        CHECKPOINTING)
+</code></pre>
+<h3 id="README.html:simics_add_sanitizers"><a href="#README.html:simics_add_sanitizers">2.6 simics_add_sanitizers()</a></h3>
+<p>Annotates a module/target to use sanitizers.</p>
+<p>Sanitizers can be built into a module by passing compiler and linker flags to the build. The following flags are currently supported:</p>
+<ul>
+<li><code>-fno-omit-frame-pointer</code></li>
+<li><code>-fsanitize=address</code></li>
+<li><code>-fsanitize=undefined</code></li>
+</ul>
+<p>In addition, the <code>RPATH</code> must also be set to locate the sanitizer libs from within the corresponding toolchain used to build the module:</p>
+<ul>
+<li><code>-Wl,-rpath,${SAN_DIR})</code></li>
+</ul>
+<p>The <code>simics_add_sanitizers()</code> function adds these compiler and linker flags to the target module based on the values of the following options:</p>
+<ul>
+<li><code>USE_ASAN</code> ; Enables ASAN flags when building modules annotated by <code>simics_add_sanitizers()</code>. Default=OFF</li>
+<li><code>USE_UBSAN</code> ; Enables UBSAN flags when building modules annotated by <code>simics_add_sanitizers()</code>. Default=OFF</li>
+<li><code>ASAN_STACK_USE_AFTER_RETURN</code> ; Same as <code>USE_ASAN</code> but also enables ‘stack-use-after-return’. Default=OFF</li>
+</ul>
+<h3 id="README.html:simics_add_test"><a href="#README.html:simics_add_test">2.7 simics_add_test()</a></h3>
+<p>Adds a Simics test to the project using the specified test name or file, so
+that the test can be run through CTest; see examples below.</p>
+<p>The <code>simics_add_test()</code> function wraps the standard CMake <code>add_test()</code> function. User can add tests by name (i.e. <code>s-&lt;name&gt;.py</code>) or file (i.e. <code>s-name.py</code>) and the function then automatically adds the current module’s folder name as namespace so the tests can easily be filtered by CTest.</p>
+<p>The tests are run through Simics in batch-mode.</p>
+<h4 id="README.html:usage-3"><a href="#README.html:usage-3">2.7.1 Usage</a></h4>
+<pre><code>    simics_add_test(&lt;test-name | test-file&gt;
+        [CWD &lt;path&gt;]
+        [SYS_PATH &lt;path&gt; ...]
+        [ENV &lt;VAR=value&gt; ...]
+        [NAMESPACE &lt;namespace&gt;]
+        [NAME &lt;name&gt;]        
+        [PYTEST]
+        [LABELS label ...]
+    )
+</code></pre>
+<h4 id="README.html:arguments-3"><a href="#README.html:arguments-3">2.7.2 Arguments</a></h4>
+<ul>
+<li>
+<p>test-name or test-file ; is the name of the test. Simics tests follow the <code>s-&lt;name&gt;.py</code> naming convention. The filename can also be given as relative or absolute path, in which case the name portion will be extracted and used as name for the CTest.</p>
+</li>
+<li>
+<p><code>CWD</code> ; changes the current-working-directory used by Simics when running the test. Defaults to <code>${CMAKE_CURRENT_SOURCE_DIR}</code> if not provided. Useful if the tests to run are located in some common folder outside of the current test suite.</p>
+</li>
+<li>
+<p><code>SYS_PATH</code> ; appends the given path(s) to Python’s sys.path before invoking the test. Useful when tests need common code located elsewhere. Please note that <code>CWD</code> should be used if test can run from the common path without modifications to sys.path.</p>
+</li>
+<li>
+<p><code>ENV</code> ; sets the given environment variables to the given values. Useful for passing configuration to common test-code, such as class name.</p>
+</li>
+<li>
+<p><code>NAMESPACE</code> ; sets the namespace instead of deriving it from the suite’s parent’s parent folder name.</p>
+</li>
+<li>
+<p><code>NAME</code> allows the caller to change the given test name. The module namespace will still be added/prefixed. Useful when tests are added from shared folders and end up having the same names.</p>
+</li>
+<li>
+<p><code>PYTEST</code> runs the test through <code>pytest</code> instead of Simics. Assumes <code>pytest</code> can be found in <code>PATH</code>, or the path to pytest must be provided through the <code>PYTEST_BINARY</code> cache variable.</p>
+</li>
+<li>
+<p><code>LABELS</code> ; A list of labels that is directly passed on to the <code>LABELS</code> property of the created test via <code>set_tests_properties</code>.</p>
+</li>
+</ul>
+<h4 id="README.html:example-usages"><a href="#README.html:example-usages">2.7.3 Example usages</a></h4>
+<pre><code>    simics_add_test(sanity)
+</code></pre>
+<pre><code>    function(cmn_add_tests class module)
+      set(cwd ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
+      file(GLOB tests CONFIGURE_DEPENDS "${cwd}/s-*.py")
+      foreach(test ${tests})
+        set(env "CMN_CLASS=${class};CMN_MODULE=${module}")
+        simics_add_test(${test} CWD ${cwd} ENV ${env})
+      endforeach()
+    endfunction()
+</code></pre>
+<pre><code>    set(sample ${SIMICS_REPO_ROOT}/src/devices/sample-device-python)
+    simics_add_test(sys-path SYS_PATH "${sample};..")
+</code></pre>
+<pre><code>    simics_add_test(py-test.py PYTEST NAME py-test-renamed.py)
+</code></pre>
+<h4 id="README.html:example-invocations-of-ctest"><a href="#README.html:example-invocations-of-ctest">2.7.4 Example invocations of CTest</a></h4>
+<pre><code>$ ctest --preset release -j20 -R sample-device
+Test project /disk1/ah/simics-pr/bt/release
+    Start 127: sample-device-c++::reg
+    Start 132: sample-device-python::sample-python
+    Start 128: sample-device-c++::sanity
+    Start 131: sample-device-mixed::sample-mixed
+    Start 130: sample-device-dml::sample-device-dml
+    Start 126: sample-device-c++::multi
+    Start 129: sample-device-c::sample-c
+1/7 Test #129: sample-device-c::sample-c ..............   Passed    0.47 sec
+2/7 Test #130: sample-device-dml::sample-device-dml ...   Passed    0.48 sec
+3/7 Test #131: sample-device-mixed::sample-mixed ......   Passed    0.48 sec
+4/7 Test #126: sample-device-c++::multi ...............   Passed    0.48 sec
+5/7 Test #128: sample-device-c++::sanity ..............   Passed    0.49 sec
+6/7 Test #132: sample-device-python::sample-python ....   Passed    0.50 sec
+7/7 Test #127: sample-device-c++::reg .................   Passed    0.54 sec
+
+100% tests passed, 0 tests failed out of 7
+
+Total Test time (real) =   0.56 sec
+</code></pre>
+<h3 id="README.html:simics_test_suite_begin-and-simics_test_suite_end"><a href="#README.html:simics_test_suite_begin-and-simics_test_suite_end">2.8 simics_test_suite_begin() and simics_test_suite_end()</a></h3>
+<p>The <code>simics_test_suite_begin()</code> and <code>simics_test_suite_end()</code> macros marks the
+beginning and end of a Simics test suite. All tests added by calls to
+<code>simics_add_test()</code> between these two calls will be added to the same suite.</p>
+<p>A suite will automatically create a scratch clean-up test fixture and add this
+fixture as a requirement to all the tests. This will guarantee that clean-up
+will run before any tests will run, even when the user runs just a subset of
+the tests.</p>
+<p>This is useful, and a requirement, for tests creating files such as checkpoints
+within the scratch folder.</p>
+<h4 id="README.html:usage-4"><a href="#README.html:usage-4">2.8.1 Usage</a></h4>
+<pre><code>    simics_test_suite_begin()
+</code></pre>
+<pre><code>    simics_test_suite_end()
+</code></pre>
+<h4 id="README.html:arguments-4"><a href="#README.html:arguments-4">2.8.2 Arguments</a></h4>
+<p>There are currently no arguments.</p>
+<h4 id="README.html:example-usages-2"><a href="#README.html:example-usages-2">2.8.3 Example usages</a></h4>
+<pre><code>    simics_test_suite_begin()
+        simics_add_test(checkpoint-create)
+        simics_add_test(checkpoint-load)
+    simics_test_suite_end()
+</code></pre>
+<h3 id="README.html:simics_copy_python_files"><a href="#README.html:simics_copy_python_files">2.9 simics_copy_python_files()</a></h3>
+<p>Copy files from another module or CMake target into the current module’s simmod
+directory. These files should not be added to the module’s <code>SOURCES</code> parameter.</p>
+<h4 id="README.html:usage-5"><a href="#README.html:usage-5">2.9.1 Usage</a></h4>
+<pre><code>    simics_copy_python_files(&lt;module&gt;
+        FROM &lt;other-target&gt;
+        FILES &lt;file&gt; ...
+    )
+</code></pre>
+<h4 id="README.html:arguments-5"><a href="#README.html:arguments-5">2.9.2 Arguments</a></h4>
+<ul>
+<li>
+<p>module ; the module to copy selected python files into.</p>
+</li>
+<li>
+<p><code>FROM</code> ; the source module (or target) to copy selected python files from. The root path is extracted from the target’s <code>SOURCE_DIR</code> property.</p>
+</li>
+<li>
+<p><code>FILES</code> ; the file or files to copy</p>
+</li>
+</ul>
+<h3 id="README.html:simics_find_and_add_modules"><a href="#README.html:simics_find_and_add_modules">2.10 simics_find_and_add_modules()</a></h3>
+<p>Locates modules in the current project, from Simics Base and any associated
+add-on packages and then adds them to the current project by invoking
+<code>add_subdirectory(... EXCLUDE_FROM_ALL)</code>. This allows local modules to add
+external modules as taget link dependencies. Because these external modules are
+excluded from the ‘all’ build target they are not built by default; but can be
+built if explicitly provided as targets.</p>
+<p>This means that unlike the old GNU Make driven Simics project, the user can
+build modules in a project directly without first copying them into the
+<code>modules/</code> sub-directory.</p>
+<p>By default, <code>simics_find_and_add_modules()</code> will search both the local project,
+in Simics Base and all add-on packages; but the user can opt-out of this
+and only search in the project’s modules/* by passing <code>IN_PROJECT</code> as
+argument. If passing <code>IN_PACKAGES</code> the function will only search in the
+packages and not in the project.</p>
+<h3 id="README.html:simics_package"><a href="#README.html:simics_package">2.11 simics_package()</a></h3>
+<p>Creates a Simics package info file in the ‘packageinfo’ sub-directory to make the
+package selectable from another project using the Simics addon manager.</p>
+<p>Please note that package number and version must be handled by the caller, the
+function is just blindly adding the provided info as metadata to the package
+info file.</p>
+<h4 id="README.html:usage-6"><a href="#README.html:usage-6">2.11.1 Usage</a></h4>
+<pre><code>    simics_package(
+        NAME &lt;simics-package-name&gt;
+        NUMBER &lt;simics-package-number&gt;
+        VERSION &lt;simics-package-version&gt;
+        [TYPE {base|addon}]
+        [BUILD_ID &lt;build-id-number&gt;]
+        [BUILD_ID_NAMESPACE &lt;build-id-namespace-name&gt;]
+    )
+</code></pre>
+<h4 id="README.html:arguments-6"><a href="#README.html:arguments-6">2.11.2 Arguments</a></h4>
+<ul>
+<li><code>NAME &lt;simics-package-name&gt;</code> ;
+Simics package name. Spaces will be converted to hyphens.</li>
+<li><code>NUMBER &lt;simics-package-number&gt;</code> ;
+Unique number of the Simics package.</li>
+<li><code>VERSION &lt;simics-package-version&gt;</code> ;
+Simics package version.</li>
+<li><code>TYPE {base|addon}</code> ;
+Type of package. Defaults to ‘addon’ if not provided.</li>
+<li><code>BUILD_ID &lt;build-id-number&gt;</code> ;
+Package build-id. Defaults to 0 if not provided.</li>
+<li><code>BUILD_ID_NAMESPACE &lt;build-id-namespace-name&gt;</code> ;
+Package build-id namespace. Defaults to ‘custom’ if not provided.</li>
+</ul>
+<h4 id="README.html:example-usage"><a href="#README.html:example-usage">2.11.3 Example usage</a></h4>
+<pre><code>    simics_package(NAME "My Simics Package" NUMBER 4200 VERSION 7.0.0)
+</code></pre>
+<h3 id="README.html:simics_add_dead_methods_check"><a href="#README.html:simics_add_dead_methods_check">2.12 simics_add_dead_methods_check()</a></h3>
+<p>Annotates a module/target to run a post build command that checks if the module
+contains any dead DML methods.</p>
+<p>For the command run, the CMake cache variable <code>USE_DML_DEAD_METHODS_CHECK</code> must
+be set during configuration of the project.</p>
+<p>The command by default only checks for dead methods in DML files that is part of
+the current module and resides in the same folder where the module is defined.</p>
+<h4 id="README.html:usage-7"><a href="#README.html:usage-7">2.12.1 Usage</a></h4>
+<pre><code class="language-cmake">    simics_add_dead_methods_check(&lt;target&gt;
+        [EXTRA_SOURCES &lt;path(s)&gt;]
+    )
+</code></pre>
+<h4 id="README.html:arguments-7"><a href="#README.html:arguments-7">2.12.2 Arguments</a></h4>
+<ul>
+<li>
+<p>target ; the target to add the post build command to.</p>
+</li>
+<li>
+<p><code>EXTRA_SOURCES</code> ;
+Optional list of directories and/or files that should be included in the dead
+code analysis of the target’s module. This would typically be some common code
+or a library written somewhere else.</p>
+</li>
+</ul>
+<h4 id="README.html:example-usage-2"><a href="#README.html:example-usage-2">2.12.3 Example usage</a></h4>
+<pre><code class="language-cmake">simics_add_dead_methods_check(sample-pcie-device
+    EXTRA_SOURCES $&lt;TARGET_PROPERTY:common-code-target,SOURCE_DIR&gt;
+)
+</code></pre>
+<h3 id="README.html:simics_add_documentation"><a href="#README.html:simics_add_documentation">2.13 simics_add_documentation()</a></h3>
+<p>Adds a target that builds documentation using the Simics <code>dodoc</code> tool. The
+target is <em>not</em> added to the <code>ALL</code> target, unlike <code>simics_add_module()</code>, so an
+explicit call to <code>add_dependencies</code> is needed. The target name will be prefixed
+with <code>PREFIX</code> to avoid name clashes between the documentation target and module
+targets.</p>
+<p>This function is just a wrapper around the <code>dodoc</code> tool distributed with Simics
+Base. Most likely larger projects will create their own wrapper, e.g.:</p>
+<pre><code class="language-cmake">function(add_documentation name)
+  cmake_parse_arguments(ARG "" "" "INPUT_DIRS;DEPENDS" ${ARGN})
+  simics_add_documentation(${name}
+    FLAGS --css simics.css ${ARG_INPUT_DIRS}
+    DEPENDS ${ARG_DEPENDS})
+  add_dependencies(simics-docs-all doc-${name})
+endfunction()
+</code></pre>
+<p>See <code>dodoc --help</code> or the Simics documentation for more details.</p>
+<p>If any files should be copied or generated the caller is responsible for
+writing the rules to do so using CMake’s <code>add_custom_command()</code>. The generated
+files must then be listed in the <code>DEPENDS</code> argument to make sure they are
+generated before <code>dodoc</code> runs.</p>
+<p>By default <code>dodoc</code> will generate a dep-file containing all files that is part
+of the <code>toc.json</code> along with the <code>toc.json</code> itself. Thus it is not necessary to
+add these (existing) files to <code>DEPENDS</code>.</p>
+<h4 id="README.html:usage-8"><a href="#README.html:usage-8">2.13.1 Usage</a></h4>
+<pre><code>    simics_add_documentation(&lt;name&gt;
+        [PREFIX &lt;prefix&gt;]        
+        [OUTPUT &lt;path&gt;]
+        [CSS &lt;css&gt; ...]
+        [FLAGS &lt;flag&gt; ...]        
+        [DEPENDS &lt;path&gt; ...]        
+    )
+</code></pre>
+<h4 id="README.html:arguments-8"><a href="#README.html:arguments-8">2.13.2 Arguments</a></h4>
+<ul>
+<li>
+<p>name ; the name of the CMake target and also the name of the subfolder within the <code>OUTPUT</code> folder.</p>
+</li>
+<li>
+<p><code>PREFIX</code> ; the target name will be <code>${PREFIX}${name}</code>. If not set, defaults to ‘doc-’</p>
+</li>
+<li>
+<p><code>OUTPUT</code> ; the root folder for generated docs. If not set, defaults to <code>&lt;project&gt;/&lt;host&gt;/doc/html</code></p>
+</li>
+<li>
+<p><code>CSS</code> ; passes the listed css files to <code>dodoc</code> as <code>--css &lt;file&gt;</code> flags. If not set and <code>FLAGS</code> is also not set, defaults to <code>simics.css</code>.</p>
+</li>
+<li>
+<p><code>FLAGS</code> ; additional flags passed to <code>dodoc</code>. If not set, defaults to the empty string. The <code>CMAKE_CURRENT_SOURCE_DIR</code> and <code>CMAKE_CURRENT_BINARY_DIR</code> are always passed to <code>dodoc</code>, in that order, as input directories.</p>
+</li>
+<li>
+<p><code>DEPENDS</code> ; adds all listed files (or target) as dependencies for the dodoc invocation, making sure they are created/copied/generated before <code>dodoc</code> is invoked. If not set, remains empty.</p>
+</li>
+</ul>
+<h3 id="README.html:simics_copy_file"><a href="#README.html:simics_copy_file">2.14 simics_copy_file()</a></h3>
+<p>Creates a custom command that copies a file from anywhere to anywhere.</p>
+<h4 id="README.html:usage-9"><a href="#README.html:usage-9">2.14.1 Usage</a></h4>
+<pre><code>    simics_copy_file(&lt;from&gt; [TO &lt;path&gt;])
+</code></pre>
+<h4 id="README.html:arguments-9"><a href="#README.html:arguments-9">2.14.2 Arguments</a></h4>
+<ul>
+<li>
+<p>from ; the full path of the file to copy.</p>
+</li>
+<li>
+<p><code>TO</code> ; the name of the target file. It can be both absolute or relative path. If relative, it will be relative the <code>CMAKE_CURRENT_BINARY_DIR</code>. If not set, defaults to a relative file with the same name as <code>from</code>.</p>
+</li>
+</ul>
+<h2 id="README.html:targets"><a href="#README.html:targets">3 Targets</a></h2>
+<p>The Simics CMake package provides the following <code>IMPORTED</code> <code>INTERFACE</code> targets:</p>
+<ul>
+<li><code>Simics::C++</code></li>
+<li><code>Simics::C++v1</code> (for legacy support, will be removed in Simics 7)</li>
+<li><code>Simics::DML</code></li>
+<li><code>Simics::Python</code></li>
+<li><code>Simics::Simics</code></li>
+<li><code>Simics::includes</code></li>
+</ul>
+<p>and these utility targets:</p>
+<ul>
+<li><code>${MODULE_NAME}</code></li>
+<li><code>${MODULE_NAME}::headers</code></li>
+<li><code>${MODULE_NAME}::imports</code></li>
+<li><code>${MODULE_NAME}::includes</code></li>
+<li><code>simics-modules</code></li>
+<li><code>list-simics-modules</code></li>
+<li><code>simics-asan</code></li>
+</ul>
+<p>and these internal targets (please ignore, listed for completeness only):</p>
+<ul>
+<li><code>${MODULE_NAME}-copy-python-file</code></li>
+<li><code>${MODULE_NAME}-artifacts</code></li>
+</ul>
+<p>The <code>Simics::Simics</code> is the basic Simics library and all CMake Simics modules
+depend on this target. <code>Simics::DML</code> and <code>Simics::Python</code> are automatically
+added as dependencies for .dml and .py files. User must explicitly add
+<code>Simics::C++</code> as target dependency to use the Simics C++ API. The
+<code>Simics::C++v1</code> is provided as legacy support for older models. Non-modules
+(e.g. <code>STATIC</code> libraries) that invokes the Simics API must add a target link
+dependency on <code>Simics::includes</code>.</p>
+<p>If B is a Simics module and module A depends on headers from B, then A should
+add a target link dependency on <code>B::includes</code> (or the aliases <code>::headers</code> or
+<code>::imports</code>). A cannot depend directly on B because B is of library-type
+<code>MODULE</code> which prohibits it from being linked directly to other libraries.</p>
+<p>The <code>simics-modules</code> target builds all registered modules, while
+<code>list-simics-modules</code> simply prints all modules to stdout.</p>
+<p>The <code>simics-asan</code> is just a convenience layer for launching Simics with
+<code>LD_PRELOAD</code> and <code>ASAN_OPTIONS</code> set. See <a href="../cmake/README.html#sanitization-with-asan-and-ubsan">‘Sanitization with ASAN’ in ‘Using CMake in
+Simics’</a> for details on
+using ASAN on Simics modules.</p>
+<h2 id="README.html:variables"><a href="#README.html:variables">4 Variables</a></h2>
+<h3 id="README.html:cached-can-be-set-by-user-after-configuration"><a href="#README.html:cached-can-be-set-by-user-after-configuration">4.1 Cached (can be set by user after configuration)</a></h3>
+<ul>
+<li>SIMICS_API - Default Simics API used if not set by module</li>
+<li>SIMICS_BASE_DIR - Path to Simics Base package</li>
+<li>SIMICS_BUILD_ID - Build-id value compiled into the module</li>
+<li>SIMICS_EXTRACT_LIMITATIONS_PY - Can be set to <code>OFF</code> to bypass extraction of limitations</li>
+<li>SIMICS_DMLC_DIR - The path to where the DML compiler was built; defaults to Simics Base</li>
+<li>SIMICS_DMLC_PYTHON - The python interpreter used to invoke DMLC; defaults to mini-python</li>
+</ul>
+<h3 id="README.html:special-case"><a href="#README.html:special-case">4.2 Special case</a></h3>
+<ul>
+<li>SIMICS_PROJECT_DIR - Path to the associated Simics project. Can be provided as input to the configuration phase before invoking <code>find_package(Simics ...)</code>. Must not be changed afterwards. Will be set if missing. See <code>simics_project_setup()</code> for more details.</li>
+</ul>
+<h3 id="README.html:read-only-should-not-be-set-by-user-but-can-be-used-read"><a href="#README.html:read-only-should-not-be-set-by-user-but-can-be-used-read">4.3 Read-only (should not be set by user, but can be used/read)</a></h3>
+<ul>
+<li>SIMICS_DMLC - the resulting invocation of the DML compiler</li>
+<li>SIMICS_EXECUTABLE - Simics executable</li>
+<li>SIMICS_HOST_LIB_DIR - Simics project <host>/lib directory</host></li>
+<li>SIMICS_HOST_TYPE - Simics host type (linux64 or win64)</li>
+<li>SIMICS_PYTHON_EXECUTABLE - Simics Python (i.e. mini-python) executable</li>
+<li>SIMICS_SYS_LIB - Simics build variable</li>
+<li>SIMICS_VERSION - Simics (full) version</li>
+<li>SIMICS_VERSION_MAJOR - Simics major version</li>
+<li>SIMICS_VERSION_MINOR - Simics minor version</li>
+<li>SIMICS_VERSION_PATCH - Simics patch version</li>
+</ul>
+<h3 id="README.html:internal-should-not-be-used-by-user"><a href="#README.html:internal-should-not-be-used-by-user">4.4 Internal (should not be used by user)</a></h3>
+<ul>
+<li>ASAN_OPTIONS - ASAN runtime options</li>
+<li>LIBASAN_PATH - Path to libasan</li>
+<li>SANITIZERS_SUPPORTED - Sanitizer flags supported</li>
+<li>SAN_DIR - Directory of sanitizers</li>
+<li>SIMICS_ANALYZE_TRAMPOLINES_PY - Simics build variable</li>
+<li>SIMICS_COPY_DEVICE_XML_PY - Simics build variable</li>
+<li>SIMICS_COPY_PYTHON_PY - Simics build variable</li>
+<li>SIMICS_GEN_DML_COMMANDS_JSON_PY - Simics DML commands json generator</li>
+<li>SIMICS_INC - Simics build variable / Use <code>Simics::includes</code> target instead</li>
+<li>SIMICS_LIB - Simics build variable / Use <code>Simics::Simics</code> target instead</li>
+<li>SIMICS_MODULE_ID_PY - Simics build variable</li>
+<li>SIMICS_PYTHON_INC - Simics build variable / Use <code>Simics::Python</code> target instead</li>
+<li>SIMICS_PYWRAP_DIR - Simics build variable</li>
+</ul>
+<h2 id="README.html:tips-and-tricks"><a href="#README.html:tips-and-tricks">5 Tips and tricks</a></h2>
+<h3 id="README.html:c-c-modules"><a href="#README.html:c-c-modules">5.1 C/C++ modules</a></h3>
+<ul>
+<li>
+<p>Unlike DML modules, the C and C++ modules must define the <code>init_local()</code>
+entrypoint for the Simics module:</p>
+<pre><code>extern "C" void init_local() {
+    ...
+}
+</code></pre>
+</li>
+<li>
+<p>See <a href="../cc-device-api/index.html">C++ Device API v2</a> for details on using the C++ API.</p>
+</li>
+<li>
+<p>Add a target dependency on <code>Simics::C++</code> to build and link with Simics C++ API
+library. Add target dependency on <code>Simics::C++v1</code> for legacy v1 support.</p>
+</li>
+</ul>
+<h3 id="README.html:dml-modules"><a href="#README.html:dml-modules">5.2 DML modules</a></h3>
+<ul>
+<li>
+<p>Use <code>SIMICS_DMLC_FLAGS</code> property to set extra flags for DML compiler. The
+property can be set globally, per directory, per module and per DML source
+file.</p>
+<p>Since there is no generator expression for source file properties (as of CMake
+3.28); the source file property is extracted during configuration phase and
+thus must be set <em>before</em> invoking <code>simics_add_module()</code></p>
+<p><strong>NOTE:</strong> <em>Multiple flags must be separated by semi-colon</em></p>
+<p>Please note that CMake does not inherit properties if explicitly set, meaning that if the <code>TARGET</code> property is set in a module any flags passed as <code>DIRECTORY</code> or <code>GLOBAL</code> property must be explicitly handled by the module itself.</p>
+</li>
+</ul>
+<h3 id="README.html:simics-api"><a href="#README.html:simics-api">5.3 Simics API</a></h3>
+<p>Use the <code>SIMICS_API</code> directory property to change the default API used by all
+targets in the current directory and all sub-directories. The module property
+can be used to override the default directory property.</p>
+<pre><code>set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY SIMICS_API 6)
+</code></pre>
+<p>The API version for a module is resolved in the following order:</p>
+<ul>
+<li>If <code>SIMICS_API</code> target property is not set; is it inherited from directory or
+global properties.</li>
+<li>If <code>SIMICS_API</code> is provided by <code>simics_add_module()</code> function; it sets the
+target property and overrides any directory or global properties.</li>
+</ul>
+<p>Please note that only <code>simics_add_module()</code> supports setting <code>SIMICS_API</code> to
+<code>latest</code>. If set to <code>latest</code> the current Simics major version of the associated
+Simics Base is used.</p>
+<h3 id="README.html:initialization-order-dependency"><a href="#README.html:initialization-order-dependency">5.4 Initialization order dependency</a></h3>
+<p>When a class attempts to reference another class within the same module, such as by initializing a port with <code>init_as_subobj</code> in DML or directly calling <code>SIM_get_class()</code>, careful attention must be paid to the initialization order.</p>
+<p>In C/C++ and Python, the order can typically be managed within the <code>init_local</code> function. However, in DML, this is not possible, nor is it feasible when classes originate from different languages (i.e., with distinct entry points). The build system currently defines the initialization order as follows:</p>
+<ol>
+<li>Custom C interface wrappers (experimental feature, not used by Simics CMake)</li>
+<li>Python interface wrappers
+<ul>
+<li>Implicitly included through <code>SOURCES</code> as headers files with <code>SIM_INTERFACE</code> calls; or</li>
+<li>Explicitly included through <code>PYWRAP</code> as headers files with custom types or functions to pythonwrap</li>
+</ul>
+</li>
+<li>DML generated initialization functions, specified in <code>SOURCES</code> as <code>.dml</code> files</li>
+<li>Explicit <code>init_local()</code> function, included through <code>SOURCES</code> as source file when <code>INIT_LOCAL</code> is set.</li>
+<li>Code run from <code>module_load.py</code></li>
+</ol>
+<p>To some degree, dependencies can be managed by altering the sequence of files specified in <code>SOURCES</code>. For instance, if <code>a.dml</code> depends on a class defined in <code>b.dml</code>, rearranging the order from <code>a.dml b.dml</code> to <code>b.dml a.dml</code> will establish the correct dependency order and ensure proper functionality.</p>
+<p>Classes from separate modules are automatically and correctly resolved by the Simics module loading system. Therefore, placing dependent classes in a different module can resolve issues with initialization order. In CMake, this is easily achieved by adding an additional <code>simics_add_module()</code> call within the same or a different <code>CMakeLists.txt</code>.</p>
+<h3 id="README.html:thread_safe"><a href="#README.html:thread_safe">5.5 THREAD_SAFE</a></h3>
+<p>By default all modules should be thread safe in Simics. But if they are not they can be tagged using the <code>SIMICS_MODULE_NOT_THREAD_SAFE</code> directory property:</p>
+<pre><code>set_directory_properties(PROPERTIES SIMICS_MODULE_NOT_THREAD_SAFE TRUE)
+</code></pre>
+<p>Must be done prior to invoking <code>simics_add_module()</code>.</p>
+<p>This currently affects the <code>--thread-safe</code> flag passed to the <code>module_id.py</code> tool used to generate the <code>module_id.c</code> file linked into the Simics module. The setting will be part of the module metadata. When loading a module that is not thread-safe into Simics the <code>disable-multimachine-accelerator</code> command will be automatically invoked to disable multi-threading. The user can still enable multi-threading by explicitly invoking <code>enable-multimachine-accelerator</code>; so this annotation is just a convenience layer.</p>
+<p><strong>NOTE:</strong> <em>Simics is phasing out the use of THREAD_SAFE, but currently there is no good replacement.</em></p>
+<h3 id="README.html:simics-tests"><a href="#README.html:simics-tests">5.6 Simics tests</a></h3>
+<p>To alter how tests interact with Simics you can use the standard
+<code>set_tests_properties()</code> function with one of the standard test properties. See
+<a href="https://cmake.org/cmake/help/latest/manual/cmake-properties.7.html#properties-on-tests" rel="noopener noreferrer" target="_top">cmake.org:properties on
+tests</a>
+for more details.</p>
+<p>For example; this is how to toggle that a test is always failing:</p>
+<pre><code>set_tests_properties(bp-manager::bm-commands PROPERTIES WILL_FAIL TRUE)
+</code></pre>
+<p>And this is how to introduce test dependencies:</p>
+<pre><code>set_tests_properties(ich10-lan-v2::lan-checkpoint2
+  PROPERTIES DEPENDS ich10-lan-v2::lan-checkpoint)
+</code></pre>
+<p><strong>NOTE:</strong> <em>If you update the environment the <code>ENVIRONMENT_MODIFICATION</code>
+property must be used and not the <code>ENVIRONMENT</code> property. The later will
+overwrite the variables set by the <code>simics_add_test()</code> function.</em></p>
+</section>

@@ -1,0 +1,93 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>i2c_to_i3c_adapter</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-i2c_slave_v2_to_bus_adapter.html">i2c_slave_v2_to_bus_adapter</a>
+<a href="rm-class-i2c_wire.html">i2c_wire</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="i2c_to_i3c_adapter"><a href="#i2c_to_i3c_adapter">i2c_to_i3c_adapter</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>i2c_to_i3c_adapter</tt> allows to attach an I2C device to I3C bus.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, i2c_master_v2, i3c_slave
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:i2c_link_v2-optional"><a href="#dt:i2c_link_v2-optional">i2c_link_v2 (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_slave_v2
+</dd>
+<dt id="dt:i3c_link-optional"><a href="#dt:i3c_link-optional">i3c_link (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i3c_master
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-i2c_to_i3c_adapter.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-i2c_to_i3c_adapter.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:i2c_link_v2"><a href="#dt:i2c_link_v2">
+<i>i2c_link_v2</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connect to I2C slave device
+<p>
+Required interfaces: <tt>i2c_slave_v2</tt>.</p></dd>
+<dt id="dt:i3c_link"><a href="#dt:i3c_link">
+<i>i3c_link</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connect to I3C master device or <tt>i3c_link</tt>
+<p>
+Required interfaces: <tt>i3c_master</tt>.</p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.i3c-link.html">i3c-link</a>
+</section>
+<div class="chain">
+<a href="rm-class-i2c_slave_v2_to_bus_adapter.html">i2c_slave_v2_to_bus_adapter</a>
+<a href="rm-class-i2c_wire.html">i2c_wire</a>
+</div>

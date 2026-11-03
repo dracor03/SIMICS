@@ -1,0 +1,121 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>AT24Cxxx</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-AT24Cxx.html">AT24Cxx</a>
+<a href="rm-class-BCM5703C.html">BCM5703C</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="AT24Cxxx"><a href="#AT24Cxxx">AT24Cxxx</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The AT24Cxx device is an I2C based serial EEPROM with a configurable memory size.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, i2c_device
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:i2c_bus"><a href="#dt:i2c_bus">
+<i>i2c_bus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The i2c bus connected this device is connected to</dd>
+<dt id="dt:i2c_device_state"><a href="#dt:i2c_device_state">
+<i>i2c_device_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[iiii]</code>
+<br>List representing data state in the device</dd>
+<dt id="dt:i2c_address"><a href="#dt:i2c_address">
+<i>i2c_address</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The <i>i2c_addr</i> field.</dd>
+<dt id="dt:memory_size"><a href="#dt:memory_size">
+<i>memory_size</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the memory.</dd>
+<dt id="dt:memory"><a href="#dt:memory">
+<i>memory</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>The on-chip memory bank</dd>
+<dt id="dt:memory_address"><a href="#dt:memory_address">
+<i>memory_address</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The current memory address</dd>
+<dt id="dt:memory_address_size"><a href="#dt:memory_address_size">
+<i>memory_address_size</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the memory address</dd>
+<dt id="dt:device_state"><a href="#dt:device_state">
+<i>device_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The current device state (i.e., pending read/write operation).</dd>
+<dt id="dt:i2c_state"><a href="#dt:i2c_state">
+<i>i2c_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The state of the i2c interface.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.AT24Cxxx.html">AT24Cxxx</a>
+</section>
+<div class="chain">
+<a href="rm-class-AT24Cxx.html">AT24Cxx</a>
+<a href="rm-class-BCM5703C.html">BCM5703C</a>
+</div>

@@ -1,0 +1,53 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Structures of data</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="layout-and-lexical-details.html">3 Layout and lexical details</a>
+<a href="variables.html">5 Variables</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="structures-of-data"><a href="#structures-of-data">4 Structures of data</a></h1>
+<p>To group a few values together, use a tuple:</p>
+<pre><code>t = (a, b, c)
+</code></pre>
+<p>But do not access a value from such a tuple by index, as in:</p>
+<pre><code>b = t[1]   # BAD
+</code></pre>
+<p>Rather, use destructuring assignment to unpack tuples:</p>
+<pre><code>(a, b, c) = t
+</code></pre>
+<p>This works in <code>for</code> loops, comprehensions and function parameters as well.
+Note that tuples are immutable; for mutable groups of values, define a class.</p>
+<p>Note that while the Python language accepts omission of the parentheses around
+tuples, they should always be present as a matter of style:</p>
+<pre><code>a, b = c, d            # BAD
+(a, b) = (c, d)        # GOOD
+</code></pre>
+<p>As an alternative, use a class:</p>
+<pre><code>class Node: pass
+...
+t = Node()
+t.a = 17
+t.b = 69
+</code></pre>
+<p>This works better when the number of values is large since the members are
+named.
+It also allows mutation.</p>
+<p>If the class is constructed frequently, add an init method:</p>
+<pre><code>class Node:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+...
+t = Node(17, 69)
+</code></pre>
+
+<div class="chain">
+<a href="layout-and-lexical-details.html">3 Layout and lexical details</a>
+<a href="variables.html">5 Variables</a>
+</div>

@@ -1,0 +1,238 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Processor</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-path.html">Path</a>
+<a href="sim-api-profiling.html">Profiling</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Processor</h1>
+<h2 id="SIM_clear_augmentation_bit"><a href="#SIM_clear_augmentation_bit">SIM_clear_augmentation_bit, SIM_get_augmentation_bit, SIM_set_augmentation_bit</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_clear_augmentation_bit, SIM_get_augmentation_bit, SIM_set_augmentation_bit — convenience functions to work with augmented memory bits</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+FORCE_INLINE void
+SIM_clear_augmentation_bit(uint8 *tag_page_data, unsigned pofs);
+
+FORCE_INLINE int
+SIM_get_augmentation_bit(uint8 *tag_page_data, unsigned pofs);
+
+FORCE_INLINE void
+SIM_set_augmentation_bit(uint8 *tag_page_data, unsigned pofs);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_clear_augmentation_bit</code>, <code>SIM_get_augmentation_bit</code>, and <code>SIM_set_augmentation_bit</code> functions are used to modify and read augmented memory bits. The <a href="model-to-simulator-interfaces.html#direct_memory_tags_interface_t"><code>direct_memory_tags</code></a> interface supports augmented memory through the <code>data</code> field in the <code>direct_memory_tags_t</code> struct.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_disassemble_address"><a href="#SIM_disassemble_address">SIM_disassemble_address, tuple_int_string_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_disassemble_address, tuple_int_string_t — disassemble address</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+tuple_int_string_t
+SIM_disassemble_address(conf_object_t *NOTNULL cpu, generic_address_t address,
+                        int logical, int sub_operation);
+
+#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef struct {
+        int integer;
+        char *string;
+} tuple_int_string_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_disassemble_address(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function disassembles the instruction at the given address. Address is either a physical address (logical == 0) or a logical address (logical == 1). For VLIW architectures, <code>sub_operation</code> is used to select which sub-operation to disassemble. A request for a not present sub-operation (for example <code>sub_operation</code> != 0 for non-VLIW architectures) results in the int part of the return tuple being set to zero.</p>
+<p>A <code>tuple_int_string_t</code> is returned which contains the disassembly string as well as the length of the instruction in bytes. For the Sparc and PowerPC targets the length is always 4 bytes.</p>
+<p>This function can be more convenient to use than the <code>disassemble</code> function in the <a href="model-to-simulator-interfaces.html#processor_info_interface_t"><code>processor_info</code></a> interface.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if arguments are invalid.</p>
+<p><strong>SimExc_Memory</strong> Thrown if the address is undefined or not mapped in the MMU (for logical addresses).</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_all_processors"><a href="#SIM_get_all_processors">SIM_get_all_processors</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_all_processors — get list of all processors</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_all_processors();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_all_processors(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return a list of all processor objects.</p>
+<h2>Return Value</h2>
+<p>List of processors.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_processor"><a href="#SIM_get_processor">SIM_get_processor</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_processor — get processor pointer from number</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+conf_object_t *
+SIM_get_processor(int proc_no);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_processor(...)
+</code></pre>
+<h2>Description</h2>
+<p>Converts processor id number to processor pointer. This function cannot be used until a configuration had been loaded successfully.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Index</strong> Thrown if no processor with number <em>proc_no</em> exists.</p>
+<h2>Return Value</h2>
+<p>The processor pointer, <code>nullptr</code> on failure.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-processor.html#SIM_number_processors"><code>SIM_number_processors</code></a></p>
+</section>
+<h2 id="SIM_get_processor_number"><a href="#SIM_get_processor_number">SIM_get_processor_number</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_processor_number — get the number of a processor</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int
+SIM_get_processor_number(const conf_object_t *NOTNULL cpu);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_processor_number(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the global processor number for a processor in Simics.</p>
+<h2>Return Value</h2>
+<p>The processor number</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_number_processors"><a href="#SIM_number_processors">SIM_number_processors</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_number_processors — number of processors</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int
+SIM_number_processors();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_number_processors(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the current total number of processors in the system.</p>
+<h2>Return Value</h2>
+<p>Number of processors.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-processor.html#SIM_get_processor"><code>SIM_get_processor</code></a></p>
+</section>
+<h2 id="SIM_processor_privilege_level"><a href="#SIM_processor_privilege_level">SIM_processor_privilege_level</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_processor_privilege_level — return the current privilege level for a processor</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int
+SIM_processor_privilege_level(conf_object_t *NOTNULL cpu);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_processor_privilege_level(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return the current privilege level for a processor. The definition of privilege levels depends on the processor type.</p>
+<h2>Return Value</h2>
+<ul>
+<li>For SPARC, and PowerPC, and ARM processors: 0 for User mode, and 1 for Supervisor mode.</li>
+<li>For x86 and IA-64 processors: 0-3, where 0 is the most privileged.</li>
+<li>For MIPS processors: 0</li>
+</ul>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if <em>cpu</em> does not implement the privilege level interface function.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_reset_processor"><a href="#SIM_reset_processor">SIM_reset_processor</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_reset_processor — reset the processor</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_reset_processor(conf_object_t *NOTNULL cpu, int hard_reset);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_reset_processor(...)
+</code></pre>
+<h2>Description</h2>
+<p>Performs a reset on the processor, causing a System Reset exception to be taken when execution continues. <em>cpu</em> is the processor that should be reset. <em>hard_reset</em> indicates if a soft (0) or hard (1) (power-on type) reset should be performed. If a hard reset is requested, a number of register are initiated with default values.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if <em>cpu</em> does not implement reset.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-path.html">Path</a>
+<a href="sim-api-profiling.html">Profiling</a>
+</div>

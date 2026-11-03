@@ -1,0 +1,121 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>8 Various issues</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="code-arrangement.html">7 Code arrangement</a>
+<a href="editor-support.html">9 Editor support</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for C</a>
+&nbsp;/&nbsp;</div><h1 id="various-issues"><a href="#various-issues">8 Various issues</a></h1>
+<p>Avoid assignments inside expressions, unless needed for flow control reasons:</p>
+<pre><code>if ((err = hurt_enemy(e)) &lt; 0) ...           /* BAD */
+
+err = hurt_enemy(e);
+if (err &lt; 0) ...                             /* GOOD */
+
+while ((victim = next_target()) != NULL) ... /* GOOD */
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>This makes the expressions simpler to analyze and immediately understand;
+side-effects require some further thought.
+It also saves on parentheses and line length.</p>
+</blockquote>
+<p>Use <code>NULL</code> instead of 0 as a null data pointer.
+Use <code>(type *)0</code> as a null function pointer.</p>
+<blockquote class="markdown-alert-note">
+<p><code>NULL</code> is a pointer, <code>0</code> is an integer; the choice sends a strong message to
+the reader about the intention of the code.
+Unfortunately, the use of <code>NULL</code> as a function pointer cannot be used in
+portable C, hence the need to use <code>0</code>, cast as appropriate.
+Using <code>0</code> instead of a pointer type as argument to a vararg function is
+undefined and can (and will) cause crashes.</p>
+</blockquote>
+<p>Avoid casts where possible, since this can hide errors while suppressing
+warnings:</p>
+<ul>
+<li>Do not cast pointers to/from <code>void *</code></li>
+<li>Use intermediate variables to convert a <code>void *</code> to a specific pointer.</li>
+<li>Take the address of substructures instead of casting struct pointers.</li>
+</ul>
+<p>Examples:</p>
+<pre><code>void *p = ...
+int strength = ((troll_t *)p)-&gt;strength;   /* BAD */
+
+troll_t *t = p;
+int strength = t-&gt;strength;                /* GOOD */
+
+save_object((conf_object_t *)cpu);         /* BAD */
+save_object(&amp;cpu-&gt;obj);                    /* GOOD */
+</code></pre>
+<p>When comparing an expression against a constant, put the constant last:</p>
+<pre><code>if (2 == x) ...              /* BAD */
+if (x == 2) ...              /* GOOD */
+</code></pre>
+<p>This is more intuitive and scans better, since it corresponds more closely to
+how you would pronounce it in natural language (“if x is equal to two”, never
+“if two is equal to x”, since “two” is not likely to change.)</p>
+<h2 id="switch-statements"><a href="#switch-statements">8.1 Switch statements</a></h2>
+<p>Always indicate a switch case fall-through with a comment.</p>
+<pre><code>switch (monster-&gt;state) {
+case Sleeping:
+        wake_up(monster);
+        /* FALLTHROUGH */
+case Awake:
+        attack(monster, player);
+        break;
+case Dead:
+        rattle_bones(monster-&gt;corpse);
+        break;
+}
+</code></pre>
+<p>All other cases should have a <code>break</code> statement, even the last case in the
+switch, unless they use a <code>return</code>/<code>continue</code>/<code>goto</code> to transfer control
+elsewhere.</p>
+<p>Blocks inside switch clauses, when needed for local variables, do not introduce
+a new indentation level:</p>
+<pre><code>switch (cmd.type) {
+case Sail: {
+        double distance = hypot(cmd.x, cmd.y);
+        double direction = atan2(cmd.y, cmd.x);
+        go(direction, distance);
+        break;
+}
+case Anchor:
+        drop_anchor(current_position);
+        break;
+}
+</code></pre>
+<h2 id="boolean-expressions"><a href="#boolean-expressions">8.2 Boolean expressions</a></h2>
+<p>You may use implicit comparison against 0 in conditions for boolean values only.
+This includes pointers and other values where 0 can be interpreted as falsehood:</p>
+<pre><code>typedef enum { Red, Blue } colour_t;
+colour_t halo_team(player_t *p);
+...
+if (halo_team(p)) ...          /* BAD - not a boolean */
+
+monster_t *m = make_gelatinous_cube();
+if (m) ...                     /* Good - NULL is false */
+</code></pre>
+<p>For example, a function returning zero on failure and a positive result
+otherwise could be used in boolean context.</p>
+<p>Expressions where 0 is not intuitively understood as false must always use
+explicit comparisons.
+In particular, the <code>strcmp</code> function does not return a boolean value:</p>
+<pre><code>if (!strcmp(login, "root")) ...      /* BAD */
+if (strcmp(login, "root") == 0) ...  /* GOOD */
+</code></pre>
+<p>This is also true for calls that return -1 on failure and 0 on success:</p>
+<pre><code>if (rmdir(game_dir)) ...                 /* BAD */
+if (rmdir(game_dir) == -1) ...           /* GOOD */
+if (rmdir(game_dir) &lt; 0) ...             /* GOOD */
+</code></pre>
+
+<div class="chain">
+<a href="code-arrangement.html">7 Code arrangement</a>
+<a href="editor-support.html">9 Editor support</a>
+</div>

@@ -1,0 +1,213 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Connecting external Simulators, Emulators or Hardware</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="migration.html">Migrating From the Legacy PCI Library</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="connecting-external-simulators-emulators-and-hardware"><a href="#connecting-external-simulators-emulators-and-hardware">Connecting External Simulators, Emulators and Hardware</a></h1>
+<p>Hybrid setups where part of the platform runs outside Simics is a common use
+case. One challenge with hybrid platforms is to properly integrate it into
+Simics. There needs to be a layer working in both directions to translate
+transactions, events, API calls from one system to the other. This chapter
+focuses on integrating Emulators, external Simulators or Hardware into a Simics
+PCIe Hierarchy. The word Shim is defined in this chapter as the integration
+layer between Simics PCIe and an external process.</p>
+<h2 id="shim-concept"><a href="#shim-concept">Shim Concept</a></h2>
+<p>The Shim acts upstream as a Simics PCIe device and for downstream it will follow
+the IPC protocol shared with the external PCIe system. The Shim captures all
+upstream Simics PCIe traffic and events and converts them to the IPC protocol.
+The Shim supports asynchronous responses and concurrent requests made by the
+external device. For each transaction coming from upstream the Shim blocks
+Simics from progressing in time until the external device has responded to the
+transaction. This is done to ensure that Simics virtual simulation time is not
+affected by the response time of the external process.</p>
+<p>For PCIe writes and PCIe messages the Shim will wait for the external device
+to have handled the event before completing the transaction to the initiator
+which could be a CPU or device.</p>
+<p>For PCIe reads the Shim will wait until the external device has responded
+with the read payload.</p>
+<p>While the Shim waits for a response to a PCIe transaction it sent to the
+external PCIe system, it can receive upstream facing PCIe transactions from
+the external PCIe system. The Shim will forward those requests upstream
+and send responses back to the external PCIe system.
+All of this is done in a thread safe manner.</p>
+<h2 id="integrating-a-non-simics-pcie-endpoint-to-simics"><a href="#integrating-a-non-simics-pcie-endpoint-to-simics">Integrating a non-Simics PCIe Endpoint to Simics</a></h2>
+<figure id="RCiEP">
+<img alt="PCIe hybrid with external RCiEP" src="ShimRCiEP.png" width="650px/">
+<figcaption>Figure 20. External PCIe RCiEP integrated into Simics</figcaption>
+</figure>
+<figure id="EP_Under_RP">
+<img alt="PCIe hybrid with external Endpoint connected to a Simics Root Port" src="ShimEP_Under_a_RP.png" width="650px/">
+<figcaption>Figure 21. External PCIe Endpoint connected to a Simics PCIe Root Port</figcaption>
+</figure>
+<p>The Shim supports both regular PCIe EPs and RCiEPs.</p>
+<p>The <code>Shim Frontend</code> is a DML device appearing as a regular Simics PCIe device.
+It has two purposes:</p>
+<ul>
+<li>Forward all downstream PCIe traffic to the <code>Shim C++</code> device on a <strong>single</strong>
+interface.</li>
+<li>Map in the programmed BAR resources of the external device into the Root
+Complex
+in Simics. It does this by snooping on write accesses to the BAR registers of
+the Endpoint.</li>
+</ul>
+<p>The <code>Shim C++</code> device is responsible for:</p>
+<ul>
+<li>Converting the Simics PCIe data into the IPC protocol format and vice versa.</li>
+<li>Blocking Simics until the external device has responded.</li>
+<li>Forwarding PCIe traffic from the external device into the Simics PCIe domain
+and responding back to the external device.</li>
+<li>Concurrency between upstream and downstream traffic.</li>
+</ul>
+<p>The <code>external-connection</code> module is a separate generic module in Simics
+responsible for IPC. It currently has classes to do communication over Unix
+sockets, TCP or Windows named pipes. The <code>Shim</code> will interact with it over the
+<code>external_connection_ctl</code> and <code>external_connection_events</code> interfaces. The Shim
+is not aware whether the communication is over TCP, Unix Socket or named pipes.
+All of that is hidden inside the <code>external-connection</code> module. The
+<code>external-connection</code> classes are <code>unix-socket-server</code>, <code>tcp-server</code> and
+<code>named-pipe-server</code>.</p>
+<h2 id="integrating-a-non-simics-pcie-switch-to-simics"><a href="#integrating-a-non-simics-pcie-switch-to-simics">Integrating a non-Simics PCIe Switch to Simics</a></h2>
+<figure id="ShimSwitch">
+<img alt="PCIe hybrid with external switch" src="ShimSwitch.png" width="650px">
+<figcaption>Figure 22. External PCIe switch with endpoints connected to Simics PCIe Root Port</figcaption>
+</figure>
+<p>The setup to integrate an external PCIe hierarchy to Simics is very similar
+to an Endpoint. The <code>Shim Frontend</code>, written in DML, is the only difference
+from the Endpoint setup on the Simics side.</p>
+<p>The <code>Shim Frontend</code> when connecting an external PCIe Switch represents a shell
+of the USP of the switch. It snoops on write accesses to the BAR registers of
+the USP similar to the <code>Shim Frontend</code> of the Endpoint. But it also snoops on
+the <em>(Prefetchable) Memory Base</em>, <em>Secondary Bus Number</em> and <em>Subordinate Bus
+Number</em> registers of the USP of the Switch in order to map in the downstream
+resources of the USP device into Simics.</p>
+<h2 id="shim-source-code"><a href="#shim-source-code">Shim Source Code</a></h2>
+<p>The source code for the Shim is distributed in module <code>sample-pcie-shim</code>.
+It can be used as a starting point when integrating external PCIe subsystems.</p>
+<h3 id="shim-frontend-source-code"><a href="#shim-frontend-source-code">Shim Frontend Source Code</a></h3>
+<p>There are two variants of the Shim Frontend. One for PCIe ports and one
+for endpoints. The file <code>pcie-shim-frontend-common.dml</code> contains the base
+templates for the port and endpoints and can be reused as is.
+Files <code>pcie-endpoint-shim-frontend.dml</code> and <code>pcie-port-shim-frontend.dml</code>
+defines the sample device classes for the PCIe port and endpoint frontends.
+They contain <em>BAR</em> registers that mirror the real hardware. These two files
+would need to be redefined for each project in order to match the
+<em>BARs</em> for the external PCIe device.
+The frontend does <strong>not</strong> need to mirror the capability set
+of the external device since it delegates all transactions to it.</p>
+<h3 id="pcie-shim-c-source-code"><a href="#pcie-shim-c-source-code">PCIe Shim C++ Source Code</a></h3>
+<p>The Shim base class, <strong>ShimPcie</strong>, is defined in the files <code>pcie-shim.h</code> and
+<code>pcie-shim.cc</code>. The class handles the interface calls to and from the Shim PCIe
+DML Frontend. The exchanges with the external process must be implemented by the
+user inheriting the <strong>ShimPcie</strong> class. A set of virtual methods are declared,
+these are the entry points for the external exchange implementation. The
+<strong>ShimPcie</strong> class can be reused as is.</p>
+<p>The Simics side of the Shim consists of two parts: First, the implementation of
+the Simics interfaces to receive upstream transactions and Hot Reset. Method
+<code>ShimPcie::issue</code> receives all transactions and translates the PCIe atoms into
+arguments forwarded to the different function handlers (Config, Memory, Message,
+IO) named <code>ShimPcie::forward...</code>. The <code>ShimPcie::forward_...</code> functions have to
+be implemented by the user integrating the external simulator/emulator/hardware.
+Function <code>ShimPcie::hot_reset</code> must be implemented by the user. Secondly, an
+implementation of functions <code>ShimPcie::upstream_message</code>,
+<code>ShimPcie::upstream_mem_read</code> and <code>ShimPcie::upstream_mem_write</code> are part of the
+<code>ShimPcie</code>. These functions create a corresponding Simics PCIe transaction and
+forward it upstream.</p>
+<h4 id="sample-pcie-traffic-over-ipc"><a href="#sample-pcie-traffic-over-ipc">Sample PCIe Traffic over IPC</a></h4>
+<p>The <code>sample-pcie-shim</code> module also contains sample code to showcase an IPC
+implementation between Simics and an external PCIe subsystem. It gives the user
+a good starting point for integrating the external PCIe subsystem with Simics.</p>
+<p>File <code>pcie-external-connection.cc</code> defines the class <code>PcieExternalConnection</code>.
+It inherits the base class <code>ShimPcie</code> and implements the IPC functionality. The
+<code>PcieExternalConnection</code> class implements interface <code>external_connection_event</code>
+in order to interact with the Simics <code>external-connection</code> module classes.
+Supported IPC mechanisms in the <code>external-connection</code> module are <em>Unix Sockets</em>,
+<em>TCP</em> or Windows <em>Named Pipes</em>.</p>
+<p>File <code>ExternalPcieFormat.h</code> defines the packet format used for the
+sample PCIe IPC traffic.</p>
+<p>Methods:</p>
+<ul>
+<li><code>PcieExternalConnection::write_async</code> sends the packet to the
+external process.</li>
+<li><code>PcieExternalConnection::wait_for_response</code> After a request packet is sent to
+the external process Simics will wait in this method for a response. This
+method blocks Simics from progressing in virtual simulation time. Concurrent
+packet requests coming from the external process is handled by this method as
+well. It is called in <em>Simics cell context</em>.</li>
+<li><code>PcieExternalConnection::on_input</code> is called whenever there is packet data to
+be read. This method runs in <em>Simics Threaded context</em>. Only a small subset of
+the Simics API functions are allowed to be executed in this context. The
+method reads the available data and pushes it into a ring buffer. It then
+either posts a Simics event to schedule processing of the packet in Simics
+<em>Cell Context</em> or it wakes up the blocking thread that executes the
+<code>PcieExternalConnection::wait_for_response</code> method.</li>
+<li><code>PcieExternalConnection::read_input</code> reads <em>N</em> number of bytes of packet data
+and pushes it into the ring buffer.</li>
+</ul>
+<p>The C++ code is based on the <em>Simics C++ Device API v2</em> library.
+Please check out the <a href="../cc-device-api/index.html"><em>C++ Device API v2</em></a> manual.</p>
+<blockquote class="markdown-alert-note">
+<p>The sample Shim supports a limited set of PCIe atoms. If the external PCIe
+subsystem requires ATS, PRS, IDE or PCIe segment numbering one will have to
+extend the sample PCIe shim.</p>
+</blockquote>
+<h3 id="connecting-to-a-pcie-slot"><a href="#connecting-to-a-pcie-slot">Connecting to a PCIe Slot</a></h3>
+<p>The <code>sample-pcie-shim</code> module provides a sample component,
+<code>sample_pcie_shim_comp.py</code> that adds the Shim Frontend and the Sample Shim in a
+component and registers <code>PciBusUpConnector</code> to easily create and connect the
+objects into the Simics PCIe hierarchy. It registers two components:
+<code>sample-pcie-switch-shim-comp</code> to connect external switches and
+<code>sample-pcie-endpoint-shim-comp</code> to connect external endpoints.</p>
+<p>It can be connected to the Simics PCIe hierarchy with the below commands:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module sample-pcie-shim</strong>
+simics&gt; <strong>new-sample-pcie-switch-shim-comp name = shim socket_type = tcp</strong>
+simics&gt; <strong>shim.connect-to dst = root_port</strong>
+Connecting shim.upstream_target to root_port.slot[0]
+</code></pre>
+<h2 id="performance-enhancements"><a href="#performance-enhancements">Performance enhancements</a></h2>
+<p>Co-simulation over the Simics PCIe Shim is a well-defined, simple and thread
+safe IPC solution. The downside is performance compared to running everything
+within Simics.</p>
+<p>Simics CPUs have an internal page cache to speed up instruction fetch and data
+loads/stores. The internal page cache <strong>greatly</strong> improves simulation
+performance.</p>
+<p>To leverage the Simics CPU page caching feature for pages residing in the
+external simulator (i.e. RAM/ROM regions below the PCIe hierarchy of the Shim)
+POSIX shared memory is supported by the Shim.</p>
+<p>It allows the external simulator and Simics to hold references to the same
+memory. By default the Shim routes all PCIe transactions over the socket to the
+external simulator. With shared memory support the external simulator can
+signal, through a socket call, that Simics can route a range of PCIe memory
+transactions to the shared memory object in Simics instead. The external
+simulator can also through a socket call tell the Shim to invalidate a previous
+shared memory mapping.</p>
+<p>File <code>pcie-shim-frontend-common.dml</code> implements the conditional routing to the
+POSIX shared RAM in the Shim frontend. It also has a port implementing the
+interface <code>shared_memory_map_demap</code> to receive mapping updates.</p>
+<p>File <code>ExternalPcieFormat.h</code> defines the packet format used for the
+sample PCIe IPC traffic.</p>
+<figure id="SharedMemory">
+<img alt="Shared RAM for co-simulation" src="shim-shared-memory.png" width="650px">
+<figcaption>Figure 23. Setup where Simics can access RAM residing in the external 
+simulator through shared memory. </figcaption>
+</figure>
+<p>Example creating a PCIe endpoint Shim with 128 MB of shared memory connected
+to a Simics root port:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module sample-pcie-shim</strong>
+simics&gt; <strong>load-module external-connection</strong>
+simics&gt; <strong>@import tempfile</strong>
+simics&gt; <strong>local $td = `tempfile.mkdtemp()`</strong>
+simics&gt; <strong>new-sample-pcie-endpoint-shim-comp name = shim_shared_mem socket_type = unix-socket unix_socket_name = ("%s/test" % $td) shared_memory_name = "/simics_test_shared_mem" shared_memory_megs = 128 bar_size = 0x8000000</strong>
+simics&gt; <strong>shim_shared_mem.connect-to dst = root_port</strong>
+Connecting shim_shared_mem.upstream_target to root_port.slot[0]
+</code></pre>
+
+<div class="chain">
+<a href="migration.html">Migrating From the Legacy PCI Library</a>
+</div>

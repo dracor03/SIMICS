@@ -1,0 +1,148 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>connector</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-connected_device.html">connected_device</a>
+<a href="rm-class-context.html">context</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="connector"><a href="#connector">connector</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The connector object for connecting components.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, connector
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-connector.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-connector.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:type"><a href="#dt:type">
+<i>type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s|n</code>
+<br>The type of the connector as a string. Only two connectors of the same type can be connected.</dd>
+<dt id="dt:hotpluggable"><a href="#dt:hotpluggable">
+<i>hotpluggable</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>The connector supports hotplugging if <tt>true</tt>, not support hotplugging if <tt>false</tt>.</dd>
+<dt id="dt:required"><a href="#dt:required">
+<i>required</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>The connector must be connected when instantiated if this attribute is <tt>true</tt>, otherwise <tt>false</tt>.</dd>
+<dt id="dt:multi"><a href="#dt:multi">
+<i>multi</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>The connector supports multiple connections if this attribute is <tt>true</tt>. Only one connection is supported if this attribute is <tt>false</tt>.</dd>
+<dt id="dt:direction"><a href="#dt:direction">
+<i>direction</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The direction of the connection. An <em>up</em> connector can only be connected to a <em>down</em> connector. An <em>any</em> connector can be connected to an <em>up</em> or <em>down</em> connector. Use the Sim_Connector_Direction_* constants when setting this attribute.</dd>
+<dt id="dt:connector_name"><a href="#dt:connector_name">
+<i>connector_name</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|s</code>
+<br>The name that old legacy commands will use when identifying a component connector. Required as old components can have name conflicts for objects in a component and connector names.</dd>
+<dt id="dt:owner"><a href="#dt:owner">
+<i>owner</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The component object that is the owner of this connector.</dd>
+<dt id="dt:master"><a href="#dt:master">
+<i>master</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>The connector object that is the master of this connection.</dd>
+<dt id="dt:parent"><a href="#dt:parent">
+<i>parent</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>The parent connector that was copied to create this connector.</dd>
+<dt id="dt:child"><a href="#dt:child">
+<i>child</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>The child connector that is a copy of this connector.</dd>
+<dt id="dt:destination"><a href="#dt:destination">
+<i>destination</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>A list of connector objects that this connector should be connected to when getting the next update request.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-class-connected_device.html">connected_device</a>
+<a href="rm-class-context.html">context</a>
+</div>

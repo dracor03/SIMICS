@@ -1,0 +1,886 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>17 Writing Model Tests</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="migrate-pyobj-to-confclass.html">16.3 Migrating to confclass</a>
+<a href="part-common-hardware-components.html">III Modeling Common Hardware Components</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;</div><h1 id="writing-model-tests"><a href="#writing-model-tests">17 Writing Model Tests</a></h1>
+<p>This chapter describes how to write functional tests for device models using the
+test framework in Simics Model Builder. The test framework supports device model
+testing as well as testing entire target systems, but this chapter focuses on
+the former.</p>
+<p>Tests are written in Python and can be run as part of building your devices, or
+as a separate step. The basics of writing and running tests are described in the
+section <a href="device-modeling-overview.html#testing-the-model">Testing the Model in the Device Modeling
+overview</a>. This chapter goes into
+more detail, but assumes that you know the basics described in that section.</p>
+<p>The <em>Simics Reference Manual</em> contains more detailed information about the
+testing framework in Simics, including the API of the libraries used in this
+chapter, as well as the command line program <em>test-runner</em> that allows the user
+to run tests in a project in a flexible way.</p>
+<p>Functional tests of a device model should only test the model under test. This
+means that they should depend on as little as possible of the surrounding
+system. The test framework includes the Python libraries <code>dev_util</code> and <code>pyobj</code>
+which help you achieve this goal. They provide ways to interact with the device
+model and to fake the parts of the system the device model interacts with.</p>
+<p>Testing should be an integrated part of normal device model development,
+preferably written before the implementation. Beyond the basic regression
+testing that automated tests give you, writing tests first helps you catch
+errors quickly, and helps you focus the implementation effort and design.</p>
+<p>This chapter starts with an overview of the testing process. Then it shows you
+where to find some example models which include tests. Finally it goes into more
+detail about how to write tests.</p>
+<h2 id="overview"><a href="#overview">17.1 Overview</a></h2>
+<p>The basics of a functional test of a device model is to write Python code which
+interacts with the device in a way that other parts of a real system would and
+to check that the device behaves as expected.</p>
+<p>The most basic form of interaction with a device is reading and writing its
+registers. You can also interact with a device by calling methods in interfaces
+it implements. To check that the device behaves as expected, you check that the
+register accesses and interface calls have the expected results. A device may
+also perform its own interface calls as a side effect of register accesses or
+interface calls, for example to access memory, raise interrupt signals, or send
+network packets. To verify this, add fake objects implementing the interfaces
+and check that the device performs the expected calls. The <code>pyobj</code> library helps
+with this interfacing with the model. The <code>stest</code> library is used to check that
+the results are as expected.</p>
+<p>Some Simics objects that a device model collaborates with cannot be easily
+faked. Models depending on timing, for example models which implement timers, or
+models timing when performing DMA, need a clock to keep track of the time and
+handle events. This is easier to do with an instance of the <code>clock</code> class
+instead of trying to fake it.</p>
+<p>If a model uses an <code>image</code> object to store large data structures, it is easiest
+to consider this an internal implementation detail and provide a real <code>image</code>
+image in the test.</p>
+<h2 id="sample-tests"><a href="#sample-tests">17.2 Sample Tests</a></h2>
+<!--- Replace referenced samples with a pyobj based test as soon as we
+identified one --->
+<p>Simics Model Builder includes a couple of sample devices which include tests:
+<code>DS12887</code> and <code>DEC21140A-dml</code>. The tests do not cover all the functionality, but
+are provided as a demonstration of basic test techniques. To get access to the
+tests, run the following:</p>
+<pre><code class="language-simics">project$ <strong>bin/project-setup --copy-module=DS12887</strong>
+</code></pre>
+<p>and</p>
+<pre><code class="language-simics">project$ <strong>bin/project-setup --copy-module=DEC21140A-dml</strong>
+</code></pre>
+<p>Now you can try running the tests:</p>
+<pre><code class="language-simics">project$ <strong>make test</strong>
+</code></pre>
+<p>After copying, the tests can be found in the <code>[project]/modules/DS12887/test</code>
+and <code>[project]/modules/DEC21140A-dml/test</code> directories.</p>
+<p>The <code>DS12887</code> suite consists of three tests, sharing some definitions from a
+common Python file (<code>common.py</code>). Each test sets up a simple configuration
+consisting of an instance of the device and a small number of other objects. No
+actual processor is used; a clock object is used to allow time to pass.</p>
+<p>The <code>DEC21140A-dml</code> suite contains similar tests for the DEC21140A Ethernet
+controller. These tests are far from exhaustive, but they demonstrate more in
+depth the techniques of testing a device interacting with other objects; these
+objects are faked in the test. The suite also shows how to check that the
+interface calls performed by the model happen in the expected order.</p>
+<h2 id="writing-tests"><a href="#writing-tests">17.3 Writing Tests</a></h2>
+<p>The key to useful functional tests of a device model is to test the <em>entire</em>
+model, but <em>only</em> the model. That is, the set-up for each test should not be
+bigger than needed.</p>
+<p>When you use <code>project-setup</code> to create a new device skeleton, you also get a
+test template in the <code>test</code> directory of the device. You should extend this
+template with your functional tests for the model.</p>
+<h3 id="anatomy-of-a-test-suite"><a href="#anatomy-of-a-test-suite">17.3.1 Anatomy of a Test Suite</a></h3>
+<p>A test suite for a Simics module is placed in the <code>test</code> directory of the
+module’s source. It has the following contents:</p>
+<dl>
+<dt id="dt:suiteinfo"><a href="#dt:suiteinfo"><code>SUITEINFO</code></a></dt>
+<dd>The existence of this file is what tells
+the test system that the directory contains a test suite. It needs to exist,
+but can be empty. It can optionally contain configuration parameters for the
+test suite, but it is usually empty.</dd>
+<dt id="dt:readme-or-readme-txt"><a href="#dt:readme-or-readme-txt"><code>README</code> or <code>README.txt</code></a></dt>
+<dd>An optional file, which is
+ignored by the test system. It should contain a description of the suite, in
+human-readable format.</dd>
+<dt id="dt:tests-py"><a href="#dt:tests-py"><code>tests.py</code></a></dt>
+<dd>An optional file which generates the set
+of tests in the suite. If it does not exist, the test system will
+automatically generate a test for every file named <code>s-*.py</code>, where <code>*</code> can be
+any string. This is usually all that is needed for functional tests of
+modules.</dd>
+<dt id="dt:s-py"><a href="#dt:s-py"><code>s-*.py</code></a></dt>
+<dd>Each file whose name matches this pattern
+is by default considered a test by the test system, and will be run in its own
+Simics process.</dd>
+</dl>
+<p>This is just a high level description of the files in a test suite. See the
+<em>Simics Reference Manual</em> for the details.</p>
+<h3 id="configuration"><a href="#configuration">17.3.2 Configuration</a></h3>
+<p>Ideally, only one instance of the model under test should be needed for each
+test. In this case, just create the instance using <code>SIM_add_configuration</code>.</p>
+<pre><code>from simics import *
+my_dev = pre_conf_object('dev', 'my_dev_class_name')
+my_dev.attr1 = 'foo'
+my_dev.attr2 = 4711
+
+SIM_add_configuration([my_dev], None)
+
+# Replace our pre_conf_object reference with
+# a reference to the Simics obj
+my_dev = conf.my_dev
+</code></pre>
+<p>In practice the device model may require connections to other models. These
+models can frequently be <em>faked</em>. This means that instead of creating the
+objects that would normally be used, an extremely simple class that only
+implements the necessary interfaces is used. This can usually be done in Python.</p>
+<p>For example, many devices need to be able to signal interrupts. Normally an
+actual interrupt controller object, implementing the <code>signal</code> interface, is
+used. When testing, it is advantageous to create a small class implementing the
+same interface using <code>pyobj</code>:</p>
+<pre><code>from simics import *
+import stest
+import pyobj
+
+# Create a simple device class implementing the signal interface
+class FakePic(pyobj.ConfObject):
+    class raised(pyobj.SimpleAttribute(0, 'i')):
+        '''An attribute to store the signal state'''
+
+    # The signal interface
+    class signal(pyobj.Interface):
+        def signal_raise(self):
+            self._up.raised.val += 1
+        def signal_lower (self):
+            self._up.raised.val -= 1
+</code></pre>
+<p>Create such fake objects before the model under test. Then you can configure the
+model under test to connect to the fake object.</p>
+<pre><code># Create a device instance of the fake PIC
+fake_pic = pre_conf_object('fake_pic', 'FakePic')
+
+# Create device and connect it to fake PIC
+my_dev = pre_conf_object('dev', 'my_dev_class_name')
+my_dev.pic = fake_pic
+
+SIM_add_configuration([my_dev, fake_pic], None)
+
+my_dev   = conf.my_dev
+fake_pic = conf.fake_pic
+
+# Run test code
+...
+
+# Verify that interrupts were raised
+stest.expect_equal(fake_pic.raised, 1, 'signal not raised')
+</code></pre>
+<p>The advantages of using fake objects compared to actual models are:</p>
+<ul>
+<li>fake objects can be made to react to method calls to verify that the
+interfaces are used in the expected way;</li>
+<li>it reduces the code being tested to the device in question, without relying
+on the correctness of other code; and</li>
+<li>it simplifies the configuration, as a single fake object can often replace
+several different objects by implementing all the needed interfaces.</li>
+</ul>
+<p>Objects that cannot be faked are those that cannot be implemented in Python
+because they use data types that cannot be translated from C.</p>
+<p>If you cannot wrap an interface in Python, you can write a simple device in DML
+which translates between pseudo attributes and interface calls instead, or
+translates between an unwrappable interface and a wrappable one. Potentially,
+one might have to create a wrappable interface first. See the chapter <a href="define-new-interface-type.html">Defining
+New Interface Types</a> in this guide. Then you can
+use <code>pyobj</code> to create devices that implement the wrappable interface.</p>
+<h3 id="accessing-device-registers-from-tests"><a href="#accessing-device-registers-from-tests">17.3.3 Accessing Device Registers from Tests</a></h3>
+<p>When a configuration has been created, it is time to perform the actual tests.
+This requires the device to be configured, usually through register writes.</p>
+<p>Thus we need a way of writing to the device. Attributes are not recommended for
+this, and will in most cases not work anyway, as attribute setters have no
+side-effects. The <code>io_memory</code> or <code>transaction</code> interfaces, which are used for
+register accesses, could be used, but require the construction of (generic)
+transaction objects. If the test focus is the registers, their values and their
+side effects, using transactions complicates the test code, requires to keep
+endianness in mind and has hence a higher risk of having errors in the test code
+itself. Here, being able to conveniently perform register accesses that trigger
+side effects just like accesses via the memory path will keep tests focused and
+simple.</p>
+<p>The <code>dev_util</code> library handles this. It allows you to define Python bank proxies
+that wrap a register bank of the device and allow you to directly retrieve and
+modify register values. This also supports the use of fields.</p>
+<pre><code>from simics import *
+import dev_util
+from stest import expect_equal
+
+my_device = pre_conf_object('dev', 'my_device_class')
+SIM_add_configuration([my_device], None)
+
+# Create a bank proxy for bank 'regs'of the device instance named 'dev';
+# Some info to understand the following code:
+#  the bank has two registers r1 and r2
+#  r2 has the fields ctrl, flags, counter and status
+regs = dev_util.bank_regs(conf.dev.bank.regs)
+
+# Writing and reading the entire register r1
+regs.r1.write(0xdeadbeef)
+expect_equal(regs.r1.read(), 0xdeadbeef)
+
+# There is no such thing as "writing only one field", so
+# writing bit fields is overlaid on a full register value;
+# the 'READ' value means that the current value of the
+# register will be read first, giving you read-modify-write behavior.
+# Note that not all fields need to be specified
+regs.r2.write(dev_util.READ, ctrl = 0xA, counter = 2)
+
+# Field reads are full register reads that extract field
+# values for convenience
+expect_equal(regs.r2.field.status.read(), 1)
+expect_equal(regs.r2.field.flags.read(), 0x42)
+
+# Of course, we can read/write the entire register without field values as well
+regs.r2.write(0x47)
+expect_equal(regs.r2.read(), 0x47)
+</code></pre>
+<p>As can be seen, registers are accessed by name through the bank proxy object.
+endianness and fields of registers are taken from the information retrieved from
+the bank. This is the recommended approach when the test focus is on proper
+functionality of registers.</p>
+<p>If endianness, register offsets and the correct bit-to-field associations are
+part of the test focus, then using the bank register would not be able to catch
+such errors in the device, as all of that is extracted from the bank itself. In
+such a case, one can use <code>Register_BE</code> and <code>Register_LE</code> which allow the tester
+to define endianness, expected register offsets and bit-to-field associations.
+If there are disagreements between test and model regarding any of this the test
+would catch it.</p>
+<p>The same example as above would then be:</p>
+<pre><code>from simics import *
+import dev_util
+from stest import expect_equal
+
+my_device = pre_conf_object('dev', 'my_device_class')
+SIM_add_configuration([my_device], None)
+
+# Create a register proxies for each register
+r1 = dev_util.Register_LE(conf.dev.bank.regs, # bank
+                          0x0,                # offset in bank
+                          size=4)
+
+r2 = dev_util.Register_LE(
+        dev.bank.regs, 0x4, size=4,
+        bitfield = dev_util.Bitfield_LE(
+             ctrl=(31,24),      # Bits 31-24
+             flags=(23,5),      # Bits 23-5
+             counter=(4,1),     # Bits 4-1
+             status=0           # Bit 0
+         )
+      )
+
+# Writing and reading the entire register r1
+r1.write(0xdeadbeef)
+expect_equal(r1.read(), 0xdeadbeef)
+
+# There is no such thing as "just writing a field", so
+# a read-modify-write behavior is implied, reading the full
+# register value, then set the field values and then write it back
+# Note that not all fields need to be specified
+r2.write(ctrl = 0xA, counter = 2)
+
+# Field reads are full register reads that extract field
+# values for convenience
+expect_equal(r2.status, 1)
+expect_equal(r2.flags, 0x42)
+
+# Quick access to a single field
+# (these are implicit read-modify-write accesses again)
+r2.flags = 0x66
+r2.status = 0
+
+# Of course, we can read/write the entire register without field values as well
+r2.write(0x47)
+expect_equal(r2.read(), 0x47)
+</code></pre>
+<p>As can be seen, registers can either have little- or big-endian byte order
+(<code>Register_LE</code>/<code>Register_BE</code>). Similarly, bitfields can either have little- or
+big-endian bit-order (<code>Bitfield_LE</code>/<code>Bitfield_BE</code>). LE/BE registers can be
+freely mixed with LE/BE bit fields. This works analogously to registers and
+fields in DML. You can read more about byte order and bit order in the
+application note <em>Byte Order and Byte Swapping in Simics</em>.
+<code>Register_LE</code>/<code>Register_BE</code> should only be used when testing if a model adheres
+to specified endiannesses, register offsets and bit-to-field associations.</p>
+<h3 id="responding-to-memory-accesses-from-models"><a href="#responding-to-memory-accesses-from-models">17.3.4 Responding to Memory Accesses From Models</a></h3>
+<p>It is quite common that a device performs DMA transfers. These transfers are
+often configured with descriptors, i.e., in-memory structures that tell the
+device how to perform the transfer (e.g., size and location of the transfer). A
+network controller would be a typical example of such a device. Network
+controllers are usually configured with receive and transmit descriptors.</p>
+<p>The <a href="../rm-base/rm-class-sparse-memory.html#sparse-memory"><code>sparse-memory</code></a>
+class can be used in place of normal <a href="../rm-base/rm-class-ram.html#ram"><code>ram</code></a>
+and is useful for testing DMA transfers. The advantage of using <code>sparse-memory</code>
+in tests instead of regular Simics RAM is twofold:</p>
+<ul>
+<li>It is possible to track which addresses have been written to.</li>
+<li>Reading from uninitialized addresses causes an exception to be raised.</li>
+</ul>
+<p><code>sparse-memory</code> is created just like <code>ram</code>, except that it does not need a
+backing <code>image</code> object:</p>
+<pre><code>ns = simics.pre_conf_object("ns", "namespace")
+ns.ram = simics.pre_conf_object("sparse-memory")
+ns.mem = simics.pre_conf_object("memory-space", default_target=[ns.ram, 0, 0, None])
+simics.SIM_add_configuration([ns], None)
+</code></pre>
+<p>The <a href="https://docs.python.org/3/library/ctypes.html" rel="noopener noreferrer" target="_top">ctypes Python standard
+library</a> contains <code>Structure</code>,
+its subclasses and other classes that can be used to declare structured data.</p>
+<p><code>ctypes</code> structures are packed into bytes objects by calling <code>bytes()</code> on them.
+They can be unpacked from a bytes object using the class function
+<code>MyStructType.from_buffer_copy()</code>.</p>
+<p>The <code>_fields_</code> member of <code>Structure</code> consists of a list of tuples of name, size
+and optionally bitfield width.</p>
+<p>An example of DMA scatter-gather descriptors from a fictional model test
+follows. This model is described in more detail in the documentation section
+<a href="dma.html">Modeling Direct Memory Access (DMA)</a>.</p>
+<pre><code>from ctypes import BigEndianStructure, c_uint8, c_uint16, c_uint32, sizeof
+import sys
+
+class SGListHead(BigEndianStructure):
+    if sys.version_info &gt;= (3, 14):
+        _layout_ = "ms"
+    _pack_ = 1
+    _fields_ = [
+        ("addr", c_uint32),
+        ("len", c_uint16),
+        ("reserved", c_uint16),
+    ]
+
+
+class SGFlags(BigEndianStructure):
+    if sys.version_info &gt;= (3, 14):
+        _layout_ = "ms"
+    _pack_ = 1
+    _fields_ = [
+        ("reserved", c_uint8, 7),
+        ("ext", c_uint8, 1),
+    ]
+
+
+class SGListBlockRow(BigEndianStructure):
+    if sys.version_info &gt;= (3, 14):
+        _layout_ = "ms"
+    _pack_ = 1
+    _fields_ = [
+        ("addr", c_uint32),
+        ("len", c_uint16),
+        ("offset", c_uint8),
+        ("flags", SGFlags),
+    ]
+
+
+</code></pre>
+<blockquote class="markdown-alert-tip">
+<p>To specify bitfields with offsets instead of widths, which may match
+datasheets better, a construct like the following may be used:</p>
+<pre><code>import itertools
+
+class Descriptor(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        (name, c_uint16, lsb2 - lsb1)
+        for ((name, lsb1), (_, lsb2)) in itertools.pairwise(
+            [
+                ("field_0", 0),  # bits 0-3
+                ("field_1", 4),  # bits 4-5
+                ("field_2", 6),  # bit 6
+                ("reserved", 7),  # bits 7-16
+                ("", 16)  # end
+            ]
+        )
+    ]
+</code></pre>
+</blockquote>
+<p>The descriptors can be created and written to memory like this. The structure of
+the test data is the same as in <a href="dma.html#supporting-scatter-gather-lists-using-layouts">Modeling Direct Memory Access (DMA), subsection
+Supporting Scatter Gather Lists Using
+Layouts</a>.</p>
+<pre><code># The SG list head, pointing to a table containing 3 rows
+head = SGListHead(addr=0x10001000, len=3 * sizeof(SGListBlockRow))
+
+# The first SG table ends with an extension block pointing to a second table
+# containing 2 rows. The second table only has data blocks.
+tables = [
+    [
+        SGListBlockRow(addr=0x10001100, offset=4, len=12),
+        SGListBlockRow(addr=0x10001300, offset=0, len=4),
+        SGListBlockRow(
+            addr=0x10001200,
+            offset=0,
+            len=2 * sizeof(SGListBlockRow),
+            flags=SGFlags(ext=1),
+        ),
+    ],
+    [
+        SGListBlockRow(addr=0x10001400, offset=2, len=8),
+        SGListBlockRow(addr=0x10001500, offset=1, len=5),
+    ],
+]
+
+# Write the scatter-gather tables to memory
+source_addr = 0x10000000
+transaction = simics.transaction_t(write=True, data=bytes(head))
+exc = simics.SIM_issue_transaction(mem, transaction, source_addr)
+assert exc == simics.Sim_PE_No_Exception
+
+addr = head.addr
+for table in tables:
+    packed_rows = [bytes(row) for row in table]
+    packed_table = b"".join(packed_rows)
+    transaction = simics.transaction_t(write=True, data=packed_table)
+    exc = simics.SIM_issue_transaction(mem, transaction, addr)
+    assert exc == simics.Sim_PE_No_Exception
+    # The address for the next table is pointed out by the extension block
+    # in the last row of the previous table
+    addr = table[-1].addr
+
+# Collect addresses of all data blocks
+all_rows = [row for table in tables for row in table]
+data_addrs = [row.addr for row in all_rows if row.flags.ext == 0]
+
+# Write the test data to memory
+data_blocks = [
+    bytes(range(16)),
+    bytes(range(16, 20)),
+    bytes(range(20, 30)),
+    bytes(range(30, 36)),
+]
+
+for addr, data in zip(data_addrs, data_blocks):
+    transaction = simics.transaction_t(write=True, data=data)
+    exc = simics.SIM_issue_transaction(mem, transaction, addr)
+    assert exc == simics.Sim_PE_No_Exception
+
+</code></pre>
+<p>The full test code is included in the <a href="#appendix-full-test-code-for-responding-to-memory-accesses-from-models">Appendix
+subsection</a>.</p>
+<h4 id="testing-memory-access-using-legacy-dev_util-layout-and-dev_util-memory"><a href="#testing-memory-access-using-legacy-dev_util-layout-and-dev_util-memory">17.3.4.1 Testing memory access using legacy <code>dev_util.Layout</code> and <code>dev_util.Memory</code></a></h4>
+<p>The
+<a href="../rm-api/dev_util.html#dev_util"><code>dev_util</code></a>
+library provides classes for describing memory layouts in place:
+<a href="../rm-api/dev_util.html#dev_util.Layout"><code>Layout</code></a>,
+<a href="../rm-api/dev_util.html#dev_util.Bitfield"><code>Bitfield</code></a>
+and their subclasses. These will eventually be deprecated and new code is
+recommended to use <code>ctypes</code> instead.</p>
+<p>The deprecated class
+<a href="../rm-api/dev_util.html#dev_util.Memory"><code>Memory</code></a>
+is wrapper around <code>sparse-memory</code>. In new code, use <code>sparse-memory</code> directly
+instead.</p>
+<p>Example code using <code>Layout</code> and <code>Memory</code>:</p>
+<pre><code>from simics import *
+import dev_util
+from stest import expect_equal, expect_different
+
+mem = dev_util.Memory()
+dma_dev = pre_conf_object('dev', 'my_dev_class')
+dma_dev.phys_mem = mem.obj
+SIM_add_configuration([dma_dev], None)
+
+# Create a layout at address 0x1234.
+# The descriptor looks like this:
+#
+#      --------------------
+#  0:  |  reg1   |  reg2  |
+#      --------------------
+#  4:  |       reg3       |
+#      --------------------
+#  8:  | f1 | f2 |////////|
+#      --------------------
+#
+# Total descriptor size is 10 bytes.
+
+desc = dev_util.Layout_LE(
+    mem, 0x1234,
+    {'reg1' : (0, 2),  # offset = 0, size = 2
+     'reg2' : (2, 2),  # offset = 2, size = 2
+     'reg3' : (4, 4),
+     'reg4' : (8, 2,
+               dev_util.Bitfield_BE({'f1' : (15, 8),
+                                     'f2' : (7, 0)})
+              )})
+
+# Initialize the descriptor
+desc.reg1 = 0xffff
+desc.reg2 = 0xabab
+desc.reg3 = 0xdeadbeef
+desc.reg4.write(0, f1=5, f2=27)
+
+# Fill memory with test data (this is the data the device
+# will read, in addition to the descriptor above).
+mem.write(0xabab, tuple(i for i in xrange(256)))
+
+# Run test
+...
+
+# If the device updates the descriptor with status information,
+# we should check that now
+expect_different(desc.reg4.f2, 29)
+
+# Check that data was copied from 0xabab to 0xffff
+expect_equal(mem.read(0xffff, 256), range(256))
+</code></pre>
+<p>One thing that should be noted is that it is not possible to access (read from
+or write to) a field in an uninitialized register. This is because the entire
+register must be loaded before altering a single field, and the <code>Memory</code> class
+will raise an exception when reading uninitialized memory. To handle this,
+either do a write to the entire register before setting the field, or set all
+the fields in a single write operation with a default value of, for example,
+zero:</p>
+<pre><code>layout.reg.write(0)
+layout.reg.field = 1
+</code></pre>
+<p>or</p>
+<pre><code>layout.reg.write(0, field=1)
+</code></pre>
+<h3 id="calling-interfaces-on-devices"><a href="#calling-interfaces-on-devices">17.3.5 Calling interfaces on devices</a></h3>
+<p>Testing devices also requires invoking the interfaces they implement. The
+interfaces related to bank accesses have been covered above, but a device can
+also implement other interfaces. If an interface can be Python wrapped, you can
+call it directly on the device or port via
+<code>&lt;dev&gt;.iface.&lt;interfaceName&gt;.&lt;functionName&gt;(&lt;functionArguments&gt;)</code> or
+<code>&lt;dev&gt;.port.&lt;portName&gt;.iface.&lt;interfaceName&gt;.&lt;functionName&gt;(&lt;functionArguments&gt;)</code>.</p>
+<p>For example, if your device implements the <code>signal</code> interface at the device
+level as well as in a port called <code>reset</code> then you can trigger it as follows:</p>
+<pre><code>from simics import *
+dev = pre_conf_object('dev', 'my_dev_class')
+SIM_add_configuration([dev], None)
+dev = conf.dev
+
+# raise signal on device
+dev.iface.signal.signal_raise()
+
+# spike signal on a port
+dev.port.reset.iface.signal.signal_raise()
+dev.port.reset.iface.signal.signal_lower()
+
+# lower signal on device
+dev.iface.signal.signal_lower()
+</code></pre>
+<h3 id="working-with-transactions-sent-into-and-received-from-devices-under-test"><a href="#working-with-transactions-sent-into-and-received-from-devices-under-test">17.3.6 Working with transactions sent into and received from devices under test</a></h3>
+<p>Sending a transaction means to just call an interface on a device with a
+transaction object. The basics have been covered in  the previous sections, but
+transaction object handling may need some more explanations. In many cases you
+will not need to manually create transactions, because you can either use the
+<code>bank_regs</code> or <code>Register_LE/BE</code> from <code>dev_util</code> or map you device into a memory
+space and use the provided read/write functions of the memory space.</p>
+<p>However, if your device makes use of custom transaction atoms, you will have to
+manually create transactions and send them into your device. Assume you have
+defined a custom atom called <code>extended_id</code> in a module name <code>extended-id-atom</code>,
+then the steps to create and send a transaction is as follows.</p>
+<pre><code>import simics
+
+# Create the device under test
+dev = simics.pre_conf_object('dev', 'my_dev_class')
+simics.SIM_add_configuration([dev], None)
+dev = conf.dev
+
+# Load the module that defines the custom atom
+simics.SIM_load_module('extended-id-atom')
+
+# Create a 4 byte write transaction with extended_id = 3000
+txn = simics.transaction_t(size=4, write=True,
+                           value_le=0xdeadbeef,
+                           extended_id=3000)
+
+# Send transaction to offset 0x420 in bank 'regs'
+exc  = simics.SIM_issue_transaction(dev.bank.regs, txn, 0x420)
+</code></pre>
+<p>If the device under test sends transactions with custom atoms whose values have
+to be checked, you can create a <code>pyobj</code> based device as described in the
+<a href="#configuration">Configuration</a> section that implements the <code>transaction</code>
+interface. In there you can inspect the state of transaction atoms and possibly
+then forward them to a test memory as described in the section <a href="#responding-to-memory-accesses-from-models">Responding to
+Memory Accesses From Models</a>. Below
+is an example of this.</p>
+<pre><code>import simics
+import stest
+import pyobj
+import dev_util
+
+# load the module that defines the custom atom
+simics.SIM_load_module('extended-id-atom')
+
+# Create a simple device class that can inspect transactions and forward them
+class txn_checker(pyobj.ConfObject):
+    class last_extended_id(pyobj.SimpleAttribute(0, 'i')):
+        '''An attribute to store the last seen extended id'''
+
+    # The transaction interface
+    class transaction(pyobj.Interface):
+        def issue(self, txn, addr):
+            self._up.last_extended_id.val = txn.extended_id
+            return self._up.to_mem.val.iface.transaction.issue(txn, addr)
+
+    class to_mem(pyobj.SimpleAttribute(None, 'o', simics.Sim_Attr_Optional)):
+        '''Connect to the memory space'''
+
+mem = dev_util.Memory()
+dev = simics.pre_conf_object('dev','my_dev_class')
+chk = simics.pre_conf_object('chk','txn_checker')
+dev.to_mem = chk
+chk.to_mem = mem.obj
+simics.SIM_add_configuration([dev, chk],None)
+dev = conf.dev
+chk = conf.chk
+
+regs = dev_util.bank_regs(dev.bank.regs)
+
+# trigger a txn to addr 0x4242 by writing to r1
+regs.r1.write(0x4242)
+
+# we expect 0xdeadbeef to be written to the address we just wrote to r1
+stest.expect_equal(mem.read(0x4242, 4),
+                   list(0xdeadbeef.to_bytes(4, 'little')),
+                   "Incorrect value written"
+                   )
+
+# we expect the last extended id to be 0x4711
+stest.expect_equal(chk.last_extended_id, 0x4711, "Incorrect extended ID seen")
+</code></pre>
+<h3 id="test-coverage-and-speed"><a href="#test-coverage-and-speed">17.3.7 Test Coverage and Speed</a></h3>
+<p>Tests should obviously be as complete as possible, covering all the implemented
+functionality of a device model. Anything that is implemented but not tested
+risks to stop working at any moment due to later changes to the code.</p>
+<p>On the other hand, it is important to make tests complete quickly. Ideally, a
+programmer should be able to re-run all tests for a device model even after
+small changes, without having to wait a long time for the tests to finish. If
+the tests take too long, they will not be run as often and will then be less
+effective in helping development.</p>
+<p>As a rule of thumb, the time taken by a test should be dominated by the Simics
+start up time, and all tests of a single device model no more than half a
+minute, preferably even shorter. Most device tests should only take a few
+seconds on a modern machine. Exceptions should only be allowed if there are very
+good reasons for them.</p>
+<p>This means that not everything can be tested, but clever testing can cover a lot
+of functionality in a short time.</p>
+<h3 id="documenting-tests"><a href="#documenting-tests">17.3.8 Documenting Tests</a></h3>
+<p>For tests to be useful and maintainable, you should document what is being
+tested, both for the entire test suite (in a <code>README</code> file) and each test (as
+comments in the respective files). Any omissions should be noted; this is
+important to assess coverage.</p>
+<p>The test code itself is subject to the same commenting as any other program
+code; i.e., describe anything unusual and the reasoning behind the design, but
+do not over-comment the code itself.</p>
+<p>When a test fails, it must be reasonably easy to find out exactly what has
+failed and why. This can be achieved by a combination of error messages when the
+failure occurs, logging done during the test run, and comments in the test code.
+Raising a Python exception at the point of error also helps locating it, since a
+complete traceback will be printed automatically. The checking functions in
+<code>stest</code> already raise exceptions if the check fails.</p>
+<h3 id="arranging-test-code"><a href="#arranging-test-code">17.3.9 Arranging Test Code</a></h3>
+<p>When dividing tests into subtests, the following should be taken into account:</p>
+<ul>
+<li>A subtest is in general the unit for reporting failures or successes. It is
+often useful to put tests of independent features into separate subtests, so
+they can fail and succeed independently of each other.</li>
+<li>A subtest is run in its own Simics process which means that it is started in
+a known state. This removes any dependencies on previous tests.</li>
+<li>It takes some time for Simics to start, so it often makes sense to put many
+related small tests into the same subtest script, in order to make the test
+run faster.</li>
+</ul>
+<p>As with all programming, it is always a good idea to factor out common test code
+into separate Python files. This can include configuration, definition of fake
+objects, functions for register access and other helper functions. See the
+sample tests for how it can be done.</p>
+<h2 id="appendix-full-test-code-for-responding-to-memory-accesses-from-models"><a href="#appendix-full-test-code-for-responding-to-memory-accesses-from-models">17.4 Appendix: Full test code for Responding to Memory Accesses From Models</a></h2>
+<pre><code># © 2025 Intel Corporation
+#
+# This software and the related documents are Intel copyrighted materials, and
+# your use of them is governed by the express license under which they were
+# provided to you ("License"). Unless the License provides otherwise, you may
+# not use, modify, copy, publish, distribute, disclose or transmit this software
+# or the related documents without Intel's prior written permission.
+#
+# This software and the related documents are provided as is, with no express or
+# implied warranties, other than those that are expressly stated in the License.
+
+import simics
+import dev_util
+import stest
+
+#:: pre descriptor-definitions {{
+from ctypes import BigEndianStructure, c_uint8, c_uint16, c_uint32, sizeof
+import sys
+
+class SGListHead(BigEndianStructure):
+    if sys.version_info &gt;= (3, 14):
+        _layout_ = "ms"
+    _pack_ = 1
+    _fields_ = [
+        ("addr", c_uint32),
+        ("len", c_uint16),
+        ("reserved", c_uint16),
+    ]
+
+
+class SGFlags(BigEndianStructure):
+    if sys.version_info &gt;= (3, 14):
+        _layout_ = "ms"
+    _pack_ = 1
+    _fields_ = [
+        ("reserved", c_uint8, 7),
+        ("ext", c_uint8, 1),
+    ]
+
+
+class SGListBlockRow(BigEndianStructure):
+    if sys.version_info &gt;= (3, 14):
+        _layout_ = "ms"
+    _pack_ = 1
+    _fields_ = [
+        ("addr", c_uint32),
+        ("len", c_uint16),
+        ("offset", c_uint8),
+        ("flags", SGFlags),
+    ]
+
+
+# }}
+
+
+class fake_signal_target:
+    cls = simics.confclass("fake-signal-target")
+    cls.attr.state("b", default=False)
+
+    @cls.iface.signal.signal_raise
+    def signal_raise(self):
+        stest.expect_false(self.state, "signal raised when already high")
+        self.state = True
+
+    @cls.iface.signal.signal_lower
+    def signal_lower(self):
+        stest.expect_true(self.state, "signal lowered when already low")
+        self.state = False
+
+
+ns = simics.pre_conf_object("ns", "namespace")
+
+ns.clock = simics.pre_conf_object("clock", freq_mhz=100)
+
+ns.ram = simics.pre_conf_object("sparse-memory")
+ns.mem = simics.pre_conf_object("memory-space", default_target=[ns.ram, 0, 0, None])
+ns.irqdev = simics.pre_conf_object("fake-signal-target")
+ns.dev = simics.pre_conf_object(
+    "sample_dma_device10", intr_target=ns.irqdev, target_mem=ns.mem,
+    queue=ns.clock
+)
+
+simics.SIM_add_configuration([ns], None)
+clock = simics.SIM_get_object(ns.clock.name)
+mem = simics.SIM_get_object(ns.mem.name)
+dev = simics.SIM_get_object(ns.dev.name)
+regs = dev_util.bank_regs(dev.bank.regs)
+
+#:: pre descriptor-creation {{
+# The SG list head, pointing to a table containing 3 rows
+head = SGListHead(addr=0x10001000, len=3 * sizeof(SGListBlockRow))
+
+# The first SG table ends with an extension block pointing to a second table
+# containing 2 rows. The second table only has data blocks.
+tables = [
+    [
+        SGListBlockRow(addr=0x10001100, offset=4, len=12),
+        SGListBlockRow(addr=0x10001300, offset=0, len=4),
+        SGListBlockRow(
+            addr=0x10001200,
+            offset=0,
+            len=2 * sizeof(SGListBlockRow),
+            flags=SGFlags(ext=1),
+        ),
+    ],
+    [
+        SGListBlockRow(addr=0x10001400, offset=2, len=8),
+        SGListBlockRow(addr=0x10001500, offset=1, len=5),
+    ],
+]
+
+# Write the scatter-gather tables to memory
+source_addr = 0x10000000
+transaction = simics.transaction_t(write=True, data=bytes(head))
+exc = simics.SIM_issue_transaction(mem, transaction, source_addr)
+assert exc == simics.Sim_PE_No_Exception
+
+addr = head.addr
+for table in tables:
+    packed_rows = [bytes(row) for row in table]
+    packed_table = b"".join(packed_rows)
+    transaction = simics.transaction_t(write=True, data=packed_table)
+    exc = simics.SIM_issue_transaction(mem, transaction, addr)
+    assert exc == simics.Sim_PE_No_Exception
+    # The address for the next table is pointed out by the extension block
+    # in the last row of the previous table
+    addr = table[-1].addr
+
+# Collect addresses of all data blocks
+all_rows = [row for table in tables for row in table]
+data_addrs = [row.addr for row in all_rows if row.flags.ext == 0]
+
+# Write the test data to memory
+data_blocks = [
+    bytes(range(16)),
+    bytes(range(16, 20)),
+    bytes(range(20, 30)),
+    bytes(range(30, 36)),
+]
+
+for addr, data in zip(data_addrs, data_blocks):
+    transaction = simics.transaction_t(write=True, data=data)
+    exc = simics.SIM_issue_transaction(mem, transaction, addr)
+    assert exc == simics.Sim_PE_No_Exception
+
+# }}
+
+# Run test
+dest_addr = 0x10002000
+regs.DMA_source.write(source_addr)
+regs.DMA_dest.write(dest_addr)
+regs.DMA_control.write(0, EN=1, SWT=1, ECI=1, SG=1)
+
+# Wait for interrupt
+expected_num_bytes_written = sum([row.len for row in all_rows if row.flags.ext == 0])
+cycles_per_s = clock.freq_mhz * 1000_000
+simics.SIM_continue(
+    expected_num_bytes_written / 4 * cycles_per_s * dev.attr.throttle - 1
+)
+stest.expect_false(dev.intr_target.state)
+simics.SIM_continue(1)
+stest.expect_true(dev.intr_target.state)
+
+expected = (
+    bytes(range(4, 16))
+    + bytes(range(16, 20))
+    + bytes(range(22, 30))
+    + bytes(range(31, 36))
+)
+
+stest.expect_equal(regs.DMA_control.field.TC.read(), 1)
+stest.expect_equal(regs.DMA_control.field.ERR.read(), 0)
+
+# Read the destination buffer
+transaction = simics.transaction_t(read=True, size=len(expected))
+exc = simics.SIM_issue_transaction(mem, transaction, dest_addr)
+assert exc == simics.Sim_PE_No_Exception
+
+# Verify the contents of the destination buffer
+stest.expect_equal(transaction.data, expected)
+
+# Write TC=0 to clear interrupt
+regs.DMA_control.write(0)
+
+stest.expect_false(dev.intr_target.state)
+</code></pre>
+
+<div class="chain">
+<a href="migrate-pyobj-to-confclass.html">16.3 Migrating to confclass</a>
+<a href="part-common-hardware-components.html">III Modeling Common Hardware Components</a>
+</div>

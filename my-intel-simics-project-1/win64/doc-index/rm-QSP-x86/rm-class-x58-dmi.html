@@ -1,0 +1,207 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>x58-dmi</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-x58-core-f3-legacy.html">x58-core-f3-legacy</a>
+<a href="rm-class-x58-dmi-legacy.html">x58-dmi-legacy</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="x58-dmi"><a href="#x58-dmi">x58-dmi</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+DMI unit in the Intel® X58 Express Chipset.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, pcie_device, transaction_translator, translation_flush
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:clkreq-optional"><a href="#dt:clkreq-optional">clkreq (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+<dt id="dt:default_remapping_unit-optional"><a href="#dt:default_remapping_unit-optional">default_remapping_unit (optional)</a></dt>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+<dt id="dt:downstream_target-optional"><a href="#dt:downstream_target-optional">downstream_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pcie_port_control
+</dd>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+<dt id="dt:gfx_remapping_unit-optional"><a href="#dt:gfx_remapping_unit-optional">gfx_remapping_unit (optional)</a></dt>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+<dt id="dt:interrupt-optional"><a href="#dt:interrupt-optional">interrupt (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pci_interrupt
+</dd>
+<dt id="dt:upstream_target-optional"><a href="#dt:upstream_target-optional">upstream_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pcie_map
+</dd>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, pcie_link_control, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-io_regs"><a href="#dt:bank-io_regs">bank.io_regs</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi.io_regs">x58-dmi.io_regs</a>
+</dd>
+<dt id="dt:bank-pcie_config"><a href="#dt:bank-pcie_config">bank.pcie_config</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi.pcie_config">x58-dmi.pcie_config</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi.HRESET">x58-dmi.HRESET</a>
+</dd>
+<dt id="dt:port-_upstream_egress"><a href="#dt:port-_upstream_egress">port._upstream_egress</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi._upstream_egress">x58-dmi._upstream_egress</a>
+</dd>
+<dt id="dt:port-_upstream_egress_dead_end"><a href="#dt:port-_upstream_egress_dead_end">port._upstream_egress_dead_end</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi._upstream_egress_dead_end">x58-dmi._upstream_egress_dead_end</a>
+</dd>
+<dt id="dt:port-msg"><a href="#dt:port-msg">port.msg</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi.msg">x58-dmi.msg</a>
+ – legacy PCI INTx message to pci_interrupt converter</dd>
+<dt id="dt:port-phy"><a href="#dt:port-phy">port.phy</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi.phy">x58-dmi.phy</a>
+</dd>
+<dt id="dt:port-upstream_ingress"><a href="#dt:port-upstream_ingress">port.upstream_ingress</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi.upstream_ingress">x58-dmi.upstream_ingress</a>
+</dd>
+<dt id="dt:upstream_ingress_targets"><a href="#dt:upstream_ingress_targets">upstream_ingress_targets</a></dt>
+<dd>
+<a href="rm-class-x58-dmi.html#x58-dmi.upstream_ingress_targets">x58-dmi.upstream_ingress_targets</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-x58-dmi.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-x58-dmi.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:clkreq"><a href="#dt:clkreq">
+<i>clkreq</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>CLKREQ output signal (active high)
+<p>
+Required interface: <tt>signal</tt></p></dd>
+<dt id="dt:default_remapping_unit"><a href="#dt:default_remapping_unit">
+<i>default_remapping_unit</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Default DMA remapping unit
+<p>
+Optional interfaces: <tt>io_memory</tt>, <tt>memory_space</tt>, <tt>port_space</tt>, <tt>ram</tt>, <tt>rom</tt>, <tt>transaction</tt>, <tt>transaction_translator</tt>, <tt>translator</tt></p></dd>
+<dt id="dt:downstream_target"><a href="#dt:downstream_target">
+<i>downstream_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>PCIe Downstream Target
+<p>
+Required interface: <tt>pcie_port_control</tt>
+</p><p>
+Optional interfaces: <tt>io_memory</tt>, <tt>memory_space</tt>, <tt>port_space</tt>, <tt>ram</tt>, <tt>rom</tt>, <tt>transaction</tt>, <tt>transaction_translator</tt>, <tt>translator</tt></p></dd>
+<dt id="dt:gfx_objs"><a href="#dt:gfx_objs">
+<i>gfx_objs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>List of configuration objects from which transactions will be remapped using the graphics remapping unit</dd>
+<dt id="dt:gfx_remapping_unit"><a href="#dt:gfx_remapping_unit">
+<i>gfx_remapping_unit</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Graphics DMA remapping unit
+<p>
+Optional interfaces: <tt>io_memory</tt>, <tt>memory_space</tt>, <tt>port_space</tt>, <tt>ram</tt>, <tt>rom</tt>, <tt>transaction</tt>, <tt>transaction_translator</tt>, <tt>translator</tt></p></dd>
+<dt id="dt:interrupt"><a href="#dt:interrupt">
+<i>interrupt</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Target to receive PCIe Legacy Interrupts
+<p>
+Required interface: <tt>pci_interrupt</tt></p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.X58-devices.html">X58-devices</a>
+</section>
+<h2 id="x58-dmi.HRESET"><a href="#x58-dmi.HRESET">x58-dmi.HRESET</a></h2>
+<h2 id="x58-dmi._upstream_egress"><a href="#x58-dmi._upstream_egress">x58-dmi._upstream_egress</a></h2>
+<h2 id="x58-dmi._upstream_egress_dead_end"><a href="#x58-dmi._upstream_egress_dead_end">x58-dmi._upstream_egress_dead_end</a></h2>
+<h2 id="x58-dmi.io_regs"><a href="#x58-dmi.io_regs">x58-dmi.io_regs</a></h2>
+<h2 id="x58-dmi.msg"><a href="#x58-dmi.msg">x58-dmi.msg</a></h2>
+<h2 id="x58-dmi.pcie_config"><a href="#x58-dmi.pcie_config">x58-dmi.pcie_config</a></h2>
+<h2 id="x58-dmi.phy"><a href="#x58-dmi.phy">x58-dmi.phy</a></h2>
+<h2 id="x58-dmi.upstream_ingress"><a href="#x58-dmi.upstream_ingress">x58-dmi.upstream_ingress</a></h2>
+<h2 id="x58-dmi.upstream_ingress_targets"><a href="#x58-dmi.upstream_ingress_targets">x58-dmi.upstream_ingress_targets</a></h2>
+<div class="chain">
+<a href="rm-class-x58-core-f3-legacy.html">x58-core-f3-legacy</a>
+<a href="rm-class-x58-dmi-legacy.html">x58-dmi-legacy</a>
+</div>

@@ -1,0 +1,84 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>firewire_bus</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-fake-space.html">fake-space</a>
+<a href="rm-class-firewire_device_test_wrapper.html">firewire_device_test_wrapper</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="firewire_bus"><a href="#firewire_bus">firewire_bus</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A FireWire bus. The bus takes responsibility for all the bus arbitration and assigning ids. It does not keep track of the topology of the bus, so the IDs will be quite arbitrary. Neither does it keep track of the transfer rate limitations, which means that you can transmit as much data per time unit as you want.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, firewire_bus
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-firewire_bus.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-firewire_bus.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:connections"><a href="#dt:connections">
+<i>connections</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[[oi][oi]]*]</code>
+<br>The connections between the ports on the devices. Each connection is represented as a pair of ports, where each port is represented as a pair of a device and a port number. The connections must be kept consistent with the devices connected to the bus.</dd>
+<dt id="dt:current_transfer"><a href="#dt:current_transfer">
+<i>current_transfer</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d|n</code>
+<br>The current transfer. This attribute is only valid during the Firewire_Transfer hap.</dd>
+<dt id="dt:self_ids"><a href="#dt:self_ids">
+<i>self_ids</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>The self-id packets describing the current tree. This attribute is only valid during the Firewire_Bus_Reset hap. It describes the structure of the tree. The connected_devices attribute is what is used to say which device has which node-id.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.firewire-bus.html">firewire-bus</a>
+</section>
+<div class="chain">
+<a href="rm-class-fake-space.html">fake-space</a>
+<a href="rm-class-firewire_device_test_wrapper.html">firewire_device_test_wrapper</a>
+</div>

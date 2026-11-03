@@ -1,0 +1,272 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pyobj</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="blueprints.html">blueprints</a>
+<a href="comp.html">comp</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="pyobj"><a href="#pyobj">pyobj</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>pyobj</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import pyobj
+</code></pre>
+</section>
+<h2 id="pyobj.Attribute"><a href="#pyobj.Attribute">class pyobj.Attribute</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class pyobj.Attribute(top, up)
+</code></pre>
+<h2>Description</h2>
+<p>A Simics attribute.</p>
+<p>The <code>pyobj.Attribute</code> class defines an attribute that will be registered for the containing <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a> class. The attribute will be registered with Simics using the <a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_attribute</code></a> function. See documentation for <a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_attribute</code></a> for detailed information about attributes.</p>
+<p>The arguments to <a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_attribute</code></a> is taken from the class members. The <code>attrattr</code> member is an <code>attr_attr_t</code> type and its default value is <code>Sim_Attr_Optional</code>. The <code>attrtype</code> member is a string defining the type of the attribute, default value is <em>‘a’</em>.</p>
+<p>The class methods named <code>getter</code> and <code>setter</code> will be used as <code>get_attr</code> and <code>set_attr</code> functions when registering the attribute. The methods are optional. An attribute without a <code>getter</code> can not be read. An attribute without a <code>setter</code> can not be written.</p>
+<p>The attribute description is the same as the Python class description.</p>
+<p>The <code>_initialize</code> method can be defined if special initialization behavior is required. This can for instance be used to set the default value.</p>
+<h2>Example</h2>
+<pre><code>class wee(pyobj.Attribute):
+    """Documentation for the attribute goes here."""
+    attrattr = simics.Sim_Attr_Pseudo
+    attrtype = 'i'
+    def _initialize(self):
+        self.val = 4711
+    def getter(self):
+        self.val += 3
+        return self.val
+    def setter(self, val):
+        self.val = val
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.SimpleAttribute"><code>pyobj.SimpleAttribute</code></a>, <a href="pyobj.html#pyobj.ClassAttribute"><code>pyobj.ClassAttribute</code></a>, <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="pyobj.ClassAttribute"><a href="#pyobj.ClassAttribute">class pyobj.ClassAttribute</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class pyobj.ClassAttribute(top, up)
+</code></pre>
+<h2>Description</h2>
+<p>A Simics class attribute.</p>
+<p>The <code>pyobj.ClassAttribute</code> class defines an attribute that will be registered for the containing <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a> class. The attribute will be registered with Simics using the <a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_class_attribute</code></a> function. See documentation for <a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_class_attribute</code></a> for detailed information about class attributes.</p>
+<p>The value stored in the class should always be stored in the attribute named <code>val</code>. This is to avoid problems when a class that defines a <code>pyobj.ClassAttribute</code> class is inherited by more than one class.</p>
+<p>The <code>pyobj.ClassAttribute</code> class is very similar to the <a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a> class. See the documentation for the <a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a> class for how to use this class.</p>
+<h2>Example</h2>
+<pre><code>class wee(pyobj.ClassAttribute):
+    """Documentation for the attribute goes here."""
+    attrtype = 'i'
+    val = 4711
+    @classmethod
+    def getter(cls): return cls.val
+    @classmethod
+    def setter(cls, val): cls.val = val
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a>, <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="pyobj.ConfObject"><a href="#pyobj.ConfObject">class pyobj.ConfObject</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class pyobj.ConfObject()
+</code></pre>
+<h2>Description</h2>
+<p>A Simics configuration object.</p>
+<p>The <code>pyobj.ConfObject</code> class defines a new Simics class using the <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class</code></a> function. You could call <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class</code></a> and all the related functions for attribute and interface registration yourself, but <code>ConfObject</code> will make your code much more concise.</p>
+<p>The name of the Simics class is identical to the Python class. The class description is the same as the Python class description.</p>
+<p>The class implements the methods <code>_initialize</code>, <code>_finalize</code>, <code>_objects_finalized</code>, _pre_delete<code>, </code>_info<code>, and </code>_status`. All of these methods can be overridden if required.</p>
+<p>The <code>_initialize</code> method is called when an object of the class is instantiated, before any attributes have been set.  The <code>_finalize</code> and <code>_objects_finalized</code> methods are called in the respective finalization phases as defined by the <code>class_info_t</code> type. The <code>_pre_delete</code> method is called right before an object of the class is deleted. The default behaviour of all four functions is to recursively call the method with the same name in all Python objects in the <code>pyobj</code> hierarchy.</p>
+<p>The <code>_info</code> and <code>_status</code> methods provide data for the class’s <code>info</code> and <code>status</code> commands; the format of their return value is documented with <a href="cli.html#cli.new_info_command"><code>cli.new_info_command</code></a> and <a href="cli.html#cli.new_status_command"><code>cli.new_status_command</code></a>.</p>
+<p>If you need to get hold of the Simics <a href="dev-api-types-generic.html#conf_object_t"><code>conf_object_t</code></a> object associated with a <code>ConfObject</code> instance—for example, in order to call a Simics API function—you can find it in the <code>obj</code> member.</p>
+<p>The <code>pyobj.ConfObject</code> class can contain inner classes that define attributes, interfaces, etc. See <a href="pyobj.html#pyobj.Port"><code>pyobj.Port</code></a>, <a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a>, <a href="pyobj.html#pyobj.ClassAttribute"><code>pyobj.ClassAttribute</code></a>, and <a href="pyobj.html#pyobj.Interface"><code>pyobj.Interface</code></a> for more documentation. An inner class has a reference to the class that contains it in its <code>_up</code> member.</p>
+<p>By default, a Simics class is registered automatically whenever a subclass of <code>pyobj.ConfObject</code> is declared. Sometimes this is not desirable; e.g., the class may be a base class, or you may want to allow importing the containing Python file without side-effects. The automatic registration of a Simics class can then be suppressed by setting the member <code>_do_not_init</code> to <code>object()</code>. That will cause it to not be registered as a Simics class (but its subclasses will be, unless they too employ the same trick).</p>
+<p>The class method <code>register</code> may be called once on each <code>pyobj.ConfObject</code> subclass, to register the Simics class. For a class that doesn’t suppress automatic registration, the method currently does nothing.</p>
+<p>In future Simics versions, a Simics class will no longer be registered automatically, and an explicit call to the <code>register</code> method will be required for that.</p>
+<p>The <code>_class_kind</code> member tells Simics whether objects of this class should be saved when a checkpoint is created. The value is passed to <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class</code></a>, as the <code>kind</code> field of the <a href="dev-api-types-generic.html#class_data_t"><code>class_data_t</code></a> structure. The default value is <a href="dev-api-types-generic.html#class_info_t"><code>Sim_Class_Kind_Vanilla</code></a>. See the documentation of <a href="dev-api-configuration.html#SIM_register_class"><code>SIM_register_class</code></a> for details.</p>
+<h2>Example</h2>
+<pre><code>class foo(pyobj.ConfObject):
+    """This is the long-winded documentation for this Simics class.
+    It can be as long as you want."""
+    _class_desc = 'One-line doc for the class'
+
+    def _initialize(self):
+        super()._initialize()
+        self.my_val = 4711
+
+    def _info(self):
+        return [("Python device info", [("my_val", self.my_val)])]
+
+    def _status(self):
+        return [("Python device status",
+                 [("woot", self.woot.val),
+                  ("signal", self.signal.val)])]
+
+    class woot(pyobj.SimpleAttribute(0, 'i|n')):
+        """A four-letter attribute"""
+
+    class lost(pyobj.Attribute):
+        """A pseudo attribute"""
+        attrattr = simics.Sim_Attr_Pseudo
+        def getter(self):
+            return self._up.my_val
+
+    class signal(pyobj.Interface):
+        def signal_raise(self):
+            simics.SIM_log_info(3, self._up.obj, 0, "Signal raised")
+            self.val = True
+        def signal_lower(self):
+            simics.SIM_log_info(3, self._up.obj, 0, "Signal lowered")
+            self.val = False
+        def _initialize(self): self.val = False
+</code></pre>
+</section>
+<h2 id="pyobj.Event"><a href="#pyobj.Event">class pyobj.Event</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class pyobj.Event(top, up)
+</code></pre>
+<h2>Description</h2>
+<p>A Simics event.</p>
+<p><code>pyobj.Event</code> defines an event that will be registered for the containing <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a> class. Internally, registration is done with <a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a>; see the documentation for that API function for detailed information.</p>
+<p>Events are posted with the <code>post(clock, data, &lt;duration&gt;)</code> method. <code>clock</code> determines which clock the event is posted on, and <code>data</code> is the event data. The duration is the number of <code>seconds</code>, <code>cycles</code>, or <code>steps</code> until the event triggers, specified with the appropriate keyword argument:</p>
+<pre><code>ev.post(a_clock, some_data, seconds=4.711)
+ev.post(a_clock, some_data, cycles=4711)
+ev.post(a_clock, some_data, steps=4711)
+</code></pre>
+<p>Events can be cancelled before they trigger with either <code>cancel_time(clock, match_fun)</code> or <code>cancel_step(clock, match_fun)</code> (depending on whether the event duration was specified in steps or not). The <code>match_fun</code> argument is optional: if given, it should be a function that accepts an event data parameter, and returns true for the events that should be cancelled; if not given, all events are cancelled.</p>
+<p>A subclass may define the following methods:</p>
+<dl>
+<dt id="dt:callback-data"><a href="#dt:callback-data"><code>callback(data)</code></a></dt>
+<dd>Called when the event triggers. Overriding this method is not optional.</dd>
+<dt id="dt:destroy-data"><a href="#dt:destroy-data"><code>destroy(data)</code></a></dt>
+<dd>Called when the event is removed from the queue without being called. The method is not allowed to use any event API calls; it is mainly intended for freeing event data.</dd>
+<dt id="dt:get_value-data-and-set_value-val"><a href="#dt:get_value-data-and-set_value-val"><code>get_value(data)</code> and <code>set_value(val)</code></a></dt>
+<dd>Converts the given event data to an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> value, and the other way around. If the event carries no data that needs checkpointing, you may omit these methods.</dd>
+<dt id="dt:describe-data"><a href="#dt:describe-data"><code>describe(data)</code></a></dt>
+<dd>Called to generate a human-readable description of the event to be used in the <a href="../rm-base/rm-cmd-print-event-queue.html"><code>print-event-queue</code></a> command. If you do not supply this method, the event’s name will be used.</dd>
+</dl>
+<p>Additionally, it may set the <code>flags</code> parameter to <code>Sim_EC_Notsaved</code>, if the event should not be checkpointed. In this case, neither <code>get_value</code> nor <code>set_value</code> should be defined.</p>
+<h2>Example</h2>
+<pre><code>class foo(pyobj.ConfObject):
+    class ev1(pyobj.Event):
+        def callback(self, data):
+            do_something(data)
+    class ev2(pyobj.Event):
+        def callback(self, data):
+            self.do_something_else(data)
+        def get_value(self, data):
+            return str(data)
+        def set_value(self, val):
+            return int(val)
+        def describe(self, data):
+            return 'ev2 with %s' % data
+    class ev3(pyobj.Event):
+        flags = simics.Sim_EC_Notsaved
+        def callback(self, data):
+            self._up.do_this_third_thing(data)
+</code></pre>
+<h2>See Also</h2>
+<p><a href="dev-api-events.html#SIM_register_event"><code>SIM_register_event</code></a>, <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="pyobj.Interface"><a href="#pyobj.Interface">class pyobj.Interface</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class pyobj.Interface(top, up)
+</code></pre>
+<h2>Description</h2>
+<p>A Simics interface.</p>
+<p>The <code>pyobj.Interface</code> class implements a Simics interface for the containing <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a> class. The interface is registered using the <a href="dev-api-configuration.html#SIM_register_interface"><code>SIM_register_interface</code></a> function. The interface name is taken from the class name.</p>
+<p>The <code>_initialize</code> method can be overridden if special initialization behavior is required.</p>
+<p>To implement port interfaces instead of regular interfaces, place one or more <code>pyobj.Interface</code> subclasses inside a <a href="pyobj.html#pyobj.Port"><code>pyobj.Port</code></a> class.</p>
+<h2>Example</h2>
+<pre><code>class signal(pyobj.Interface):
+    def signal_raise(self):
+        simics.SIM_log_info(3, self._up.obj, 0, "Signal raised")
+        self.val = True
+    def signal_lower(self):
+        simics.SIM_log_info(3, self._up.obj, 0, "Signal lowered")
+        self.val = False
+    def _initialize(self): self.val = False
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.Port"><code>pyobj.Port</code></a>, <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="pyobj.Port"><a href="#pyobj.Port">class pyobj.Port</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class pyobj.Port(top, up)
+</code></pre>
+<h2>Description</h2>
+<p>A Simics port.</p>
+<p>To have your <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a>-based Simics object implement port interfaces, put a subclass of <code>pyobj.Port</code> as an inner class of your <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a>, and put one or more <a href="pyobj.html#pyobj.Interface"><code>pyobj.Interface</code></a> subclasses inside it. The <a href="pyobj.html#pyobj.Interface"><code>pyobj.Interface</code></a> subclasses will work just as if they were at the top level, except that they will be registered with <a href="dev-api-configuration.html#SIM_register_interface"><code>SIM_register_port_interface</code></a> instead of <a href="dev-api-configuration.html#SIM_register_interface"><code>SIM_register_interface</code></a>.</p>
+<p>The <code>_initialize</code> method can be overridden if special initialization behavior is required.</p>
+<h2>Example</h2>
+<pre><code>class wee(pyobj.Port):
+    class signal(pyobj.Interface):
+        def signal_raise(self):
+            simics.SIM_log_info(3, self._up._up.obj, 0, "Signal raised")
+            self.val = 2
+        def signal_lower(self):
+            simics.SIM_log_info(3, self._up._up.obj, 0, "Signal lowered")
+            self.val = 1
+        def _initialize(self): self.val = 0
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.Interface"><code>pyobj.Interface</code></a>, <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="pyobj.PortObject"><a href="#pyobj.PortObject">class pyobj.PortObject</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class pyobj.PortObject(top, up)
+</code></pre>
+<h2>Description</h2>
+<p>A Simics port object.</p>
+<p>The <code>pyobj.PortObject</code> class defines a port object class that will be registered as a port object for the containing <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a> class.</p>
+<p>The port object will be registered with the name <code>"port.&lt;name&gt;;"</code>, but this can be changed by defining <code>namespace</code> to something other than “port”. One possibility is the empty string.</p>
+<p>If <code>classname</code> is set, then the port object will be an instance of this external class rather than defining the class locally. The external class cannot be modified by adding e.g. an interface definition inside the <code>PortObject</code> definition.</p>
+<h2>Example</h2>
+<pre><code>class portname(pyobj.PortObject):
+    """Documentation for the port object goes here."""
+    class signal(pyobj.Interface):
+        def signal_raise(self):
+            simics.SIM_log_info(3, self._up.obj, 0, "Signal raised")
+            self.val = 2
+        def signal_lower(self):
+            simics.SIM_log_info(3, self._up.obj, 0, "Signal lowered")
+            self.val = 1
+        def _initialize(self): self.val = 0
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="pyobj.SimpleAttribute"><a href="#pyobj.SimpleAttribute">pyobj.SimpleAttribute</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>pyobj.SimpleAttribute(init, type='a', attr=1)
+</code></pre>
+<h2>Description</h2>
+<p>A simple Simics attribute.</p>
+<p>The <code>pyobj.SimpleAttribute</code> function returns a new subclass of <a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a>, with predefined getter and setter functions that simply store and retrieve the value without further side effects. The value is stored in the <code>val</code> member.</p>
+<p>The <code>init</code> argument is the initial value, <code>type</code> is the attribute type string, <code>attr</code> is the attribute type. If <code>init</code> is callable, it will be called, and the return value is the initial value; otherwise, <code>init</code> itself is the initial value.</p>
+<p>The attribute value is stored in the <code>val</code> member of the class.</p>
+<h2>Return Value</h2>
+<p><a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a> class</p>
+<h2>Example</h2>
+<pre><code>class wee(pyobj.SimpleAttribute(17, 'i')):
+    """Documentation for the attribute goes here."""
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a>, <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<div class="chain">
+<a href="blueprints.html">blueprints</a>
+<a href="comp.html">comp</a>
+</div>

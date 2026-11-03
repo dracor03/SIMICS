@@ -1,0 +1,48 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Obsolete Simulator API Functions</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-ui.html">User Interface</a>
+<a href="simulator-to-simulator-interfaces.html">Simulator to Simulator Interfaces</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Obsolete Simulator API Functions</h1>
+<h2 id="SIM_current_processor"><a href="#SIM_current_processor">SIM_current_processor</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_current_processor — <em>obsolete API function</em></p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+// only supported with SIMICS_API = 6
+conf_object_t *
+SIM_current_processor();
+</code></pre>
+<h2>Description</h2>
+<p>Returns the currently executing processor if the simulation is running, and <code>nullptr</code> otherwise.</p>
+<blockquote class="markdown-alert-note">
+<p>In comparison to the previous Simics version the function returns <code>nullptr</code> more often. This includes but not limited to the cases when the function is invoked from script branches, callbacks passed to the SIM_run_alone API function and when used from the command line.</p>
+</blockquote>
+<p>The object driving the simulation (implementing the <a href="model-to-simulator-interfaces.html#execute_interface_t"><code>execute</code></a> interface) updates the current processor through the <a href="model-to-simulator-interfaces.html#cell_inspection_interface_t"><code>cell_inspection</code></a> interface. The returned processor is an object implementing <a href="model-to-simulator-interfaces.html#processor_info_interface_t"><code>processor_info</code></a>, and often also other interfaces such as <a href="model-to-model-interfaces.html#int_register_interface_t"><code>int_register</code></a> and <a href="model-to-simulator-interfaces.html#step_interface_t"><code>step</code></a>.</p>
+<p>Note that code can usually get the processor tied to a specific action through a passed <a href="dev-api-types-generic.html#generic_transaction_t"><code>generic_transaction_t</code></a> argument or a direct argument specifying the processor. In those cases, it is recommended that the passed information is used rather than relying on <code>SIM_current_processor</code>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Lookup</strong> Thrown if no processor exists.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-ui.html">User Interface</a>
+<a href="simulator-to-simulator-interfaces.html">Simulator to Simulator Interfaces</a>
+</div>

@@ -1,0 +1,270 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Object Locks</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-modules.html">Modules</a>
+<a href="sim-api-output.html">Output</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Object Locks</h1>
+<h2 id="SIM_ASSERT_CELL_CONTEXT"><a href="#SIM_ASSERT_CELL_CONTEXT">SIM_ASSERT_CELL_CONTEXT</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_ASSERT_CELL_CONTEXT — assert Cell Context</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// not available in DML
+
+SIM_ASSERT_CELL_CONTEXT(obj);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_ASSERT_CELL_CONTEXT</code> function verifies that cell thread domain associated with <code>obj</code> is held by the calling thread and raises a hard failure if this is not the case.</p>
+<p>In other worlds, the macro ensures that the execution context is either Cell Context or Global Context.</p>
+</section>
+<h2 id="SIM_ASSERT_OBJECT_LOCK"><a href="#SIM_ASSERT_OBJECT_LOCK">SIM_ASSERT_OBJECT_LOCK</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_ASSERT_OBJECT_LOCK — assert thread domain is held</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// not available in DML
+
+SIM_ASSERT_OBJECT_LOCK(obj);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_ASSERT_OBJECT_LOCK</code> function checks that the thread domain associated with <code>obj</code> is held. A hard failure is raised if the thread domain is not held.</p>
+</section>
+<h2 id="SIM_acquire_cell"><a href="#SIM_acquire_cell">SIM_acquire_cell, SIM_release_cell, SIM_ACQUIRE_CELL, SIM_RELEASE_CELL</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_acquire_cell, SIM_release_cell, SIM_ACQUIRE_CELL, SIM_RELEASE_CELL — enter Cell Context</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+domain_lock_t *
+SIM_acquire_cell(conf_object_t *NOTNULL obj,
+                 const char *NOTNULL function_name,
+                 const char *NOTNULL source_location);
+
+void
+SIM_release_cell(conf_object_t *NOTNULL obj, domain_lock_t *lock);
+
+// not available in DML
+
+SIM_ACQUIRE_CELL(obj, lockp);
+SIM_RELEASE_CELL(obj, lockp);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_acquire_cell(...)
+simics.SIM_release_cell(...)
+</code></pre>
+<h2>Description</h2>
+<p>Enters Cell Context for the cell associated with the object <code>obj</code>.</p>
+<p>As part of entering Cell Context, the cell thread domain for the cell associated with <code>obj</code> is acquired.</p>
+<p>Entering Cell Context multiple times is allowed, but acquired thread domains must be released in strict reverse order.</p>
+<p>This function will block until the cell is available if another thread is currently holding the cell thread domain. While blocking, any previously held domains can be acquired by the thread already in Cell Context. Thus, the caller must be prepared to handle e.g. incoming interface calls.</p>
+<p>In Cell Context, API functions marked with Cell Context or Global Context can be called safely, and interfaces on objects belonging to the same cell can be called directly. More generally, the full Standard Device Model applies in Cell Context. Refer to the chapter about threading in the API Reference Manual for more details.</p>
+<p>The macro version of this API call, <code>SIM_ACQUIRE_CELL</code>, sets the <code>function_name</code> and <code>source_location</code> arguments automatically with the information where the API call was made. This data is used when lock statistics collection is enabled through the <a href="../rm-base/rm-cmd-enable-object-lock-stats.html"><code>enable-object-lock-stats</code></a> command.</p>
+<h2>Return Value</h2>
+<p><code>SIM_acquire_cell</code> returns a domain lock handle which should be passed as an argument to <code>SIM_release_cell</code> when the lock is released. <code>SIM_ACQUIRE_CELL</code> does not return anything but instead stores the domain lock handle in the pointer passed as the second argument.</p>
+<h2>Execution Context</h2>
+<p>Any</p>
+<h2>See Also</h2>
+<p><a href="sim-api-object-locks.html#SIM_acquire_object"><code>SIM_acquire_object</code></a>,<a href="sim-api-object-locks.html#SIM_acquire_target"><code>SIM_acquire_target</code></a></p>
+</section>
+<h2 id="SIM_acquire_object"><a href="#SIM_acquire_object">SIM_acquire_object, SIM_release_object, SIM_ACQUIRE_OBJECT, SIM_RELEASE_OBJECT</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_acquire_object, SIM_release_object, SIM_ACQUIRE_OBJECT, SIM_RELEASE_OBJECT — acquire thread domain</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+domain_lock_t *
+SIM_acquire_object(conf_object_t *NOTNULL obj,
+                   const char *NOTNULL function_name,
+                   const char *NOTNULL source_location);
+
+void
+SIM_release_object(conf_object_t *NOTNULL obj, domain_lock_t *lock);
+
+// not available in DML
+
+SIM_ACQUIRE_OBJECT(obj, lockp);
+SIM_RELEASE_OBJECT(obj, lockp);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_acquire_object(...)
+simics.SIM_release_object(...)
+</code></pre>
+<h2>Description</h2>
+<p>Acquires the thread domain associated with the object <code>obj</code>.</p>
+<p>A particular thread domain can only be held by a single thread at a time, and this function blocks until the domain is available. Once the domain is held, the thread can safely access state protected by the domain.</p>
+<p>While blocking, any previously held domains can be acquired by threads with higher priority, such as a thread running in Cell Context.</p>
+<p>More than one thread domain can be held simultaneously, and the same thread domain may be acquired multiple times. However, domains must be released in strict reverse order.</p>
+<p>This function is typically used by models using the Threaded Device Model to acquire the model’s own thread domain from its interface methods. In this case, <code>obj</code> is set to the model itself.</p>
+<p>The macro version of this API call, <code>SIM_ACQUIRE_OBJECT</code>, sets the <code>function_name</code> and <code>source_location</code> arguments automatically with the information where the API call was made. This data is used when lock statistics collection is enabled through the <a href="../rm-base/rm-cmd-enable-object-lock-stats.html"><code>enable-object-lock-stats</code></a> command.</p>
+<p>More details about thread domains and the threading model are available in the chapter about threading in the API Reference Manual.</p>
+<h2>Return Value</h2>
+<p><code>SIM_acquire_object</code> returns a domain lock handle which should be passed as an argument to <code>SIM_release_object</code> when the lock is released. <code>SIM_ACQUIRE_OBJECT</code> does not return anything but instead stores the domain lock handle in the pointer passed as the second argument.</p>
+<h2>Execution Context</h2>
+<p>Any</p>
+<h2>See Also</h2>
+<p><a href="sim-api-object-locks.html#SIM_acquire_target"><code>SIM_acquire_target</code></a>,<a href="sim-api-object-locks.html#SIM_acquire_cell"><code>SIM_acquire_cell</code></a></p>
+</section>
+<h2 id="SIM_acquire_object_for_execution"><a href="#SIM_acquire_object_for_execution">SIM_acquire_object_for_execution</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_acquire_object_for_execution — acquire object lock for execution</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+domain_lock_t *
+SIM_acquire_object_for_execution(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_acquire_object_for_execution(...)
+</code></pre>
+<h2>Description</h2>
+<p>Acquire the thread domain lock associated with object <code>arg</code>.</p>
+<blockquote class="markdown-alert-note">
+<p>This API function is considered tech-preview and may change without notice.</p>
+</blockquote>
+<h2>Return Value</h2>
+<p>Domain lock handle which should be passed as an argument to <a href="sim-api-object-locks.html#SIM_acquire_object"><code>SIM_release_object</code></a> when the lock is released.</p>
+<h2>Execution Context</h2>
+<p>Any</p>
+<h2>See Also</h2>
+<p><a href="sim-api-object-locks.html#SIM_acquire_object"><code>SIM_release_object</code></a></p>
+</section>
+<h2 id="SIM_acquire_target"><a href="#SIM_acquire_target">SIM_acquire_target, SIM_release_target, SIM_ACQUIRE_TARGET, SIM_RELEASE_TARGET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_acquire_target, SIM_release_target, SIM_ACQUIRE_TARGET, SIM_RELEASE_TARGET — conditionally enter Cell Context</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+domain_lock_t *
+SIM_acquire_target(conf_object_t *NOTNULL obj,
+                   const char *NOTNULL function_name,
+                   const char *NOTNULL source_location);
+
+void
+SIM_release_target(conf_object_t *NOTNULL obj, domain_lock_t *lock);
+
+// not available in DML
+
+SIM_ACQUIRE_TARGET(obj, lockp);
+SIM_RELEASE_TARGET(obj, lockp);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_acquire_target(...)
+simics.SIM_release_target(...)
+</code></pre>
+<h2>Description</h2>
+<p>Enters Cell Context if the specified object <code>obj</code> uses the Standard Device Model. The function does nothing if <code>obj</code> is a thread-aware object, i.e., if the object belongs to a thread-domain other than the cell.</p>
+<p>The intended use for this function is ensuring that Cell Context is entered before a code running in Threaded Context invokes an interface on some external object. If the external object is thread aware, and does not require Cell Context, this function avoids entering Cell Context as an optimization.</p>
+<p>The macro version of this API call, <code>SIM_ACQUIRE_TARGET</code> sets the <code>function_name</code> and <code>source_location</code> arguments automatically with the information where the API call was made. This data is used when lock statistics collection is enabled through the <a href="../rm-base/rm-cmd-enable-object-lock-stats.html"><code>enable-object-lock-stats</code></a> command.</p>
+<h2>Return Value</h2>
+<p><code>SIM_acquire_target</code> returns a domain lock handle which should be passed as an argument to <code>SIM_release_target</code> when the lock is released. <code>SIM_ACQUIRE_TARGET</code> does not return anything but instead stores the domain lock handle in the pointer passed as the second argument.</p>
+<h2>Execution Context</h2>
+<p>Any</p>
+<h2>See Also</h2>
+<p><a href="sim-api-object-locks.html#SIM_acquire_object"><code>SIM_acquire_object</code></a>,<a href="sim-api-object-locks.html#SIM_acquire_cell"><code>SIM_acquire_cell</code></a></p>
+</section>
+<h2 id="SIM_drop_thread_domains"><a href="#SIM_drop_thread_domains">SIM_drop_thread_domains, SIM_reacquire_thread_domains, SIM_DROP_THREAD_DOMAINS, SIM_REACQUIRE_THREAD_DOMAINS</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_drop_thread_domains, SIM_reacquire_thread_domains, SIM_DROP_THREAD_DOMAINS, SIM_REACQUIRE_THREAD_DOMAINS — temporarily release all held thread domains</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+domain_lock_t *
+SIM_drop_thread_domains();
+
+void
+SIM_reacquire_thread_domains(domain_lock_t *dl);
+
+// not available in DML
+
+SIM_DROP_THREAD_DOMAINS(obj, lockp);
+SIM_REACQUIRE_THREAD_DOMAINS(obj, lockp);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_drop_thread_domains(...)
+simics.SIM_reacquire_thread_domains(...)
+</code></pre>
+<h2>Description</h2>
+<p>Temporarily releases all held thread domains and enters Threaded Context.</p>
+<p>This function is intended to use before blocking is initiated on an external synchronization mechanism, like a condition variable. Releasing thread domains before blocking is often necessary to avoid deadlock situations where other threads get stuck trying to acquire thread domains held by the blocking thread.</p>
+<p>Each call to <code>SIM_drop_thread_domains</code> must be followed with a call to <code>SIM_reacquire_thread_domains</code> to reacquire the released thread domains. This must be done from the same thread.</p>
+<p>If the purpose of the call is just to provide other threads an opportunity to acquire held domains, then the more efficient <a href="sim-api-object-locks.html#SIM_yield_thread_domains"><code>SIM_yield_thread_domains</code></a> should be used instead.</p>
+<p>The macro versions of the API calls are currently wrappers of the corresponding SIM-function. In the future, they might collect extra information about where in the code the domain locks are reacquired.</p>
+<h2>Return Value</h2>
+<p><code>SIM_drop_thread_domains</code> returns a domain lock handle which should be passed as an argument to <code>SIM_reacquire_thread_domains_object</code>. The <code>SIM_DROP_THREAD_DOMAINS</code> does not return anything but instead stores the domain lock handle in the pointer passed as the second argument.</p>
+<h2>Execution Context</h2>
+<p>Any</p>
+<h2>See Also</h2>
+<p><a href="sim-api-object-locks.html#SIM_yield_thread_domains"><code>SIM_yield_thread_domains</code></a></p>
+</section>
+<h2 id="SIM_yield_thread_domains"><a href="#SIM_yield_thread_domains">SIM_yield_thread_domains</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_yield_thread_domains — yield held thread domains</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+void
+SIM_yield_thread_domains();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_yield_thread_domains(...)
+</code></pre>
+<h2>Description</h2>
+<p>Yields held thread domains if there are other threads waiting to acquire them.</p>
+<p>The function blocks until all threads waiting for one of the held domains have had the opportunity to acquire the domain in question, and then resumes execution with the domains held again.</p>
+<p>One example usage of this function is when a CPU model is notified through the <a href="model-to-simulator-interfaces.html#execute_control_interface_t"><code>execute_control</code></a> interface that another thread wants to acquire the CPU’s thread domain. Then the CPU function should call this function as quickly as possible, preferably before starting the simulation of the next instruction.</p>
+<h2>Execution Context</h2>
+<p>Any</p>
+<h2>See Also</h2>
+<p><a href="sim-api-object-locks.html#SIM_drop_thread_domains"><code>SIM_drop_thread_domains</code></a>,<a href="sim-api-object-locks.html#SIM_acquire_object"><code>SIM_acquire_object</code></a></p>
+</section>
+<div class="chain">
+<a href="sim-api-modules.html">Modules</a>
+<a href="sim-api-output.html">Output</a>
+</div>

@@ -1,0 +1,330 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample_pcie_device_old</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample_pci_device.html">sample_pci_device</a>
+<a href="rm-class-sample_pcie_sriov_device.html">sample_pcie_sriov_device</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample_pcie_device_old"><a href="#sample_pcie_device_old">sample_pcie_device_old</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+A sample PCI Express device
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, pci_device, pci_express
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:expansion_rom-optional"><a href="#dt:expansion_rom-optional">expansion_rom (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: rom
+</dd>
+<dt id="dt:pci_bus-optional"><a href="#dt:pci_bus-optional">pci_bus (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory, pci_bus, pci_express
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-pci_config"><a href="#dt:bank-pci_config">bank.pci_config</a></dt>
+<dd>
+<a href="rm-class-sample_pcie_device_old.html#sample_pcie_device_old.pci_config">sample_pcie_device_old.pci_config</a>
+ – The PCI configuration space.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample_pcie_device_old.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample_pcie_device_old.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:attention_indicator"><a href="#dt:attention_indicator">
+<i>attention_indicator</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>This attribute represents the attention indicator, which software can program to be OFF/BLINK/ON</dd>
+<dt id="dt:config_registers"><a href="#dt:config_registers">
+<i>config_registers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[i*]</code>
+<br>The PCI configuration registers, each 32 bits in size.</dd>
+<dt id="dt:expansion_rom_size"><a href="#dt:expansion_rom_size">
+<i>expansion_rom_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the expansion ROM mapping.</dd>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The PCI bus this device is connected to, implementing the <tt>pci-bus</tt> interface.
+<p>
+Required interfaces: <tt>io_memory</tt>, <tt>pci_bus</tt>, <tt>pci_express</tt>.</p></dd>
+<dt id="dt:power_indicator"><a href="#dt:power_indicator">
+<i>power_indicator</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>This attribute represents the power indicator, which software can program to be OFF/BLINK/ON</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-pcie-device-old.html">sample-pcie-device-old</a>
+</section>
+<h2 id="sample_pcie_device_old.pci_config"><a href="#sample_pcie_device_old.pci_config">sample_pcie_device_old.pci_config</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+The PCI configuration space.
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, int_register, io_memory, register_view, register_view_catalog
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="attributes-2">
+<a href="#attributes-2">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:bist"><a href="#dt:bist">
+<i>bist</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Build-in Self Test</dd>
+<dt id="dt:cache_line_size"><a href="#dt:cache_line_size">
+<i>cache_line_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>CacheLine Size</dd>
+<dt id="dt:capabilities_ptr"><a href="#dt:capabilities_ptr">
+<i>capabilities_ptr</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Capabilities Pointer</dd>
+<dt id="dt:cardbus_cis_ptr"><a href="#dt:cardbus_cis_ptr">
+<i>cardbus_cis_ptr</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Cardbus CIS Pointer</dd>
+<dt id="dt:class_code"><a href="#dt:class_code">
+<i>class_code</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Class Code</dd>
+<dt id="dt:command"><a href="#dt:command">
+<i>command</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Command Register</dd>
+<dt id="dt:device_id"><a href="#dt:device_id">
+<i>device_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Device ID</dd>
+<dt id="dt:header_type"><a href="#dt:header_type">
+<i>header_type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Header Type</dd>
+<dt id="dt:interrupt_line"><a href="#dt:interrupt_line">
+<i>interrupt_line</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt Line</dd>
+<dt id="dt:interrupt_pin"><a href="#dt:interrupt_pin">
+<i>interrupt_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt Pin</dd>
+<dt id="dt:interrupts"><a href="#dt:interrupts">
+<i>interrupts</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Raised _internal_ interrupts</dd>
+<dt id="dt:latency_timer"><a href="#dt:latency_timer">
+<i>latency_timer</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Latency Timer</dd>
+<dt id="dt:max_lat"><a href="#dt:max_lat">
+<i>max_lat</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>MAX_LAT</dd>
+<dt id="dt:min_gnt"><a href="#dt:min_gnt">
+<i>min_gnt</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>MIN_GNT</dd>
+<dt id="dt:revision_id"><a href="#dt:revision_id">
+<i>revision_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Revision ID</dd>
+<dt id="dt:status"><a href="#dt:status">
+<i>status</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Status Register</dd>
+<dt id="dt:subsystem_id"><a href="#dt:subsystem_id">
+<i>subsystem_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Subsystem ID</dd>
+<dt id="dt:subsystem_vendor_id"><a href="#dt:subsystem_vendor_id">
+<i>subsystem_vendor_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Subsystem Vendor ID</dd>
+<dt id="dt:vendor_id"><a href="#dt:vendor_id">
+<i>vendor_id</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Vendor ID</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-sample_pci_device.html">sample_pci_device</a>
+<a href="rm-class-sample_pcie_sriov_device.html">sample_pcie_sriov_device</a>
+</div>

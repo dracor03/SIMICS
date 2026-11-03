@@ -1,0 +1,98 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>B Update UEFI For Notification Tracking</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="uefidbg-dbghelp.html">A Handling DBGHELP.DLL</a>
+</div>
+<div class="path">
+<a href="index.html">Analyzer User’s Guide</a>
+&nbsp;/&nbsp;</div><h1 id="update-uefi-for-notification-tracking"><a href="#update-uefi-for-notification-tracking">B Update UEFI For Notification Tracking</a></h1>
+<p>When using the UEFI Firmware Tracker with a UEFI BIOS that has been updated to
+handle notification tracking, SEC, PEI and DXE modules are tracked with almost
+zero performance penalty.
+This appendix describes how to update the UEFI BIOS to allow notification
+tracking.</p>
+<blockquote class="markdown-alert-note">
+<p>Enabling notification tracking on a UEFI system that has not been updated for
+notification tracking should not cause any problems, even though it does not
+improve the tracking in any way.
+For notification tracking to work, UEFI must be updated according to this
+appendix.</p>
+</blockquote>
+<h2 id="step-1-add-extra-action-pecoffextraactionlib"><a href="#step-1-add-extra-action-pecoffextraactionlib">B.1 Step 1 - Add Extra Action (PeCoffExtraActionLib)</a></h2>
+<p>We start with updating the <em>Platform Description File (.dsc)</em> to add the library
+<em>PeCoffExtraActionLib</em> which will provide module data to the tracker.
+In our example, this platform description file is
+<code>SimicsX58Pkg/SimicsX58PkgIa32X64.dsc</code>.
+Search for <code>PeCoffExtraActionLibDebug</code> in the <code>.dsc</code> file, and replace:</p>
+<pre><code>|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
+</code></pre>
+<p>with:</p>
+<pre><code>|SourceLevelDebugPkg/Library/PeCoffExtraActionLibDebug/PeCoffExtraActionLibDebug.inf
+</code></pre>
+<p>This will add the module <code>PeCoffExtraActionLibDebug</code> module to the build when
+also not building with <code>$(SOURCE_DEBUG_ENABLE)</code>.</p>
+<h2 id="step-2-disable-default-extra-action-trigger"><a href="#step-2-disable-default-extra-action-trigger">B.2 Step 2 - Disable Default Extra Action Trigger</a></h2>
+<p>Next, the default extra action load/unload trigger must be disabled to allow
+adding a custom trigger, which is to read register <code>CR3</code>.
+This is done by changing the value of <code>PcdDebugLoadImageMethod</code> when not
+building with <code>$(SOURCE_DEBUG_ENABLE)</code>.
+Search for <em>PcdDebugLoadImageMethod</em>, in the platform description file and add
+this before the <code>!endif</code>:</p>
+<pre><code>!else
+  gEfiSourceLevelDebugPkgTokenSpaceGuid.PcdDebugLoadImageMethod|0x0
+</code></pre>
+<p>The end result should be:</p>
+<pre><code>!ifdef $(SOURCE_DEBUG_ENABLE)
+  gEfiSourceLevelDebugPkgTokenSpaceGuid.PcdDebugLoadImageMethod|0x2
+!else
+  gEfiSourceLevelDebugPkgTokenSpaceGuid.PcdDebugLoadImageMethod|0x0
+!endif
+</code></pre>
+<p>This will disable the default trigger of <code>PeCoffLoaderExtraActionCommon</code> and
+allow us to add our own trigger, which is described in the next step.</p>
+<h2 id="step-3-add-custom-trigger-read-cr3"><a href="#step-3-add-custom-trigger-read-cr3">B.3 Step 3 - Add Custom Trigger (Read CR3)</a></h2>
+<p>As a final step, add <em>reading</em> of <code>CR3</code> to the extra action library. Reading CR3 can be used to trigger a notification that is intercepted by the tracker. Add a call to <code>AsmReadCr3</code> in <code>PeCoffLoaderExtraActionCommon</code> directly after the call to <code>AsmWriteDr3</code> in the file <code>SourceLevelDebugPkg/Library/PeCoffExtraActionLibDebug/PeCoffExtraActionLib.c</code>.</p>
+<p>The end result should be similar to:</p>
+<pre><code>AsmWriteDr0 (Signature);
+AsmWriteDr1 ((UINTN) ImageContext-&gt;PdbPointer);
+AsmWriteDr2 ((UINTN) ImageContext);
+AsmWriteDr3 (IO_PORT_BREAKPOINT_ADDRESS);
+AsmReadCr3 (); # &lt;--- Trigger Simics UEFI Tracker
+</code></pre>
+<h2 id="patch"><a href="#patch">B.4 Patch</a></h2>
+<p>If these instructions were difficult to understand, copy the below patch to a
+text editor, preferably one with a patch mode and read the patch to understand
+the changes.
+The patch is <em>unlikely to apply cleanly</em> on your specific platform description
+file, but reading the patch should make it possible to apply the changes to a
+different platform description file.</p>
+<pre><code>diff --git a/SimicsX58Pkg/SimicsX58PkgIa32.dsc b/SimicsX58Pkg/SimicsX58PkgIa32.dsc
+index fc969fe..9154743 100644
+--- a/SimicsX58Pkg/SimicsX58PkgIa32.dsc
++++ b/SimicsX58Pkg/SimicsX58PkgIa32.dsc
+@@ -103,7 +103,7 @@
+   PeCoffExtraActionLib|SourceLevelDebugPkg/Library/PeCoffExtraActionLibDebug/PeCoffExtraActionLibDebug.inf
+   DebugCommunicationLib|SourceLevelDebugPkg/Library/DebugCommunicationLibSerialPort/DebugCommunicationLibSerialPort.inf
+ !else
+-  PeCoffExtraActionLib|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
++  PeCoffExtraActionLib|SourceLevelDebugPkg/Library/PeCoffExtraActionLibDebug/PeCoffExtraActionLibDebug.inf
+   DebugAgentLib|MdeModulePkg/Library/DebugAgentLibNull/DebugAgentLibNull.inf
+ !endif
+   CpuExceptionHandlerLib|MdeModulePkg/Library/CpuExceptionHandlerLibNull/CpuExceptionHandlerLibNull.inf
+@@ -252,6 +252,8 @@
+
+ !ifdef $(SOURCE_DEBUG_ENABLE)
+   gEfiSourceLevelDebugPkgTokenSpaceGuid.PcdDebugLoadImageMethod|0x2
++!else
++  gEfiSourceLevelDebugPkgTokenSpaceGuid.PcdDebugLoadImageMethod|0x0
+ !endif
+</code></pre>
+
+<div class="chain">
+<a href="uefidbg-dbghelp.html">A Handling DBGHELP.DLL</a>
+</div>

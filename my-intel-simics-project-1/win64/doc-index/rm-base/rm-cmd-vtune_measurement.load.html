@@ -1,0 +1,46 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;vtune_measurement&gt;.load</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-vtune_measurement.launch-gui.html">&lt;vtune_measurement&gt;.launch-gui</a>
+<a href="rm-cmd-vtune_measurement.module-profile.html">&lt;vtune_measurement&gt;.module-profile</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="vtune_measurement.load"></a>
+<h1 id="vtune_measurement.load"><a href="#vtune_measurement.load">&lt;vtune_measurement&gt;.load</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;vtune_measurement&gt;.load</b> <i>result-dir</i> <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Load an already-collected VTune result directory without running a new measurement. After loading, all report commands (<code><vtune_measurement>.profile</vtune_measurement></code>, <code><vtune_measurement>.save-folded-stacks</vtune_measurement></code>, <code><vtune_measurement>.flamegraph</vtune_measurement></code>, etc.) work exactly as they do after a normal <code><vtune_measurement>.stop</vtune_measurement></code>.
+<p>
+The <i>result-dir</i> argument must point to an existing VTune result directory (the <tt>vtune_*</tt> folder created by a previous <code><vtune_measurement>.start</vtune_measurement></code>/<code><vtune_measurement>.stop</vtune_measurement></code> pair).
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.vtune-measurement.html">vtune-measurement</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-vtune_measurement.start.html">&lt;vtune_measurement&gt;.start</a>, 
+<a href="rm-cmd-vtune_measurement.stop.html">&lt;vtune_measurement&gt;.stop</a>, 
+<a href="rm-cmd-vtune_measurement.save-folded-stacks.html">&lt;vtune_measurement&gt;.save-folded-stacks</a>, 
+<a href="rm-cmd-vtune_measurement.profile.html">&lt;vtune_measurement&gt;.profile</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-vtune_measurement.launch-gui.html">&lt;vtune_measurement&gt;.launch-gui</a>
+<a href="rm-cmd-vtune_measurement.module-profile.html">&lt;vtune_measurement&gt;.module-profile</a>
+</div>

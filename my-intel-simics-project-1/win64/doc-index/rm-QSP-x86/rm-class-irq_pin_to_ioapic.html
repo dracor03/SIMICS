@@ -1,0 +1,104 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>irq_pin_to_ioapic</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_usb_uhci.html">ich10_usb_uhci</a>
+<a href="rm-class-minimal_acpi_support.html">minimal_acpi_support</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="irq_pin_to_ioapic"><a href="#irq_pin_to_ioapic">irq_pin_to_ioapic</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This device redirects incoming signals (maximum 32) to ioapic vectors.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, pci_interrupt
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:to_ioapic-required"><a href="#dt:to_ioapic-required">to_ioapic (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: ioapic
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-incoming_signals-0-31"><a href="#dt:port-incoming_signals-0-31">port.incoming_signals[0..31]</a></dt>
+<dd>
+<a href="rm-class-irq_pin_to_ioapic.html#irq_pin_to_ioapic.incoming_signals">irq_pin_to_ioapic.incoming_signals</a>
+</dd>
+<dt id="dt:port-incoming_simple_irq"><a href="#dt:port-incoming_simple_irq">port.incoming_simple_irq</a></dt>
+<dd>
+<a href="rm-class-irq_pin_to_ioapic.html#irq_pin_to_ioapic.incoming_simple_irq">irq_pin_to_ioapic.incoming_simple_irq</a>
+</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-irq_pin_to_ioapic.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-irq_pin_to_ioapic.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:irq_to_ioapic_pin"><a href="#dt:irq_to_ioapic_pin">
+<i>irq_to_ioapic_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{32}]</code>
+<br>Map incoming simple irq to outgoing ioapic pin</dd>
+<dt id="dt:to_ioapic"><a href="#dt:to_ioapic">
+<i>to_ioapic</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Connect to iopaic
+<p>
+Required interface: <tt>ioapic</tt></p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.irq-pin-to-ioapic.html">irq-pin-to-ioapic</a>
+</section>
+<h2 id="irq_pin_to_ioapic.incoming_signals"><a href="#irq_pin_to_ioapic.incoming_signals">irq_pin_to_ioapic.incoming_signals</a></h2>
+<h2 id="irq_pin_to_ioapic.incoming_simple_irq"><a href="#irq_pin_to_ioapic.incoming_simple_irq">irq_pin_to_ioapic.incoming_simple_irq</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_usb_uhci.html">ich10_usb_uhci</a>
+<a href="rm-class-minimal_acpi_support.html">minimal_acpi_support</a>
+</div>

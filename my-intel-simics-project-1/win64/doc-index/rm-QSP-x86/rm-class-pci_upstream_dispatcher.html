@@ -1,0 +1,135 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pci_upstream_dispatcher</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-pci_cf8_cfc_handler.html">pci_cf8_cfc_handler</a>
+<a href="rm-class-qsp-v2-namespace.html">qsp-v2-namespace</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="pci_upstream_dispatcher"><a href="#pci_upstream_dispatcher">pci_upstream_dispatcher</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Device to send upstream traffic to remap units.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, transaction_translator, translation_flush
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:default_remapping_unit-optional"><a href="#dt:default_remapping_unit-optional">default_remapping_unit (optional)</a></dt>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+<dt id="dt:gfx_remapping_unit-optional"><a href="#dt:gfx_remapping_unit-optional">gfx_remapping_unit (optional)</a></dt>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+<dt id="dt:interrupt-optional"><a href="#dt:interrupt-optional">interrupt (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: pci_interrupt
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-msg"><a href="#dt:port-msg">port.msg</a></dt>
+<dd>
+<a href="rm-class-pci_upstream_dispatcher.html#pci_upstream_dispatcher.msg">pci_upstream_dispatcher.msg</a>
+ – legacy PCI INTx message to pci_interrupt converter</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pci_upstream_dispatcher.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-pci_upstream_dispatcher.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:default_remapping_unit"><a href="#dt:default_remapping_unit">
+<i>default_remapping_unit</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Default DMA remapping unit
+<p>
+Optional interfaces: <tt>io_memory</tt>, <tt>memory_space</tt>, <tt>port_space</tt>, <tt>ram</tt>, <tt>rom</tt>, <tt>transaction</tt>, <tt>transaction_translator</tt>, <tt>translator</tt></p></dd>
+<dt id="dt:fwd_msg_to_iommu"><a href="#dt:fwd_msg_to_iommu">
+<i>fwd_msg_to_iommu</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Route messages to the IOMMU</dd>
+<dt id="dt:gfx_objs"><a href="#dt:gfx_objs">
+<i>gfx_objs</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>List of configuration objects from which transactions will be remapped using the graphics remapping unit</dd>
+<dt id="dt:gfx_remapping_unit"><a href="#dt:gfx_remapping_unit">
+<i>gfx_remapping_unit</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Graphics DMA remapping unit
+<p>
+Optional interfaces: <tt>io_memory</tt>, <tt>memory_space</tt>, <tt>port_space</tt>, <tt>ram</tt>, <tt>rom</tt>, <tt>transaction</tt>, <tt>transaction_translator</tt>, <tt>translator</tt></p></dd>
+<dt id="dt:interrupt"><a href="#dt:interrupt">
+<i>interrupt</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Target to receive PCIe Legacy Interrupts
+<p>
+Required interface: <tt>pci_interrupt</tt></p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.generic-pc-support.html">generic-pc-support</a>
+</section>
+<h2 id="pci_upstream_dispatcher.msg"><a href="#pci_upstream_dispatcher.msg">pci_upstream_dispatcher.msg</a></h2>
+<div class="chain">
+<a href="rm-class-pci_cf8_cfc_handler.html">pci_cf8_cfc_handler</a>
+<a href="rm-class-qsp-v2-namespace.html">qsp-v2-namespace</a>
+</div>

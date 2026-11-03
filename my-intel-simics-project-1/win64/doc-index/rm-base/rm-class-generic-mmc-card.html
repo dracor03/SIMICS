@@ -1,0 +1,156 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>generic-mmc-card</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-generic-flash-memory.html">generic-flash-memory</a>
+<a href="rm-class-generic_eth_phy.html">generic_eth_phy</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="generic-mmc-card"><a href="#generic-mmc-card">generic-mmc-card</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This is an IVP EMMC model in Simics
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, mmc
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-generic-mmc-card.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-generic-mmc-card.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:card_type"><a href="#dt:card_type">
+<i>card_type</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Memory card type (0=MMC, 1=SD, 2=SDHC, 3=SDIO)</dd>
+<dt id="dt:size"><a href="#dt:size">
+<i>size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Memory card size, in bytes.</dd>
+<dt id="dt:ocr"><a href="#dt:ocr">
+<i>OCR</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>OCR (Operation Conditions) Register</dd>
+<dt id="dt:csr"><a href="#dt:csr">
+<i>CSR</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>CSR (CARD Conditions) Register</dd>
+<dt id="dt:rca"><a href="#dt:rca">
+<i>RCA</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>RCA (Relative Card Address) Register</dd>
+<dt id="dt:cid"><a href="#dt:cid">
+<i>CID</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>CID (Card Identification) Register</dd>
+<dt id="dt:csd"><a href="#dt:csd">
+<i>CSD</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>CSD (Card-Specific Data) Register</dd>
+<dt id="dt:scr"><a href="#dt:scr">
+<i>SCR</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>SCR (SD Card Configuration) Register</dd>
+<dt id="dt:extcsd"><a href="#dt:extcsd">
+<i>ExtCSD</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>Extended CSD (Card-Specific Data) Register</dd>
+<dt id="dt:ssr"><a href="#dt:ssr">
+<i>SSR</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>d</code>
+<br>SSR (SD Status) Register</dd>
+<dt id="dt:flash_image"><a href="#dt:flash_image">
+<i>flash_image</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Flash memory disk image</dd>
+<dt id="dt:ivp_state"><a href="#dt:ivp_state">
+<i>ivp_state</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>a</code>
+<br>ivp internal model state</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.generic-mmc-card.html">generic-mmc-card</a>
+</section>
+<div class="chain">
+<a href="rm-class-generic-flash-memory.html">generic-flash-memory</a>
+<a href="rm-class-generic_eth_phy.html">generic_eth_phy</a>
+</div>

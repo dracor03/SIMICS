@@ -1,0 +1,127 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>probes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="script_branch.html">script_branch</a>
+<a href="probes.cell_formatter.html">probes.cell_formatter</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="probes"><a href="#probes">probes</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>probes — Probe APIs usable both inside and outside Simics.</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import probes
+</code></pre>
+<h2>Description</h2>
+<p>Importing this package does not enable the Simics probes framework. Pure probe types and formatting utilities are always available. Runtime queries return empty results until <code>enable-probes</code> installs a backend. Simics-specific runtime APIs are exposed only when imported inside Simics.</p>
+</section>
+<h2 id="probes.CellFormatter"><a href="#probes.CellFormatter">class probes.CellFormatter</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class probes.CellFormatter(
+    max_lines=None,
+    key_col_width=None,
+    val_col_width=None,
+    total_width=None,
+    float_decimals=None,
+    ignore_column_widths=False,
+    value_column_properties=None,
+    histogram_options=None
+)
+</code></pre>
+<h2>Description</h2>
+<p>Helper class for various format properties.</p>
+<p>Helper Class for summary-probe formatting. Simply holds various formatting properties together, in one class object.</p>
+</section>
+<h2 id="probes.get_all_probe_kinds"><a href="#probes.get_all_probe_kinds">probes.get_all_probe_kinds</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.get_all_probe_kinds()
+</code></pre>
+<h2>Description</h2>
+<p>Gets all registered probe-kinds in the system.</p>
+<p>Returns all registered probe-kinds in the system. The probe-kind is the unique probe identifier, not including the objects associated with it.</p>
+<h2>See Also</h2>
+<p><a href="probes.html#probes.get_probes"><code>probes.get_probes</code></a>, <a href="probes.html#probes.get_all_probes"><code>probes.get_all_probes</code></a></p>
+</section>
+<h2 id="probes.get_all_probes"><a href="#probes.get_all_probes">probes.get_all_probes</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.get_all_probes()
+</code></pre>
+<h2>Description</h2>
+<p>Gets all ProbeProxy instances.</p>
+<p>Returns all Python ‘ProbeProxy’ objects that exists currently. These objects can be used to access the probe interfaces in a convenient way by using methods in them.</p>
+<h2>See Also</h2>
+<p><a href="probes.html#probes.get_all_probe_kinds"><code>probes.get_all_probe_kinds</code></a>, <a href="probes.html#probes.get_probes"><code>probes.get_probes</code></a></p>
+</section>
+<h2 id="probes.get_probe_by_object"><a href="#probes.get_probe_by_object">probes.get_probe_by_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.get_probe_by_object(kind, obj)
+</code></pre>
+<h2>Description</h2>
+<p>Gets the ProbeProxy instance for an object .</p>
+<p>Returns the ‘ProbeProxy’ Python object for a probe-kind in a specific conf object.</p>
+<h2>See Also</h2>
+<p><a href="probes.html#probes.get_all_probe_kinds"><code>probes.get_all_probe_kinds</code></a>, <a href="probes.html#probes.get_probes"><code>probes.get_probes</code></a></p>
+</section>
+<h2 id="probes.get_probes"><a href="#probes.get_probes">probes.get_probes</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.get_probes(kind)
+</code></pre>
+<h2>Description</h2>
+<p>Gets hold of all ProbeProxy instances implementing a specific probe-kind.</p>
+<p>Returns the Python ‘ProbeProxy’ objects, for probes matching the specific probe-kind. These objects can be used to access the probe interfaces in a convenient way by using methods in them.</p>
+<h2>See Also</h2>
+<p><a href="probes.html#probes.get_all_probe_kinds"><code>probes.get_all_probe_kinds</code></a>, <a href="probes.html#probes.get_all_probes"><code>probes.get_all_probes</code></a></p>
+</section>
+<h2 id="probes.is_singleton"><a href="#probes.is_singleton">probes.is_singleton</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>probes.is_singleton(obj)
+</code></pre>
+<h2>Description</h2>
+<p>Check if the Simics object is a singleton object, currently only any of <code>[sim, host]</code></p>
+</section>
+<h2 id="probes.register_probe"><a href="#probes.register_probe">probes.register_probe</a></h2>
+<p>Alias of <a href="probes.probes.html#probes.probes.register_probe"><code>probes.probes.register_probe</code></a>.</p>
+<h2 id="probes.register_probe_delete_cb"><a href="#probes.register_probe_delete_cb">probes.register_probe_delete_cb</a></h2>
+<p>Alias of <a href="probes.probes.html#probes.probes.register_probe_delete_cb"><code>probes.probes.register_probe_delete_cb</code></a>.</p>
+<h2 id="probes.unregister_probe_delete_cb"><a href="#probes.unregister_probe_delete_cb">probes.unregister_probe_delete_cb</a></h2>
+<p>Alias of <a href="probes.probes.html#probes.probes.unregister_probe_delete_cb"><code>probes.probes.unregister_probe_delete_cb</code></a>.</p>
+
+<ul class="subsections">
+<li>
+<a href="probes.cell_formatter.html">probes.cell_formatter</a>
+</li>
+<li>
+<a href="probes.common.html">probes.common</a>
+</li>
+<li>
+<a href="probes.probe_cache.html">probes.probe_cache</a>
+</li>
+<li>
+<a href="probes.probe_enums.html">probes.probe_enums</a>
+</li>
+<li>
+<a href="probes.probe_type_classes.html">probes.probe_type_classes</a>
+</li>
+<li>
+<a href="probes.probes.html">probes.probes</a>
+</li>
+</ul>
+<div class="chain">
+<a href="script_branch.html">script_branch</a>
+<a href="probes.cell_formatter.html">probes.cell_formatter</a>
+</div>

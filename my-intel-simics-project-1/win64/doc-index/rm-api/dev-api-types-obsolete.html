@@ -1,0 +1,102 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Obsolete Device API Data Types</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="obsolete-device-api-types-and-functions.html">Obsolete Device API Types and Functions</a>
+<a href="dev-api-obsolete.html">Obsolete Device API Functions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="device-api.html">Device API</a>
+&nbsp;/&nbsp;
+<a href="obsolete-device-api-types-and-functions.html">Obsolete Device API Types and Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Obsolete Device API Data Types</h1>
+<h2 id="init_prefs_t"><a href="#init_prefs_t">init_prefs_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>init_prefs_t — deprecated type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+typedef struct {
+        bool batch_mode;
+        bool quiet;
+        bool verbose;
+        bool python_verbose;
+        bool disable_istc;
+        bool disable_dstc;
+        bool module_cache_enable;
+        bool rdp;
+        bool sign_module;
+        const char *log_file;
+
+        /* The Simics project to use */
+        const char *project;       // NULL to use saved prefs value
+
+        const char *package_list;  // internal, do not use
+
+        bool no_windows;
+        bool fail_on_warnings;
+        const char *deprecation_level; // see sim-&gt;warn_deprecated
+        bool warn_deprecated;       // same as deprecation_level == 2
+        bool no_warn_deprecated;    // same as deprecation_level == 0
+
+        bool warn_multithread;  /* deprecated and ignored (bug 21597) */
+        bool check_ifaces;
+        bool no_global_settings;    // do not read preferences and recent-files
+
+        /* the following should be -1 if not set by command line options
+           to tell SIM_init_simulator() to use the saved preference value */
+        int log_enable;
+} init_prefs_t;
+</code></pre>
+<h2>Description</h2>
+<p>The <code>init_prefs_t</code> types are deprecated and should not be used in new code.</p>
+</section>
+<h2 id="log_type_t"><a href="#log_type_t">log_type_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>log_type_t — type describing different log types</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+typedef enum {
+        Sim_Log_Info,           // Normal informational message
+        Sim_Log_Error,          // Simics error
+        Sim_Log_Spec_Violation, // target program violates the specification
+        Sim_Log_Unimplemented,  // not implemented in Simics
+        Sim_Log_Critical,       // Critical error stopping Simics
+        Sim_Log_Trace,          // Breakpoint trace messages
+        Sim_Log_Warning,        // Simics warning
+        Sim_Log_Num_Types,      // Do not use
+} log_type_t;
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.Sim_Log_Info
+simics.Sim_Log_Critical
+simics.Sim_Log_Error
+simics.Sim_Log_Num_Types
+simics.Sim_Log_Trace
+simics.Sim_Log_Spec_Violation
+simics.Sim_Log_Warning
+simics.Sim_Log_Unimplemented
+</code></pre>
+<h2>Description</h2>
+<p>This type defines different log types that are used by the logging facility to categorise messages.</p>
+</section>
+<div class="chain">
+<a href="obsolete-device-api-types-and-functions.html">Obsolete Device API Types and Functions</a>
+<a href="dev-api-obsolete.html">Obsolete Device API Functions</a>
+</div>

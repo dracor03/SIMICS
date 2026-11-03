@@ -1,0 +1,87 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>hostfs</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-hap-meter.html">hap-meter</a>
+<a href="rm-class-hypersim-pattern-matcher.html">hypersim-pattern-matcher</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="hostfs"><a href="#hostfs">hostfs</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The hostfs device is used in conjunction with a target OS module to allow the simulated machine to access the filesystem of the host machine. In order to work, the hostfs-device needs to be mapped into a specific location in the physical memory space. This address is target OS and architecture dependent. This class is deprecated, use SimicsFS or Simics Agent instead.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-hostfs.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-hostfs.root.html">root</a>
+ – <i>deprecated</i> get or set the hostfs root directory</li>
+<li>
+<a href="rm-cmd-hostfs.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:version"><a href="#dt:version">
+<i>version</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Simicsfs protocol version.</dd>
+<dt id="dt:host_root"><a href="#dt:host_root">
+<i>host_root</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>s</code>
+<br>Host directory to use as root for the mounted file tree</dd>
+<dt id="dt:mounted"><a href="#dt:mounted">
+<i>mounted</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>True if simicsfs has been mounted on the target</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.hostfs.html">hostfs</a>
+</section>
+<div class="chain">
+<a href="rm-class-hap-meter.html">hap-meter</a>
+<a href="rm-class-hypersim-pattern-matcher.html">hypersim-pattern-matcher</a>
+</div>

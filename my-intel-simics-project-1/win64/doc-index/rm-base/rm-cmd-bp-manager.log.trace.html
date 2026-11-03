@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.log.trace</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.log.run-until.html">bp.log.run-until</a>
+<a href="rm-cmd-bp-manager.log.wait-for.html">bp.log.wait-for</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.log.trace"></a>
+<h1 id="bp-manager.log.trace"><a href="#bp-manager.log.trace">bp.log.trace</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.log&gt;.trace</b> [<i>object</i>] [-regexp] [<i>"substr"</i>] [<i>type</i>] [-recursive] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Enable tracing of log messages matching the conditions specified by the <i>type</i> and <i>substr</i> arguments. The <i>object</i> argument of the command can be used to only trace log messages on a certain object. The <i>substr</i> argument is a string to match messages against. It is interpreted as a regular expression, as defined by the <tt>re</tt> module in Python, if the <tt>-regexp</tt> flag is specified.
+<p>
+Note that the log level must be set high enough for the message to be generated or it will not be found. If <tt>-recursive</tt> is used, not only the object, but the objects hierarchically below the object will be considered when adding the breakpoint.
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.log.run-until.html">bp.log.run-until</a>
+<a href="rm-cmd-bp-manager.log.wait-for.html">bp.log.wait-for</a>
+</div>

@@ -1,0 +1,190 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Single Root I/O Virtualization and Sharing (SR-IOV)</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="ats.html">Address Translation Service (ATS)</a>
+<a href="link-training.html">Link Training</a>
+</div>
+<div class="path">
+<a href="index.html">PCIe Modeling Library</a>
+&nbsp;/&nbsp;</div><h1 id="single-root-i-o-virtualization-and-sharing-sr-iov"><a href="#single-root-i-o-virtualization-and-sharing-sr-iov">Single Root I/O Virtualization and Sharing (SR-IOV)</a></h1>
+<p>The SR-IOV capability is modeled with template sriov_capability. See <a href="./extended-capabilities.html#single-root-i-o-virtualization-sr-iov-extended-capability-registers">Single
+Root I/O Virtualization (SR-IOV) Extended Capability
+registers</a>
+for the template and its methods definitions.</p>
+<p>Template
+<a href="./extended-capabilities.html#virtual-function-type-0-bank"><code>vf_type_0_bank</code></a>
+shall be used to implement the virtual functions, and templates
+<a href="./extended-capabilities.html#virtual-function-base-address"><code>vf_bar_64</code>/<code>vf_bar_32</code></a>
+should be used to implement the BARs for them.</p>
+<p>Since an SR-IOV device contains more than one function (at least one physical
+and one virtual), the device that implements the SR-IOV capability shall
+instantiate the
+<a href="common.html#pcie_multifunction_endpoint"><code>pcie_multifunction_endpoint</code></a>
+template.</p>
+<h2 id="physical-function-pf"><a href="#physical-function-pf">Physical Function (PF)</a></h2>
+<p>The physical function always instantiates <code>type_0_bank</code> and contains the SR-IOV
+capability, and instantiating this capability requires the implementation of the
+<a href="extended-capabilities.html#methods-2">methods</a> <code>get_offset()</code> and
+<code>get_stride()</code> as well as setting the <code>virtual_functions</code> param appropriately.
+The methods are self-explanatory, while setting the <code>virtual_functions</code> param
+may not be as obvious. The idea here is to set it to a <code>sequence</code> of type
+<code>vf_type_0_bank</code> using the
+<a href="../dml-1.4-reference-manual/language.html#each-in-expressions">“Each-in”</a>
+expressions. An example of this would be <code>param virtual_functions = (each vf_type_0_bank in (dev));</code></p>
+<p>BAR registers for the virtual functions reside within the SR-IOV capability
+structure. Note that a BAR register in the SR-IOV capability is used for all
+virtual functions that are associated with the physical function. It maps the
+same resource type for all virtual functions that are enabled. Implementing
+SR-IOV BAR registers is done by the aforementioned
+<a href="./extended-capabilities.html#virtual-function-base-address"><code>vf_bar_64</code>/<code>vf_bar_32</code></a>
+templates. These should reside on an offset relative to the capability base that
+is in line with what is specified in the PCI Express® Base Specification.
+Instantiation of these templates require the implementation of the
+<code>get_vf_bar_map()</code> method, which can for example return a bank object.</p>
+<p>A complete SR-IOV capability instantiation could look like this:</p>
+<pre><code class="language-dml">dml 1.4;
+device setting_virtual_functions;
+param desc = "SR-IOV Example 1";
+param documentation = "An example of how to instantiate the SR-IOV capability";
+
+import "pcie/common.dml";
+
+is pcie_multifunction_endpoint;
+
+param number_of_vfs = 10;
+
+subdevice PF {
+    bank pcie_config is type_0_bank {
+        // Other capabilities here...
+
+        is defining_sriov_capability;
+        param sriov_offset = 0x100;
+        param sriov_next_ptr = 0;
+        param sriov_virtual_functions = (each vf_type_0_bank in (dev));
+        group sriov {
+            register vf_bar_01 @ base + 0x24 is vf_bar_64 "VF BAR0-1" {
+                method get_vf_bar_map(uint64 vf_number) -&gt; (conf_object_t *) throws {
+                    if ((vf_number == 0) || (vf_number &gt; VF.len))
+                        throw;
+                    return VF[vf_number - 1].bar01.obj;
+                }
+            }
+            method get_offset() -&gt; (uint16) { return 0x100; }
+            method get_stride() -&gt; (uint16) { return 0x10; }
+        }
+    }
+    // Other banks here...
+}
+
+subdevice VF[i &lt; number_of_vfs] {
+    bank pcie_config is vf_type_0_bank { param vf_number = i + 1; }
+    bank bar01 { }
+}
+</code></pre>
+<h2 id="virtual-functions-vfs"><a href="#virtual-functions-vfs">Virtual functions (VFs)</a></h2>
+<p>Virtual functions are implemented by configuration banks that instantiate the
+<code>vf_type_0_bank</code>. Note that given a number of virtual functions the SR-IOV
+capability supports, that number of virtual function configuration banks have to
+be <em>statically</em> allocated during compile time.</p>
+<p>The PCIe capabilities in virtual functions should not instantiate the same
+capability templates as the physical functions. There are SR-IOV equivalent
+capability templates that are prepended with <code>sriov_</code> before the capability type
+(for example <code>defining_sriov_msix_capability</code> instead of
+<code>defining_msix_capability</code>). Note that there are currently only a few SR-IOV
+variants of the capability templates available in the library, but more will be
+added in the future.</p>
+<p>As the PF might share logical implementation details with the VFs, the subdevice
+structure in the example above lends itself well to not having to accommodate
+the logical implementation for the PF and the VFs respectively, as it should
+work the same for both function types. In the example below, more implementation
+details are added to the example above to clarify this statement.</p>
+<pre><code class="language-dml">dml 1.4;
+device setting_virtual_functions;
+param desc = "SR-IOV Example 2";
+param documentation = "An example of how to structure an SR-IOV capable device";
+
+import "pcie/common.dml";
+
+is pcie_multifunction_endpoint;
+
+param number_of_vfs = 10;
+
+template common_function_logic {
+    bank pcie_config {
+        register class_code { param init_val = 0x123456; }
+        register capabilities_ptr {
+            param init_val = 0x40;
+        }
+
+        param msix_offset           default 0x40;
+        param msix_next_ptr         default 0;
+        param msix_num_vectors      default 1024;
+        param msix_table_offset_bir default 0x1003;
+        param msix_pba_offset_bir   default 0x5003;
+        param msix_data_bank        default msix_data;
+    }
+
+    bank msix_data is msix_table {
+        param msix_bank = pcie_config;
+    }
+
+    bank bar01 {
+        register hello size 2 @ 0x0 is write {
+            method write(uint64 value) {
+                default(value);
+                log info, 1: "Hello from %s", this.qname;
+            }
+        }
+    }
+}
+
+subdevice PF is common_function_logic {
+    bank pcie_config is type_0_bank {
+        register vendor_id {param init_val = 0x1234; }
+        register device_id { param init_val = 0xabcd; }
+        register bar01 @ 0x10 is (memory_base_address_64) {
+            param map_obj = PF.bar01.obj;
+        }
+
+        is defining_msix_capability;
+
+        is defining_sriov_capability;
+        param sriov_offset = 0x100;
+        param sriov_next_ptr = 0;
+        param sriov_virtual_functions = (each vf_type_0_bank in (dev));
+        group sriov {
+            register vf_device_id { param init_val = 0xabcd; }
+            register vf_bar_01 @ base + 0x24 is vf_bar_64 "VF BAR0-1" {
+                method get_vf_bar_map(uint64 vf_number) -&gt; (conf_object_t *) throws {
+                    if ((vf_number == 0) || (vf_number &gt; VF.len))
+                        throw;
+                    return VF[vf_number - 1].bar01.obj;
+                }
+            }
+            method get_offset() -&gt; (uint16) { return 0x100; }
+            method get_stride() -&gt; (uint16) { return 0x10; }
+        }
+    }
+}
+
+subdevice VF[i &lt; number_of_vfs] is common_function_logic {
+    bank pcie_config is vf_type_0_bank {
+        param vf_number = i + 1;
+        is defining_sriov_msix_capability;
+    }
+}
+</code></pre>
+<h2 id="sample-sr-iov-endpoint"><a href="#sample-sr-iov-endpoint">Sample SR-IOV Endpoint</a></h2>
+<p>Refer to the sample SR-IOV device in <code>src/devices/sample-pcie-sriov-device</code>
+included with the Simics base package for a more elaborate example including two
+physical functions with a number of virtual functions each.</p>
+
+<div class="chain">
+<a href="ats.html">Address Translation Service (ATS)</a>
+<a href="link-training.html">Link Training</a>
+</div>

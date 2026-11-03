@@ -1,0 +1,164 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>floppy-drive</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-fixed-clock.html">fixed-clock</a>
+<a href="rm-class-framebuffer.html">framebuffer</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="floppy-drive"><a href="#floppy-drive">floppy-drive</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Floppy disk drive for use with the 82077 controller.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, floppy_drive
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-floppy-drive.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-floppy-drive.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:drive_busy"><a href="#dt:drive_busy">
+<i>drive_busy</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Drive busy flag.</dd>
+<dt id="dt:seek_in_progress"><a href="#dt:seek_in_progress">
+<i>seek_in_progress</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>A background seek is in progress.</dd>
+<dt id="dt:disk_changed"><a href="#dt:disk_changed">
+<i>disk_changed</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Disk in drive has changed.</dd>
+<dt id="dt:write_protect"><a href="#dt:write_protect">
+<i>write_protect</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Write protect flag.</dd>
+<dt id="dt:motor_on"><a href="#dt:motor_on">
+<i>motor_on</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Motor currently on.</dd>
+<dt id="dt:data_rate"><a href="#dt:data_rate">
+<i>data_rate</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current data rate.</dd>
+<dt id="dt:tracks"><a href="#dt:tracks">
+<i>tracks</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of tracks.</dd>
+<dt id="dt:sectors_per_track"><a href="#dt:sectors_per_track">
+<i>sectors_per_track</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of sectors per track.</dd>
+<dt id="dt:heads"><a href="#dt:heads">
+<i>heads</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of heads.</dd>
+<dt id="dt:cur_track"><a href="#dt:cur_track">
+<i>cur_track</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current track.</dd>
+<dt id="dt:cur_head"><a href="#dt:cur_head">
+<i>cur_head</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current head.</dd>
+<dt id="dt:cur_sector"><a href="#dt:cur_sector">
+<i>cur_sector</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current sector.</dd>
+<dt id="dt:image"><a href="#dt:image">
+<i>image</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>n|o</code>
+<br>Object holding floppy data. Must implement the image interface.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.82077.html">82077</a>
+</section>
+<div class="chain">
+<a href="rm-class-fixed-clock.html">fixed-clock</a>
+<a href="rm-class-framebuffer.html">framebuffer</a>
+</div>

@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>list-classes</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-list-checkpoints.html">list-checkpoints</a>
+<a href="rm-cmd-list-commands.html">list-commands</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="list-classes"></a>
+<h1 id="list-classes"><a href="#list-classes">list-classes</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>list-classes</b> [<i>"substr"</i>] [<i>"module"</i>] [-l] [-m] [-show-port-classes] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Lists all available configuration classes. It is possible to only include classes whose name matches a certain sub-string, specified by the <i>substr</i> argument. The <tt>-l</tt> flag will reduce the list to classes that has been registered by loaded modules. The <tt>-m</tt> flag extends the output with the name of the module that registered each class.
+<p>
+The <i>module</i> argument can be used to only list classes from the specified module.
+</p><p>
+Port classes are not included in the list, unless <tt>-show-port-classes</tt> is specified. Note that this only includes port classes for classes from loaded modules.
+</p><p>
+When used in an expression, a list of class names is returned, or a list of [&lt;class name&gt;, &lt;module name&gt;] pairs, depending on the <tt>-m</tt> flag. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-list-checkpoints.html">list-checkpoints</a>
+<a href="rm-cmd-list-commands.html">list-commands</a>
+</div>

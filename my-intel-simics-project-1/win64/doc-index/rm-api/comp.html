@@ -1,0 +1,336 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>comp</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="pyobj.html">pyobj</a>
+<a href="update_checkpoint.html">update_checkpoint</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="comp"><a href="#comp">comp</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>comp</p>
+<h2>Synopsis</h2>
+<h3>Python</h3>
+<pre><code>import comp
+</code></pre>
+</section>
+<h2 id="comp.CompException"><a href="#comp.CompException">class comp.CompException</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class comp.CompException
+</code></pre>
+<h2>Description</h2>
+<p>Error raised when methods in this module fail.</p>
+</section>
+<h2 id="comp.ConfigAttribute"><a href="#comp.ConfigAttribute">class comp.ConfigAttribute</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class comp.ConfigAttribute(top, up)
+</code></pre>
+<h2>Description</h2>
+<p>Component configuration attribute.</p>
+<p>The <code>ConfigAttribute</code> class inherits the <a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a> class. The <code>ConfigAttribute</code> class just adds the special property to the <a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a> class that it is a config attribute.</p>
+<p>A config attribute defines how the component should be configured. Therefore, all config attributes are also arguments to the <code>new-</code> and <code>create-</code> commands that are used to instantiate the component.</p>
+<p>Because of this, the config attribute must always be documented and the default value of the <code>attrattr</code> member is <code>Sim_Attr_Optional</code>.</p>
+<p>The <code>ConfigAttribute</code> class contains the <code>valid</code> member, which is a list of valid values for the config attribute. The list gives the user a hint about valid values when creating a component. There is no check that the value written to the attribute is a value in the list of valid values. The list of valid value(s) does not need to contain the default initial value for the config attribute, but it usually does. The valid list should at least contain one valid value even if several values are valid.</p>
+<h2>Example</h2>
+<pre><code>class foo(ConfigAttribute):
+    """The foo attribute."""
+    valid = [667, 4711]
+    def _initialize(self): self.val = 4711
+    def getter(self): return self.val
+    def setter(self, val): self.val = val
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a></p>
+</section>
+<h2 id="comp.SimpleConfigAttribute"><a href="#comp.SimpleConfigAttribute">comp.SimpleConfigAttribute</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.SimpleConfigAttribute(init, type, attr=1, val=[])
+</code></pre>
+<h2>Description</h2>
+<p>Simple component configuration attribute.</p>
+<p>The <code>pyobj.SimpleConfigAttribute</code> method creates an attribute using the <a href="comp.html#comp.ConfigAttribute"><code>comp.ConfigAttribute</code></a> class. The purpose of the method is to make it easier and faster to create a simple config attribute.</p>
+<p>A config attribute defines how the component should be configured. Therefore, all config attributes are also arguments to the <code>new-</code> and <code>create-</code> commands that are used to instantiate the component.</p>
+<p>The <code>init</code> argument is the initial value for the attribute. The type of the attribute is defined by the <code>type</code> string (currently objects ‘o’ and dictionaries ‘D’ are not supported). The <code>attr</code> argument sets the attribute kind. The default value for <code>attr</code> is <code>Sim_Attr_Optional</code>. The valid value(s) for the <a href="comp.html#comp.ConfigAttribute"><code>comp.ConfigAttribute</code></a> class is set by the <code>val</code> argument. See the documentation for <a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_attribute</code></a> for more information about the arguments.</p>
+<h2>Example</h2>
+<pre><code>class cpu_frequency(SimpleConfigAttribute(
+                    None, 'i', simics.Sim_Attr_Required)):
+    """Processor frequency in MHz."""
+</code></pre>
+<h2>Return Value</h2>
+<p>comp.ConfigAttribute class</p>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.Attribute"><code>pyobj.Attribute</code></a>, <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="comp.StandardComponent"><a href="#comp.StandardComponent">class comp.StandardComponent</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class comp.StandardComponent()
+</code></pre>
+<h2>Description</h2>
+<p>Base class for components.</p>
+<p>The <code>StandardComponent</code> class is the base class for components written in Python. It is a subclass of <a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a>.</p>
+<p>The class will automatically register the required component attributes. Any attribute may be overridden; however, overriding the internal attributes is not recommended.</p>
+<p>The automatically registered attributes are:</p>
+<dl>
+<dt id="dt:basename"><a href="#dt:basename">basename</a></dt>
+<dd>String to prepend to component name when creating components when not specifying name.</dd>
+<dt id="dt:component_icon"><a href="#dt:component_icon">component_icon</a></dt>
+<dd>String with the name of the component icon.</dd>
+<dt id="dt:component_queue"><a href="#dt:component_queue">component_queue</a></dt>
+<dd>The default queue object for this component.</dd>
+<dt id="dt:top_level"><a href="#dt:top_level">top_level</a></dt>
+<dd>Default set to <code>False</code>.</dd>
+<dt id="dt:system_icon"><a href="#dt:system_icon">system_icon</a></dt>
+<dd>The system icon.</dd>
+<dt id="dt:machine_icon"><a href="#dt:machine_icon">machine_icon</a></dt>
+<dd>The machine icon.</dd>
+<dt id="dt:cpu_list"><a href="#dt:cpu_list">cpu_list</a></dt>
+<dd>List of processors in the component tree.</dd>
+<dt id="dt:static_slots"><a href="#dt:static_slots">static_slots</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:dynamic_slots"><a href="#dt:dynamic_slots">dynamic_slots</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:object_list"><a href="#dt:object_list">object_list</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:object_prefix"><a href="#dt:object_prefix">object_prefix</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:top_component"><a href="#dt:top_component">top_component</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:instantiated"><a href="#dt:instantiated">instantiated</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:pending_cell_object_factories"><a href="#dt:pending_cell_object_factories">pending_cell_object_factories</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:config_attributes"><a href="#dt:config_attributes">config_attributes</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:system_info"><a href="#dt:system_info">system_info</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:components"><a href="#dt:components">components</a></dt>
+<dd>Internal.</dd>
+<dt id="dt:domain"><a href="#dt:domain">domain</a></dt>
+<dd>Internal.</dd>
+</dl>
+<p>The class will automatically implement the <a href="model-to-simulator-interfaces.html#component_interface_t"><code>component</code></a> interface. The individual methods of this interface are user-overridable.</p>
+<p>Components will automatically get <code>new-</code> and <code>create-</code> commands that can be used to create and instantiate the component. It is possible to override this by setting <code>_no_create_command</code> or <code>_no_new_command</code> to <code>object()</code> to avoid to automatically get <code>create-</code> or <code>new-</code> commands.</p>
+<h2>Example</h2>
+<pre><code>class my_comp(StandardComponent):
+    """The my_comp component."""
+    _class_desc = "my_comp"
+
+    class bar(SimpleConfigAttribute(
+            None, 'i', simics.Sim_Attr_Required)):
+        """My favorite bar."""
+
+    class my_comp(StandardComponent):
+        """The my_comp component."""
+        _class_desc = "my_comp"
+        _no_create_command = object()
+</code></pre>
+<h2>See Also</h2>
+<p><a href="pyobj.html#pyobj.ConfObject"><code>pyobj.ConfObject</code></a></p>
+</section>
+<h2 id="comp.StandardComponent.add_component"><a href="#comp.StandardComponent.add_component">comp.StandardComponent.add_component</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.add_component(slot, cls, attr, name='')
+</code></pre>
+<h2>Description</h2>
+<p>Add a subcomponent or arrays of subcomponents to the component.</p>
+<p>The subcomponent(s) will be created immediately when the method is called.</p>
+<p>The <code>slot</code> argument is the slot name concatenated with a nested array string, defining the number of subcomponents to create. Setting <code>slot</code> to <em>foo</em> will create one subcomponent in the slot <em>foo</em>, setting <code>slot</code> to <em>foo[3]</em> will create an array of three subcomponents in the slot <em>foo</em>, setting <code>slot</code> to <em>foo[3][2]</em> will create an array of three arrays of two arrays with subcomponents in the slot <em>foo</em>.</p>
+<p>The <code>cls</code> is the component class, <code>attr</code> is arguments to the component, and <code>name</code> is an optional name.</p>
+<h2>Return Value</h2>
+<p>Arrays of conf_object_t component object.</p>
+</section>
+<h2 id="comp.StandardComponent.add_connector"><a href="#comp.StandardComponent.add_connector">comp.StandardComponent.add_connector</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.add_connector(
+    slot,
+    type,
+    hotpluggable,
+    required,
+    multi,
+    direction
+)
+</code></pre>
+<h2>Description</h2>
+<p>Add connector to component.</p>
+<p>Add a connector or nested array of connectors to the component. The connector(s) will be created immediately when the method is called.</p>
+<p>The <code>slot</code> argument is the slot name concatenated with a nested array string, defining the number of connectors to create. Setting <code>slot</code> to <em>foo</em> will create one connector in the slot <em>foo</em>, setting <code>slot</code> to <em>foo[3]</em> will create an array of three connectors in the slot <em>foo</em>, setting <code>slot</code> to <em>foo[3][2]</em> will create an array of three arrays of two arrays with connectors in the slot <em>foo</em>.</p>
+<p>The <code>type</code> is the type of connection as a string, <code>hotpluggable</code> is <code>True</code> or <code>False</code> depending on whether the connector is hot-pluggable, <code>required</code> is <code>True</code> if the connector must be connected before the component is instantiated, <code>multi</code> is <code>True</code> if the connector supports multiple connections, <code>direction</code> is a <a href="model-to-simulator-interfaces.html#connector_interface_t"><code>connector_direction_t</code></a> which is <code>up</code>, <code>down</code>, or <code>any</code>.</p>
+<h2>Return Value</h2>
+<p>Arrays of conf_object connector objects.</p>
+<h2>See Also</h2>
+<p><a href="comp.html#comp.StandardComponent.get_slot"><code>comp.StandardComponent.get_slot</code></a></p>
+</section>
+<h2 id="comp.StandardComponent.add_pre_obj"><a href="#comp.StandardComponent.add_pre_obj">comp.StandardComponent.add_pre_obj</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.add_pre_obj(slot, cls, name='', **attr)
+</code></pre>
+<h2>Description</h2>
+<p>Add pre conf objects to the component.</p>
+<p>The pre conf objects will be converted to regular conf objects when the component is instantiated.</p>
+<p>The <code>slot</code> argument is the slot name concatenated with a nested array string, defining the number of pre objects to create. Setting <code>slot</code> to <em>foo</em> will create one pre object in the slot <em>foo</em>, setting <code>slot</code> to <em>foo[3]</em> will create an array of three pre objects in the slot <em>foo</em>, setting <code>slot</code> to <em>foo[3][2]</em> will create an array of three arrays of two arrays with pre objects in the slot <em>foo</em>. The <code>cls</code> argument is the type of object class to create. The <code>name</code> argument is deprecated. The <code>attr</code> argument is optional attribute values for the object(s).</p>
+<h2>Return Value</h2>
+<p>Arrays of pre conf objects.</p>
+</section>
+<h2 id="comp.StandardComponent.add_pre_obj_with_name"><a href="#comp.StandardComponent.add_pre_obj_with_name">comp.StandardComponent.add_pre_obj_with_name</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.add_pre_obj_with_name(slot, cls, name, **attr)
+</code></pre>
+<h2>Description</h2>
+<p>Helper method which add a pre conf objects to the component.</p>
+<p>This method supports distributed links that require a name as identifier. Internal only, use <a href="comp.html#comp.StandardComponent.add_pre_obj"><code>add_pre_obj()</code></a>.</p>
+</section>
+<h2 id="comp.StandardComponent.add_slot"><a href="#comp.StandardComponent.add_slot">comp.StandardComponent.add_slot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.add_slot(slot, val)
+</code></pre>
+<h2>Description</h2>
+<p>Add a slot to the component.</p>
+<p><code>slot</code> is the slot name and <code>val</code> is the value. The value must be a conf object, a pre conf object, or None, or nested lists of these types.</p>
+<h2>Return Value</h2>
+<p>New slot value, i.e. <code>val</code>.</p>
+</section>
+<h2 id="comp.StandardComponent.connect"><a href="#comp.StandardComponent.connect">comp.StandardComponent.connect</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.connect(cnt0, cnt1)
+</code></pre>
+<h2>Description</h2>
+<p>Connect two connectors <code>cnt0</code> and <code>cnt1</code>.</p>
+<p>The connectors must be connector objects. A <a href="comp.html#comp.CompException"><code>comp.CompException</code></a> exception will be raised if the connection failed.</p>
+</section>
+<h2 id="comp.StandardComponent.copy_connector"><a href="#comp.StandardComponent.copy_connector">comp.StandardComponent.copy_connector</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.copy_connector(slot, src)
+</code></pre>
+<h2>Description</h2>
+<p>Copy connector to component.</p>
+<p>Copy connectors from another component. The <code>slot</code> argument is the new slot name for the connector in this component. The <code>src</code> argument is the name of the slot with connectors to copy. The <code>src</code> can be a relative slot name, see the <code>get_slot</code> method.</p>
+<h2>Return Value</h2>
+<p>Arrays of conf_object connector objects.</p>
+<h2>See Also</h2>
+<p><a href="comp.html#comp.StandardComponent.get_slot"><code>comp.StandardComponent.get_slot</code></a></p>
+</section>
+<h2 id="comp.StandardComponent.del_slot"><a href="#comp.StandardComponent.del_slot">comp.StandardComponent.del_slot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.del_slot(slot)
+</code></pre>
+<h2>Description</h2>
+<p>Delete slot in component.</p>
+<p>The <code>slot</code> argument is the slot name. The function returns the slot value if the slot exists. All connectors in the slot will be converted to pre conf objects and the original connectors will be deleted when returning the slot value. A <a href="comp.html#comp.CompException"><code>comp.CompException</code></a> exception will be raised if the slot does not exist, the slot contains non connector conf objects, or the slot contains connectors that have been copied with the <a href="comp.html#comp.StandardComponent.copy_connector"><code>copy_connector</code></a> method. Slots with sub components can not be deleted.</p>
+</section>
+<h2 id="comp.StandardComponent.get_slot"><a href="#comp.StandardComponent.get_slot">comp.StandardComponent.get_slot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.get_slot(slot)
+</code></pre>
+<h2>Description</h2>
+<p>Get a slot from the component.</p>
+<p><code>slot</code> is the slot name. <code>slot</code> can be a slot in this component or a hierarchical slot; e.g., looking up <code>foo.bar</code> will return the slot <code>bar</code> from the component in slot <code>foo</code> from this component. If the lookup fails, a <a href="comp.html#comp.CompException"><code>comp.CompException</code></a> exception will be raised.</p>
+<h2>Return Value</h2>
+<p>Slot value.</p>
+</section>
+<h2 id="comp.StandardComponent.has_slot"><a href="#comp.StandardComponent.has_slot">comp.StandardComponent.has_slot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardComponent.has_slot(slot)
+</code></pre>
+<h2>Description</h2>
+<p>Return true if slot exists, otherwise False.</p>
+<p><code>slot</code> is the slot name. <code>slot</code> can be a slot in this component or a hierarchical slot; e.g., looking up <code>foo.bar</code> will return the slot <code>bar</code> from the component in slot <code>foo</code> from this component.</p>
+</section>
+<h2 id="comp.StandardConnectorComponent"><a href="#comp.StandardConnectorComponent">class comp.StandardConnectorComponent</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class comp.StandardConnectorComponent()
+</code></pre>
+<h2>Description</h2>
+<p>Convenience class for connector components.</p>
+<p>The <code>StandardConnectorComponent</code> is a convenience class for connector components. It is a subclass of <a href="comp.html#comp.StandardComponent"><code>comp.StandardComponent</code></a> and implements the <a href="model-to-simulator-interfaces.html#component_connector_interface_t"><code>component_connector</code></a> interface.</p>
+<h2>See Also</h2>
+<p><a href="comp.html#comp.StandardComponent"><code>comp.StandardComponent</code></a></p>
+</section>
+<h2 id="comp.StandardConnectorComponent.add_connector"><a href="#comp.StandardConnectorComponent.add_connector">comp.StandardConnectorComponent.add_connector</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.StandardConnectorComponent.add_connector(slot, cls)
+</code></pre>
+<h2>Description</h2>
+<p>Add connector to component.</p>
+<p>The <code>slot</code> argument is the slot name for the connector.</p>
+<p>The <code>cls</code> argument is an instance of a connector class.</p>
+<h2>Return Value</h2>
+<p>The conf_object connector component.</p>
+</section>
+<h2 id="comp.get_pre_obj_object"><a href="#comp.get_pre_obj_object">comp.get_pre_obj_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>comp.get_pre_obj_object(pre)
+</code></pre>
+<h2>Description</h2>
+<p>Return conf_object_t reference from pre_obj or a conf_object_t.</p>
+</section>
+<h2 id="comp.index_map_pre_obj"><a href="#comp.index_map_pre_obj">class comp.index_map_pre_obj</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class comp.index_map_pre_obj(
+    object_or_class_name=None,
+    class_name=None,
+    build_id=None,
+    /,
+    **attrs
+)
+</code></pre>
+<h2>Description</h2>
+<p>Implicitly created index-map pre-conf object.</p>
+</section>
+<h2 id="comp.pre_obj"><a href="#comp.pre_obj">class comp.pre_obj</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class comp.pre_obj(
+    object_or_class_name=None,
+    class_name=None,
+    build_id=None,
+    /,
+    **attrs
+)
+</code></pre>
+<h2>Description</h2>
+<p>Generate a pre_conf_object with a unique name.</p>
+</section>
+<h2 id="comp.pre_obj_noprefix"><a href="#comp.pre_obj_noprefix">class comp.pre_obj_noprefix</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Synopsis</h2>
+<pre><code>class comp.pre_obj_noprefix(
+    object_or_class_name=None,
+    class_name=None,
+    build_id=None,
+    /,
+    **attrs
+)
+</code></pre>
+<h2>Description</h2>
+<p>Generate a pre_conf_object with a unique name, no prefix added.</p>
+</section>
+<div class="chain">
+<a href="pyobj.html">pyobj</a>
+<a href="update_checkpoint.html">update_checkpoint</a>
+</div>

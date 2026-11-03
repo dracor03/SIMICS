@@ -1,0 +1,288 @@
+{
+  "is_book": false,
+  "anchor": "technology_guides",
+  "style": "unstyled",
+  "file": "index.html",
+  "name": "Ethernet Networking Technology Guide",
+  "headings": [],
+  "children": [
+    {
+      "file": "ethernet-guide-introduction.html",
+      "name": "1 Introduction",
+      "headings": [],
+      "children": []
+    },
+    {
+      "file": "simicsnet.html",
+      "name": "2 Network Simulation",
+      "headings": [],
+      "children": [
+        {
+          "file": "ethernet-links.html",
+          "name": "2.1 Ethernet Links",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "ethernet-vlan-switch.html",
+          "name": "2.2 Ethernet VLAN Switch",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "link-object-timing.html",
+          "name": "2.3 Link Object Timing",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "ip-services.html",
+          "name": "2.4 IP Services",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "ip-based-routing",
+              "text": "2.4.1 IP Based Routing"
+            },
+            {
+              "level": 1,
+              "anchor": "dhcp-and-bootp",
+              "text": "2.4.2 DHCP and BOOTP"
+            },
+            {
+              "level": 1,
+              "anchor": "dns",
+              "text": "2.4.3 DNS"
+            },
+            {
+              "level": 1,
+              "anchor": "tftp",
+              "text": "2.4.4 TFTP"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "observing-network-traffic.html",
+          "name": "2.5 Observing Network Traffic",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "traffic-monitoring-software",
+              "text": "2.5.1 Traffic Monitoring Software"
+            },
+            {
+              "level": 1,
+              "anchor": "ethernet-probe",
+              "text": "2.5.2 Ethernet Probe"
+            },
+            {
+              "level": 1,
+              "anchor": "traffic-snooping",
+              "text": "2.5.3 Traffic Snooping"
+            },
+            {
+              "level": 1,
+              "anchor": "link-monitor",
+              "text": "2.5.4 Link Monitor"
+            },
+            {
+              "level": 1,
+              "anchor": "network-breakpoint",
+              "text": "2.5.5 Network breakpoint"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "injecting-and-modifying-network-traffic.html",
+          "name": "2.6 Injecting and Modifying Network Traffic",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "from-a-network-dump",
+              "text": "2.6.1 From a Network Dump"
+            },
+            {
+              "level": 1,
+              "anchor": "from-an-ethernet-probe",
+              "text": "2.6.2 From an Ethernet Probe"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "file": "real-network.html",
+      "name": "3 Connecting to a Real Network",
+      "headings": [],
+      "children": [
+        {
+          "file": "real-network-examples.html",
+          "name": "3.1 Preparing for the Examples",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "real-network-connections.html",
+          "name": "3.2 Connection Types",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "port-forwarding",
+              "text": "3.2.1 Port Forwarding"
+            },
+            {
+              "level": 2,
+              "anchor": "the-connect-real-network-command",
+              "text": "3.2.1.1 The connect-real-network Command"
+            },
+            {
+              "level": 3,
+              "anchor": "connect-real-network-example",
+              "text": "3.2.1.1.1 connect-real-network Example"
+            },
+            {
+              "level": 2,
+              "anchor": "incoming-port-forwarding",
+              "text": "3.2.1.2 Incoming Port Forwarding"
+            },
+            {
+              "level": 3,
+              "anchor": "incoming-port-forwarding-example",
+              "text": "3.2.1.2.1 Incoming Port Forwarding Example"
+            },
+            {
+              "level": 2,
+              "anchor": "outgoing-port-forwarding",
+              "text": "3.2.1.3 Outgoing Port Forwarding"
+            },
+            {
+              "level": 3,
+              "anchor": "outgoing-port-forwarding-example",
+              "text": "3.2.1.3.1 Outgoing Port Forwarding Example"
+            },
+            {
+              "level": 2,
+              "anchor": "napt",
+              "text": "3.2.1.4 NAPT"
+            },
+            {
+              "level": 3,
+              "anchor": "napt-example",
+              "text": "3.2.1.4.1 NAPT Example"
+            },
+            {
+              "level": 2,
+              "anchor": "dns-forwarding",
+              "text": "3.2.1.5 DNS Forwarding"
+            },
+            {
+              "level": 3,
+              "anchor": "dns-forwarding-example",
+              "text": "3.2.1.5.1 DNS Forwarding Example"
+            },
+            {
+              "level": 1,
+              "anchor": "ethernet-bridging",
+              "text": "3.2.2 Ethernet Bridging"
+            },
+            {
+              "level": 2,
+              "anchor": "ethernet-bridging-example",
+              "text": "3.2.2.1 Ethernet Bridging Example"
+            },
+            {
+              "level": 2,
+              "anchor": "setting-up-tap-for-ethernet-bridging",
+              "text": "3.2.2.2 Setting up TAP for Ethernet Bridging"
+            },
+            {
+              "level": 3,
+              "anchor": "linux",
+              "text": "3.2.2.2.1 Linux"
+            },
+            {
+              "level": 3,
+              "anchor": "windows",
+              "text": "3.2.2.2.2 Windows"
+            },
+            {
+              "level": 1,
+              "anchor": "host-connection",
+              "text": "3.2.3 Host Connection"
+            },
+            {
+              "level": 2,
+              "anchor": "ethernet-bridging-example-2",
+              "text": "3.2.3.1 Ethernet Bridging Example"
+            },
+            {
+              "level": 2,
+              "anchor": "ip-forwarding",
+              "text": "3.2.3.2 IP Forwarding"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "real-network-access.html",
+          "name": "3.3 Accessing Host Ethernet Interfaces",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "tap-access",
+              "text": "3.3.1 TAP Access"
+            },
+            {
+              "level": 2,
+              "anchor": "linux",
+              "text": "3.3.1.1 Linux"
+            },
+            {
+              "level": 2,
+              "anchor": "windows",
+              "text": "3.3.1.2 Windows"
+            },
+            {
+              "level": 2,
+              "anchor": "tap-devices-with-multiple-users-and-simulations",
+              "text": "3.3.1.3 TAP devices with multiple users and simulations"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "real-network-interface.html",
+          "name": "3.4 Selecting Host Ethernet Interface",
+          "headings": [
+            {
+              "level": 1,
+              "anchor": "linux",
+              "text": "3.4.1 Linux"
+            },
+            {
+              "level": 1,
+              "anchor": "windows",
+              "text": "3.4.2 Windows"
+            }
+          ],
+          "children": []
+        },
+        {
+          "file": "real-network-performance.html",
+          "name": "3.5 Performance",
+          "headings": [],
+          "children": []
+        },
+        {
+          "file": "real-network-troubleshooting.html",
+          "name": "3.6 Troubleshooting",
+          "headings": [],
+          "children": []
+        }
+      ]
+    }
+  ]
+}

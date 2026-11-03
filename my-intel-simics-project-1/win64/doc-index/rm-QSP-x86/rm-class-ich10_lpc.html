@@ -1,0 +1,397 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ich10_lpc</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-ich10_lan_v2.html">ich10_lan_v2</a>
+<a href="rm-class-ich10_rtc.html">ich10_rtc</a>
+</div>
+<div class="path">
+<a href="index.html">Quick-Start Platform x86 Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">3 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="ich10_lpc"><a href="#ich10_lpc">ich10_lpc</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+LPC bridge contains interrupt controllers, timers, RTC, Serial ports and Firmware hub for Intel® ICH10.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, bridge, hpet_msi, io_memory, pci_device, pci_interrupt, serial_interrupt_master
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:serirq_slave-optional"><a href="#dt:serirq_slave-optional">SERIRQ_slave (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: serial_interrupt_slave
+</dd>
+<dt id="dt:expansion_rom-optional"><a href="#dt:expansion_rom-optional">expansion_rom (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: rom
+</dd>
+<dt id="dt:flash-required"><a href="#dt:flash-required">flash (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory
+</dd>
+<dt id="dt:hpet-optional"><a href="#dt:hpet-optional">hpet (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory
+</dd>
+<dt id="dt:ioapic-required"><a href="#dt:ioapic-required">ioapic (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: ioapic
+</dd>
+<dt id="dt:irq_dev-optional"><a href="#dt:irq_dev-optional">irq_dev (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: simple_interrupt
+</dd>
+<dt id="dt:lpc_io-optional"><a href="#dt:lpc_io-optional">lpc_io (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: memory_space
+</dd>
+<dt id="dt:lpc_memory-optional"><a href="#dt:lpc_memory-optional">lpc_memory (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: memory_space
+</dd>
+<dt id="dt:pci_bus-required"><a href="#dt:pci_bus-required">pci_bus (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: io_memory, pci_bus
+</dd>
+<dt id="dt:reset_target-optional"><a href="#dt:reset_target-optional">reset_target (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: signal
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-acpi_io_regs"><a href="#dt:bank-acpi_io_regs">bank.acpi_io_regs</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.acpi_io_regs">ich10_lpc.acpi_io_regs</a>
+</dd>
+<dt id="dt:bank-apm_io_regs"><a href="#dt:bank-apm_io_regs">bank.apm_io_regs</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.apm_io_regs">ich10_lpc.apm_io_regs</a>
+</dd>
+<dt id="dt:bank-cs_conf"><a href="#dt:bank-cs_conf">bank.cs_conf</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.cs_conf">ich10_lpc.cs_conf</a>
+</dd>
+<dt id="dt:bank-fixed_io"><a href="#dt:bank-fixed_io">bank.fixed_io</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.fixed_io">ich10_lpc.fixed_io</a>
+</dd>
+<dt id="dt:bank-gpio_conf"><a href="#dt:bank-gpio_conf">bank.gpio_conf</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.gpio_conf">ich10_lpc.gpio_conf</a>
+</dd>
+<dt id="dt:bank-pci_config"><a href="#dt:bank-pci_config">bank.pci_config</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.pci_config">ich10_lpc.pci_config</a>
+</dd>
+<dt id="dt:port-hreset"><a href="#dt:port-hreset">port.HRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.HRESET">ich10_lpc.HRESET</a>
+</dd>
+<dt id="dt:port-sreset"><a href="#dt:port-sreset">port.SRESET</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.SRESET">ich10_lpc.SRESET</a>
+</dd>
+<dt id="dt:port-com1_in"><a href="#dt:port-com1_in">port.com1_in</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.com1_in">ich10_lpc.com1_in</a>
+</dd>
+<dt id="dt:port-com2_in"><a href="#dt:port-com2_in">port.com2_in</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.com2_in">ich10_lpc.com2_in</a>
+</dd>
+<dt id="dt:port-com3_in"><a href="#dt:port-com3_in">port.com3_in</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.com3_in">ich10_lpc.com3_in</a>
+</dd>
+<dt id="dt:port-com4_in"><a href="#dt:port-com4_in">port.com4_in</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.com4_in">ich10_lpc.com4_in</a>
+</dd>
+<dt id="dt:port-pirq"><a href="#dt:port-pirq">port.pirq</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.pirq">ich10_lpc.pirq</a>
+ – port for PIRQ input</dd>
+<dt id="dt:port-pirqe"><a href="#dt:port-pirqe">port.pirqe</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.pirqe">ich10_lpc.pirqe</a>
+ – port for PIRQE</dd>
+<dt id="dt:port-pirqf"><a href="#dt:port-pirqf">port.pirqf</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.pirqf">ich10_lpc.pirqf</a>
+ – port for PIRQF</dd>
+<dt id="dt:port-pirqg"><a href="#dt:port-pirqg">port.pirqg</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.pirqg">ich10_lpc.pirqg</a>
+ – port for PIRQG</dd>
+<dt id="dt:port-pirqh"><a href="#dt:port-pirqh">port.pirqh</a></dt>
+<dd>
+<a href="rm-class-ich10_lpc.html#ich10_lpc.pirqh">ich10_lpc.pirqh</a>
+ – port for PIRQH</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-ich10_lpc.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-ich10_lpc.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:serirq_slave"><a href="#dt:serirq_slave">
+<i>SERIRQ_slave</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>connects to slave device of serial interrupt transfer cycles
+<p>
+Required interfaces: <tt>serial_interrupt_slave</tt>.</p></dd>
+<dt id="dt:coma_level"><a href="#dt:coma_level">
+<i>coma_level</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt Level of COM A</dd>
+<dt id="dt:coma_pirq"><a href="#dt:coma_pirq">
+<i>coma_pirq</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connection to interrupt controller for COMB</dd>
+<dt id="dt:comb_level"><a href="#dt:comb_level">
+<i>comb_level</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Interrupt Level of COM B</dd>
+<dt id="dt:comb_pirq"><a href="#dt:comb_pirq">
+<i>comb_pirq</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connection to interrupt controller for COMB</dd>
+<dt id="dt:config_registers"><a href="#dt:config_registers">
+<i>config_registers</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[i*]</code>
+<br>The PCI configuration registers, each 32 bits in size.</dd>
+<dt id="dt:cpus"><a href="#dt:cpus">
+<i>cpus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o*]</code>
+<br>CPUs receiving direct pin connections for NMI and SMI</dd>
+<dt id="dt:expansion_rom_size"><a href="#dt:expansion_rom_size">
+<i>expansion_rom_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>The size of the expansion ROM mapping.</dd>
+<dt id="dt:flash"><a href="#dt:flash">
+<i>flash</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>Connection to the SPI interface in the ICH
+<p>
+Required interfaces: <tt>io_memory</tt>.</p></dd>
+<dt id="dt:fwh_device"><a href="#dt:fwh_device">
+<i>fwh_device</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[oo|no]|n{12}]</code>
+<br>Devices connected to the Firmware Hub. Each device is either [object, target, image] (as returned by flash_create_memory_anon) or Nil. The <b>image</b> object must implement the <b>image</b> interface. See <b>memory_space.map</b> attribute for requirements on <b>object</b> and <b>target</b></dd>
+<dt id="dt:hpet"><a href="#dt:hpet">
+<i>hpet</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>The High Precision Event Timer mapped through the hptc register
+<p>
+Required interfaces: <tt>io_memory</tt>.</p></dd>
+<dt id="dt:ich10_corporate"><a href="#dt:ich10_corporate">
+<i>ich10_corporate</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>ICH10 Corporate family chipset, true for ICH10D or ICH10DO</dd>
+<dt id="dt:ioapic"><a href="#dt:ioapic">
+<i>ioapic</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>IOAPIC receiving PCI interrupt
+<p>
+Required interfaces: <tt>ioapic</tt>.</p></dd>
+<dt id="dt:irq_dev"><a href="#dt:irq_dev">
+<i>irq_dev</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Connect to 8259 which is the destination object of PIRQs routing
+<p>
+Required interfaces: <tt>simple_interrupt</tt>.</p></dd>
+<dt id="dt:irq_level"><a href="#dt:irq_level">
+<i>irq_level</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{8}]</code>
+<br>Raise count for PIRQ[A-H]</dd>
+<dt id="dt:lpc_io"><a href="#dt:lpc_io">
+<i>lpc_io</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>IO space of LPC bus
+<p>
+Required interfaces: <tt>memory_space</tt>.</p></dd>
+<dt id="dt:lpc_memory"><a href="#dt:lpc_memory">
+<i>lpc_memory</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Memory space of LPC bus
+<p>
+Required interfaces: <tt>memory_space</tt>.</p></dd>
+<dt id="dt:nmi_pin"><a href="#dt:nmi_pin">
+<i>nmi_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>SMI pin status</dd>
+<dt id="dt:pci_bus"><a href="#dt:pci_bus">
+<i>pci_bus</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>The PCI bus this device is connected to, implementing the <tt>pci-bus</tt> interface.
+<p>
+Required interfaces: <tt>io_memory</tt>, <tt>pci_bus</tt>.</p></dd>
+<dt id="dt:reset_target"><a href="#dt:reset_target">
+<i>reset_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Signal triggered via write to RST_CNT, should reset the system.
+<p>
+Required interfaces: <tt>signal</tt>.</p></dd>
+<dt id="dt:sci_pin"><a href="#dt:sci_pin">
+<i>sci_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>SCI pin status</dd>
+<dt id="dt:serial_port"><a href="#dt:serial_port">
+<i>serial_port</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o|[os]|n{0:4}]</code>
+<br>Connections to registers bank of NS16550 object</dd>
+<dt id="dt:smi_pin"><a href="#dt:smi_pin">
+<i>smi_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>SMI pin status</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.ICH10.html">ICH10</a>
+</section>
+<h2 id="ich10_lpc.HRESET"><a href="#ich10_lpc.HRESET">ich10_lpc.HRESET</a></h2>
+<h2 id="ich10_lpc.SRESET"><a href="#ich10_lpc.SRESET">ich10_lpc.SRESET</a></h2>
+<h2 id="ich10_lpc.acpi_io_regs"><a href="#ich10_lpc.acpi_io_regs">ich10_lpc.acpi_io_regs</a></h2>
+<h2 id="ich10_lpc.apm_io_regs"><a href="#ich10_lpc.apm_io_regs">ich10_lpc.apm_io_regs</a></h2>
+<h2 id="ich10_lpc.com1_in"><a href="#ich10_lpc.com1_in">ich10_lpc.com1_in</a></h2>
+<h2 id="ich10_lpc.com2_in"><a href="#ich10_lpc.com2_in">ich10_lpc.com2_in</a></h2>
+<h2 id="ich10_lpc.com3_in"><a href="#ich10_lpc.com3_in">ich10_lpc.com3_in</a></h2>
+<h2 id="ich10_lpc.com4_in"><a href="#ich10_lpc.com4_in">ich10_lpc.com4_in</a></h2>
+<h2 id="ich10_lpc.cs_conf"><a href="#ich10_lpc.cs_conf">ich10_lpc.cs_conf</a></h2>
+<h2 id="ich10_lpc.fixed_io"><a href="#ich10_lpc.fixed_io">ich10_lpc.fixed_io</a></h2>
+<h2 id="ich10_lpc.gpio_conf"><a href="#ich10_lpc.gpio_conf">ich10_lpc.gpio_conf</a></h2>
+<h2 id="ich10_lpc.pci_config"><a href="#ich10_lpc.pci_config">ich10_lpc.pci_config</a></h2>
+<h2 id="ich10_lpc.pirq"><a href="#ich10_lpc.pirq">ich10_lpc.pirq</a></h2>
+<h2 id="ich10_lpc.pirqe"><a href="#ich10_lpc.pirqe">ich10_lpc.pirqe</a></h2>
+<h2 id="ich10_lpc.pirqf"><a href="#ich10_lpc.pirqf">ich10_lpc.pirqf</a></h2>
+<h2 id="ich10_lpc.pirqg"><a href="#ich10_lpc.pirqg">ich10_lpc.pirqg</a></h2>
+<h2 id="ich10_lpc.pirqh"><a href="#ich10_lpc.pirqh">ich10_lpc.pirqh</a></h2>
+<div class="chain">
+<a href="rm-class-ich10_lan_v2.html">ich10_lan_v2</a>
+<a href="rm-class-ich10_rtc.html">ich10_rtc</a>
+</div>

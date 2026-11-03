@@ -1,0 +1,490 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>RISC-V Simple Reference Manual</title>
+
+<section class="page" id="index.html"><h1>RISC-V Simple Reference Manual</h1>
+
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    
+    
+    
+
+</section><section class="page" id="introduction.html"><h1 class="jdocu"><a id="introduction.html:Introduction">1 Introduction</a></h1>
+<p>
+
+</p><p>
+This manual contains the reference documentation for the
+RISC-V Simple add-on package. It includes a complete list
+of all command line commands defined by this package. It also provides
+documentation on the available components and classes. Finally, it
+describes the interfaces and haps that are available for scripting and
+developing models. Note that whenever this manual refers to an item
+not documented here (class, interface, or hap), the corresponding
+documentation can be found in the main Simics Reference Manual.
+</p><p>
+This manual is aimed at normal Simics users (the command list chapter, and
+possibly the lists of components and classes), script developers (haps,
+classes, and interfaces), and model developers (the entire manual).
+</p><p>
+This manual is strictly meant to be used as reference documentation, and it
+provides little explanation on how to use the various features described. Refer
+to other Simics manuals for more information; these are listed in the
+<em>Documentation Contents</em> document.
+</p><p>
+</p></section><section class="page" id="commands.html"><h1 class="jdocu"><a id="commands.html:Commands">2 Commands</a></h1>
+<p>
+
+</p><p>
+
+
+
+
+</p><p>
+</p></section><section class="page" id="complete-list.html"><h1 class="jdocu"><a id="complete-list.html:Complete-List">2.1 Complete List</a></h1>
+<p>
+
+</p><p>
+<table>
+
+<tbody><tr><td class="jdocu_noborder"><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_risc_v_simple_comp_gt_.info">&lt;risc_v_simple_comp&gt;.info</a></td><td class="jdocu_noborder"> print information about the object</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_risc_v_simple_comp_gt_.status">&lt;risc_v_simple_comp&gt;.status</a></td><td class="jdocu_noborder"> print status of the object</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-clint_gt_.info">&lt;riscv-clint&gt;.info</a></td><td class="jdocu_noborder"> print information about the object</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-clint_gt_.status">&lt;riscv-clint&gt;.status</a></td><td class="jdocu_noborder"> print status of the object</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-plic_gt_.info">&lt;riscv-plic&gt;.info</a></td><td class="jdocu_noborder"> print information about the object</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-plic_gt_.status">&lt;riscv-plic&gt;.status</a></td><td class="jdocu_noborder"> print status of the object</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#global-commands.html:__rm_command_create-risc-v-simple-comp">create-risc-v-simple-comp</a></td><td class="jdocu_noborder"> create a non-instantiated risc_v_simple_comp</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#global-commands.html:__rm_command_new-risc-v-simple-comp">new-risc-v-simple-comp</a></td><td class="jdocu_noborder"> create an instantiated risc_v_simple_comp</td></tr>
+
+</tbody></table>
+</p></section><section class="page" id="list-by-categories.html"><h1 class="jdocu"><a id="list-by-categories.html:List-by-Categories">2.2 List by Categories</a></h1>
+<p>
+
+</p><p>
+</p><h2 class="jdocu"><a class="not-numbered" id="list-by-categories.html:Components">Components</a></h2>
+<p>
+
+<table>
+
+<tbody><tr><td class="jdocu_noborder">
+  <a class="jdocu" href="#global-commands.html:__rm_command_create-risc-v-simple-comp">create-risc-v-simple-comp</a>
+</td><td class="jdocu_noborder">create a non-instantiated risc_v_simple_comp</td></tr>
+
+<tr><td class="jdocu_noborder">
+  <a class="jdocu" href="#global-commands.html:__rm_command_new-risc-v-simple-comp">new-risc-v-simple-comp</a>
+</td><td class="jdocu_noborder">create an instantiated risc_v_simple_comp</td></tr>
+
+</tbody></table>
+
+</p></section><section class="page" id="global-commands.html"><h1 class="jdocu"><a id="global-commands.html:Global-Commands">2.3 Global Commands</a></h1>
+<p>
+
+
+
+</p><p><a id="global-commands.html:__rm_command_create-risc-v-simple-comp"></a><a id="global-commands.html:create-risc-v-simple-comp"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="global-commands.html:dt:create-risc-v-simple-comp"><a href="#global-commands.html:dt:create-risc-v-simple-comp"><b>create-risc-v-simple-comp</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>create-risc-v-simple-comp</b> [<i>"name"</i>] [<i>"core_class"</i>] [<i>"disk0_image"</i>] [<i>disk0_size</i>] [<i>"disk1_image"</i>] [<i>disk1_size</i>] [<i>"disk2_image"</i>] [<i>disk2_size</i>] [<i>entropy_seed</i>] [<i>freq_mhz</i>] [<i>"mac_address"</i>] [<i>memory_megs</i>] [<i>num_cores</i>] <i>"rtc_time"</i> [<i>timebase_freq_mhz</i>] </dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">This command creates a non-instantiated component of the class
+                    <b>risc_v_simple_comp</b>.
+<p>
+                    The class description for the <b>risc_v_simple_comp</b> class: RISC-V Simple Board Component
+</p><p>
+                    </p><dl><dt id="global-commands.html:dt:name-is-optional"><a href="#global-commands.html:dt:name-is-optional"><b><i>name</i> is Optional</b></a></dt><dd>If not specified, the component will get a class-specific default name.</dd><dt id="global-commands.html:dt:core_class-is-optional"><a href="#global-commands.html:dt:core_class-is-optional"><b><i>core_class</i> is Optional</b></a></dt><dd>Classname of primary core, default is riscv-rv64</dd><dt id="global-commands.html:dt:disk0_image-is-optional"><a href="#global-commands.html:dt:disk0_image-is-optional"><b><i>disk0_image</i> is Optional</b></a></dt><dd>disk0 image file.</dd><dt id="global-commands.html:dt:disk0_size-is-optional"><a href="#global-commands.html:dt:disk0_size-is-optional"><b><i>disk0_size</i> is Optional</b></a></dt><dd>disk0 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd><dt id="global-commands.html:dt:disk1_image-is-optional"><a href="#global-commands.html:dt:disk1_image-is-optional"><b><i>disk1_image</i> is Optional</b></a></dt><dd>disk1 image file.</dd><dt id="global-commands.html:dt:disk1_size-is-optional"><a href="#global-commands.html:dt:disk1_size-is-optional"><b><i>disk1_size</i> is Optional</b></a></dt><dd>disk1 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd><dt id="global-commands.html:dt:disk2_image-is-optional"><a href="#global-commands.html:dt:disk2_image-is-optional"><b><i>disk2_image</i> is Optional</b></a></dt><dd>disk2 image file.</dd><dt id="global-commands.html:dt:disk2_size-is-optional"><a href="#global-commands.html:dt:disk2_size-is-optional"><b><i>disk2_size</i> is Optional</b></a></dt><dd>disk2 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd><dt id="global-commands.html:dt:entropy_seed-is-optional"><a href="#global-commands.html:dt:entropy_seed-is-optional"><b><i>entropy_seed</i> is Optional</b></a></dt><dd>Seed for virtio entropy device.</dd><dt id="global-commands.html:dt:freq_mhz-is-optional"><a href="#global-commands.html:dt:freq_mhz-is-optional"><b><i>freq_mhz</i> is Optional</b></a></dt><dd>Frequency in MHz of each core, default is 100 MHz</dd><dt id="global-commands.html:dt:mac_address-is-optional"><a href="#global-commands.html:dt:mac_address-is-optional"><b><i>mac_address</i> is Optional</b></a></dt><dd>The MAC address of the virtual Ethernet card.</dd><dt id="global-commands.html:dt:memory_megs-is-optional"><a href="#global-commands.html:dt:memory_megs-is-optional"><b><i>memory_megs</i> is Optional</b></a></dt><dd>Size in MB of RAM memory, default is 2048</dd><dt id="global-commands.html:dt:num_cores-is-optional"><a href="#global-commands.html:dt:num_cores-is-optional"><b><i>num_cores</i> is Optional</b></a></dt><dd>Number cores, default is 4</dd><dt id="global-commands.html:dt:rtc_time-is-required"><a href="#global-commands.html:dt:rtc_time-is-required"><b><i>rtc_time</i> is Required</b></a></dt><dd>The date and time of the Real-Time clock in ISO 8601-like format.
+<p>
+        For the full format specification see the Python documentation for the
+        classmethod datetime.fromisoformat in module datetime.
+        </p></dd><dt id="global-commands.html:dt:timebase_freq_mhz-is-optional"><a href="#global-commands.html:dt:timebase_freq_mhz-is-optional"><b><i>timebase_freq_mhz</i> is Optional</b></a></dt><dd>Frequency in MHz of the timebase, i.e. 'mtime', default is 1MHz</dd></dl><p></p></dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_risc-v-simple-comp">risc-v-simple-comp</a></dd>
+</dl><p>
+
+
+</p><p><a id="global-commands.html:__rm_command_new-risc-v-simple-comp"></a><a id="global-commands.html:new-risc-v-simple-comp"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="global-commands.html:dt:new-risc-v-simple-comp"><a href="#global-commands.html:dt:new-risc-v-simple-comp"><b>new-risc-v-simple-comp</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>new-risc-v-simple-comp</b> [<i>"name"</i>] [<i>"core_class"</i>] [<i>"disk0_image"</i>] [<i>disk0_size</i>] [<i>"disk1_image"</i>] [<i>disk1_size</i>] [<i>"disk2_image"</i>] [<i>disk2_size</i>] [<i>entropy_seed</i>] [<i>freq_mhz</i>] [<i>"mac_address"</i>] [<i>memory_megs</i>] [<i>num_cores</i>] <i>"rtc_time"</i> [<i>timebase_freq_mhz</i>] </dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">This command creates an instantiated component of the class
+                    <b>risc_v_simple_comp</b>.
+<p>
+                    The class description for the <b>risc_v_simple_comp</b> class: RISC-V Simple Board Component
+</p><p>
+                    </p><dl><dt id="global-commands.html:dt:name-is-optional-2"><a href="#global-commands.html:dt:name-is-optional-2"><b><i>name</i> is Optional</b></a></dt><dd>If not specified, the component will get a class-specific default name.</dd><dt id="global-commands.html:dt:core_class-is-optional-2"><a href="#global-commands.html:dt:core_class-is-optional-2"><b><i>core_class</i> is Optional</b></a></dt><dd>Classname of primary core, default is riscv-rv64</dd><dt id="global-commands.html:dt:disk0_image-is-optional-2"><a href="#global-commands.html:dt:disk0_image-is-optional-2"><b><i>disk0_image</i> is Optional</b></a></dt><dd>disk0 image file.</dd><dt id="global-commands.html:dt:disk0_size-is-optional-2"><a href="#global-commands.html:dt:disk0_size-is-optional-2"><b><i>disk0_size</i> is Optional</b></a></dt><dd>disk0 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd><dt id="global-commands.html:dt:disk1_image-is-optional-2"><a href="#global-commands.html:dt:disk1_image-is-optional-2"><b><i>disk1_image</i> is Optional</b></a></dt><dd>disk1 image file.</dd><dt id="global-commands.html:dt:disk1_size-is-optional-2"><a href="#global-commands.html:dt:disk1_size-is-optional-2"><b><i>disk1_size</i> is Optional</b></a></dt><dd>disk1 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd><dt id="global-commands.html:dt:disk2_image-is-optional-2"><a href="#global-commands.html:dt:disk2_image-is-optional-2"><b><i>disk2_image</i> is Optional</b></a></dt><dd>disk2 image file.</dd><dt id="global-commands.html:dt:disk2_size-is-optional-2"><a href="#global-commands.html:dt:disk2_size-is-optional-2"><b><i>disk2_size</i> is Optional</b></a></dt><dd>disk2 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd><dt id="global-commands.html:dt:entropy_seed-is-optional-2"><a href="#global-commands.html:dt:entropy_seed-is-optional-2"><b><i>entropy_seed</i> is Optional</b></a></dt><dd>Seed for virtio entropy device.</dd><dt id="global-commands.html:dt:freq_mhz-is-optional-2"><a href="#global-commands.html:dt:freq_mhz-is-optional-2"><b><i>freq_mhz</i> is Optional</b></a></dt><dd>Frequency in MHz of each core, default is 100 MHz</dd><dt id="global-commands.html:dt:mac_address-is-optional-2"><a href="#global-commands.html:dt:mac_address-is-optional-2"><b><i>mac_address</i> is Optional</b></a></dt><dd>The MAC address of the virtual Ethernet card.</dd><dt id="global-commands.html:dt:memory_megs-is-optional-2"><a href="#global-commands.html:dt:memory_megs-is-optional-2"><b><i>memory_megs</i> is Optional</b></a></dt><dd>Size in MB of RAM memory, default is 2048</dd><dt id="global-commands.html:dt:num_cores-is-optional-2"><a href="#global-commands.html:dt:num_cores-is-optional-2"><b><i>num_cores</i> is Optional</b></a></dt><dd>Number cores, default is 4</dd><dt id="global-commands.html:dt:rtc_time-is-required-2"><a href="#global-commands.html:dt:rtc_time-is-required-2"><b><i>rtc_time</i> is Required</b></a></dt><dd>The date and time of the Real-Time clock in ISO 8601-like format.
+<p>
+        For the full format specification see the Python documentation for the
+        classmethod datetime.fromisoformat in module datetime.
+        </p></dd><dt id="global-commands.html:dt:timebase_freq_mhz-is-optional-2"><a href="#global-commands.html:dt:timebase_freq_mhz-is-optional-2"><b><i>timebase_freq_mhz</i> is Optional</b></a></dt><dd>Frequency in MHz of the timebase, i.e. 'mtime', default is 1MHz</dd></dl><p></p></dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_risc-v-simple-comp">risc-v-simple-comp</a></dd>
+</dl><p>
+</p></section><section class="page" id="namespace-commands-by-class.html"><h1 class="jdocu"><a id="namespace-commands-by-class.html:Namespace-Commands-by-Class">2.4 Namespace Commands by Class</a></h1>
+<p>
+
+
+
+</p><p><a id="namespace-commands-by-class.html:__rm_command__lt_risc_v_simple_comp_gt_.info"></a><a id="namespace-commands-by-class.html:risc_v_simple_comp.info"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="namespace-commands-by-class.html:dt:risc_v_simple_comp-info"><a href="#namespace-commands-by-class.html:dt:risc_v_simple_comp-info"><b>&lt;risc_v_simple_comp&gt;.info</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>&lt;risc_v_simple_comp&gt;.info</b></dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">Print detailed information about the configuration of the object.</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_risc-v-simple-comp">risc-v-simple-comp</a></dd>
+</dl><p>
+
+
+</p><p><a id="namespace-commands-by-class.html:__rm_command__lt_risc_v_simple_comp_gt_.status"></a><a id="namespace-commands-by-class.html:risc_v_simple_comp.status"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="namespace-commands-by-class.html:dt:risc_v_simple_comp-status"><a href="#namespace-commands-by-class.html:dt:risc_v_simple_comp-status"><b>&lt;risc_v_simple_comp&gt;.status</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>&lt;risc_v_simple_comp&gt;.status</b></dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">Print detailed information about the current status of the object.</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_risc-v-simple-comp">risc-v-simple-comp</a></dd>
+</dl><p>
+
+
+</p><p><a id="namespace-commands-by-class.html:__rm_command__lt_riscv-clint_gt_.info"></a><a id="namespace-commands-by-class.html:riscv-clint.info"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="namespace-commands-by-class.html:dt:riscv-clint-info"><a href="#namespace-commands-by-class.html:dt:riscv-clint-info"><b>&lt;riscv-clint&gt;.info</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>&lt;riscv-clint&gt;.info</b></dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">Print detailed information about the configuration of the object.</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a></dd>
+</dl><p>
+
+
+</p><p><a id="namespace-commands-by-class.html:__rm_command__lt_riscv-clint_gt_.status"></a><a id="namespace-commands-by-class.html:riscv-clint.status"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="namespace-commands-by-class.html:dt:riscv-clint-status"><a href="#namespace-commands-by-class.html:dt:riscv-clint-status"><b>&lt;riscv-clint&gt;.status</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>&lt;riscv-clint&gt;.status</b></dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">Print detailed information about the current status of the object.</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a></dd>
+</dl><p>
+
+
+</p><p><a id="namespace-commands-by-class.html:__rm_command__lt_riscv-plic_gt_.info"></a><a id="namespace-commands-by-class.html:riscv-plic.info"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="namespace-commands-by-class.html:dt:riscv-plic-info"><a href="#namespace-commands-by-class.html:dt:riscv-plic-info"><b>&lt;riscv-plic&gt;.info</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>&lt;riscv-plic&gt;.info</b></dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">Print detailed information about the configuration of the object.</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a></dd>
+</dl><p>
+
+
+</p><p><a id="namespace-commands-by-class.html:__rm_command__lt_riscv-plic_gt_.status"></a><a id="namespace-commands-by-class.html:riscv-plic.status"></a></p><dl class="jdocu_di">
+<dt class="jdocu_di_name" id="namespace-commands-by-class.html:dt:riscv-plic-status"><a href="#namespace-commands-by-class.html:dt:riscv-plic-status"><b>&lt;riscv-plic&gt;.status</b></a></dt>
+<dt class="jdocu_descitem">Synopsis</dt><dd class="jdocu_descitem"><b>&lt;riscv-plic&gt;.status</b></dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">Print detailed information about the current status of the object.</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a></dd>
+</dl><p>
+</p></section><section class="page" id="components.html"><h1 class="jdocu"><a id="components.html:Components">3 Components</a></h1>
+<p>
+
+</p><p>
+   
+</p><p>
+</p></section><section class="page" id="__rm_class_risc_v_simple_comp.html"><h1 class="jdocu"><a class="not-numbered" id="__rm_class_risc_v_simple_comp.html:__rm_class_risc_v_simple_comp">risc_v_simple_comp</a></h1>
+<p>
+
+<a id="__rm_class_risc_v_simple_comp.html:risc_v_simple_comp"></a></p><dl class="jdocu_di">
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">RISC-V Simple Board Component
+</dd>
+<dt class="jdocu_descitem"><b>Interfaces Implemented</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_component">component</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_component_connector">component_connector</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_conf_object">conf_object</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_log_object">log_object</a></dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_risc-v-simple-comp">risc-v-simple-comp</a>
+</dd>
+</dl><p></p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_risc_v_simple_comp.html:Attributes">Attributes</a></h2>
+<p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:component_queue"><a href="#__rm_class_risc_v_simple_comp.html:dt:component_queue"><b><i>component_queue</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_component_queue"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>any</code>.
+The queue object for this component. It is only used as
+        a placeholder for the real queue object before the component is
+        instantiated. It can point to an instantiated cycle object or
+        a pre_conf object.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:components"><a href="#__rm_class_risc_v_simple_comp.html:dt:components"><b><i>components</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_components"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o*]</code>.
+This attribute is only valid for top-level components.
+        List of components below the top-level component. This
+        attribute is not valid until the object has been instantiated.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:core_class"><a href="#__rm_class_risc_v_simple_comp.html:dt:core_class"><b><i>core_class</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_core_class"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code>.
+Classname of primary core, default is riscv-rv64</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:cpu_list"><a href="#__rm_class_risc_v_simple_comp.html:dt:cpu_list"><b><i>cpu_list</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_cpu_list"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>[o*]</code>.
+</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:disk0_image"><a href="#__rm_class_risc_v_simple_comp.html:dt:disk0_image"><b><i>disk0_image</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_disk0_image"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code>.
+disk0 image file.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:disk0_size"><a href="#__rm_class_risc_v_simple_comp.html:dt:disk0_size"><b><i>disk0_size</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_disk0_size"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+disk0 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:disk1_image"><a href="#__rm_class_risc_v_simple_comp.html:dt:disk1_image"><b><i>disk1_image</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_disk1_image"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code>.
+disk1 image file.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:disk1_size"><a href="#__rm_class_risc_v_simple_comp.html:dt:disk1_size"><b><i>disk1_size</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_disk1_size"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+disk1 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:disk2_image"><a href="#__rm_class_risc_v_simple_comp.html:dt:disk2_image"><b><i>disk2_image</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_disk2_image"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code>.
+disk2 image file.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:disk2_size"><a href="#__rm_class_risc_v_simple_comp.html:dt:disk2_size"><b><i>disk2_size</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_disk2_size"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+disk2 size, used if no disk image is provided.
+           If set to zero no disk will be created.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:domain"><a href="#__rm_class_risc_v_simple_comp.html:dt:domain"><b><i>domain</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_domain"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>object</code> or <code>nil</code>.
+This attribute is only valid for top-level components.
+        Domain to put the component in.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:dynamic_slots"><a href="#__rm_class_risc_v_simple_comp.html:dt:dynamic_slots"><b><i>dynamic_slots</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_dynamic_slots"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>dictionary</code> or <code>nil</code>.
+Do not use. Kept for checkpoint compatibility.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:entropy_seed"><a href="#__rm_class_risc_v_simple_comp.html:dt:entropy_seed"><b><i>entropy_seed</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_entropy_seed"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Seed for virtio entropy device.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:freq_mhz"><a href="#__rm_class_risc_v_simple_comp.html:dt:freq_mhz"><b><i>freq_mhz</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_freq_mhz"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>float</code>.
+Frequency in MHz of each core, default is 100 MHz</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:instantiated"><a href="#__rm_class_risc_v_simple_comp.html:dt:instantiated"><b><i>instantiated</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_instantiated"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>boolean</code>.
+Set to TRUE if the component has been instantiated.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:mac_address"><a href="#__rm_class_risc_v_simple_comp.html:dt:mac_address"><b><i>mac_address</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_mac_address"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code>.
+The MAC address of the virtual Ethernet card.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:machine_icon"><a href="#__rm_class_risc_v_simple_comp.html:dt:machine_icon"><b><i>machine_icon</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_machine_icon"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code> or <code>nil</code>.
+This attribute is only valid for top-level components.
+        An instance of a top-level component may override the default
+        <i>system_icon</i> with its own icon. This attribute is
+        the name of an 80x80 pixel large icon in PNG format that should
+        reside in the [host]/lib/images/ directory of the Simics installation
+        or the project.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:memory_megs"><a href="#__rm_class_risc_v_simple_comp.html:dt:memory_megs"><b><i>memory_megs</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_memory_megs"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Size in MB of RAM memory, default is 2048</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:num_cores"><a href="#__rm_class_risc_v_simple_comp.html:dt:num_cores"><b><i>num_cores</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_num_cores"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Number cores, default is 4</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:object_list"><a href="#__rm_class_risc_v_simple_comp.html:dt:object_list"><b><i>object_list</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_object_list"></a></p><dd><b>Pseudo</b> attribute; <b>read-only</b> access; type: <code>dictionary</code> or <code>nil</code>.
+Dictionary with the instantiated objects that the
+        component consists of.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:object_prefix"><a href="#__rm_class_risc_v_simple_comp.html:dt:object_prefix"><b><i>object_prefix</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_object_prefix"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code>.
+Object prefix string used by the component.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:pending_cell_object_factories"><a href="#__rm_class_risc_v_simple_comp.html:dt:pending_cell_object_factories"><b><i>pending_cell_object_factories</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_pending_cell_object_factories"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[[ss]*]</code>.
+Internal attribute for pending cell objects factories.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:rtc_time"><a href="#__rm_class_risc_v_simple_comp.html:dt:rtc_time"><b><i>rtc_time</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_rtc_time"></a></p><dd><b>Required</b> attribute; <b>read/write</b> access; type: <code>string</code>.
+The date and time of the Real-Time clock in ISO 8601-like format.
+<p>
+        For the full format specification see the Python documentation for the
+        classmethod datetime.fromisoformat in module datetime.
+        </p></dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:static_slots"><a href="#__rm_class_risc_v_simple_comp.html:dt:static_slots"><b><i>static_slots</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_static_slots"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>dictionary</code> or <code>nil</code>.
+Do not use. Kept for checkpoint compatibility.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:system_info"><a href="#__rm_class_risc_v_simple_comp.html:dt:system_info"><b><i>system_info</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_system_info"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>string</code> or <code>nil</code>.
+This attribute is only valid for top-level components.
+        A short single-line description of the current configuration
+        of the  system that the component is a top-level of. The line may
+        include the Linux name of the simulated machine, the installed
+        operating system, or similar information. For example Tango -
+        Fedora Core 5 Linux</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:timebase_freq_mhz"><a href="#__rm_class_risc_v_simple_comp.html:dt:timebase_freq_mhz"><b><i>timebase_freq_mhz</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_timebase_freq_mhz"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>float</code>.
+Frequency in MHz of the timebase, i.e. 'mtime', default is 1MHz</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:top_component"><a href="#__rm_class_risc_v_simple_comp.html:dt:top_component"><b><i>top_component</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_top_component"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>object</code> or <code>nil</code>.
+The top level component. Attribute is not valid until
+        the component has been instantiated.</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:top_level"><a href="#__rm_class_risc_v_simple_comp.html:dt:top_level"><b><i>top_level</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_top_level"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>boolean</code>.
+</dd></dl><p>
+</p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_risc_v_simple_comp.html:Class-Attributes">Class Attributes</a></h2>
+<p>
+
+</p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:basename"><a href="#__rm_class_risc_v_simple_comp.html:dt:basename"><b><i>basename</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_basename"></a></p><dd><b>Pseudo</b> <b>class</b> attribute; <b>read/write</b> access; type: <code>string</code> or <code>nil</code>.
+</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:component_icon"><a href="#__rm_class_risc_v_simple_comp.html:dt:component_icon"><b><i>component_icon</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_component_icon"></a></p><dd><b>Pseudo</b> <b>class</b> attribute; <b>read/write</b> access; type: <code>string</code> or <code>nil</code>.
+</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:config_attributes"><a href="#__rm_class_risc_v_simple_comp.html:dt:config_attributes"><b><i>config_attributes</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_config_attributes"></a></p><dd><b>Pseudo</b> <b>class</b> attribute; <b>read/write</b> access; type: <code>[[s[a*]]*]</code>.
+</dd></dl><p></p><dl><dt id="__rm_class_risc_v_simple_comp.html:dt:system_icon"><a href="#__rm_class_risc_v_simple_comp.html:dt:system_icon"><b><i>system_icon</i></b></a></dt><p><a id="__rm_class_risc_v_simple_comp.html:__rm_attribute_risc_v_simple_comp_system_icon"></a></p><dd><b>Pseudo</b> <b>class</b> attribute; <b>read-only</b> access; type: <code>string</code> or <code>nil</code>.
+</dd></dl><p>
+</p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_risc_v_simple_comp.html:Command-List">Command List</a></h2>
+<p>
+
+</p><dl class="jdocu_di">
+<dt class="jdocu_descitem"><b>Commands</b></dt><dd class="jdocu_descitem"><table>
+
+<tbody><tr><td class="jdocu_noborder"><b><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_risc_v_simple_comp_gt_.info">info</a></b></td><td class="jdocu_noborder">print information about the object</td></tr>
+
+<tr><td class="jdocu_noborder"><b><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_risc_v_simple_comp_gt_.status">status</a></b></td><td class="jdocu_noborder">print status of the object</td></tr>
+
+</tbody></table>
+</dd>
+</dl><p>
+</p></section><section class="page" id="classes.html"><h1 class="jdocu"><a id="classes.html:Classes">4 Classes</a></h1>
+<p>
+
+</p><p>
+   
+   
+   
+   
+</p><p>
+</p></section><section class="page" id="__rm_class_riscv-clint.html"><h1 class="jdocu"><a class="not-numbered" id="__rm_class_riscv-clint.html:__rm_class_riscv-clint">riscv-clint</a></h1>
+<p>
+
+<a id="__rm_class_riscv-clint.html:riscv-clint"></a></p><dl class="jdocu_di">
+<dt class="jdocu_descitem"><b>Aliases</b></dt><dd class="jdocu_descitem">riscv_clint</dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">RISC-V Core-Level Interrupt Block
+</dd>
+<dt class="jdocu_descitem"><b>Interfaces Implemented</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_conf_object">conf_object</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_log_object">log_object</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_riscv_coprocessor">riscv_coprocessor</a></dd>
+<dt class="jdocu_descitem"><b>Port Objects</b></dt><dd class="jdocu_descitem"><b>bank.regs</b> (bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction)<br><b>port.CLOCK_DISABLE</b> (signal)<br><b>port.HRESET</b> (signal)<br><b>port.POWER</b> (signal)</dd>
+<dt class="jdocu_descitem"><b>Port Interfaces</b></dt><dd class="jdocu_descitem">core_dev_access_count (<a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_probe">probe</a>) : Port for generic device access count</dd>
+<dt class="jdocu_descitem"><b>Notifiers</b></dt><dd class="jdocu_descitem">state-change</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a>
+</dd>
+</dl><p></p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_riscv-clint.html:Attributes">Attributes</a></h2>
+<p></p><dl><dt id="__rm_class_riscv-clint.html:dt:error_on_incorrect_sized_access"><a href="#__rm_class_riscv-clint.html:dt:error_on_incorrect_sized_access"><b><i>error_on_incorrect_sized_access</i></b></a></dt><p><a id="__rm_class_riscv-clint.html:__rm_attribute_riscv-clint_error_on_incorrect_sized_access"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>boolean</code>.
+Return Sim_PE_IO_Error if size of access does not match register size</dd></dl><p></p><dl><dt id="__rm_class_riscv-clint.html:dt:freq_mhz"><a href="#__rm_class_riscv-clint.html:dt:freq_mhz"><b><i>freq_mhz</i></b></a></dt><p><a id="__rm_class_riscv-clint.html:__rm_attribute_riscv-clint_freq_mhz"></a></p><dd><b>Required</b> attribute; <b>read/write</b> access; type: <code>float</code>.
+Frequency in Mega-Hertz of mtime</dd></dl><p></p><dl><dt id="__rm_class_riscv-clint.html:dt:hart"><a href="#__rm_class_riscv-clint.html:dt:hart"><b><i>hart</i></b></a></dt><p><a id="__rm_class_riscv-clint.html:__rm_attribute_riscv-clint_hart"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>[o*]</code>.
+HARTs or CLICs connected to this CLINT</dd></dl><p></p><dl><dt id="__rm_class_riscv-clint.html:dt:msip"><a href="#__rm_class_riscv-clint.html:dt:msip"><b><i>msip</i></b></a></dt><p><a id="__rm_class_riscv-clint.html:__rm_attribute_riscv-clint_msip"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:64}]</code>.
+The MSIP signal targets
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p></p><dl><dt id="__rm_class_riscv-clint.html:dt:mtime_read_cycles"><a href="#__rm_class_riscv-clint.html:dt:mtime_read_cycles"><b><i>mtime_read_cycles</i></b></a></dt><p><a id="__rm_class_riscv-clint.html:__rm_attribute_riscv-clint_mtime_read_cycles"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Number of cycles to stall when reading mtime</dd></dl><p></p><dl><dt id="__rm_class_riscv-clint.html:dt:mtip"><a href="#__rm_class_riscv-clint.html:dt:mtip"><b><i>mtip</i></b></a></dt><p><a id="__rm_class_riscv-clint.html:__rm_attribute_riscv-clint_mtip"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:64}]</code>.
+The MTIP signal targets
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p>
+</p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_riscv-clint.html:Command-List">Command List</a></h2>
+<p>
+
+</p><dl class="jdocu_di">
+<dt class="jdocu_descitem"><b>Commands</b></dt><dd class="jdocu_descitem"><table>
+
+<tbody><tr><td class="jdocu_noborder"><b><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-clint_gt_.info">info</a></b></td><td class="jdocu_noborder">print information about the object</td></tr>
+
+<tr><td class="jdocu_noborder"><b><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-clint_gt_.status">status</a></b></td><td class="jdocu_noborder">print status of the object</td></tr>
+
+</tbody></table>
+</dd>
+</dl><p>
+</p></section><section class="page" id="__rm_class_riscv-plic.html"><h1 class="jdocu"><a class="not-numbered" id="__rm_class_riscv-plic.html:__rm_class_riscv-plic">riscv-plic</a></h1>
+<p>
+
+<a id="__rm_class_riscv-plic.html:riscv-plic"></a></p><dl class="jdocu_di">
+<dt class="jdocu_descitem"><b>Aliases</b></dt><dd class="jdocu_descitem">riscv_plic</dd>
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">RISC-V Platform Interrupt Controller
+</dd>
+<dt class="jdocu_descitem"><b>Interfaces Implemented</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_conf_object">conf_object</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_log_object">log_object</a></dd>
+<dt class="jdocu_descitem"><b>Port Objects</b></dt><dd class="jdocu_descitem"><b>bank.regs</b> (bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction)<br><b>port.CLOCK_DISABLE</b> (signal)<br><b>port.HRESET</b> (signal)<br><b>port.IRQ</b> &lt;index-map&gt; : internal - provides object arrays<br><b>port.IRQ[0..1023]</b> (signal) : interrupt request input signals</dd>
+<dt class="jdocu_descitem"><b>Port Interfaces</b></dt><dd class="jdocu_descitem">core_dev_access_count (<a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_probe">probe</a>) : Port for generic device access count</dd>
+<dt class="jdocu_descitem"><b>Notifiers</b></dt><dd class="jdocu_descitem">state-change</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a>
+</dd>
+</dl><p></p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_riscv-plic.html:Attributes">Attributes</a></h2>
+<p></p><dl><dt id="__rm_class_riscv-plic.html:dt:enable_clr"><a href="#__rm_class_riscv-plic.html:dt:enable_clr"><b><i>enable_clr</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_enable_clr"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[[i*]*]</code>.
+Enable bits for each context that are hardwired as 0. Value is a list of list of integers. The outer list  corresponds to each connected context, the inner list corresponds to the 'enable' registers. For each enable register, bits set in this attribute will be hardwired as 0</dd></dl><p></p><dl><dt id="__rm_class_riscv-plic.html:dt:enable_set"><a href="#__rm_class_riscv-plic.html:dt:enable_set"><b><i>enable_set</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_enable_set"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[[i*]*]</code>.
+Enable bits for each context that are hardwired as 1. Value is a list of list of integers. The outer list  corresponds to each connected context, the inner list corresponds to the 'enable' registers. For each enable register, bits set in this attribute will be hardwired as 1</dd></dl><p></p><dl><dt id="__rm_class_riscv-plic.html:dt:hart"><a href="#__rm_class_riscv-plic.html:dt:hart"><b><i>hart</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_hart"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>[o*]</code>.
+Connected HARTs. This attribute will connect irq_dev[2*x:2*x+1] = [HART[x]:MEIP, HART[x]:SEIP]</dd></dl><p></p><dl><dt id="__rm_class_riscv-plic.html:dt:highest_pending"><a href="#__rm_class_riscv-plic.html:dt:highest_pending"><b><i>highest_pending</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_highest_pending"></a></p><dd><b>Pseudo</b> attribute; <b>read-only</b> access; type: <code>[[ii]*]</code>.
+Currently highest pending interrupt and priority on each connected context</dd></dl><p></p><dl><dt id="__rm_class_riscv-plic.html:dt:irq_dev"><a href="#__rm_class_riscv-plic.html:dt:irq_dev"><b><i>irq_dev</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_irq_dev"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:128}]</code>.
+Interrupt request target for each connected context
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p></p><dl><dt id="__rm_class_riscv-plic.html:dt:max_interrupt"><a href="#__rm_class_riscv-plic.html:dt:max_interrupt"><b><i>max_interrupt</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_max_interrupt"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Maximum interrupt id supported, default is 1023</dd></dl><p></p><dl><dt id="__rm_class_riscv-plic.html:dt:max_priority"><a href="#__rm_class_riscv-plic.html:dt:max_priority"><b><i>max_priority</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_max_priority"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Maximum priority supported, must equal 2^x - 1 for some x greater than 0. Default is 0xffffffff</dd></dl><p></p><dl><dt id="__rm_class_riscv-plic.html:dt:max_threshold"><a href="#__rm_class_riscv-plic.html:dt:max_threshold"><b><i>max_threshold</i></b></a></dt><p><a id="__rm_class_riscv-plic.html:__rm_attribute_riscv-plic_max_threshold"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[i*]</code>.
+Maximum threshold for each context, must equal 2^x - 1 for some x greater than 0. Default is max_priority</dd></dl><p>
+</p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_riscv-plic.html:Command-List">Command List</a></h2>
+<p>
+
+</p><dl class="jdocu_di">
+<dt class="jdocu_descitem"><b>Commands</b></dt><dd class="jdocu_descitem"><table>
+
+<tbody><tr><td class="jdocu_noborder"><b><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-plic_gt_.info">info</a></b></td><td class="jdocu_noborder">print information about the object</td></tr>
+
+<tr><td class="jdocu_noborder"><b><a class="jdocu" href="#namespace-commands-by-class.html:__rm_command__lt_riscv-plic_gt_.status">status</a></b></td><td class="jdocu_noborder">print status of the object</td></tr>
+
+</tbody></table>
+</dd>
+</dl><p>
+</p></section><section class="page" id="__rm_class_riscv_clint.html"><h1 class="jdocu"><a class="not-numbered" id="__rm_class_riscv_clint.html:__rm_class_riscv_clint">riscv_clint</a></h1>
+<p>
+
+<a id="__rm_class_riscv_clint.html:riscv_clint"></a></p><dl class="jdocu_di">
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">RISC-V Core-Level Interrupt Block
+</dd>
+<dt class="jdocu_descitem"><b>Interfaces Implemented</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_conf_object">conf_object</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_log_object">log_object</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_riscv_coprocessor">riscv_coprocessor</a></dd>
+<dt class="jdocu_descitem"><b>Port Objects</b></dt><dd class="jdocu_descitem"><b>bank.regs</b> (bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction)<br><b>port.CLOCK_DISABLE</b> (signal)<br><b>port.HRESET</b> (signal)<br><b>port.POWER</b> (signal)</dd>
+<dt class="jdocu_descitem"><b>Port Interfaces</b></dt><dd class="jdocu_descitem">core_dev_access_count (<a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_probe">probe</a>) : Port for generic device access count</dd>
+<dt class="jdocu_descitem"><b>Notifiers</b></dt><dd class="jdocu_descitem">state-change</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a>
+</dd>
+</dl><p></p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_riscv_clint.html:Attributes">Attributes</a></h2>
+<p></p><dl><dt id="__rm_class_riscv_clint.html:dt:error_on_incorrect_sized_access"><a href="#__rm_class_riscv_clint.html:dt:error_on_incorrect_sized_access"><b><i>error_on_incorrect_sized_access</i></b></a></dt><p><a id="__rm_class_riscv_clint.html:__rm_attribute_riscv_clint_error_on_incorrect_sized_access"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>boolean</code>.
+Return Sim_PE_IO_Error if size of access does not match register size</dd></dl><p></p><dl><dt id="__rm_class_riscv_clint.html:dt:freq_mhz"><a href="#__rm_class_riscv_clint.html:dt:freq_mhz"><b><i>freq_mhz</i></b></a></dt><p><a id="__rm_class_riscv_clint.html:__rm_attribute_riscv_clint_freq_mhz"></a></p><dd><b>Required</b> attribute; <b>read/write</b> access; type: <code>float</code>.
+Frequency in Mega-Hertz of mtime</dd></dl><p></p><dl><dt id="__rm_class_riscv_clint.html:dt:hart"><a href="#__rm_class_riscv_clint.html:dt:hart"><b><i>hart</i></b></a></dt><p><a id="__rm_class_riscv_clint.html:__rm_attribute_riscv_clint_hart"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>[o*]</code>.
+HARTs or CLICs connected to this CLINT</dd></dl><p></p><dl><dt id="__rm_class_riscv_clint.html:dt:msip"><a href="#__rm_class_riscv_clint.html:dt:msip"><b><i>msip</i></b></a></dt><p><a id="__rm_class_riscv_clint.html:__rm_attribute_riscv_clint_msip"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:64}]</code>.
+The MSIP signal targets
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p></p><dl><dt id="__rm_class_riscv_clint.html:dt:mtime_read_cycles"><a href="#__rm_class_riscv_clint.html:dt:mtime_read_cycles"><b><i>mtime_read_cycles</i></b></a></dt><p><a id="__rm_class_riscv_clint.html:__rm_attribute_riscv_clint_mtime_read_cycles"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Number of cycles to stall when reading mtime</dd></dl><p></p><dl><dt id="__rm_class_riscv_clint.html:dt:mtip"><a href="#__rm_class_riscv_clint.html:dt:mtip"><b><i>mtip</i></b></a></dt><p><a id="__rm_class_riscv_clint.html:__rm_attribute_riscv_clint_mtip"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:64}]</code>.
+The MTIP signal targets
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p>
+</p></section><section class="page" id="__rm_class_riscv_plic.html"><h1 class="jdocu"><a class="not-numbered" id="__rm_class_riscv_plic.html:__rm_class_riscv_plic">riscv_plic</a></h1>
+<p>
+
+<a id="__rm_class_riscv_plic.html:riscv_plic"></a></p><dl class="jdocu_di">
+<dt class="jdocu_descitem">Description</dt><dd class="jdocu_descitem">RISC-V Platform Interrupt Controller
+</dd>
+<dt class="jdocu_descitem"><b>Interfaces Implemented</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_conf_object">conf_object</a>, <a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_log_object">log_object</a></dd>
+<dt class="jdocu_descitem"><b>Port Objects</b></dt><dd class="jdocu_descitem"><b>bank.regs</b> (bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction)<br><b>port.CLOCK_DISABLE</b> (signal)<br><b>port.HRESET</b> (signal)<br><b>port.IRQ</b> &lt;index-map&gt; : internal - provides object arrays<br><b>port.IRQ[0..1023]</b> (signal) : interrupt request input signals</dd>
+<dt class="jdocu_descitem"><b>Port Interfaces</b></dt><dd class="jdocu_descitem">core_dev_access_count (<a class="jdocu" href="#undocumented-interfaces.html:__rm_interface_probe">probe</a>) : Port for generic device access count</dd>
+<dt class="jdocu_descitem"><b>Notifiers</b></dt><dd class="jdocu_descitem">state-change</dd>
+<dt class="jdocu_descitem"><b>Provided By</b></dt><dd class="jdocu_descitem"><a class="jdocu" href="#modules.html:__rm_module_riscv-interrupt-controllers">riscv-interrupt-controllers</a>
+</dd>
+</dl><p></p><h2 class="jdocu"><a class="not-numbered" id="__rm_class_riscv_plic.html:Attributes">Attributes</a></h2>
+<p></p><dl><dt id="__rm_class_riscv_plic.html:dt:enable_clr"><a href="#__rm_class_riscv_plic.html:dt:enable_clr"><b><i>enable_clr</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_enable_clr"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[[i*]*]</code>.
+Enable bits for each context that are hardwired as 0. Value is a list of list of integers. The outer list  corresponds to each connected context, the inner list corresponds to the 'enable' registers. For each enable register, bits set in this attribute will be hardwired as 0</dd></dl><p></p><dl><dt id="__rm_class_riscv_plic.html:dt:enable_set"><a href="#__rm_class_riscv_plic.html:dt:enable_set"><b><i>enable_set</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_enable_set"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[[i*]*]</code>.
+Enable bits for each context that are hardwired as 1. Value is a list of list of integers. The outer list  corresponds to each connected context, the inner list corresponds to the 'enable' registers. For each enable register, bits set in this attribute will be hardwired as 1</dd></dl><p></p><dl><dt id="__rm_class_riscv_plic.html:dt:hart"><a href="#__rm_class_riscv_plic.html:dt:hart"><b><i>hart</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_hart"></a></p><dd><b>Pseudo</b> attribute; <b>read/write</b> access; type: <code>[o*]</code>.
+Connected HARTs. This attribute will connect irq_dev[2*x:2*x+1] = [HART[x]:MEIP, HART[x]:SEIP]</dd></dl><p></p><dl><dt id="__rm_class_riscv_plic.html:dt:highest_pending"><a href="#__rm_class_riscv_plic.html:dt:highest_pending"><b><i>highest_pending</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_highest_pending"></a></p><dd><b>Pseudo</b> attribute; <b>read-only</b> access; type: <code>[[ii]*]</code>.
+Currently highest pending interrupt and priority on each connected context</dd></dl><p></p><dl><dt id="__rm_class_riscv_plic.html:dt:irq_dev"><a href="#__rm_class_riscv_plic.html:dt:irq_dev"><b><i>irq_dev</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_irq_dev"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[o|[os]|n{0:128}]</code>.
+Interrupt request target for each connected context
+<p>
+Required interfaces: <code>signal</code>.</p></dd></dl><p></p><dl><dt id="__rm_class_riscv_plic.html:dt:max_interrupt"><a href="#__rm_class_riscv_plic.html:dt:max_interrupt"><b><i>max_interrupt</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_max_interrupt"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Maximum interrupt id supported, default is 1023</dd></dl><p></p><dl><dt id="__rm_class_riscv_plic.html:dt:max_priority"><a href="#__rm_class_riscv_plic.html:dt:max_priority"><b><i>max_priority</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_max_priority"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>integer</code>.
+Maximum priority supported, must equal 2^x - 1 for some x greater than 0. Default is 0xffffffff</dd></dl><p></p><dl><dt id="__rm_class_riscv_plic.html:dt:max_threshold"><a href="#__rm_class_riscv_plic.html:dt:max_threshold"><b><i>max_threshold</i></b></a></dt><p><a id="__rm_class_riscv_plic.html:__rm_attribute_riscv_plic_max_threshold"></a></p><dd><b>Optional</b> attribute; <b>read/write</b> access; type: <code>[i*]</code>.
+Maximum threshold for each context, must equal 2^x - 1 for some x greater than 0. Default is max_priority</dd></dl><p>
+</p></section><section class="page" id="interfaces.html"><h1 class="jdocu"><a id="interfaces.html:Interfaces">5 Interfaces</a></h1>
+<p>
+
+
+</p><p>
+This chapter lists the interface types defined by this package. Note that the C
+definitions are shown here, including the first <code>conf_object_t *</code>
+argument to the methods. That argument is automatically added when calling
+interface methods from DML or Python, and must be omitted.
+</p><p>
+Interfaces are defined using the <code><a id="interfaces.html:SIM_INTERFACE">SIM_INTERFACE</a>(</code><i>name</i><code>)</code>
+macro. The macro will define a type called <code></code><i>name</i><code>_interface_t</code>,
+which shall be used as the type name. The macro expands to an equivalent of the
+following:
+</p><pre class="jdocu_small">  typedef struct <i>name</i>_interface {
+      // methods go here
+  } <i>name</i>_interface_t;
+</pre><p>
+
+</p><p>
+   
+</p><p>
+</p></section><section class="page" id="undocumented-interfaces.html"><h1 class="jdocu"><a class="not-numbered" id="undocumented-interfaces.html:Undocumented-interfaces">Undocumented interfaces</a></h1>
+<p>
+
+</p><p><a id="undocumented-interfaces.html:__rm_interface_component"></a>
+</p><p><a id="undocumented-interfaces.html:__rm_interface_component_connector"></a>
+</p><p><a id="undocumented-interfaces.html:__rm_interface_conf_object"></a>
+</p><p><a id="undocumented-interfaces.html:__rm_interface_log_object"></a>
+</p><p><a id="undocumented-interfaces.html:__rm_interface_probe"></a>
+</p><p><a id="undocumented-interfaces.html:__rm_interface_riscv_coprocessor"></a>
+The following interfaces are used by this package, but defined by other packages:<br>
+<code>component</code>, <code>component_connector</code>, <code>conf_object</code>, <code>log_object</code>, <code>probe</code>, <code>riscv_coprocessor</code>
+</p></section><section class="page" id="haps-chapter.html"><h1 class="jdocu"><a id="haps-chapter.html:haps-chapter">6 Haps</a></h1>
+<p>
+
+</p><p>
+No haps were defined in this package.
+</p><p>
+</p></section><section class="page" id="modules.html"><h1 class="jdocu"><a id="modules.html:Modules">7 Modules</a></h1>
+<p>
+
+</p><p>
+If you have Simics Model Builder product, it includes full source code for the following modules:
+</p><p>
+<b>risc-v-simple-bp</b>, <b>risc-v-simple-comp</b>, and <b>riscv-interrupt-controllers</b>.
+</p><dl class="jdocu_di">
+<p><a id="modules.html:__rm_module_risc-v-simple-bp"></a></p><dt class="jdocu_di_name" id="modules.html:dt:risc-v-simple-bp"><a href="#modules.html:dt:risc-v-simple-bp">risc-v-simple-bp</a></dt>
+<a id="modules.html:risc-v-simple-bp"></a></dl><p></p><dl class="jdocu_di">
+<p><a id="modules.html:__rm_module_risc-v-simple-comp"></a></p><dt class="jdocu_di_name" id="modules.html:dt:risc-v-simple-comp"><a href="#modules.html:dt:risc-v-simple-comp">risc-v-simple-comp</a></dt>
+<a id="modules.html:risc-v-simple-comp"></a><dt class="jdocu_descitem"><b>Classes</b></dt><dd class="jdocu_descitem"><table>
+
+<tbody><tr><td class="jdocu_noborder"><a class="jdocu" href="#__rm_class_risc_v_simple_comp.html">risc_v_simple_comp</a></td></tr>
+
+</tbody></table>
+</dd>
+<dt class="jdocu_descitem"><b>Global Commands</b></dt><dd class="jdocu_descitem"><table>
+
+<tbody><tr><td class="jdocu_noborder"><a class="jdocu" href="#global-commands.html:__rm_command_create-risc-v-simple-comp">create-risc-v-simple-comp</a></td><td class="jdocu_noborder">create a non-instantiated risc_v_simple_comp</td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#global-commands.html:__rm_command_new-risc-v-simple-comp">new-risc-v-simple-comp</a></td><td class="jdocu_noborder">create an instantiated risc_v_simple_comp</td></tr>
+
+</tbody></table>
+</dd>
+</dl><p></p><dl class="jdocu_di">
+<p><a id="modules.html:__rm_module_riscv-interrupt-controllers"></a></p><dt class="jdocu_di_name" id="modules.html:dt:riscv-interrupt-controllers"><a href="#modules.html:dt:riscv-interrupt-controllers">riscv-interrupt-controllers</a></dt>
+<a id="modules.html:riscv-interrupt-controllers"></a><dt class="jdocu_descitem"><b>Classes</b></dt><dd class="jdocu_descitem"><table>
+
+<tbody><tr><td class="jdocu_noborder"><a class="jdocu" href="#__rm_class_riscv-clint.html">riscv-clint</a></td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#__rm_class_riscv-plic.html">riscv-plic</a></td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#__rm_class_riscv_clint.html">riscv_clint</a></td></tr>
+
+<tr><td class="jdocu_noborder"><a class="jdocu" href="#__rm_class_riscv_plic.html">riscv_plic</a></td></tr>
+
+</tbody></table>
+</dd>
+</dl><p></p></section>

@@ -1,0 +1,100 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>magic_character_capture</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-mac_splitter.html">mac_splitter</a>
+<a href="rm-class-magic_pipe.html">magic_pipe</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="magic_character_capture"><a href="#magic_character_capture">magic_character_capture</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The <tt>magic-character-capture</tt> class is used to capture an output character instead of sending it further, done by using a magic instruction. This class serves as an user example.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-magic_character_capture.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-magic_character_capture.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:magic_number"><a href="#dt:magic_number">
+<i>magic_number</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Magic number to use</dd>
+<dt id="dt:chars"><a href="#dt:chars">
+<i>chars</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>i</code>
+<br>Number of captured characters</dd>
+<dt id="dt:enabled"><a href="#dt:enabled">
+<i>enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If the capture is enabled or not, even if the callback is installed</dd>
+<dt id="dt:add_carriage_return"><a href="#dt:add_carriage_return">
+<i>add_carriage_return</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Add a carriage return for each new line character when output is redirected to a serial console. Default is true.</dd>
+<dt id="dt:config"><a href="#dt:config">
+<i>config</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[[oso]*]</code>
+<br>Configure information for the CPUs that can execute the magic instruction. It is a list of a list of three elements. Each sublist consists of the CPU, the communication register for the CPU, and a serial console to connect the captured output to. The registered name must be accessible through the int_register interface in the CPU.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.magic-character-capture.html">magic-character-capture</a>
+</section>
+<div class="chain">
+<a href="rm-class-mac_splitter.html">mac_splitter</a>
+<a href="rm-class-magic_pipe.html">magic_pipe</a>
+</div>

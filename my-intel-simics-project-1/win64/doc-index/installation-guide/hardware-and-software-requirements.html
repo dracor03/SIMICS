@@ -1,0 +1,123 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 Hardware and Software Requirements</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="installation.html">3 Installing Packages</a>
+</div>
+<div class="path">
+<a href="index.html">Installation Guide</a>
+&nbsp;/&nbsp;</div><h1 id="hardware-and-software-requirements"><a href="#hardware-and-software-requirements">2 Hardware and Software Requirements</a></h1>
+<h2 id="hardware-requirements"><a href="#hardware-requirements">2.1 Hardware requirements</a></h2>
+<p>The minimum hardware requirements are:</p>
+<ul>
+<li>64-bit Intel® Architecture processor, either Haswell or newer performance core
+(“big core”) architecture, or Gracemont or newer efficiency core (Atom)
+architecture.</li>
+<li>VMP requires that Intel® Architecture (Intel® VT-x) is enabled in UEFI/BIOS
+and visible to the VMXMON kernel module. The XSAVE/XRSTOR instruction set
+must not be disabled by the host operating system.</li>
+<li>16 GB of RAM.</li>
+<li>8 GB of disk space.</li>
+</ul>
+<p>More RAM and/or disk is often necessary, depending on the requirements of the
+simulated machine.</p>
+<p>For best performance, we recommend:</p>
+<ul>
+<li>A host with at least 32 GB of RAM.</li>
+<li>A host processor with a high clock speed, 4GHz or more.</li>
+<li>At least two host cores per simulation running simultaneously (in
+particular, check processor allocations in containers and virtual
+machines).</li>
+<li>Since a more recent host processor will run faster than older generations, try
+to use the most modern Intel® Architecture processor possible.</li>
+<li>Use fast local storage for the simulator swap.</li>
+<li>Faster memory (RAM) can help, but is not as important as the processor
+core itself.</li>
+</ul>
+<p>For maximum performance when simulating Intel® Architecture targets, the Intel®
+Simics® Simulator can use virtualization (also known as VMP or
+VMXMON). The use of virtualization requires an Intel processor with
+Intel® Virtualization Technology (Intel® VT) for IA-32, Intel® 64 and
+Intel® Architecture (Intel® VT-x).</p>
+<ul>
+<li>The best performance from virtualization is obtained when the host
+is as close to the target as possible. In particular, simulating an
+Intel® Architecture Server is usually best done on an Intel®
+Architecture Server host of the most recent generation.</li>
+<li>Note that running Intel® Simics® simulations in a virtual machine
+typically prevents Intel® VT-x from being used or causes it to run
+with a significant reduction in speed. If isolation between
+simulator instances is desired, use containers on Linux instead as
+they normally allow the use of custom drivers on the host.</li>
+</ul>
+<h2 id="linux-64-bit"><a href="#linux-64-bit">2.2 Linux (64-bit)</a></h2>
+<p><strong>Run Time Requirements</strong></p>
+<p>A modern Linux distribution (<em><a href="#note1">1</a></em>), with at least</p>
+<ul>
+<li>GLIBC 2.22 or later.</li>
+<li>GTK 2.24 or later — for the GUI.</li>
+<li>Linux 4.12 or later and GCC 9.0 or later — for VMXMON driver compilation.</li>
+</ul>
+<p>Supported examples are Suse Linux Enterprise Server 12 (and newer) and Red Hat
+Enterprise Linux 8 (and newer).</p>
+<p>When running Simics with a user provided Python, or when using Simics as a
+Python module, Python version 3.10 or later is required.</p>
+<p><strong>Model Builder Requirements</strong></p>
+<ul>
+<li>GCC 6.3 compiler. Recommended to use GCC 15 or later (this is required to
+build distributed non-sample models).</li>
+<li>Typical GNU-based development environment, with GNU Make 4.1 or later.</li>
+<li>Optional: CMake version 3.4 or later.</li>
+<li>For SystemC*, see footnote <em>(<a href="#note2">2</a>)</em>.</li>
+</ul>
+<h2 id="microsoft-windows-64-bit"><a href="#microsoft-windows-64-bit">2.3 Microsoft Windows (64-bit)</a></h2>
+<p><strong>Run Time Requirements</strong></p>
+<ul>
+<li>Windows 10, Windows Server 2016, or later, for userspace components.</li>
+<li>Windows 10 or Windows Server build 2004 or later — for VMXMON driver operation.</li>
+<li>Visual Studio run-time libraries:
+<a href="https://aka.ms/vs/17/release/vc_redist.x64.exe" rel="noopener noreferrer" target="_top">https://aka.ms/vs/17/release/vc_redist.x64.exe</a>.</li>
+<li>Simics Base and the libraries it ships are built for the Windows Universal C
+Runtime (UCRT).</li>
+</ul>
+<p>When running Simics with a user provided Python, or when using Simics as a
+Python module, Python version 3.10 or later is required.</p>
+<p><strong>Model Builder Requirements</strong></p>
+<ul>
+<li>MinGW GCC 6.3 or Microsoft Visual Studio 2015 compiler <em>(<a href="#note3">3</a>)</em>.
+Recommended to use MinGW GCC 15 or later, built for UCRT and POSIX threads
+(this is required to build distributed non-sample models).</li>
+<li>MinGW development environment, with GNU Make 4.1 or later.</li>
+<li>Optional: CMake version 3.4 or later.</li>
+<li>For SystemC*, see footnote <em>(<a href="#note2">2</a>)</em>.</li>
+</ul>
+<br>
+<br>
+<h2 id="python-requirements"><a href="#python-requirements">2.4 Python requirements</a></h2>
+<p>Simics needs a Python installation to run. The minimum required Python
+version is 3.10 and it must have the <code>ctypes</code> module. A few Python
+packages are also required to run Simics. These are
+installed automatically when setting up a Simics project
+<em>(<a href="#note4">4</a>)</em>, into a project local standard Python virtual
+environment.</p>
+<hr>
+<ol>
+<li><span id="note1"></span>Installing additional packages may be necessary.</li>
+<li><span id="note2"></span>The Intel® Simics® SystemC* library has its own
+compiler requirements, see the <a href="../systemc-library/index.html"><em>SystemC*
+Library</em></a> programming guide for details.</li>
+<li><span id="note3"></span>The Microsoft Visual C++ compilers are only supported
+for C++ modules.</li>
+<li><span id="note4"></span>Setting up a project using <code>project-setup</code>
+and <code>addon-manager</code> does not require any extra Python packages.</li>
+</ol>
+
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="installation.html">3 Installing Packages</a>
+</div>

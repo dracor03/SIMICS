@@ -1,0 +1,65 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>ai-mode</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-add-symbol-file.html">add-symbol-file</a>
+<a href="rm-cmd-alias.html">alias</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="ai-mode"></a>
+<h1 id="ai-mode"><a href="#ai-mode">ai-mode</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>ai-mode</b> [-fresh] [<i>"model"</i>] [<i>session</i>] [-no-log] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ Switch to AI mode in the current interactive command line. In AI mode, indicated by the <tt>?&gt;&gt;&gt;</tt> prompt, each line of input is sent to a GitHub Copilot agent via the <tt>gh copilot</tt> CLI tool. The agent can answer questions about Simics and help with debugging and development tasks. Use Ctrl-D to return to CLI mode.
+<p>
+Use <tt>-fresh</tt> to start a new chat session instead of resuming the most recent one.
+</p><p>
+Use the <i>session</i> argument to resume a specific session by number or session ID. Run <code>list-ai-sessions</code> to list available sessions. Example: <tt>ai-mode session = 2</tt>.
+</p><p>
+Use the <i>model</i> argument to select a specific model, e.g., <tt>ai-mode "claude-opus-4.6"</tt>. This sends a <tt>/model</tt> command to the agent at the start of the session. If no <i>model</i> argument is given, the <tt>prefs.ai_agent_model</tt> preference is used as the default. If that is also unset, the agent's default model is used.
+</p><p>
+Once inside ai-mode you can get a list of models by asking:
+</p><p>
+simics?&gt;&gt;&gt; which models are available
+</p><p>
+And the agent should provide you with available models. Use the /model command to switch model at any time, e.g., /model claude-opus-4.6
+</p><p>
+By default, all Simics log messages are captured to a temporary file while AI mode is active, so that the agent can inspect them when diagnosing problems. Use <tt>-no-log</tt> to disable this.
+</p><p>
+<b>Prerequisites</b>
+</p><p>
+This command requires the GitHub CLI with the Copilot extension installed and authenticated. To set it up:
+</p><p>
+ </p><li>Install the GitHub CLI: <tt>https://cli.github.com/</tt></li> <li>Authenticate: <tt>gh auth login</tt></li> <li>Enable Copilot: <tt>gh copilot</tt> (or <tt>gh extension install github/gh-copilot</tt> for gh versions older than 2.86)</li> <li>Verify it works: <tt>gh copilot --help</tt></li> 
+<p>
+A GitHub Copilot license (individual, business, or enterprise) is required. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simics.core.html">Simics Core</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-_questionmark_.html">?</a>, 
+<a href="rm-cmd-python-mode.html">python-mode</a>, 
+<a href="rm-cmd-list-ai-sessions.html">list-ai-sessions</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-add-symbol-file.html">add-symbol-file</a>
+<a href="rm-cmd-alias.html">alias</a>
+</div>

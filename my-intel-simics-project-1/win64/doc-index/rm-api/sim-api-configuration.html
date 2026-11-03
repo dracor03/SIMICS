@@ -1,0 +1,1127 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Configuration</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-breakpoints.html">Breakpoints</a>
+<a href="sim-api-embedding.html">Embedding Simics</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Configuration</h1>
+<h2 id="SIM_add_configuration"><a href="#SIM_add_configuration">SIM_add_configuration</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_add_configuration — set configuration from Python</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_add_configuration(pre_conf_object_set_t *NOTNULL set,
+                      const char *file);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_add_configuration(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function creates objects from the parse objects in <code>set</code> and adds the initialized objects to the current configuration (creating one if necessary). When called from Python (which is the intended usage), the configuration <code>set</code> is a sequence (list or tuple) of <a href="simics.html#simics.pre_conf_object"><code>pre_conf_object</code></a> Python objects, or a dictionary of the form <code>{&lt;name&gt; : &lt;pre_conf_object&gt;}</code>.</p>
+<p>The <code>file</code> argument is the name of the file that a configuration was read from, and should be set to None/NULL if not used.</p>
+<h2>Examples</h2>
+<p>The following examples are written in Python. As they do not map any devices in <code>phys_mem</code>, they will not work as stand-alone simulations.</p>
+<p>Example when <code>set</code> is a sequence:</p>
+<pre><code>clock = pre_conf_object('timer', 'clock')
+clock.freq_mhz = 20
+space = pre_conf_object('phys_mem', 'memory-space')
+space.queue = clock
+
+SIM_add_configuration([clock, space], None)
+</code></pre>
+<p>Example when <code>set</code> is a dictionary:</p>
+<pre><code>objects = {}
+objects['clock'] = pre_conf_object('timer', 'clock')
+objects['clock'].freq_mhz = 20
+objects['space'] = pre_conf_object('phys_mem', 'memory-space')
+objects['space'].queue = objects['clock']
+
+SIM_add_configuration(objects, None)
+</code></pre>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if Simics fails to initialize all objects.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_create_object"><code>SIM_create_object</code></a>, <a href="sim-api-configuration.html#SIM_set_configuration"><code>SIM_set_configuration</code></a>, <a href="sim-api-configuration.html#SIM_read_configuration"><code>SIM_read_configuration</code></a></p>
+</section>
+<h2 id="SIM_class_has_attribute"><a href="#SIM_class_has_attribute">SIM_class_has_attribute</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_class_has_attribute — check if class implements attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+bool
+SIM_class_has_attribute(conf_class_t *NOTNULL cls, const char *NOTNULL attr);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_class_has_attribute(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns true if the class <code>cls</code> implements an attribute with the name <code>attr</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_attribute</code></a>, <a href="sim-api-configuration.html#SIM_get_attribute"><code>SIM_get_attribute</code></a></p>
+</section>
+<h2 id="SIM_create_object"><a href="#SIM_create_object">SIM_create_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_create_object — create and initialize object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+conf_object_t *
+SIM_create_object(conf_class_t *NOTNULL cls, const char *name,
+                  attr_value_t attrs);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_create_object(...)
+</code></pre>
+<h2>Description</h2>
+<p>Creates a new instance of the configuration class <code>cls</code>. <code>name</code> must consist of a letter followed by letters, digits or underscores (<code>_</code>). A unique name will be created if <code>name</code> is an empty string or <code>nullptr</code>. For backward compatibility, hyphens (<code>-</code>) are allowed instead of underscores but their use is deprecated.</p>
+<p>The new object is initialized with attributes from <code>attrs</code>, which must be a list of (<em>attribute-name</em>, <em>value</em>) pairs, where each pair is a two-element list. All required attributes for the class <code>cls</code> must be present in <code>attrs</code>. In Python, <code>attrs</code> can be omitted (if no attributes are required), it can be normal lists: <code>[['attribute1', value1], ['attribute2', value2]]</code> or keyword arguments: <code>attribute1=value1, attribute2=value2</code>.</p>
+<p>Attributes in ports of the <code>cls</code> class can be initialized by prefixing the attribute name with the port name, e.g. <code>['p.portname.attr', value]</code>.</p>
+<p>The argument value may be modified, but the caller is still responsible for freeing it. Neither point applies when the function is called from Python.</p>
+<h2>Return Value</h2>
+<p>The new object, or <code>NULL</code> on error (in which case an exception is raised).</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the name is not well-formed, if an object named <code>name</code> already exists, or if the initialisation failed.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_add_configuration"><code>SIM_add_configuration</code></a>, <a href="sim-api-configuration.html#SIM_set_configuration"><code>SIM_set_configuration</code></a></p>
+</section>
+<h2 id="SIM_current_checkpoint_dir"><a href="#SIM_current_checkpoint_dir">SIM_current_checkpoint_dir</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_current_checkpoint_dir — directory of checkpoint being loaded</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+char *
+SIM_current_checkpoint_dir();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_current_checkpoint_dir(...)
+</code></pre>
+<h2>Description</h2>
+<p>If called during the loading of a checkpoint, this function returns the checkpoint (bundle) directory. Otherwise, the return value is <code>nullptr</code>. The directory can be absolute or relative, and may be the empty string if the checkpoint directory is the current working directory.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_read_configuration"><code>SIM_read_configuration</code></a>, <a href="sim-api-configuration.html#SIM_add_configuration"><code>SIM_add_configuration</code></a></p>
+</section>
+<h2 id="SIM_delete_objects"><a href="#SIM_delete_objects">SIM_delete_objects, SIM_delete_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_delete_objects, SIM_delete_object — delete a list of objects</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+int
+SIM_delete_objects(attr_value_t val);
+
+int
+SIM_delete_object(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_delete_objects(...)
+simics.SIM_delete_object(...)
+</code></pre>
+<h2>Description</h2>
+<p>Delete the list of objects <code>val</code> (or the single object <code>obj</code>) passed as argument, provided that no reference to these objects is left in the rest of the configuration. Descendant objects of an object being deleted will also be deleted.</p>
+<p>Some specific objects in Simics, such as <code>sim</code>, are protected against deletion and will be ignored by this function.</p>
+<p>If Simics finds references to the objects in the rest of the configuration, a warning will be printed and the operation will be aborted. Note that in this case, the deletion process has started and the objects may already have began their clean-up routines. The safest action at this point is to fix the dangling references and to try to delete the objects once again.</p>
+<p>Events posted by the objects in cycle queues or step queues will be automatically removed. Hap callbacks and script branches waiting on deleted objects will be interrupted as well.</p>
+<h2>Recursion</h2>
+<p>While removing the listed objects, <code>SIM_delete_objects</code> will call various callbacks (<a href="../rm-base/rm-haps.html#Core_Conf_Object_Pre_Delete"><code>Core_Conf_Object_Pre_Delete</code></a> and <a href="../rm-base/rm-haps.html#Core_Conf_Object_Delete"><code>Core_Conf_Object_Delete</code></a> haps, as well as <code>pre_delete_instance</code> and <code>delete_instance</code> for each object). Recursive calls to <code>SIM_delete_objects</code> are allowed during the <em>pre-delete</em> phase (Pre_Delete hap and <code>pre_delete_instance</code> callback), and the new objects will be added to the current list of objects to delete. Recursive calls after this stage will fail.</p>
+<p>This limited recursion is meant to let objects that “own” other objects destroy them automatically if they themselves are to be deleted. This is used for example by the standard Simics components.</p>
+<h2>Bugs</h2>
+<p>Note that for successful deletion of objects, each class should implement the proper deletion methods called by <code>SIM_delete_objects</code>. If the methods are not present, <code>SIM_delete_objects</code> will simply remove any reference to the object, but this may leave memory and resources unrecoverable.</p>
+<h2>Return Value</h2>
+<p>Returns zero if successful. Throws an exception and returns non-zero otherwise.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if an error occurred or a reference to the objects is left in the rest of the configuration.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>Example</h2>
+<p>The following line at the Simics prompt:</p>
+<pre><code>@SIM_delete_objects(list(SIM_object_iterator(None)))
+</code></pre>
+<p>will delete all unprotected objects in the configuration, leaving the Simics session empty.</p>
+</section>
+<h2 id="SIM_delete_snapshot"><a href="#SIM_delete_snapshot">SIM_delete_snapshot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_delete_snapshot — delete a snapshot</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+snapshot_error_t
+SIM_delete_snapshot(const char *name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_delete_snapshot(...)
+</code></pre>
+<h2>Description</h2>
+<p>Deletes an in-memory snapshot.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_take_snapshot"><code>SIM_take_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_restore_snapshot"><code>SIM_restore_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_list_snapshots"><code>SIM_list_snapshots</code></a></p>
+</section>
+<h2 id="SIM_get_all_classes"><a href="#SIM_get_all_classes">SIM_get_all_classes</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_all_classes — get list of all loaded classes</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_all_classes();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_all_classes(...)
+</code></pre>
+<h2>Description</h2>
+<p>Return an unordered list of the names of all configuration classes loaded into simulation.</p>
+<p>The Python function <code>cli.global_cmds.list_classes</code> can be used to get class names, by default including not-loaded classes.</p>
+<h2>Return Value</h2>
+<p>List of class names.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_all_objects"><a href="#SIM_get_all_objects">SIM_get_all_objects</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_all_objects — get list of all objects</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_all_objects();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_all_objects(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function is deprecated and should not be used. Please use <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a> instead.</p>
+<p>Return a list of all configuration objects. The order is unspecified and may vary between calls to this function.</p>
+<h2>Return Value</h2>
+<p>List of objects.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_attribute"><a href="#SIM_get_attribute">SIM_get_attribute, SIM_get_attribute_idx</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_attribute, SIM_get_attribute_idx — get attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_attribute(conf_object_t *NOTNULL obj, const char *NOTNULL name);
+
+attr_value_t
+SIM_get_attribute_idx(conf_object_t *NOTNULL obj, const char *NOTNULL name,
+                      attr_value_t *NOTNULL index);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_attribute(...)
+simics.SIM_get_attribute_idx(...)
+</code></pre>
+<h2>Description</h2>
+<p>Extracts the attribute specified by <code>name</code> parameter from <code>obj</code>. If an error occurs, an invalid value is returned. The <code>_idx</code> version of the function can be used to get a single entry in a list or data attribute. The attribute must support indexing for this to work.</p>
+<p>The caller is as usual responsible for freeing the returned value by calling <a href="dev-api-attr-value-t.html#SIM_attr_free"><code>SIM_attr_free</code></a>.</p>
+<h2>Return Value</h2>
+<p>Attribute value. An attribute of Invalid type is returned if the attribute could not be read.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_AttrNotFound</strong> If the object did not have the specified attribute.</p>
+<p><strong>SimExc_AttrNotReadable</strong> If the attribute cannot be read.</p>
+<p><strong>SimExc_Type</strong> If the index has the wrong type.</p>
+<p><strong>SimExc_General</strong> If <a href="dev-api-configuration.html#SIM_attribute_error"><code>SIM_attribute_error</code></a> or <a href="dev-api-configuration.html#SIM_attribute_error"><code>SIM_c_attribute_error</code></a> was called inside the getter function.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_attr_free"><code>SIM_attr_free</code></a>, <a href="sim-api-configuration.html#SIM_set_attribute"><code>SIM_set_attribute</code></a>, <a href="dev-api-configuration.html#SIM_attribute_error"><code>SIM_attribute_error</code></a></p>
+</section>
+<h2 id="SIM_get_attribute_attributes"><a href="#SIM_get_attribute_attributes">SIM_get_attribute_attributes</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_attribute_attributes — get attribute flags</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_attr_t
+SIM_get_attribute_attributes(conf_class_t *NOTNULL cls,
+                             const char *NOTNULL attr);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_attribute_attributes(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the attribute flags of the <code>attr</code> attribute of the class <code>cls</code>.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_register_attribute"><code>SIM_register_attribute</code></a></p>
+</section>
+<h2 id="SIM_get_class_attribute"><a href="#SIM_get_class_attribute">SIM_get_class_attribute, SIM_get_class_attribute_idx</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_class_attribute, SIM_get_class_attribute_idx — get class attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_class_attribute(conf_class_t *NOTNULL cls, const char *NOTNULL name);
+
+attr_value_t
+SIM_get_class_attribute_idx(conf_class_t *NOTNULL cls,
+                            const char *NOTNULL name,
+                            attr_value_t *NOTNULL index);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_class_attribute(...)
+simics.SIM_get_class_attribute_idx(...)
+</code></pre>
+<h2>Description</h2>
+<p>Extracts the class attribute specified by <code>name</code> from the class <code>cls</code>. If an error occurs, an invalid value is returned. The <code>_idx</code> version of the function can be used to get a single entry in a list or data attribute. The attribute must support indexing for this to work.</p>
+<p>The caller is as usual responsible for freeing the returned value by calling <a href="dev-api-attr-value-t.html#SIM_attr_free"><code>SIM_attr_free</code></a>.</p>
+<h2>Return Value</h2>
+<p>Attribute value. A value of Invalid type is returned if the attribute could not be read.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_AttrNotFound</strong> If the class did not have the specified attribute.</p>
+<p><strong>SimExc_AttrNotReadable</strong> If the attribute cannot not be read.</p>
+<p><strong>SimExc_Type</strong> If the index has the wrong type.</p>
+<p><strong>SimExc_General</strong> Other errors.</p>
+<h2>Execution Context</h2>
+<p>Global Context, unless the attribute documentation says otherwise.</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_attr_free"><code>SIM_attr_free</code></a>, <a href="sim-api-configuration.html#SIM_set_class_attribute"><code>SIM_set_class_attribute</code></a></p>
+</section>
+<h2 id="SIM_get_object"><a href="#SIM_get_object">SIM_get_object</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_object — get object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+conf_object_t *
+SIM_get_object(const char *NOTNULL name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_object(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the object with name <code>name</code>.</p>
+<p>The function does an object look-up in the order; <em>object ID</em>, <em>object name</em>, and <em>hierarchical location</em> for all objects in the simulation. The function returns the first match from the look-up or <code>nullptr</code> if there was no object match.</p>
+<p>The <em>object ID</em> is a unique name that never changes and is returned by the <a href="dev-api-configuration.html#SIM_object_id"><code>SIM_object_id</code></a> function. The <em>object name</em> is the name of the object, used for instance when printing log messages and is returned by the <a href="dev-api-configuration.html#SIM_object_name"><code>SIM_object_name</code></a> function. The <em>hierarchical location</em> is the absolute location of the object in the component hierarchy. The <em>object name</em> and the <em>hierarchical location</em> is the same.</p>
+<p>Please note that in Python Simics objects are available directly as attributes of the <code>conf</code> module. For example, one can access the <code>sim</code> object like this:</p>
+<pre><code>conf.sim
+</code></pre>
+<h2>Return Value</h2>
+<p>Object, or <code>nullptr</code> if not found.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the object can not be found.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_object_name"><code>SIM_object_name</code></a>, <a href="dev-api-configuration.html#SIM_object_id"><code>SIM_object_id</code></a>, <a href="sim-api-configuration.html#SIM_object_parent"><code>SIM_object_parent</code></a>, <a href="sim-api-configuration.html#SIM_object_descendant"><code>SIM_object_descendant</code></a></p>
+</section>
+<h2 id="SIM_get_python_interface_type"><a href="#SIM_get_python_interface_type">SIM_get_python_interface_type</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_python_interface_type — get Python interface type</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+PyObject *
+SIM_get_python_interface_type(const char *NOTNULL name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_python_interface_type(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the Python data type for the <code>name</code> interface, or <code>nullptr</code> if not available from Python.</p>
+<p>If necessary, will try to load modules registering the Python translation for this interface.</p>
+</section>
+<h2 id="SIM_get_snapshot_info"><a href="#SIM_get_snapshot_info">SIM_get_snapshot_info</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_snapshot_info — get information about a snapshot</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_get_snapshot_info(const char *NOTNULL name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_snapshot_info(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns a dictionary of information about a snapshot. The currently defined keys in the dictionary are:</p>
+<dl>
+<dt id="dt:name"><a href="#dt:name">name</a></dt>
+<dd>The name of the snapshot</dd>
+<dt id="dt:pages"><a href="#dt:pages">pages</a></dt>
+<dd>The number of non-zero image pages in the snapshot</dd>
+<dt id="dt:previous"><a href="#dt:previous">previous</a></dt>
+<dd>The name of the latest snapshot taken or restored before this snapshot was taken. <code>nil</code> if there was no such snapshot, or if that snapshot has been deleted.</dd>
+</dl>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_list_snapshots"><code>SIM_list_snapshots</code></a>, <a href="sim-api-configuration.html#SIM_take_snapshot"><code>SIM_take_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_restore_snapshot"><code>SIM_restore_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_delete_snapshot"><code>SIM_delete_snapshot</code></a></p>
+</section>
+<h2 id="SIM_is_restoring_snapshot"><a href="#SIM_is_restoring_snapshot">SIM_is_restoring_snapshot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_is_restoring_snapshot — check if a snapshot is currently being restored</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+bool
+SIM_is_restoring_snapshot();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_is_restoring_snapshot(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns <code>true</code> if an in-memory snapshot is currently being restored.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_list_snapshots"><a href="#SIM_list_snapshots">SIM_list_snapshots</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_list_snapshots — list snapshots</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_list_snapshots();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_list_snapshots(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns a list of the names of the currently taken snapshots.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_take_snapshot"><code>SIM_take_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_restore_snapshot"><code>SIM_restore_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_delete_snapshot"><code>SIM_delete_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_get_snapshot_info"><code>SIM_get_snapshot_info</code></a></p>
+</section>
+<h2 id="SIM_object_class"><a href="#SIM_object_class">SIM_object_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_class — get object class</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+FORCE_INLINE conf_class_t *
+SIM_object_class(const conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_object_class(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the class of an object.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_get_class"><code>SIM_get_class</code></a></p>
+</section>
+<h2 id="SIM_object_descendant"><a href="#SIM_object_descendant">SIM_object_descendant</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_descendant — return a descendant of the specified object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+conf_object_t *
+SIM_object_descendant(conf_object_t *obj, const char *NOTNULL relname);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_object_descendant(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function returns the descendant object of <code>obj</code> which has the relative name <code>relname</code>, or <code>nullptr</code> if no such object exists.</p>
+<p>It is legal for the relative name to contain multiple components, like “device.p.RESET”.</p>
+<p>If <code>obj</code> is <code>nullptr</code>, then the object lookup is performed relative the object hierarchy root.</p>
+<p>If <code>obj</code> is instantiated at the same time as the descendant, then the function is guaranteed to succeed if called after the <code>alloc_object</code> phase of object initialization; i.e., it is safe for <code>obj</code> to invoke the function from its <code>init_object</code> method.</p>
+<h2>Return Value</h2>
+<p>Object, or <code>nullptr</code> if the object has no hierarchical descendant with the specified relative name.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_parent"><code>SIM_object_parent</code></a>, <a href="dev-api-configuration.html#SIM_register_port"><code>SIM_register_port</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_object_is_processor"><a href="#SIM_object_is_processor">SIM_object_is_processor</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_is_processor — test if object is a processor</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+bool
+SIM_object_is_processor(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_object_is_processor(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns non-zero if <code>obj</code> is a processor.</p>
+<h2>Execution Context</h2>
+<p>All contexts (including Threaded Context)</p>
+</section>
+<h2 id="SIM_object_iterator"><a href="#SIM_object_iterator">SIM_object_iterator</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_iterator — start object iteration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+object_iter_t
+SIM_object_iterator(conf_object_t *obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_object_iterator(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_object_iterator</code> function returns an iterator for the descendants of the object <code>obj</code>. If <code>obj</code> is <code>nullptr</code>, then the returned iterator will iterate over all objects in the configuration.</p>
+<p>The iterator returns objects sorted by name, with parents before children.</p>
+<h2>Return Value</h2>
+<p>Object iterator</p>
+<h2>Example</h2>
+<p>Sample C code to find all objects implementing <a href="model-to-model-interfaces.html#signal_interface_t"><code>signal</code></a> interface:</p>
+<pre><code>#include &lt;simics/util/vect.h&gt;
+#include &lt;simics/devs/signal.h&gt;
+
+...
+
+VECT(conf_object_t *) v = VNULL;
+object_iter_t it = SIM_object_iterator(nullptr);
+conf_object_t *obj;
+while ((obj = SIM_object_iterator_next(&amp;it)) != nullptr) {
+    if (SIM_C_GET_INTERFACE(obj, signal) != nullptr)
+        VADD(v, obj);
+}
+...  // any code using 'v' vector here
+VFREE(v);
+</code></pre>
+<p>Sample Python code to find all objects implementing <a href="model-to-model-interfaces.html#signal_interface_t"><code>signal</code></a> interface:</p>
+<pre><code>v = []
+for obj in SIM_object_iterator(None):
+    if hasattr(obj.iface, simics.SIGNAL_INTERFACE):
+        v.append(obj)
+</code></pre>
+<p>The <code>simics.SIGNAL_INTERFACE</code> constant from the above example holds <code>"signal"</code> string. Such constants are available for some interfaces. One can safely use string literals instead.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_iterator_next"><code>SIM_object_iterator_next</code></a>, <a href="sim-api-configuration.html#SIM_shallow_object_iterator"><code>SIM_shallow_object_iterator</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator_for_class"><code>SIM_object_iterator_for_class</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator_for_interface"><code>SIM_object_iterator_for_interface</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_object_iterator_for_class"><a href="#SIM_object_iterator_for_class">SIM_object_iterator_for_class</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_iterator_for_class — start class instance iteration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+object_iter_t
+SIM_object_iterator_for_class(conf_class_t *cls);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_object_iterator_for_class(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_object_iterator_for_class</code> function returns an iterator for the instances of the class <code>cls</code>. See <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a> for examples on how to use the iterator.</p>
+<h2>Return Value</h2>
+<p>Object iterator</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_iterator_next"><code>SIM_object_iterator_next</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator_for_interface"><code>SIM_object_iterator_for_interface</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_object_iterator_for_interface"><a href="#SIM_object_iterator_for_interface">SIM_object_iterator_for_interface</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_iterator_for_interface — start class instance iteration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+object_iter_t
+SIM_object_iterator_for_interface(attr_value_t ifaces);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_object_iterator_for_interface(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_object_iterator_for_interface</code> function returns an iterator for the objects that implement all interfaces in <code>ifaces</code> (i.e. all objects if <code>ifaces</code> is empty), which must be a list of strings of length at most 16. See <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a> for examples on how to use the iterator.</p>
+<h2>Return Value</h2>
+<p>Object iterator</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_iterator_next"><code>SIM_object_iterator_next</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator_for_class"><code>SIM_object_iterator_for_class</code></a></p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the <code>ifaces</code> argument does not conform to the above requirements.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_object_iterator_next"><a href="#SIM_object_iterator_next">SIM_object_iterator_next</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_iterator_next — get next object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+conf_object_t *
+SIM_object_iterator_next(object_iter_t *iter);
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_object_iterator_next</code> function returns the next object from an iterator obtained from <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a> or <a href="sim-api-configuration.html#SIM_shallow_object_iterator"><code>SIM_shallow_object_iterator</code></a>. If there are no more objects in the sequence, then <code>nullptr</code> is returned.</p>
+<p>It is illegal to call <code>SIM_object_iterator_next</code> using an iterator which has reached the end of its sequence.</p>
+<h2>Return Value</h2>
+<p>Next object or <code>nullptr</code>.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_iterator_next"><code>SIM_object_iterator_next</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_object_parent"><a href="#SIM_object_parent">SIM_object_parent</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_object_parent — get object parent</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+conf_object_t *
+SIM_object_parent(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_object_parent(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the hierarchical parent of the specified object.</p>
+<h2>Return Value</h2>
+<p>Object, or <code>nullptr</code> if the object has no hierarchical parent.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_descendant"><code>SIM_object_descendant</code></a>, <a href="sim-api-configuration.html#SIM_port_object_parent"><code>SIM_port_object_parent</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_port_object_parent"><a href="#SIM_port_object_parent">SIM_port_object_parent</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_port_object_parent — get object parent</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+conf_object_t *
+SIM_port_object_parent(conf_object_t *NOTNULL obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_port_object_parent(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the parent of the specified port object.</p>
+<h2>Return Value</h2>
+<p>Object, or <code>nullptr</code> if the object is not a port object.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_parent"><code>SIM_object_parent</code></a>, <a href="sim-api-configuration.html#SIM_object_descendant"><code>SIM_object_descendant</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_printf_error"><a href="#SIM_printf_error">SIM_printf_error, SIM_printf_error_vararg</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_printf_error, SIM_printf_error_vararg — print error message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_printf_error(const char *format, ...);
+
+// not available in DML
+
+void
+SIM_printf_error_vararg(const char *format, va_list ap);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_printf_error(...)
+</code></pre>
+<h2>Description</h2>
+<p>This can be used to print an error message during the simulation. It is analogous to log error messages, but for non-device code. I.e. it should be used for errors that prevents the simulation from continuing.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_printf_warning"><code>SIM_printf_warning</code></a></p>
+</section>
+<h2 id="SIM_printf_warning"><a href="#SIM_printf_warning">SIM_printf_warning, SIM_printf_warning_vararg</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_printf_warning, SIM_printf_warning_vararg — print warning message</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_printf_warning(const char *format, ...);
+
+// not available in DML
+
+void
+SIM_printf_warning_vararg(const char *format, va_list ap);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_printf_warning(...)
+</code></pre>
+<h2>Description</h2>
+<p>This can be used to print a warning message during the simulation. It is analogous to log warning messages, but for non-device code. I.e. it should be used for problems that do not prevent the simulation from continuing.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_printf_error"><code>SIM_printf_error</code></a></p>
+</section>
+<h2 id="SIM_read_configuration"><a href="#SIM_read_configuration">SIM_read_configuration</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_read_configuration — read configuration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_read_configuration(const char *NOTNULL file);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_read_configuration(...)
+</code></pre>
+<h2>Description</h2>
+<p>Read configuration from <code>filename</code> and create a machine accordingly.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the file could not be opened, the machine was already initialized, or if an error in the configuration file was detected.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_register_context_handler"><a href="#SIM_register_context_handler">SIM_register_context_handler</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_register_context_handler — register mandatory interface and attribute for context handler objects</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/processor-api.h&gt; // in C
+import "simics/processor-api.dml"; // in DML
+
+int
+SIM_register_context_handler(conf_class_t *NOTNULL cls,
+                             const context_handler_interface_t *NOTNULL iface);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_register_context_handler(...)
+</code></pre>
+<h2>Description</h2>
+<p>Register the <code>cls</code> class as a class for context handler objects. This includes registering the <a href="simulator-to-simulator-interfaces.html#context_handler_interface_t"><code>context_handler</code></a> interface (<code>iface</code>), in addition to which <code>SIM_register_context_handler</code> registers a <code>current_context</code> attribute which will hold the current context.</p>
+<p>The <a href="simulator-to-simulator-interfaces.html#context_handler_interface_t"><code>context_handler</code></a> interface will be wrapped by standard functions so that standard context change behavior is taken care off automatically. This includes, among other things, making sure that the context is valid, and triggering the correct haps on context changes. Thus the context_handler implementation need only care about the effect of the change on the <code>context</code>_handler object itself (virtual breakpoints present in the context, cache flushing, etc.).</p>
+<h2>Return Value</h2>
+<p>The return value is 0 if everything works, and non-zero if something fails. <code>SIM_register_context_handler</code> will return the error value provided by <a href="dev-api-configuration.html#SIM_register_interface"><code>SIM_register_interface</code></a>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the <a href="simulator-to-simulator-interfaces.html#context_handler_interface_t"><code>context_handler</code></a> interface has already been registered for this class.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-configuration.html#SIM_register_interface"><code>SIM_register_interface</code></a></p>
+</section>
+<h2 id="SIM_restore_snapshot"><a href="#SIM_restore_snapshot">SIM_restore_snapshot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_restore_snapshot — restore a snapshot of the configuration state</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+snapshot_error_t
+SIM_restore_snapshot(const char *name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_restore_snapshot(...)
+</code></pre>
+<h2>Description</h2>
+<p>Restores the state of the configuration to a previously taken snapshot.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_take_snapshot"><code>SIM_take_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_delete_snapshot"><code>SIM_delete_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_list_snapshots"><code>SIM_list_snapshots</code></a></p>
+</section>
+<h2 id="SIM_set_attribute"><a href="#SIM_set_attribute">SIM_set_attribute, SIM_set_attribute_idx</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_attribute, SIM_set_attribute_idx — set attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+set_error_t
+SIM_set_attribute(conf_object_t *NOTNULL obj,
+                  const char *NOTNULL name,
+                  attr_value_t *NOTNULL value);
+
+set_error_t
+SIM_set_attribute_idx(conf_object_t *NOTNULL obj,
+                      const char *NOTNULL name,
+                      attr_value_t *NOTNULL index,
+                      attr_value_t *NOTNULL value);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_attribute(...)
+simics.SIM_set_attribute_idx(...)
+</code></pre>
+<h2>Description</h2>
+<p>Set the <code>name</code> attribute in <code>obj</code> to <code>value</code>.</p>
+<p>The <code>_idx</code> version of the function can be used to get a single entry in a list or data attribute. For this to work, the attribute must support indexing.</p>
+<p>After the call the <code>value</code> is still owned by the caller.</p>
+<p>If the attribute setter function calls <a href="dev-api-configuration.html#SIM_attribute_error"><code>SIM_attribute_error</code></a> or <a href="dev-api-configuration.html#SIM_attribute_error"><code>SIM_c_attribute_error</code></a> and returns <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Ok</code></a>, it is treated like <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Illegal_Value</code></a>.</p>
+<h2>Return Value</h2>
+<p>The return value is from the <a href="dev-api-types-generic.html#set_error_t"><code>set_error_t</code></a> enum, with <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Ok</code></a> indicating success.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_AttrNotFound</strong> If the object did not have the specified attribute</p>
+<p><strong>SimExc_AttrNotWritable</strong> if the attribute cannot not be written</p>
+<p><strong>SimExc_Type</strong> if the index has the wrong type, the value to be set does not match the type specified by the attribute or the setter function returned <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Illegal_Type</code></a></p>
+<p><strong>SimExc_IllegalValue</strong> if the setter function returned <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Illegal_Value</code></a></p>
+<p><strong>SimExc_Index</strong> if the setter function returned <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Illegal_Index</code></a></p>
+<p><strong>SimExc_InterfaceNotFound</strong> if the setter function returned <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Interface_Not_Found</code></a></p>
+<p><strong>SimExc_General</strong> if the setter function returned something else than <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Ok</code></a>, <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Illegal_Type</code></a>, <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Illegal_Value</code></a>, <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Illegal_Index</code></a> or <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Interface_Not_Found</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Global Context in general; individual attributes may be less constrained.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_get_attribute"><code>SIM_get_attribute</code></a>, <a href="dev-api-configuration.html#SIM_attribute_error"><code>SIM_attribute_error</code></a>, <a href="dev-api-types-generic.html#set_error_t"><code>set_error_t</code></a></p>
+</section>
+<h2 id="SIM_set_class_attribute"><a href="#SIM_set_class_attribute">SIM_set_class_attribute, SIM_set_class_attribute_idx</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_class_attribute, SIM_set_class_attribute_idx — set class attribute</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+set_error_t
+SIM_set_class_attribute(conf_class_t *NOTNULL cls,
+                        const char *NOTNULL name,
+                        attr_value_t *NOTNULL value);
+
+set_error_t
+SIM_set_class_attribute_idx(conf_class_t *NOTNULL cls,
+                            const char *NOTNULL name,
+                            attr_value_t *NOTNULL index,
+                            attr_value_t *NOTNULL value);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_class_attribute(...)
+simics.SIM_set_class_attribute_idx(...)
+</code></pre>
+<h2>Description</h2>
+<p>Set the <code>name</code> attribute in <code>cls</code> to <code>value</code>.</p>
+<p>The <code>_idx</code> version of the function can be used to set a single entry in a list or data attribute. For this to work, the attribute must support indexing.</p>
+<p>After the call the <code>value</code> is still owned by the caller.</p>
+<h2>Return Value</h2>
+<p>The return value is from the <a href="dev-api-types-generic.html#set_error_t"><code>set_error_t</code></a> enum, with <a href="dev-api-types-generic.html#set_error_t"><code>Sim_Set_Ok</code></a> indicating success.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_get_attribute"><code>SIM_get_attribute</code></a>, <a href="dev-api-types-generic.html#set_error_t"><code>set_error_t</code></a></p>
+</section>
+<h2 id="SIM_set_configuration"><a href="#SIM_set_configuration">SIM_set_configuration</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_set_configuration — set configuration from data</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_set_configuration(attr_value_t conf);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_set_configuration(...)
+
+import configuration
+
+configuration.OBJECT(name, objclass, **attrs)
+class configuration.OBJ(name)
+</code></pre>
+<h2>Description</h2>
+<blockquote class="markdown-alert-note">
+<p>It is recommended that the <a href="sim-api-configuration.html#SIM_add_configuration"><code>SIM_add_configuration</code></a> function is used instead of <code>SIM_set_configuration</code>.</p>
+</blockquote>
+<p>This function is an alternative to reading the configuration from a file. A configuration is an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> which should have the following structure.</p>
+<pre><code>(("name", "class",  ("attr_name", attr_val) ... ), ... )
+</code></pre>
+<p>That is a list of object specifiers containing name, class, and a list of attribute specifiers. An attribute specifier is a list of length 2 containing the attribute name and its value. <code>SIM_set_configuration</code> allows an easy way of parameterizing the configuration, especially if called from Python.</p>
+<p>The argument value may be modified, but the caller is still responsible for freeing it. Neither point applies when the function is called from Python.</p>
+<h2>Example</h2>
+<p>The following is a Python example:</p>
+<pre><code>from configuration import OBJ
+from simics import SIM_set_configuration
+
+SIM_set_configuration([
+ ["cpu0", "x86",
+  ["queue", OBJ("cpu0")],
+  ["freq_mhz", 20],
+  ["physical_memory", OBJ("phys_mem0")]],
+
+ ["phys_mem0", "memory-space",
+  ["map",  [[0xa0000,    OBJ("vga0"),    1, 0, 0x20000],
+            [0x00000,    OBJ("mem0"),    0, 0x00000, 0xA0000],
+            [0xc0000,    OBJ("mem0"),    0, 0xc0000, 0x8000],
+            [0xc8000,    OBJ("setmem0"), 0, 0, 0x28000],
+            [0xf0000,    OBJ("mem0"),    0, 0xf0000, 0x10000],
+            [0x100000,   OBJ("mem0"),    0, 0x100000, 0x3ff00000],
+            [0xfee00000, OBJ("apic0"),   0, 0, 0x4000]]]],
+    ... ])
+</code></pre>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Attribute</strong> Thrown if malformed configuration list.</p>
+<p><strong>SimExc_General</strong> Thrown if Simics fails to initialize all objects.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_add_configuration"><code>SIM_add_configuration</code></a>, <a href="sim-api-configuration.html#SIM_create_object"><code>SIM_create_object</code></a></p>
+</section>
+<h2 id="SIM_shallow_object_iterator"><a href="#SIM_shallow_object_iterator">SIM_shallow_object_iterator</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_shallow_object_iterator — start object iteration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+object_iter_t
+SIM_shallow_object_iterator(conf_object_t *obj);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_shallow_object_iterator(...)
+</code></pre>
+<h2>Description</h2>
+<p>The <code>SIM_shallow_object_iterator</code> function returns an iterator for the direct children of the object <code>obj</code>. If <code>obj</code> is <code>nullptr</code>, then the returned iterator will iterate over objects on the root level.</p>
+<p>The iterator returns objects sorted by name.</p>
+<h2>Return Value</h2>
+<p>Object iterator</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_object_iterator_next"><code>SIM_object_iterator_next</code></a>, <a href="sim-api-configuration.html#SIM_object_iterator"><code>SIM_object_iterator</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_take_snapshot"><a href="#SIM_take_snapshot">SIM_take_snapshot</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_take_snapshot — take snapshot of the current configuration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+snapshot_error_t
+SIM_take_snapshot(const char *name);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_take_snapshot(...)
+</code></pre>
+<h2>Description</h2>
+<p>Takes an in-memory snapshot of the state of all objects. Objects whose <a href="dev-api-types-generic.html#class_info_t"><code>class_kind_t</code></a> is equal to <code>Sim_Class_Kind_Pseudo</code> are not saved. This also holds for attributes (in all objects) of type <code>Sim_Attr_Pseudo</code>.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+<h2>See Also</h2>
+<p><a href="sim-api-configuration.html#SIM_restore_snapshot"><code>SIM_restore_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_delete_snapshot"><code>SIM_delete_snapshot</code></a>, <a href="sim-api-configuration.html#SIM_list_snapshots"><code>SIM_list_snapshots</code></a></p>
+</section>
+<h2 id="SIM_write_configuration_to_file"><a href="#SIM_write_configuration_to_file">SIM_write_configuration_to_file</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_write_configuration_to_file — write configuration</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_write_configuration_to_file(const char *NOTNULL file, save_flags_t flags);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_write_configuration_to_file(...)
+</code></pre>
+<h2>Description</h2>
+<p>Saves all objects to <code>filename</code>. Objects whose <a href="dev-api-types-generic.html#class_info_t"><code>class_kind_t</code></a> is equal to <a href="dev-api-types-generic.html#class_info_t"><code>Sim_Class_Kind_Session</code></a> or <a href="dev-api-types-generic.html#class_info_t"><code>Sim_Class_Kind_Pseudo</code></a> are not saved. This also holds for attributes (in all objects) of type <code>Sim_Attr_Pseudo</code>.</p>
+<p>The <code>flags</code> argument should be 0.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_write_persistent_state"><a href="#SIM_write_persistent_state">SIM_write_persistent_state</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_write_persistent_state — save persistent state</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_write_persistent_state(const char *file, conf_object_t *root,
+                                    save_flags_t flags);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_write_persistent_state(...)
+</code></pre>
+<h2>Description</h2>
+<p>Saves the persistent state to a <code>file</code>. Persistent data typically includes disk images, NVRAM and flash memory contents and clock settings, i.e data that survives reboots. The Persistent state is saved as a standard simics configuration.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-breakpoints.html">Breakpoints</a>
+<a href="sim-api-embedding.html">Embedding Simics</a>
+</div>

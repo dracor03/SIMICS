@@ -1,0 +1,138 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>code_coverage</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-co-execute.html">co-execute</a>
+<a href="rm-class-code_coverage_helper.html">code_coverage_helper</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="code_coverage"><a href="#code_coverage">code_coverage</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Collect code coverage
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-code_coverage.add-functions.html">add-functions</a>
+ – create functions map</li>
+<li>
+<a href="rm-cmd-code_coverage.add-path-map.html">add-path-map</a>
+ – add path map</li>
+<li>
+<a href="rm-cmd-code_coverage.add-report.html">add-report</a>
+ – add report to already existing coverage</li>
+<li>
+<a href="rm-cmd-code_coverage.add-source-info.html">add-source-info</a>
+ – include source info</li>
+<li>
+<a href="rm-cmd-code_coverage.add-source-only-info.html">add-source-only-info</a>
+ – include source info</li>
+<li>
+<a href="rm-cmd-code_coverage.clear-path-maps.html">clear-path-maps</a>
+ – clear all added path maps</li>
+<li>
+<a href="rm-cmd-code_coverage.combine-mappings.html">combine-mappings</a>
+ – combine matching mappings that have different addresses</li>
+<li>
+<a href="rm-cmd-code_coverage.csv-output.html">csv-output</a>
+ – output report in CSV format</li>
+<li>
+<a href="rm-cmd-code_coverage.disassemble.html">disassemble</a>
+ – create disassembly for all mappings</li>
+<li>
+<a href="rm-cmd-code_coverage.filter-mappings.html">filter-mappings</a>
+ – filter out mappings or source files using a pattern</li>
+<li>
+<a href="rm-cmd-code_coverage.html-report.html">html-report</a>
+ – write html report</li>
+<li>
+<a href="rm-cmd-code_coverage.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-code_coverage.lcov-output.html">lcov-output</a>
+ – output report to LCOV tracefile format</li>
+<li>
+<a href="rm-cmd-code_coverage.list-mappings.html">list-mappings</a>
+ – list mappings</li>
+<li>
+<a href="rm-cmd-code_coverage.list-path-maps.html">list-path-maps</a>
+ – list added path maps</li>
+<li>
+<a href="rm-cmd-code_coverage.remove-analyzer-info.html">remove-analyzer-info</a>
+ – remove source info</li>
+<li>
+<a href="rm-cmd-code_coverage.remove-unknown-addresses.html">remove-unknown-addresses</a>
+ – remove unknown addresses</li>
+<li>
+<a href="rm-cmd-code_coverage.save.html">save</a>
+ – save collected code coverage</li>
+<li>
+<a href="rm-cmd-code_coverage.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-code_coverage.stop.html">stop</a>
+ – stop recording coverage</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:context_id"><a href="#dt:context_id">
+<i>context_id</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>s|n</code>
+<br>Context ID for which code coverage is being performed</dd>
+<dt id="dt:helper"><a href="#dt:helper">
+<i>helper</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>o</code>
+<br>Code coverage helper object</dd>
+<dt id="dt:is_collecting"><a href="#dt:is_collecting">
+<i>is_collecting</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>b</code>
+<br>True if code coverage is collecting data</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.code-coverage.html">code-coverage</a>
+</section>
+<div class="chain">
+<a href="rm-class-co-execute.html">co-execute</a>
+<a href="rm-class-code_coverage_helper.html">code_coverage_helper</a>
+</div>

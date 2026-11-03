@@ -1,0 +1,36 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Simics Types in Python</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="python-api.html">Python API</a>
+<a href="cli.html">cli</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="python-api.html">Python API</a>
+&nbsp;/&nbsp;</div><h1 id="simics-types-in-python"><a href="#simics-types-in-python">Simics Types in Python</a></h1>
+<p>When writing code in Python, almost all Simics API functions can be used.
+Since not all C types are available in Python, Simics supplies the following special type mappings.</p>
+<table><thead><tr><th>C</th><th>Python</th></tr></thead><tbody>
+<tr><td><code>attr_value_t (string)</code></td><td><code>str</code> (a Python string)</td></tr>
+<tr><td><code>attr_value_t (integer)</code></td><td><code>int</code> or <code>long</code></td></tr>
+<tr><td><code>attr_value_t (floating)</code></td><td><code>float</code></td></tr>
+<tr><td><code>attr_value_t (list)</code></td><td><code>list</code></td></tr>
+<tr><td><code>attr_value_t (data)</code></td><td><code>tuple</code> of integers (bytes)</td></tr>
+<tr><td><code>attr_value_t (nil)</code></td><td><code>None</code></td></tr>
+<tr><td><code>attr_value_t (object)</code></td><td>An object from the <code>conf</code> namespace.</td></tr>
+<tr><td><code>attr_value_t (dict)</code></td><td><code>dict</code></td></tr>
+<tr><td><code>attr_value_t (boolean)</code></td><td><code>bool</code></td></tr>
+<tr><td><code>conf_class_t *</code></td><td><code>A conf_class_t object</code></td></tr>
+<tr><td><code>conf_object_t *</code></td><td>An object from the <code>conf</code> namespace</td></tr>
+</tbody></table>
+
+<div class="chain">
+<a href="python-api.html">Python API</a>
+<a href="cli.html">cli</a>
+</div>

@@ -1,0 +1,39 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>bp.cycle_event.break</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-bp-manager.cycle.wait-for.html">bp.cycle.wait-for</a>
+<a href="rm-cmd-bp-manager.cycle_event.run-until.html">bp.cycle_event.run-until</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="bp-manager.cycle_event.break"></a>
+<h1 id="bp-manager.cycle_event.break"><a href="#bp-manager.cycle_event.break">bp.cycle_event.break</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;bp-manager.cycle_event&gt;.break</b> <i>object</i> [<i>event-object</i>] [<i>"event-class"</i>] [<i>"description"</i>] [-once] <br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This command uses breakpoint functionality on <i>object</i>, with the following description: Adds an event breakpoint on a clock object. The object needs to implement the <tt>cycle_event_instrumentation</tt> interface for this to work.
+<p>
+To narrow down the events to match you can give the properties <i>event-class</i> to match the name of the event class, and/or <i>event-object</i> to match the object in the event, and/or <i>description</i> to match the description of the event. If a property is not given it will match any value. The <tt>-once</tt> flag causes the breakpoint to automatically be removed after it has triggered. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.bp-manager.html">bp-manager</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-bp-manager.cycle.wait-for.html">bp.cycle.wait-for</a>
+<a href="rm-cmd-bp-manager.cycle_event.run-until.html">bp.cycle_event.run-until</a>
+</div>

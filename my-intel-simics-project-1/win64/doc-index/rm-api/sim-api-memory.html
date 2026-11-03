@@ -1,0 +1,204 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>Memory</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-logging.html">Logging</a>
+<a href="sim-api-modules.html">Modules</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>Memory</h1>
+<h2 id="SIM_load_binary"><a href="#SIM_load_binary">SIM_load_binary</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_load_binary — read an executable file into memory</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+physical_address_t
+SIM_load_binary(conf_object_t *NOTNULL obj, const char *NOTNULL file,
+                physical_address_t offset, bool use_pa, bool verbose);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_load_binary(...)
+</code></pre>
+<h2>Description</h2>
+<p>Read a binary file (ELF, Motorola S-Record, PE32, PE32+, or TI COFF format) into memory and return the code entry point.</p>
+<p>The file will be loaded at the address formed by adding the virtual load address from the file, with the offset <code>offset</code>. If the flag <code>use_pa</code> is set, the ELF physical load address is used instead. The <code>verbose</code> flag will cause Simics to print info about the binary to the console.</p>
+<p>The memory space to load into is given in the <code>obj</code> parameter.  If the given space is a CPU object, its current virtual address space will be used, and addresses will be translated before writing to the physical memory space attached to the CPU.</p>
+<p>If the file is not found in the current directory, the search path (see <a href="../rm-base/rm-cmd-add-directory.html"><code>add-directory</code></a>) is used to find the file.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_IOError</strong> Thrown if there was a problem reading the file.</p>
+<p><strong>SimExc_General</strong> Thrown if binary cannot be read into memory.</p>
+<h2>Return Value</h2>
+<p>The code entry address.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_load_file"><a href="#SIM_load_file">SIM_load_file</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_load_file — read a file into memory</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_load_file(conf_object_t *NOTNULL obj, const char *NOTNULL file,
+              physical_address_t base_address, bool verbose);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_load_file(...)
+</code></pre>
+<h2>Description</h2>
+<p>Loads the contents of <code>file</code> into memory starting at address <code>base_address</code>. The <code>obj</code> argument can either be a processor, a memory-space, or an image object. In case of a processor, the address is interpreted as a virtual address.</p>
+<p>The <code>file</code> can be either a raw binary file or a file in the craff format.</p>
+<p>The <code>verbose</code> flag will cause Simics to print some information about the load.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_IOError</strong> Thrown if there was a problem reading the file.</p>
+<p><strong>SimExc_General</strong> Thrown if file cannot be read into memory.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_read_byte"><a href="#SIM_read_byte">SIM_read_byte, SIM_write_byte</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_read_byte, SIM_write_byte — read/write byte from a memory space</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+uint8
+SIM_read_byte(conf_object_t *NOTNULL obj, generic_address_t paddr);
+
+void
+SIM_write_byte(conf_object_t *NOTNULL obj,
+               generic_address_t paddr, uint8 value);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_read_byte(...)
+simics.SIM_write_byte(...)
+</code></pre>
+<h2>Description</h2>
+<p>Read or write a byte from a given address in the memory space <code>obj</code>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Memory</strong> Thrown if the memory space threw an exception</p>
+<p><strong>SimExc_General</strong> Thrown if the object does not implement the memory space interface.</p>
+<h2>Return Value</h2>
+<p>The byte read.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_read_phys_memory"><a href="#SIM_read_phys_memory">SIM_read_phys_memory</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_read_phys_memory — read data from a physical address</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+uint64
+SIM_read_phys_memory(conf_object_t *NOTNULL cpu,
+                     physical_address_t paddr,
+                     int length);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_read_phys_memory(...)
+</code></pre>
+<h2>Description</h2>
+<p>Reads <code>length</code> bytes from address <code>paddr</code> in the physical memory space associated with the processor <code>cpu</code>.</p>
+<p>Up to 8 bytes can be read in one call. The memory access will be of inquiry type, i.e. no timing-model or snoop device will be called.</p>
+<p>For non-inquiry accesses, use the <a href="model-to-model-interfaces.html#memory_space_interface_t"><code>memory_space</code></a> interface directly.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Memory</strong> Thrown if no memory defined at <code>paddr</code>.</p>
+<p><strong>SimExc_Attribute</strong> Thrown if <code>length</code> is out of range.</p>
+<p><strong>SimExc_General</strong> Thrown if the processors physical memory does not implement the necessary interface methods.</p>
+<h2>Return Value</h2>
+<p>The read data, zero-extended.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_read_phys_memory_tags"><a href="#SIM_read_phys_memory_tags">SIM_read_phys_memory_tags, SIM_write_phys_memory_tags</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_read_phys_memory_tags, SIM_write_phys_memory_tags — access auxiliary bits in physical memory</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+uint64
+SIM_read_phys_memory_tags(conf_object_t *NOTNULL mem_space,
+                          physical_address_t paddr, unsigned ntags);
+
+void
+SIM_write_phys_memory_tags(conf_object_t *NOTNULL mem_space,
+                           physical_address_t paddr,
+                           uint64 tag_bits, unsigned ntags);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_read_phys_memory_tags(...)
+simics.SIM_write_phys_memory_tags(...)
+</code></pre>
+<h2>Description</h2>
+<p>Reads or writes <code>ntags</code> auxiliary bits starting at <code>paddr</code> in the physical memory space <code>mem_space</code>. Up to 64 bits can be accessed at once. The bits are specified and returned right-aligned, least significant bit corresponding to the lowest address.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_write_phys_memory"><a href="#SIM_write_phys_memory">SIM_write_phys_memory</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_write_phys_memory — write data to a physical address</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_write_phys_memory(conf_object_t *NOTNULL cpu,
+                      physical_address_t paddr,
+                      uint64 value, int length);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_write_phys_memory(...)
+</code></pre>
+<h2>Description</h2>
+<p>Writes <code>length</code> bytes to address <code>paddr</code> in the physical memory space associated with the processor <code>cpu</code>.</p>
+<p>Up to 8 bytes can be written in one call. The memory access will be of inquiry type, i.e. no timing-model or snoop device will be called.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Memory</strong> Thrown if no memory defined at <code>paddr</code>.</p>
+<p><strong>SimExc_Attribute</strong> Thrown if <code>length</code> is out of range.</p>
+<p><strong>SimExc_General</strong> Thrown if the processors physical memory does not implement the necessary interface methods.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-logging.html">Logging</a>
+<a href="sim-api-modules.html">Modules</a>
+</div>

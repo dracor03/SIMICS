@@ -1,0 +1,36 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>9 Naming</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="comments.html">8 Comments</a>
+<a href="other-considerations.html">10 Other considerations</a>
+</div>
+<div class="path">
+<a href="index.html">Style Guide for Python</a>
+&nbsp;/&nbsp;</div><h1 id="naming"><a href="#naming">9 Naming</a></h1>
+<p>In general, identifiers are written in lower-case letters, words separated by
+underscores.
+Class names should start with an upper-case letter.</p>
+<p>Constants or variables that represent quantities that are conventionally written
+in upper case may be written that way in Python as well.</p>
+<ul>
+<li>Variables are named after what they contain, not by their type. Local variables can be arbitrarily short, as long as it is clear what their purpose is.</li>
+<li>Functions that are mainly executed for their side-effects should be named after what they do.</li>
+<li>Functions executed for their return value should be named after what they return. Predicates (functions returning a boolean value) should be named after the condition when true.</li>
+</ul>
+<p>Examples:</p>
+<pre><code>physical_address_bits = 48         # a variable
+raise_interrupt(level)             # a function with side-effects
+csum = checksum(packet)            # a function without side-effects
+if not valid_request(req):         # a predicate
+    set_error_flag()
+</code></pre>
+
+<div class="chain">
+<a href="comments.html">8 Comments</a>
+<a href="other-considerations.html">10 Other considerations</a>
+</div>

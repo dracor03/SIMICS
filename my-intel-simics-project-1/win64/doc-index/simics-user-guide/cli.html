@@ -1,0 +1,615 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.2 The Command Line Interface</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="startupoptions.html">2.1 Using Simics from the Command Line</a>
+<a href="script-support-in-simics.html">2.3 Simics Scripting Environment</a>
+</div>
+<div class="path">
+<a href="index.html">Intel® Simics® Simulator User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="feature-overview.html">2 Feature Overview</a>
+&nbsp;/&nbsp;</div><h1 id="the-command-line-interface"><a href="#the-command-line-interface">2.2 The Command Line Interface</a></h1>
+<p>The Simics Command Line Interface (CLI) is an advanced text based user interface
+with built-in help system, context sensitive tab-completion, and scripting
+support (both built-in and for use with Python). It is provided as part of
+Simics.</p>
+<p>If the Simics graphical user interface (GUI) is used, the CLI is accessible via
+the Simics Control window (<code>Tools → Command Line Window</code>). When running Simics
+without a GUI, the CLI is accessible directly at the command line/shell where
+Simics is started.</p>
+<h2 id="invoking-commands"><a href="#invoking-commands">2.2.1 Invoking Commands</a></h2>
+<p>Commands are invoked by typing them at the command line followed by their
+arguments. The synopsis part of a command documentation explains how to execute
+a command (you can see many examples in the reference manuals). Here are two
+examples:</p>
+<dl>
+<dt id="dt:synopsis"><a href="#dt:synopsis"><strong>SYNOPSIS</strong></a></dt>
+<dd><code>command1</code> <em>-x</em> <em>-y</em> <em>-small</em>
+[<strong>cpu-name</strong>] <strong>address</strong> (<strong>size</strong>|<strong>name</strong>)</dd>
+<dt id="dt:synopsis-2"><a href="#dt:synopsis-2"><strong>SYNOPSIS</strong></a></dt>
+<dd><code>command2</code> <strong>files</strong> …</dd>
+</dl>
+<p>Arguments starting with a hyphen are flags and are always optional. Flags can be
+more than one character long, so it is <em>not</em> possible to write <em>-xy</em> for <em>-x
+-y</em>. The order of the flags is not significant and they can appear anywhere in
+the argument list.</p>
+<p>Arguments enclosed within square brackets are optional; in the example above, it
+is not necessary to specify <em>cpu-name</em>, but <em>address</em> is required. The last
+argument to <code>command1</code> is either a size or a name, but not both. Such arguments
+are called <em>polyvalues</em> and can be of different types. Size and name are called
+sub-arguments.</p>
+<p>If an argument is followed by three dots as the file argument in <code>command2</code> it
+indicates that the argument can be repeated one or more times.</p>
+<p>The type of the arguments; e.g., whether they are integers or strings, should be
+evident from their names. For example, <em>size</em> should be an integer and <em>name</em> a
+string if not documented otherwise.</p>
+<p>Integers are written as a sequence of digits beginning with an optional minus
+character for negative numbers. Hexadecimal numbers can be written by prefixing
+them with <code>0x</code>, octal numbers with <code>0o</code>, and binary numbers with <code>0b</code>. Integers
+may contain “_” characters to make them easier to read. They are ignored during
+parsing. For example:</p>
+<pre><code class="language-simics">simics&gt; <strong>170_000</strong>
+170000
+simics&gt; <strong>0xFFFF_C700</strong>
+4294952704
+</code></pre>
+<p>Strings are written as is or within double quotes if they contain spaces or
+begin with a non-letter. Within double quotes, a backslash (<code>\</code>) is an escape
+character, which can be used to include special characters in the string.</p>
+<p>The supported escape sequences are the usual C ones: <code>\n</code> for newline, <code>\t</code> for
+tab, <code>\033</code> for the octal ASCII character 33 (27 decimal) escape, etc. <code>\</code>
+followed by one, two or three octal digits, or <code>\x</code> followed by exactly two
+hexadecimal digits is the corresponding byte value.</p>
+<p><code>\u</code> followed by exactly four hexadecimal digits is the corresponding Unicode
+character. CLI strings are in the current version of Simics always stored in
+their UTF-8 encoding, which means that a single <code>\u</code> character can be
+represented as several bytes in the CLI string. As this is expected to change in
+a future version of Simics, do not rely on this functionality.</p>
+<pre><code class="language-simics">simics&gt; <strong>echo no_quotes_needed</strong>
+no_quotes_needed
+simics&gt; <strong>echo "first line\nsecond line"</strong>
+first line
+second line
+simics&gt; <strong>echo "Two As: \101 \x41, and a micro sign: \u00b5"</strong>
+Two As: A A, and a micro sign: µ
+</code></pre>
+<blockquote class="markdown-alert-note">
+<p>On a <strong>Windows</strong> machine, strings used as paths to files can be written in
+several different ways. If the path does not contain any blank spaces, it can
+be written without quotes, using backslashes to separate the directories in
+the path, like <code>C:\temp\file.txt</code>. If the path contains spaces, it has to be
+written within quote characters, and the directory separators have to be
+written using double backslashes. This is due to the way that the Simics
+command line uses backslashes to generate special characters like newline and
+tab. Such a path would look like <code>"C:\\Users\\joe\\Documents\\file.txt"</code>.</p>
+</blockquote>
+<p>Here are some possible invocations of the commands above:</p>
+<pre><code class="language-simics">simics&gt; <strong>command1 -small board.mb.cpu0.core[0][0] 0x7fff_c000 14 -y</strong>
+simics&gt; <strong>command1 0x7fffc000 foo</strong>
+simics&gt; <strong>command1 -x "Pentium 4" 0x7fff_c000 -8</strong>
+simics&gt; <strong>command2 "/tmp/txt" "../bootdisk" usb_disk</strong>
+</code></pre>
+<p>In the first example <code>cpu-name</code> is passed as the string
+<code>board.mb.cpu0.core[0][0]</code> and <code>size</code> as the integer 14. In the second
+invocation <code>cpu-name</code> has been omitted and <code>name</code> is set to the string <code>foo</code>.
+The third example illustrated the use of a string containing a space. In all
+<code>command1</code> examples the address is set to the hexadecimal value <code>0x7fffc000</code>.
+<code>command2</code> takes a list of at least 1 string.</p>
+<p>A few commonly used commands have aliases. For example, it is possible to write
+<code>c</code> for <code>continue</code> and <code>si</code> for <code>step-instruction</code> for example. Command aliases
+are documented with their corresponding command in the <a href="../rm-base/rm-cmds-chapter.html">Simics Reference
+Manual</a>.</p>
+<p>Parenthesis can be used to break a command with its arguments across multiple
+lines. In the console, the prompt will change to <code>.......</code> for code spanning
+more than one line. The example shows that use case, as well as how parenthesis
+are used to encompass expressions.</p>
+<pre><code class="language-simics">simics&gt; <strong>(echo 10
+....... + (20 - 5)
+....... + (max 4 7))</strong>
+</code></pre>
+<h3 id="how-are-arguments-resolved"><a href="#how-are-arguments-resolved">2.2.1.1 How are Arguments Resolved?</a></h3>
+<p>Simics tries to match the provided arguments in the same order as they appear in
+the synopsis. If the type of the next argument is identical to what is typed at
+the command line, the argument will match. If there is a mismatch and the
+argument is optional, the argument will be skipped and the next argument will be
+matched, and so on. If a mismatching argument is not optional, the interpreter
+will fail and explain what it expected. For polyvalues, the argument will match
+if one of its sub-arguments matches.</p>
+<p>There are situations when this method is not sufficient. For example, when two
+arguments both have the same type and are optional, there is no way to know
+which argument to match if only one is given. This is resolved by naming the
+arguments: <code>arg-name=value</code>. For example <code>command1</code> in the example above can be
+invoked like this:</p>
+<pre><code class="language-simics">simics&gt; <strong>command1 size=32 -y address = 0xf000 -small cpu-name=board.mb.cpu0.core[0][0]</strong>
+</code></pre>
+<p>Thus there is no ambiguity in what is meant and in fact this is the only way to
+specify a polyvalue with sub-arguments of the same type. Note also that named
+arguments can be placed in any order.</p>
+<h3 id="referring-to-simics-objects"><a href="#referring-to-simics-objects">2.2.1.2 Referring to Simics Objects</a></h3>
+<p>Many Simics commands accept configuration object references as arguments. An
+object reference is simply a string which contains the fully qualified name of
+the object. Simics provides a hierarchical namespace for objects. The fully
+qualified name is similar to a file system path, but with the parts separated by
+dots. For example, the fully qualified name of <code>cpu0</code> in the <code>system0</code> namespace
+is <code>system0.cpu0</code>.</p>
+<h3 id="namespace-commands"><a href="#namespace-commands">2.2.1.3 Namespace Commands</a></h3>
+<p>Configuration objects (such as devices or CPUs) that define user commands
+usually place them in a separate namespace. The namespace is the fully qualified
+name of the object. Interfaces may also define commands, in which case all
+objects implementing these interfaces will inherit the commands in their own
+namespace.</p>
+<p>Namespace commands are invoked by typing the fully qualified name of the object,
+followed by a dot and the command name: <em>system</em>.<em>component</em>.<em>object</em>.<em>command</em>,
+e.g.,</p>
+<pre><code class="language-simics">simics&gt; <strong>system0.board0.cache0.print-status</strong>
+</code></pre>
+<p>All namespace commands are listed in the Simics reference manuals for the class
+or interface they belong to.</p>
+<p>When using large configurations with a hierarchical structure of components and
+objects it can be inconvenient to type the fully qualified name all the time
+when invoking namespace commands. You can then use the <code>change-namespace</code>
+command (alias <code>cn</code>) to set a current namespace just like navigating in a file
+system with the cd command. From the current namespace you can refer to objects
+with a relative name, for example:</p>
+<pre><code class="language-simics">simics&gt; <strong>cn system0.board0</strong>
+simics:system0.board0&gt; cache0.print-status
+</code></pre>
+<p>Note that the Simics prompt changes to reflect the new position in the
+hierarchy. You can only change the current namespace to other components. It
+would have been illegal to do:</p>
+<pre><code class="language-simics">simics&gt; <strong>cn system0.board0.cache0</strong>
+system0.board0.cache0 is not a component
+</code></pre>
+<p>Cache0 is not a component, it is an object located in the cache0 slot (see
+<a class="reference" href="configuration.html#components">2.4.4</a> and <a class="reference" href="configuration.html#object-name">2.4.5</a> for more
+information on how objects are named and referenced).</p>
+<p>To go “up” one level in the hierarchy you can type <code>cn ..</code>:</p>
+<pre><code class="language-simics">simics:system0.board0&gt; cn ..
+simics:system0&gt;
+</code></pre>
+<p>You can still refer to other components relative to the root by writing a dot
+before the fully qualified name, e.g.:</p>
+<pre><code class="language-simics">simics:system0&gt; .system1.cpu0.ptime
+processor     steps  cycles  time [s]
+system1.cpu0  14545   14545     0.000
+</code></pre>
+<p>The command <code>current-namespace</code> is provided to get the current namespace and can
+be used in scripts to save a location in a CLI variable:</p>
+<pre><code class="language-simics">simics:system0&gt; current-namespace
+.system0
+simics:system0&gt; $location = (current-namespace)
+simics:system0&gt; cn ..
+simics&gt; <strong>cn $location</strong>
+simics:system0&gt;
+</code></pre>
+<p>See section <a class="reference" href="script-support-in-simics.html">2.3</a> for more information on Simics
+scripting and CLI variables.</p>
+<h3 id="expressions"><a href="#expressions">2.2.1.4 Expressions</a></h3>
+<p>The CLI allows expressions to be evaluated, for example:</p>
+<pre><code class="language-simics">simics&gt; <strong>print -x 2*(0x3e + %cr0) + %dx</strong>
+</code></pre>
+<p>The precedence order of the operators is as follows (highest first):</p>
+<table><thead><tr><th></th><th></th></tr></thead><tbody>
+<tr><td><code>$</code></td><td>variable access</td></tr>
+<tr><td><code>%</code></td><td>register access</td></tr>
+<tr><td><code>[]</code></td><td>list indexing</td></tr>
+<tr><td><code>-&gt;</code></td><td>attribute access</td></tr>
+<tr><td><code>pow</code></td><td>power of</td></tr>
+<tr><td><code>~</code></td><td>bitwise not</td></tr>
+<tr><td><code>*, /, %</code></td><td>multiplication, division, modulo</td></tr>
+<tr><td><code>+, -</code></td><td>addition, subtraction</td></tr>
+<tr><td><code>&lt;&lt;, &gt;&gt;</code></td><td>left, right shift</td></tr>
+<tr><td><code>&amp;</code></td><td>bitwise and</td></tr>
+<tr><td><code>^</code></td><td>bitwise xor</td></tr>
+<tr><td>`</td><td>`</td></tr>
+<tr><td><code>&lt;, &lt;=, ==, !=, &gt;=, &gt;</code></td><td>comparison</td></tr>
+<tr><td><code>not</code></td><td>boolean not</td></tr>
+<tr><td><code>and</code></td><td>boolean and</td></tr>
+<tr><td><code>or</code></td><td>boolean or</td></tr>
+</tbody></table>
+<p>Parentheses can be used to override the priorities. Commands which return values
+can also be used in expressions if they are enclosed within parentheses:</p>
+<pre><code class="language-simics">simics&gt; <strong>print -x (board.mb.cpu0.core[0][0].read-reg cr0)</strong>
+</code></pre>
+<p>Values can be saved in variables for later use. You set a variable by simply
+giving an assignment command such as <code>$var = 15</code>. You can also store a command
+in a variable such as <code>$my_read_reg = board.mb.cpu0.core[0][0].read-reg</code> which
+is different from storing the return value from a command <code>$value_cr0 = (board.mb.cpu0.core[0][0].read-reg cr0)</code>.</p>
+<h3 id="interrupting-commands"><a href="#interrupting-commands">2.2.1.5 Interrupting Commands</a></h3>
+<dl>
+<dt id="dt:gui"><a href="#dt:gui">GUI</a></dt>
+<dd>
+<p>Use the <code>stop</code> command at the <code>running&gt;</code> prompt
+or the <em>stop</em> button in <strong>Simics Control window</strong>.</p>
+</dd>
+<dt id="dt:cli-without-gui"><a href="#dt:cli-without-gui">CLI without GUI</a></dt>
+<dd>
+<p>Any command which causes the
+simulation to advance can be interrupted by typing <code>Ctrl-C</code>. The simulator
+will gracefully stop and prompt for a new command. If Simics hangs for some
+reason, possibly due to some internal error, you can usually force a return to
+the command line by pressing <code>Ctrl-C</code> two or more times in a row.</p>
+<blockquote class="markdown-alert-note">
+<p>Pressing <code>Ctrl-C</code> several times may damage some internal state in the
+simulator so should be used as a last resort.</p>
+</blockquote>
+</dd>
+</dl>
+<h2 id="tab-completion"><a href="#tab-completion">2.2.2 Tab Completion</a></h2>
+<p>The command line interface has a tab-completion facility. It works not only on
+commands but on their arguments as well. The philosophy is that the user should
+be able to press the tab key when uncertain about what to type, and Simics
+should fill in the text or list alternatives.</p>
+<blockquote class="markdown-alert-note">
+<p>Tab completion on a <strong>Windows</strong> host does not work when running in a Cygwin
+terminal, but only from the graphical user interface or from a Windows command
+line console.</p>
+</blockquote>
+<p>For example <code>com</code>&lt;tab&gt; will expand to the command beginning with <code>com</code> or list
+all commands with that prefix, if there is not a unique such command. Similarly,
+<code>disassemble </code>&lt;tab&gt; will display all arguments available for the command. In
+this case Simics will write:</p>
+<pre><code>address =   bytes =   count =   cpu-name =
+</code></pre>
+<p>to indicate that these alternatives for arguments exists. Typing <code>disassemble cp</code>&lt;tab&gt; will expand to <code>disassemble cpu-name = </code> and a further tab will fill
+in the name of the CPU that is defined (or list all of them).</p>
+<h2 id="help-system"><a href="#help-system">2.2.3 Help System</a></h2>
+<p>The most useful Simics commands are grouped into categories. To list these
+categories, just type <code>help</code> at the command prompt. The list should look like
+this:</p>
+<pre><code class="language-simics">simics&gt; <strong>help</strong>
+[...]
+Type help category to list the commands for a specific category. Here is a list
+of command categories:
+
+  Breakpoints    Disks      Inspection       Modules      Probes      Registers
+  CLI            Execution  Instrumentation  Networking   Processors
+  Components     Files      Logging          Notifiers    Profiling
+  Configuration  Help       Matic            Parameters   Python
+  Debugging      Image      Memory           Performance  Recording
+[...]
+</code></pre>
+<p>Note that since Simics’s configuration can change between sessions and even
+dynamically through the loading of modules, the list of commands and command
+categories may look different.</p>
+<p>Type <code>help category</code> for a list of commands, e.g., <code>help Help</code> will list all commands belonging to that category:</p>
+<pre><code class="language-simics">simics&gt; <strong>help category:Help</strong>
+Commands available in the "Help" category:
+
+api-help           get API help
+api-search         search API help
+copyright          print full Simics copyright information
+get-command-args   get list of command arguments
+help               help command
+help-search        search for text in documentation
+license            print Simics license
+list-attributes    list all attributes
+list-commands      list CLI commands
+release-notes      display product release notes
+version            display Simics version
+</code></pre>
+<p>Type <code>help command</code> to print the documentation for a specific command.</p>
+<p>The <code>help</code> command can do much more than printing command documentation: it
+gives you access to nearly all Simics documentation about commands, classes,
+modules, interfaces, API types and functions, haps and more according to the
+configuration loaded in the simulator. All documentation is also available in
+the reference manuals.</p>
+<p>Here are some more examples of usage of the <code>help</code> command:</p>
+<pre><code class="language-simics">simics&gt; <strong>help print-time</strong>
+[... print-time command documentation ...]
+
+simics&gt; <strong>help board.mb.cpu0.core[0][0].disassemble</strong>
+[... &lt;processor_info&gt;.disassemble command documentation ...]
+
+simics&gt; <strong>help &lt;processor_info&gt;.disassemble</strong>
+[... &lt;processor_info&gt;.disassemble command documentation ...]
+
+simics&gt; <strong>help board.mb.cpu0.core[0][0]</strong>
+[... &lt;x86QSP3&gt; class documentation ...]
+
+simics&gt; <strong>help x86QSP3</strong>
+[... &lt;x86QSP3&gt; class documentation ...]
+
+simics&gt; <strong>help processor_info</strong>
+[... &lt;processor_info&gt; interface documentation ...]
+
+simics&gt; <strong>help board.mb.cpu0.core[0][0].freq_mhz</strong>
+[... &lt;x86QSP3&gt;.freq_mhz attribute documentation ...]
+
+simics&gt; <strong>help x86QSP3.freq_mhz</strong>
+[... &lt;x86QSP3&gt;.freq_mhz attribute documentation ...]
+
+simics&gt; <strong>help Core_Exception</strong>
+[... Core_Exception hap documentation ...]
+
+simics&gt; <strong>help SIM_get_mem_op_type</strong>
+[... SIM_get_mem_op_type() function declaration ...]
+
+simics&gt; <strong>help x86QSP3</strong>
+[... x86QSP3 module documentation ...]
+</code></pre>
+<p>When a name matches several help topics (for example, a command and an
+attribute, or a module and a class), <code>help</code> will print out the first topic
+coming in this order: command categories, commands, classes, interfaces, haps,
+modules, attributes, API functions and symbols. It will also inform you at the
+end of the documentation output that other topics were matching your search:</p>
+<pre><code class="language-simics">simics&gt; <strong>load-module NS16450</strong>
+simics&gt; <strong>help NS16450</strong>
+[... NS16450 class documentation ...]
+     
+Note that your request also matched other topics:
+  module:NS16450
+</code></pre>
+<p>If you type <code>help module:NS16450</code>, the module documentation will be printed
+instead:</p>
+<pre><code class="language-simics">simics&gt; <strong>help module:NS16450</strong>
+[... NS16450 module documentation ...]
+</code></pre>
+<p>You can use specifiers like <code>module:</code> or <code>class:</code> at any time. It will also
+allow the <code>help</code> command to provide you with better tab-completion, since only
+items in the selected category of documentation will be proposed. The following
+specifiers are available: <code>object:</code>, <code>class:</code>, <code>command:</code>, <code>attribute:</code>,
+<code>interface:</code>, <code>module:</code>, <code>api:</code>, <code>hap:</code> and <code>category:</code>.</p>
+<blockquote class="markdown-alert-note">
+<p>By default, <code>help</code> does not propose tab-completion for modules and API
+symbols, because they tend not to be the most searched for and would clutter
+the tab-completion propositions unnecessarily. You can get tab-completion for
+those by specifying <code>module:</code> or <code>api:</code> in front of what you are looking for.</p>
+</blockquote>
+<p>The <code>help-search</code> command can search for keywords in the documentation provided
+by <code>help</code>. Type <code>help-search keyword</code> to get a list of all documentation topics
+matching this keyword. Its alias is <code>apropos</code>, named after the UNIX command-line
+utility which has similar behavior.</p>
+<pre><code class="language-simics">simics&gt; <strong>help-search step</strong>
+The text 'step' appears in the documentation
+for the following items:
+ 
+Command        &lt;cycle&gt;.cycle-break
+Command        &lt;cycle&gt;.cycle-break-absolute
+Command        &lt;cycle&gt;.print-time
+Command        &lt;cycle&gt;.wait-for-cycle
+Command        &lt;cycle&gt;.wait-for-time
+[...]
+Interface      step_info
+
+simics&gt; <strong>apropos step</strong>
+[... yields the same output ...]
+</code></pre>
+<h2 id="simics-s-search-path"><a href="#simics-s-search-path">2.2.4 Simics’s Search Path</a></h2>
+<p>Many Simics commands will look up files based on the current directory. When
+Simics is launched from the command line, the current directory is the current
+directory of the shell Simics was launched from. When Simics is launched by
+double clicking its icon, the current directory is the project directory. This
+may be impractical when writing scripts or building new configurations, so
+Simics provides two features to ease directory handling:</p>
+<ul>
+<li>
+<p>Simics recognizes some special path markers that are translated before being
+used:</p>
+<dl>
+<dt id="dt:simics"><a href="#dt:simics"><code>%simics%</code></a></dt>
+<dd>
+<p>This path marker causes Simics to
+locate the file (following the marker) in the project directory or in any
+of the installed packages. If not found in the project directory, Simics
+will start searching in the newest package, i.e. the one with the highest
+build-id number.</p>
+<p>For example, <code>%simics%/scripts/foo.simics</code> could be translated to:</p>
+<dl>
+<dt id="dt:windows"><a href="#dt:windows">Windows</a></dt>
+<dd><code>C:\Program Files\Simics\Simics 6\Simics 6.0.1\scripts\foo.simics</code></dd>
+<dt id="dt:linux"><a href="#dt:linux">Linux</a></dt>
+<dd><code>/opt/simics/simics-6/simics-6.0.1/scripts/foo.simics</code></dd>
+</dl>
+<p>Note that if you change the version of Simics, <code>%simics%</code> will change as well,
+so you should use it to refer only to files that you know are present in all
+Simics versions. Notice also that <code>%simics%</code> has no meaning if no file can be
+found. You can use the command <code>lookup-file</code> to find out how the path will be
+translated.</p>
+</dd>
+<dt id="dt:script"><a href="#dt:script"><code>%script%</code></a></dt>
+<dd>
+<p>Translated to the directory where the
+currently running script is located. A possible usage is to let a script
+call another one in the same directory, independently of what the current
+directory is.</p>
+<p>For example, if the directory <code>baz</code> contains the scripts <code>foo.simics</code> and
+<code>bar.simics</code>, even if the user uses Simics with another current directory, it
+will be possible for <code>foo.simics</code> to call <code>bar.simics</code> by issuing the command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script %script%/bar.simics</strong>
+</code></pre>
+</dd>
+</dl>
+<p><code>%simics%</code> and <code>%script%</code> are always translated to absolute paths, so they never
+interact with the next feature, called <em>Simics’s search path</em>. One consequence
+is that they must always be used in double quotes
+<code>"%simics%/targets/qsp-x86/images"</code> to ensure that escaped characters such as
+spaces are used correctly.</p>
+</li>
+<li>
+<p>Simics has a list of paths called <em>Simics’s search path</em> where files will be
+looked up when using some specific commands (among others, <code>load-binary</code>,
+<code>load-file</code> and <code>run-script</code>) and a number of classes (such as the <code>image</code>
+class and the tftp server implementation in the <code>service-node</code>). The file is
+first looked up in the current directory, then in all entries of Simics’s
+search path, in order.</p>
+<dl>
+<dt id="dt:windows-2"><a href="#dt:windows-2">Windows</a></dt>
+<dd>
+<p>Let us assume for example that Simics’s search path contains
+<code>C:\Users\joe\scripts\</code>
+and that the current directory is
+<code>C:\Users\joe\project\</code>
+If the command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script test/start-test.simics</strong>
+</code></pre>
+<p>is issued, Simics will look for the following files to run:</p>
+<ol>
+<li><code>C:\Users\joe\project\test\start-test.simics</code></li>
+<li><code>C:\Users\joe\scripts\test\start-test.simics</code></li>
+</ol>
+</dd>
+<dt id="dt:linux-2"><a href="#dt:linux-2">Linux</a></dt>
+<dd>
+<p>Let us assume for example that Simics’s
+search path contains <code>/home/joe/scripts/</code> and that the current directory
+is <code>/home/joe/project</code>. If the command:</p>
+<pre><code class="language-simics">simics&gt; <strong>run-script test/start-test.simics</strong>
+</code></pre>
+<p>is issued, Simics will look for the following files to run:</p>
+<ol>
+<li><code>/home/joe/project/test/start-test.simics</code></li>
+<li><code>/home/joe/scripts/test/start-test.simics</code></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Simics’s search path can be manipulated using the <code>add-directory</code>,
+<code>clear-directories</code> and <code>list-directories</code> commands. Simics’s search path is
+also used when looking for image files belonging to checkpoints or new
+configurations. This is described in section
+<a class="reference" href="configuration.html#image-search-path">2.4.2.3.1</a>.</p>
+<p>Remember that setting a CLI variable to a path with %simics% or %script% does
+not in itself evaluate the path marker. This means that the path marker may
+evaluate to another directory than is anticipated. The following two lines
+evaluate quite differently:</p>
+<pre><code class="language-simics">simics&gt; <strong>$just_a_string = "%script%/images/my_image"</strong>
+simics&gt; <strong>$absolute_path = (lookup-file "%script%/images/my_image")</strong>
+</code></pre>
+<p>The first CLI variable reads the given text and may evaluate to wherever. The
+second variable is evaluated locally and reads the absolute path for the
+<code>my_image</code> file that is located nearby the script.</p>
+<blockquote class="markdown-alert-note">
+<p>Although the Simics search path is saved in the <code>sim</code> object in checkpoints,
+allowing image files that were found through it to be opened again by the
+checkpoint, it is not available until the object creation phase. Module
+initialization code should not rely on the Simics path since that code is run
+before the <code>sim</code> object from the checkpoint has been created.</p>
+</blockquote>
+<h2 id="using-the-pipe-command"><a href="#using-the-pipe-command">2.2.5 Using the Pipe Command</a></h2>
+<p>The <code>pipe</code> command lets you send the output of a Simics command to a shell
+command through a pipe:</p>
+<pre><code class="language-simics">simics&gt; <strong>pipe "help" "grep Tracing"</strong>
+</code></pre>
+<p>This will run <code>help</code> (which lists all Simics commands categories) and send its
+output to the standard input of the <code>grep Tracing</code> process. <code>grep</code> will discard
+all lines not containing “Tracing” and forward the rest to its standard output,
+which will be printed on the Simics terminal.</p>
+<p>The <code>pipe</code> command can be used to send all the output of a command to a file:</p>
+<pre><code class="language-simics">simics&gt; <strong>pipe "stepi 1000" "cat &gt; trace.txt"</strong>
+</code></pre>
+<p>Or you can use it to view information using the shell command <code>more</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>pipe "print-processor-registers -all" more</strong>
+</code></pre>
+<p>Note that you have to enclose both the Simics command (the first argument) and
+the shell command (the second argument) in double quotes if they contain
+whitespace or other non-letter characters.</p>
+<h2 id="running-shell-commands"><a href="#running-shell-commands">2.2.6 Running Shell Commands</a></h2>
+<p>The <code>!</code> Simics command can be used to run command line commands. It will take
+everything after the <code>!</code> sign and run it in a command interpreter (the current
+shell, on Linux, and <code>cmd.exe</code>, on Windows). For example:</p>
+<dl>
+<dt id="dt:windows-3"><a href="#dt:windows-3">Windows</a></dt>
+<dd>
+<pre><code class="language-simics">simics&gt; <strong>!dir c:\</strong>
+</code></pre>
+<p>This will run <code>dir c:\</code> as if typed at the <code>cmd.exe</code> prompt and show the result
+in the Simics console.</p>
+</dd>
+<dt id="dt:linux-3"><a href="#dt:linux-3">Linux</a></dt>
+<dd>
+<pre><code class="language-simics">simics&gt; <strong>!uname -a</strong>
+</code></pre>
+<p>This will run <code>uname -a</code> using the current shell and show the result in the
+Simics console.</p>
+</dd>
+</dl>
+<h2 id="command-line-keyboard-shortcuts"><a href="#command-line-keyboard-shortcuts">2.2.7 Command-line Keyboard Shortcuts</a></h2>
+<p>The Simics CLI supports two modes with different keyboard shortcuts: <em>Windows</em>
+and <em>GNU Readline</em> style. Most shortcuts are the same in both modes but there
+are some minor differences between the two as listed in the following table. The
+mode can be set in the preferences, via the GUI or the CLI:</p>
+<pre><code class="language-simics">simics&gt; <strong>prefs-&gt;readline_shortcuts = TRUE</strong>
+simics&gt; <strong>save-preferences</strong>
+</code></pre>
+<p>The command line in Simics can be accessed in several different ways. The
+shortcuts are supposed to be the same everywhere, but some terminals and telnet
+clients may not forward certain key combinations to Simics. A typical example
+where keyboard shortcuts do not work properly is the Cygwin terminal on Windows
+hosts. To run Simics in command-line mode on Windows, a standard Windows command
+line console is recommended.</p>
+<h3 id="list-of-shortcuts"><a href="#list-of-shortcuts">2.2.7.1 List of Shortcuts</a></h3>
+<p>The following is a list of all keyboard shortcuts supported in Simics, where
+some are marked as Windows or GNU Readline only. <strong>Move Shortcuts</strong></p>
+<table><thead><tr><th><strong>Action</strong></th><th><strong>Shortcuts</strong></th></tr></thead><tbody>
+<tr><td>Move character left</td><td><code>Ctrl-B, Left</code></td></tr>
+<tr><td>Move character right</td><td><code>Ctrl-F, Right</code></td></tr>
+<tr><td>Move word left</td><td><code>Alt-B, Ctrl-Left</code></td></tr>
+<tr><td>Move word right</td><td><code>Alt-F, Ctrl-Right</code></td></tr>
+<tr><td>Move to start of line</td><td><code>Ctrl-A </code>(GNU Readline)<code>, Home</code></td></tr>
+<tr><td>Move to end of line</td><td><code>Ctrl-E, End</code></td></tr>
+</tbody></table>
+<p><strong>Edit Shortcuts</strong></p>
+<table><thead><tr><th><strong>Action</strong></th><th><strong>Shortcuts</strong></th></tr></thead><tbody>
+<tr><td>Enter line</td><td><code>Ctrl-J, Ctrl-M, Enter</code></td></tr>
+<tr><td>Copy</td><td><code>Ctrl-C, Ctrl-Insert</code></td></tr>
+<tr><td>Paste</td><td><code>Ctrl-Y </code>(GNU Readline)<code>, Ctrl-V, Shift-Insert</code></td></tr>
+<tr><td>Cut</td><td><code>Ctrl-X, Shift-Delete</code></td></tr>
+<tr><td>Cut to end of line</td><td><code>Ctrl-K</code></td></tr>
+<tr><td>Cut to start of line</td><td><code>Ctrl-U</code></td></tr>
+<tr><td>Cut previous word</td><td><code>Ctrl-W</code></td></tr>
+<tr><td>Select character left</td><td><code>Shift-Left</code></td></tr>
+<tr><td>Select character right</td><td><code>Shift-Right</code></td></tr>
+<tr><td>Select word left</td><td><code>Ctrl-Shift-Left</code></td></tr>
+<tr><td>Select word right</td><td><code>Ctrl-Shift-Right</code></td></tr>
+<tr><td>Select to start of line</td><td><code>Shift-Home</code></td></tr>
+<tr><td>Select to end of line</td><td><code>Shift-End</code></td></tr>
+<tr><td>Select line</td><td><code>Ctrl-A </code>(Windows)</td></tr>
+<tr><td>Delete character left</td><td><code>Ctrl-H, Backspace</code></td></tr>
+<tr><td>Delete character right</td><td><code>Ctrl-D, Delete</code></td></tr>
+<tr><td>Delete word left</td><td><code>Ctrl-Backspace, Alt-Backspace, Alt-Delete</code></td></tr>
+<tr><td>Delete word right</td><td><code>Alt-D, Ctrl-Delete</code></td></tr>
+<tr><td>Delete to start of line</td><td><code>Ctrl-Home</code></td></tr>
+<tr><td>Delete to end of line</td><td><code>Ctrl-End</code></td></tr>
+</tbody></table>
+<p><strong>History Shortcuts</strong></p>
+<table><thead><tr><th><strong>Action</strong></th><th><strong>Shortcuts</strong></th></tr></thead><tbody>
+<tr><td>Next in history</td><td><code>Ctrl-N, Down</code></td></tr>
+<tr><td>Previous in history</td><td><code>Ctrl-P, Up</code></td></tr>
+<tr><td>First in history</td><td><code>Alt-&lt;, Page Up</code></td></tr>
+<tr><td>Last in history</td><td><code>Alt-&gt;, Page Down</code></td></tr>
+<tr><td>Reverse search</td><td><code>Ctrl-R</code></td></tr>
+<tr><td>Scroll page up</td><td><code>Shift-Page Up</code></td></tr>
+<tr><td>Scroll page down</td><td><code>Shift-Page Down</code></td></tr>
+</tbody></table>
+<p><strong>Completion Shortcuts</strong></p>
+<table><thead><tr><th><strong>Action</strong></th><th><strong>Shortcuts</strong></th></tr></thead><tbody>
+<tr><td>Auto complete</td><td><code>Ctrl-I, Tab</code></td></tr>
+<tr><td>Show completions</td><td><code>Alt-?</code></td></tr>
+</tbody></table>
+<p><strong>Transpose Shortcuts</strong></p>
+<table><thead><tr><th><strong>Action</strong></th><th><strong>Shortcuts</strong></th></tr></thead><tbody>
+<tr><td>Uppercase word</td><td><code>Alt-U</code></td></tr>
+<tr><td>Lowercase word</td><td><code>Alt-L</code></td></tr>
+<tr><td>Capitalize word</td><td><code>Alt-C</code></td></tr>
+<tr><td>Transpose characters</td><td><code>Ctrl-T</code></td></tr>
+<tr><td>Transpose words</td><td><code>Alt-T, Ctrl-Shift-T</code></td></tr>
+</tbody></table>
+<p><strong>Undo Shortcuts</strong></p>
+<table><thead><tr><th><strong>Action</strong></th><th><strong>Shortcuts</strong></th></tr></thead><tbody>
+<tr><td>Cancel multi-line editing</td><td><code>Ctrl-G</code></td></tr>
+<tr><td>Undo</td><td><code>Ctrl-_, Ctrl-Z </code>(Windows)</td></tr>
+<tr><td>Revert line</td><td><code>Alt-R</code></td></tr>
+<tr><td>Clear screen</td><td><code>Ctrl-L</code></td></tr>
+</tbody></table>
+
+<div class="chain">
+<a href="startupoptions.html">2.1 Using Simics from the Command Line</a>
+<a href="script-support-in-simics.html">2.3 Simics Scripting Environment</a>
+</div>

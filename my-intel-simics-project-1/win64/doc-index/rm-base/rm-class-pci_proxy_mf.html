@@ -1,0 +1,76 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>pci_proxy_mf</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-pci_proxy.html">pci_proxy</a>
+<a href="rm-class-pcie-bus.html">pcie-bus</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="pci_proxy_mf"><a href="#pci_proxy_mf">pci_proxy_mf</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+ A PCI(e) proxy inserted between a PCI(e) bus and PCI(e) device. For single function PCI(e) device, pci_proxy should be used. 
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory, pci_bus, pci_device, pci_express, pci_multi_function_device, pci_upstream_operation
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-pci_proxy_mf.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-pci_proxy_mf.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:pci_bus_target"><a href="#dt:pci_bus_target">
+<i>pci_bus_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>PCI bus target to route the transaction to</dd>
+<dt id="dt:pci_device_target"><a href="#dt:pci_device_target">
+<i>pci_device_target</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]</code>
+<br>PCI device target to route the transaction to</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.pci-proxy.html">pci-proxy</a>
+</section>
+<div class="chain">
+<a href="rm-class-pci_proxy.html">pci_proxy</a>
+<a href="rm-class-pcie-bus.html">pcie-bus</a>
+</div>

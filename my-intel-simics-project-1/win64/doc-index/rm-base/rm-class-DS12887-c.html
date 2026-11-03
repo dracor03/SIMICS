@@ -1,0 +1,197 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>DS12887-c</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-DS12887.html">DS12887</a>
+<a href="rm-class-DS3231.html">DS3231</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="DS12887-c"><a href="#DS12887-c">DS12887-c</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The DS12887 device implements real time clock functionality and non-volatile storage (NVRAM). The device is often referred to as CMOS Clock. The DS12887 includes time-of-day alarm, both 12 and 24 hour time format, periodic interrupts and 114 bytes of general purpose RAM. Limitations: Alarm interrupt not implemented. Daylight Savings Time not implemented.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, io_memory
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-DS12887-c.get-date-time.html">get-date-time</a>
+ – get date and time</li>
+<li>
+<a href="rm-cmd-DS12887-c.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-DS12887-c.set-date-time.html">set-date-time</a>
+ – set date and time</li>
+<li>
+<a href="rm-cmd-DS12887-c.status.html">status</a>
+ – print status of the object</li>
+<li>
+<a href="rm-cmd-DS12887-c.trace-nvram.html">trace-nvram</a>
+ – trace nvram updates</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:irq_dev"><a href="#dt:irq_dev">
+<i>irq_dev</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Device to send interrupts to, implementing the <tt>simple_interrupt</tt>.</dd>
+<dt id="dt:irq_level"><a href="#dt:irq_level">
+<i>irq_level</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Level at which interrupts are sent.</dd>
+<dt id="dt:nvram"><a href="#dt:nvram">
+<i>nvram</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i{128}]</code>
+<br>The contents of the non-volatile storage, as a list of 128 bytes.</dd>
+<dt id="dt:next_addr"><a href="#dt:next_addr">
+<i>next_addr</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Next NVRAM address to be accessed.</dd>
+<dt id="dt:seconds_last"><a href="#dt:seconds_last">
+<i>seconds_last</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current time-of-day, counted in seconds.</dd>
+<dt id="dt:time_last"><a href="#dt:time_last">
+<i>time_last</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Simulated time in seconds at last update.</dd>
+<dt id="dt:last_pie"><a href="#dt:last_pie">
+<i>last_pie</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>Time of last PIE interrupt in simulator time.</dd>
+<dt id="dt:interrupt_pin"><a href="#dt:interrupt_pin">
+<i>interrupt_pin</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Status of the interrupt pin.</dd>
+<dt id="dt:period_in_us"><a href="#dt:period_in_us">
+<i>period_in_us</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read-only</b> access; type: 
+<code>[i{16}]</code>
+<br>Time between periodic interrupts, in microseconds</dd>
+<dt id="dt:time_regs_changed"><a href="#dt:time_regs_changed">
+<i>time_regs_changed</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to true if time register were modified while SET = 1.</dd>
+<dt id="dt:year"><a href="#dt:year">
+<i>year</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current year (full four-digit format).</dd>
+<dt id="dt:month"><a href="#dt:month">
+<i>month</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current month [1,12].</dd>
+<dt id="dt:mday"><a href="#dt:mday">
+<i>mday</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current day of the month [1,31].</dd>
+<dt id="dt:hour"><a href="#dt:hour">
+<i>hour</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current hour [0,23].</dd>
+<dt id="dt:minute"><a href="#dt:minute">
+<i>minute</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current minute [0,59].</dd>
+<dt id="dt:second"><a href="#dt:second">
+<i>second</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Current second [0,59].</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.DS12887-c.html">DS12887-c</a>
+</section>
+<div class="chain">
+<a href="rm-class-DS12887.html">DS12887</a>
+<a href="rm-class-DS3231.html">DS3231</a>
+</div>

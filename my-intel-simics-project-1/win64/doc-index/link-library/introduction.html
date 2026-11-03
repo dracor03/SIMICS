@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>1 Introduction</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="index.html">Link Library Programming Guide</a>
+<a href="link-concepts.html">2 Link Concepts</a>
+</div>
+<div class="path">
+<a href="index.html">Link Library Programming Guide</a>
+&nbsp;/&nbsp;</div><h1 id="introduction"><a href="#introduction">1 Introduction</a></h1>
+<p>The link library lets users write Simics link models.
+A link is used to connect devices in different cells, even in different processes, so that they can exchange non-instantaneous messages in a deterministic way.
+Typical links include Ethernet and other network connections, but also simpler signal links and more abstract communication channels.</p>
+<p>Much of the functionality of links is the same for different kinds of links; that commonality is encapsulated in the link library.
+This makes it simpler to create new link types, since a minimum of new code is required for each new link type.</p>
+<p>Before going further, it is important to realize when <em>not</em> to use the link library:</p>
+<ul>
+<li>If the devices are expected to all be located in the same configuration cell, most of the link library support is unnecessary.
+It will probably be much easier to create a simple broadcast bus object that distribute messages where they should go via interface calls.</li>
+<li>If the requirement is for a simple point-to-point protocol to exchange messages between two devices in different configuration cells, the <code>datagram_link</code> might well suffice.
+It allows simple byte strings to be passed from one sender to one or multiple receivers via the simple <code>datagram_link</code> interface.</li>
+<li>If the requirement is to broadcast messages between a set of devices, once again, the <code>datagram_link</code> might be the easiest way forward, as it provides just that.</li>
+</ul>
+<p>The link library, however, is available for more complex usage: multiple message types across the link (such as link speed, link status, etc.), special addressing (unicast or multicast groups, switching, etc.), special types of devices (such as sender and receiver for the signal-link).
+All of these requirements will be more easily expressed, and provide better simulation performance, by creating a special-purpose link based on the link library.</p>
+<p>The rest of this document describes how to create a new link type, using the provided <code>datagram_link</code> as an example.
+The reader is expected to know how to develop Simics modules in C.
+Further information can be found in the <a href="../model-builder-user-guide/index.html">Model Builder User’s Guide</a>.</p>
+
+<div class="chain">
+<a href="index.html">Link Library Programming Guide</a>
+<a href="link-concepts.html">2 Link Concepts</a>
+</div>

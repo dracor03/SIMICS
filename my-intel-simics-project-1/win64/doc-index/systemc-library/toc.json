@@ -1,0 +1,528 @@
+{
+  "is_book": false,
+  "anchor": "programming_guides",
+  "style": "unstyled",
+  "file": "index.html",
+  "name": "SystemC* Library",
+  "headings": [],
+  "children": [
+    {
+      "file": "introduction.html",
+      "name": "1 Introduction",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "systemc-library",
+          "text": "1.1 SystemC* Library"
+        },
+        {
+          "level": 1,
+          "anchor": "systemc",
+          "text": "1.2 SystemC"
+        },
+        {
+          "level": 1,
+          "anchor": "about-this-document",
+          "text": "1.3 About this Document"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "systemc-library-requirements.html",
+      "name": "2 SystemC Library Requirements",
+      "headings": [],
+      "children": []
+    },
+    {
+      "file": "running-a-systemc-model-in-simics.html",
+      "name": "3 Running a SystemC Model in Simics",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "standalone-application",
+          "text": "3.1 Standalone application"
+        },
+        {
+          "level": 1,
+          "anchor": "running-in-simics",
+          "text": "3.2 Running in Simics"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "connecting-systemc-and-simics-models.html",
+      "name": "4 Connecting SystemC and Simics Models",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "dma-example",
+          "text": "4.1 DMA example"
+        },
+        {
+          "level": 1,
+          "anchor": "integrating-precompiled-object-files",
+          "text": "4.2 Integrating precompiled object files"
+        },
+        {
+          "level": 1,
+          "anchor": "test-the-device-in-simics",
+          "text": "4.3 Test the Device in Simics"
+        },
+        {
+          "level": 1,
+          "anchor": "systemc-device-configuration",
+          "text": "4.4 SystemC Device Configuration"
+        },
+        {
+          "level": 1,
+          "anchor": "guidelines-for-configuring-systemc-model-in-simics",
+          "text": "4.5 Guidelines for Configuring SystemC Model in Simics"
+        },
+        {
+          "level": 1,
+          "anchor": "creating-new-gaskets",
+          "text": "4.6 Creating New Gaskets"
+        },
+        {
+          "level": 2,
+          "anchor": "simics-to-systemc",
+          "text": "4.6.1 Simics to SystemC"
+        },
+        {
+          "level": 3,
+          "anchor": "dmi-support",
+          "text": "4.6.1.1 DMI support"
+        },
+        {
+          "level": 2,
+          "anchor": "systemc-to-simics",
+          "text": "4.6.2 SystemC to Simics"
+        },
+        {
+          "level": 2,
+          "anchor": "protocol-specific-extensions",
+          "text": "4.6.3 Protocol Specific Extensions"
+        },
+        {
+          "level": 1,
+          "anchor": "gasket-adapter-ports",
+          "text": "4.7 Gasket Adapter Ports"
+        },
+        {
+          "level": 1,
+          "anchor": "gasket-objects",
+          "text": "4.8 Gasket Objects"
+        },
+        {
+          "level": 1,
+          "anchor": "gaskets",
+          "text": "4.9 Gaskets"
+        },
+        {
+          "level": 2,
+          "anchor": "transaction-gasket",
+          "text": "4.9.1 Transaction Gasket"
+        },
+        {
+          "level": 3,
+          "anchor": "simics2tlm-transaction-gasket",
+          "text": "4.9.1.1 Simics2TLM Transaction gasket"
+        },
+        {
+          "level": 3,
+          "anchor": "tlm2simics-transaction-gasket",
+          "text": "4.9.1.2 TLM2Simics Transaction gasket"
+        },
+        {
+          "level": 3,
+          "anchor": "custom-atoms",
+          "text": "4.9.1.3 Custom ATOMs"
+        },
+        {
+          "level": 3,
+          "anchor": "asynchronous-completion",
+          "text": "4.9.1.4 Asynchronous Completion"
+        },
+        {
+          "level": 3,
+          "anchor": "non-blocking-transport-interface",
+          "text": "4.9.1.5 Non-blocking transport interface"
+        },
+        {
+          "level": 2,
+          "anchor": "pcie-gasket",
+          "text": "4.9.2 PCIe Gasket"
+        },
+        {
+          "level": 3,
+          "anchor": "systemc-pcie-device-interfaces",
+          "text": "4.9.2.1 SystemC PCIe Device Interfaces"
+        },
+        {
+          "level": 3,
+          "anchor": "pcie-gasket-port",
+          "text": "4.9.2.2 PCIe gasket port"
+        },
+        {
+          "level": 2,
+          "anchor": "multiple-gaskets-bind-to-one-systemc-tlm2-initiator-socket",
+          "text": "4.9.3 Multiple Gaskets bind to one SystemC TLM2 initiator socket"
+        },
+        {
+          "level": 2,
+          "anchor": "spi-gasket",
+          "text": "4.9.4 SPI gasket"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "overview_of_systemc_features.html",
+      "name": "5 Overview of SystemC Features",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "simulation-control",
+          "text": "5.1 Simulation Control"
+        },
+        {
+          "level": 1,
+          "anchor": "logging",
+          "text": "5.2 Logging"
+        },
+        {
+          "level": 2,
+          "anchor": "redirecting-custom-api-logs",
+          "text": "5.2.1 Redirecting Custom API Logs"
+        },
+        {
+          "level": 1,
+          "anchor": "proxy-objects",
+          "text": "5.3 Proxy objects"
+        },
+        {
+          "level": 1,
+          "anchor": "systemc-signal-read-and-write",
+          "text": "5.4 SystemC Signal Read and Write"
+        },
+        {
+          "level": 1,
+          "anchor": "systemc-library-tools",
+          "text": "5.5 SystemC Library Tools"
+        },
+        {
+          "level": 2,
+          "anchor": "supported-systemc-objects",
+          "text": "5.5.1 Supported SystemC Objects"
+        },
+        {
+          "level": 2,
+          "anchor": "using-the-tools",
+          "text": "5.5.2 Using the Tools"
+        },
+        {
+          "level": 3,
+          "anchor": "dynamic-systemc-objects",
+          "text": "5.5.2.1 Dynamic SystemC Objects"
+        },
+        {
+          "level": 2,
+          "anchor": "sc_trace_tool",
+          "text": "5.5.3 sc_trace_tool"
+        },
+        {
+          "level": 2,
+          "anchor": "sc_break_tool",
+          "text": "5.5.4 sc_break_tool"
+        },
+        {
+          "level": 2,
+          "anchor": "sc_transaction_tracker_tool",
+          "text": "5.5.5 sc_transaction_tracker_tool"
+        },
+        {
+          "level": 2,
+          "anchor": "sc_protocol_checker_tool",
+          "text": "5.5.6 sc_protocol_checker_tool"
+        },
+        {
+          "level": 2,
+          "anchor": "sc_vcd_trace_tool",
+          "text": "5.5.7 sc_vcd_trace_tool"
+        },
+        {
+          "level": 1,
+          "anchor": "systemc-profiling",
+          "text": "5.6 SystemC Profiling"
+        },
+        {
+          "level": 2,
+          "anchor": "process-profiler",
+          "text": "5.6.1 Process Profiler"
+        },
+        {
+          "level": 2,
+          "anchor": "memory-profiling",
+          "text": "5.6.2 Memory Profiling"
+        },
+        {
+          "level": 1,
+          "anchor": "trigger-systemc-processes",
+          "text": "5.7 Trigger SystemC Processes"
+        },
+        {
+          "level": 1,
+          "anchor": "tlm-injection",
+          "text": "5.8 TLM Injection"
+        },
+        {
+          "level": 2,
+          "anchor": "writing-an-injector-for-a-custom-extension",
+          "text": "5.8.1 Writing an Injector for a Custom Extension"
+        },
+        {
+          "level": 1,
+          "anchor": "unconnected-ports",
+          "text": "5.9 Unconnected Ports"
+        },
+        {
+          "level": 1,
+          "anchor": "checkpointing",
+          "text": "5.10 Checkpointing"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "execution-of-systemc-models-in-the-simics-simulator.html",
+      "name": "6 Execution of SystemC Models in the Simics Simulator",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "systemc-simulation-time",
+          "text": "6.1 SystemC simulation time"
+        },
+        {
+          "level": 1,
+          "anchor": "simics-processors-driving-the-systemc-simulation",
+          "text": "6.2 Simics processors driving the SystemC simulation"
+        },
+        {
+          "level": 1,
+          "anchor": "performance-tuning",
+          "text": "6.3 Performance tuning"
+        },
+        {
+          "level": 2,
+          "anchor": "disable-dmi",
+          "text": "6.3.1 Disable DMI"
+        },
+        {
+          "level": 2,
+          "anchor": "change-adapter-frequency",
+          "text": "6.3.2 Change adapter frequency"
+        },
+        {
+          "level": 2,
+          "anchor": "scaling",
+          "text": "6.3.3 Scaling"
+        },
+        {
+          "level": 1,
+          "anchor": "performance-scaling",
+          "text": "6.4 Performance scaling"
+        },
+        {
+          "level": 2,
+          "anchor": "multimachine-accelerator-for-systemc",
+          "text": "6.4.1 Multimachine Accelerator for SystemC"
+        },
+        {
+          "level": 2,
+          "anchor": "multicore-accelerator-for-systemc",
+          "text": "6.4.2 Multicore Accelerator for SystemC"
+        },
+        {
+          "level": 2,
+          "anchor": "free-running",
+          "text": "6.4.3 Free running"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "limitations.html",
+      "name": "7 Limitations",
+      "headings": [],
+      "children": []
+    },
+    {
+      "file": "building-with-cmake.html",
+      "name": "8 Building with CMake",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "basic-structure",
+          "text": "8.1 Basic structure"
+        },
+        {
+          "level": 1,
+          "anchor": "boost-dependency",
+          "text": "8.2 Boost dependency"
+        },
+        {
+          "level": 1,
+          "anchor": "backwards-compatibility-hybrid-gnu-make-cmake-setup",
+          "text": "8.3 Backwards compatibility / hybrid GNU Make/CMake setup"
+        },
+        {
+          "level": 1,
+          "anchor": "building-the-static-libraries-as-part-of-the-project-build",
+          "text": "8.4 Building the static libraries as part of the project build"
+        },
+        {
+          "level": 1,
+          "anchor": "re-using-the-static-libraries-from-cache",
+          "text": "8.5 Re-using the static libraries from cache"
+        },
+        {
+          "level": 1,
+          "anchor": "configuration",
+          "text": "8.6 Configuration"
+        },
+        {
+          "level": 2,
+          "anchor": "options",
+          "text": "8.6.1 Options"
+        },
+        {
+          "level": 2,
+          "anchor": "variables",
+          "text": "8.6.2 Variables"
+        },
+        {
+          "level": 1,
+          "anchor": "cmakelists-txt-for-systemc-modules",
+          "text": "8.7 CMakeLists.txt for SystemC modules"
+        },
+        {
+          "level": 1,
+          "anchor": "things-to-note-about-the-modules-distributed-with-simics-1013-add-on-package",
+          "text": "8.8 Things to note about the modules distributed with Simics 1013 add-on package"
+        },
+        {
+          "level": 2,
+          "anchor": "they-are-conditional-on-the-systemc_intc_ext-cache-variable",
+          "text": "8.8.1 They are conditional on the SYSTEMC_INTC_EXT cache variable"
+        },
+        {
+          "level": 2,
+          "anchor": "they-are-conditional-on-the-systemc_kernel_version-cache-variable",
+          "text": "8.8.2 They are conditional on the SYSTEMC_KERNEL_VERSION cache variable"
+        },
+        {
+          "level": 1,
+          "anchor": "selecting-the-c-standard-is-important",
+          "text": "8.9 Selecting the C++ standard is important"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "building-required-libraries.html",
+      "name": "9 Building Required Libraries",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "the-systemc-libraries",
+          "text": "9.1 The SystemC Libraries"
+        },
+        {
+          "level": 1,
+          "anchor": "build-requirement-and-boost-dependency",
+          "text": "9.2 Build Requirement and Boost Dependency"
+        },
+        {
+          "level": 2,
+          "anchor": "boost-dependency",
+          "text": "9.2.1 Boost Dependency"
+        },
+        {
+          "level": 1,
+          "anchor": "library-order",
+          "text": "9.3 Library Order"
+        },
+        {
+          "level": 1,
+          "anchor": "build-script",
+          "text": "9.4 Build Script"
+        },
+        {
+          "level": 2,
+          "anchor": "usage",
+          "text": "Usage"
+        },
+        {
+          "level": 2,
+          "anchor": "options",
+          "text": "Options"
+        },
+        {
+          "level": 1,
+          "anchor": "build-options",
+          "text": "9.5 Build options"
+        },
+        {
+          "level": 1,
+          "anchor": "building-on-windows",
+          "text": "9.6 Building on Windows"
+        },
+        {
+          "level": 2,
+          "anchor": "building-the-modules-with-gnu-make-on-windows",
+          "text": "9.6.1 Building the modules with GNU Make on Windows"
+        },
+        {
+          "level": 2,
+          "anchor": "length-of-the-project-path",
+          "text": "9.6.2 Length of the project path"
+        },
+        {
+          "level": 1,
+          "anchor": "errors-when-building-the-systemc-libraries",
+          "text": "9.7 Errors When Building the SystemC Libraries"
+        },
+        {
+          "level": 1,
+          "anchor": "cached-libraries",
+          "text": "9.8 Cached libraries"
+        }
+      ],
+      "children": []
+    },
+    {
+      "file": "migration-guide-systemc.html",
+      "name": "10 Migration Guide SystemC Kernel",
+      "headings": [
+        {
+          "level": 1,
+          "anchor": "migrate-from-2-3-1-to-2-3-3",
+          "text": "10.1 Migrate from 2.3.1 to 2.3.3"
+        },
+        {
+          "level": 1,
+          "anchor": "migrate-from-2-3-3-to-2-3-4",
+          "text": "10.2 Migrate from 2.3.3 to 2.3.4"
+        },
+        {
+          "level": 1,
+          "anchor": "migrate-from-2-3-4-to-3-0-0",
+          "text": "10.3 Migrate from 2.3.4 to 3.0.0"
+        }
+      ],
+      "children": []
+    }
+  ]
+}

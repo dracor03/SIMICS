@@ -1,0 +1,52 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>&lt;probe_streamer&gt;.reset-session</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-cmd-probe_streamer.remove-probe.html">&lt;probe_streamer&gt;.remove-probe</a>
+<a href="rm-cmd-probe_streamer.sampling-settings.html">&lt;probe_streamer&gt;.sampling-settings</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds-chapter.html">3 Commands</a>
+&nbsp;/&nbsp;
+<a href="rm-cmds.html">3.2 Command List</a>
+&nbsp;/&nbsp;</div><a name="probe_streamer.reset-session"></a>
+<h1 id="probe_streamer.reset-session"><a href="#probe_streamer.reset-session">&lt;probe_streamer&gt;.reset-session</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="synopsis">
+<a href="#synopsis">Synopsis</a>
+</h2>
+<b>&lt;probe_streamer&gt;.reset-session</b><br>
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Reset the probes' start values. This causes the future session and delta values to be calculated based from the current values, and not from the values when the probe was originally added to the probe_streamer.
+<p>
+This can be useful between the <code>&lt;probe_streamer&gt;.stop</code> and <code>&lt;probe_streamer&gt;.start</code> commands, for example, to start measurement at wallclock zero. 
+</p><h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.probe-monitor.html">probe-monitor</a>
+<h2 id="see-also">
+<a href="#see-also">See Also</a>
+</h2>
+<a href="rm-cmd-probe_streamer.add-probe.html">&lt;probe_streamer&gt;.add-probe</a>, 
+<a href="rm-cmd-probe_streamer.delete.html">&lt;probe_streamer&gt;.delete</a>, 
+<a href="rm-cmd-probe_streamer.force-sample.html">&lt;probe_streamer&gt;.force-sample</a>, 
+<a href="rm-cmd-probe_streamer.list-probe-collection.html">&lt;probe_streamer&gt;.list-probe-collection</a>, 
+<a href="rm-cmd-probe_streamer.load-probe-collection.html">&lt;probe_streamer&gt;.load-probe-collection</a>, 
+<a href="rm-cmd-probe_streamer.remove-probe.html">&lt;probe_streamer&gt;.remove-probe</a>, 
+<a href="rm-cmd-probe_streamer.sampling-settings.html">&lt;probe_streamer&gt;.sampling-settings</a>, 
+<a href="rm-cmd-probe_streamer.start.html">&lt;probe_streamer&gt;.start</a>, 
+<a href="rm-cmd-probe_streamer.stop.html">&lt;probe_streamer&gt;.stop</a>, 
+<a href="rm-cmd-probe_streamer.summary.html">&lt;probe_streamer&gt;.summary</a>
+</section>
+<div class="chain">
+<a href="rm-cmd-probe_streamer.remove-probe.html">&lt;probe_streamer&gt;.remove-probe</a>
+<a href="rm-cmd-probe_streamer.sampling-settings.html">&lt;probe_streamer&gt;.sampling-settings</a>
+</div>

@@ -1,0 +1,63 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2.2 Target System IP Address</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="target-network-card.html">2.1 Target System Network Card</a>
+<a href="setup-windows-debug.html">2.3 Setting up Windows Target for Debug</a>
+</div>
+<div class="path">
+<a href="index.html">Windows Kernel Debugging</a>
+&nbsp;/&nbsp;
+<a href="network-debugging.html">2 Windows Kernel Debugging Over a Network</a>
+&nbsp;/&nbsp;</div><h1 id="target-system-ip-address"><a href="#target-system-ip-address">2.2 Target System IP Address</a></h1>
+<p>Given a working network card, the next step is to check which IP address the target system is using inside the simulated network. This would normally be provided over DHCP from a Simics Service Node - it defaults to the 10.10.0.x range on the <code>QSP-x86</code>, but it varies from target to target.</p>
+<p>To check the IP address, start a <code>CMD</code> on the target and use the command <code>ipconfig</code>:</p>
+<pre><code>C:\Windows\System32&gt;ipconfig.exe
+
+Windows IP Configuration
+
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . : network.sim
+   IPv6 Address. . . . . . . . . . . : 11:2233:4455:6677:f4bc:e2b1:6094:1dc1
+   Temporary IPv6 Address. . . . . . : 11:2233:4455:6677:fdbd:e3ce:f40e:c1fa
+   Link-local IPv6 Address . . . . . : fe80::f4bc:e2b1:6094:1dc1%26
+   IPv4 Address. . . . . . . . . . . : 10.10.0.100
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 10.10.0.1
+
+Ethernet adapter vEthernet (Default Switch):
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : fe80::ad9f:c64b:63c5:440f%16
+   IPv4 Address. . . . . . . . . . . : 172.17.18.145
+   Subnet Mask . . . . . . . . . . . : 255.255.255.240
+   Default Gateway . . . . . . . . . :
+  
+</code></pre>
+<p>In addition, you need to know the IP address of the service node that works as the default gateway - which ipconfig also returns. To double-check, also run the <code>info</code> command on the service node in Simics:</p>
+<pre><code>running&gt; service_node_cmp0.sn.info
+Information about service_node_cmp0.sn [class service-node]
+===========================================================
+
+Interface 'service_node_cmp0.snd[0]':
+                 Network : &lt;the eth-switch-link 'ethernet_switch0.link'&gt; (via
+                           ethernet_switch0.epaa8a1a0ce658ccc0)
+             MAC address : 20:20:20:20:20:00
+            IP addresses : 10.10.0.1/24
+                           ff02::1:2/64
+                           fe80::2220:20ff:fe20:2000/64
+                     MTU : 1500
+...
+  
+</code></pre>
+
+<div class="chain">
+<a href="target-network-card.html">2.1 Target System Network Card</a>
+<a href="setup-windows-debug.html">2.3 Setting up Windows Target for Debug</a>
+</div>

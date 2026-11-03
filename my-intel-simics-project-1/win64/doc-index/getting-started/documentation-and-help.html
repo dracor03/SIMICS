@@ -1,0 +1,122 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>7 Documentation and Help</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="hardware-inspection.html">6 Hardware Inspection</a>
+<a href="tutorials.html">8 Tutorials</a>
+</div>
+<div class="path">
+<a href="index.html">Getting Started</a>
+&nbsp;/&nbsp;</div><h1 id="documentation-and-help"><a href="#documentation-and-help">7 Documentation and Help</a></h1>
+<h2 id="documentation"><a href="#documentation">7.1 Documentation</a></h2>
+<p>To access the documentation run the <code>documentation.bat</code> (<code>documentation</code> on
+Linux) script in your project. The script will index all the documents for the
+packages associated with your project, and then it will open the documentation
+in your web browser.</p>
+<h2 id="the-help-system"><a href="#the-help-system">7.2 The Help System</a></h2>
+<p>The CLI provides a few commands that assist in exploring large simulated
+systems, and for exploring the CLI.</p>
+<p>Such a command is <code>help</code>. Use it to receive help about almost anything in the
+simulator that has a name, in particular the commands you have seen in this
+document, and which you will see in the rest of the Intel Simics documentation.</p>
+<p>Another important command is <code>help-search</code>, also known as <code>apropos</code>. It can be
+used to search the reference documentation for a particular text string.</p>
+<blockquote class="markdown-alert-note">
+<p>Both <code>help</code> and <code>apropos</code> limit their search to documentation about
+everything that is currently loaded in the simulator. This means it is
+usually best to run them after you have loaded the target system you want to
+explore.</p>
+</blockquote>
+<p>A simulation is built up by objects. Objects can provide <em>namespaced</em> commands,
+that is, commands on the format <code>&lt;object-name&gt;.&lt;command-name&gt;</code>. Different kinds
+of objects provides different namespaced commands. The <em>namespaced</em> command is
+either registered on an <em>interface</em> or on a <em>class</em>.</p>
+<p>Sometimes you know of an interesting namespaced command you want to use, for
+example the <code>input</code> command, but you don’t know which objects provide the
+command. To find those objects, first use the <code>apropos</code> command to find which
+kinds of objects that provide the command:</p>
+<pre><code class="language-simics">simics&gt; <strong>apropos input</strong>
+The text 'input' appears in the documentation
+for the following items:
+
+Command        &lt;bp-manager.con-string&gt;.wait-then-write
+Command        &lt;graphcon&gt;.grab-setup
+Command        &lt;graphcon&gt;.input
+Command        &lt;graphcon&gt;.input-file
+Command        &lt;os_awareness&gt;.find
+Command        &lt;recorder&gt;.playback-start
+Command        &lt;recorder&gt;.recorder-start
+Command        &lt;recorder&gt;.recorder-stop
+Command        &lt;textcon&gt;.input
+...
+</code></pre>
+<p>As an alternative to <code>apropos</code>, which searches all documentation for loaded
+modules, we can limit the result to only commands by using <code>list-commands</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>list-commands substr = input</strong>
+┌─────────────────────┬───────────────────────────┐
+│       Command       │     Short Description     │
+├─────────────────────┼───────────────────────────┤
+│&lt;graphcon&gt;.input     │send string to a console   │
+│&lt;graphcon&gt;.input-file│input a file into a console│
+│&lt;textcon&gt;.input      │send input to a console    │
+│&lt;textcon&gt;.input-file │input a file into a console│
+└─────────────────────┴───────────────────────────┘
+</code></pre>
+<p>The <code>input</code> command is provided by <code>graphcon</code> and <code>textcon</code>.
+Let’s focus on <code>textcon</code>.
+First we determine if <code>textcon</code> is a <em>interface</em> or a <em>class</em>.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-interfaces substr = textcon</strong>
+No match for substr 'textcon'  
+simics&gt; <strong>list-classes substr = textcon</strong>
+The following classes are available:
+┌───────┬─────────────────┐
+│ Class │Short description│
+├───────┼─────────────────┤
+│textcon│text console     │
+└───────┴─────────────────┘
+</code></pre>
+<p>The <code>textcon</code> clearly references a <em>class</em>. Now we can use the <code>list-objects</code>
+command to find all objects of the <code>textcon</code> class.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects class = textcon</strong>
+┌────────────────────┬─────────┐
+│       Object       │  Class  │
+├────────────────────┼─────────┤
+│board.serconsole.con│&lt;textcon&gt;│
+└────────────────────┴─────────┘
+</code></pre>
+<p>Evidently, the only <code>textcon</code> object in the target system is
+<code>board.serconsole.con</code>.</p>
+<p>From the result of <code>apropos</code> and <code>list-objects</code> we now know that there is a
+command <code>board.serconsole.con.input</code>:</p>
+<pre><code class="language-simics">simics&gt; <strong>help board.serconsole.con.input</strong>
+Command &lt;textcon&gt;.input
+
+   Synopsis
+      &lt;textcon&gt;.input "string" [-e]
+
+   Description
+      Send string to the text console.
+...
+</code></pre>
+<p>The <code>list-objects</code> command, and many other commands can handle the <em>namespace
+hierarchy</em> of objects. For example, if we know that we were looking for a
+<code>textcon</code> class hierarchically under <code>board</code>, we would use the <code>namespace</code>
+argument.</p>
+<pre><code class="language-simics">simics&gt; <strong>list-objects namespace = board class = textcon</strong>
+┌────────────────────┬─────────┐
+│       Object       │  Class  │
+├────────────────────┼─────────┤
+│board.serconsole.con│&lt;textcon&gt;│
+└────────────────────┴─────────┘
+</code></pre>
+<p>These simple commands go a long way when you want to explore the Intel Simics
+simulator.</p>
+
+<div class="chain">
+<a href="hardware-inspection.html">6 Hardware Inspection</a>
+<a href="tutorials.html">8 Tutorials</a>
+</div>

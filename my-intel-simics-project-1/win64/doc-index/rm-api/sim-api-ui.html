@@ -1,0 +1,389 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>User Interface</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="sim-api-events.html">Time and Events</a>
+<a href="sim-api-obsolete.html">Obsolete Simulator API Functions</a>
+</div>
+<div class="path">
+<a href="index.html">API Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="simulator-api.html">Simulator API</a>
+&nbsp;/&nbsp;
+<a href="simulator-api-functions.html">Simulator API Functions</a>
+&nbsp;/&nbsp;</div>
+<h1>User Interface</h1>
+<h2 id="SIM_call_python_function"><a href="#SIM_call_python_function">SIM_call_python_function</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_call_python_function — call a Python named function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_call_python_function(const char *NOTNULL func, attr_value_t *NOTNULL args);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_call_python_function(...)
+</code></pre>
+<h2>Description</h2>
+<p>Calls the Python function named <code>func</code> with arguments in <code>args</code>, which must be a list.</p>
+<p>The namespace searched for <code>func</code> is the same as the Simics commands <a href="../rm-base/rm-cmd-_at_.html"><code>@</code></a> and <a href="../rm-base/rm-cmd-python.html"><code>python</code></a> use; i.e., the Python module <code>__main__</code>. You may want to use a module-relative name for <code>func</code> such as <code>__builtin__.repr</code> when calling functions not defined at the Simics command-line. This avoids calling any local redefinition of that function.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Type</strong> Thrown if <code>args</code> is not list or cannot be converted to Python or if <code>func</code> is not callable or if the return value cannot be converted to an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a>.</p>
+<p><strong>SimExc_Lookup</strong> Thrown if <code>func</code> does not exist.</p>
+<p><strong>SimExc_General</strong> Thrown if there was an error executing Python code.</p>
+<p><strong>SimExc_Break</strong> Thrown on user interrupt.</p>
+<h2>Return Value</h2>
+<p>Return value of the Python function</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+<h2>See Also</h2>
+<p><a href="dev-api-attr-value-t.html#SIM_make_attr_list"><code>SIM_make_attr_list</code></a>, <a href="sim-api-ui.html#SIM_run_python"><code>SIM_run_python</code></a></p>
+</section>
+<h2 id="SIM_call_python_module_function"><a href="#SIM_call_python_module_function">SIM_call_python_module_function, SIM_pyfunref_import, SIM_pyfunref_call, SIM_pyfunref_free</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_call_python_module_function, SIM_pyfunref_import, SIM_pyfunref_call, SIM_pyfunref_free — call a Python function</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_call_python_module_function(
+        const char *NOTNULL module, const char *func, unsigned nargs, ...);
+
+pyfunref_t *
+SIM_pyfunref_import(const char *NOTNULL module, const char *NOTNULL func);
+
+attr_value_t
+SIM_pyfunref_call(pyfunref_t *NOTNULL func, unsigned nargs, ...);
+
+void
+SIM_pyfunref_free(pyfunref_t *func);
+</code></pre>
+<h2>Description</h2>
+<p>The function <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_import</code></a> imports a function from a Python module. The function <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_call</code></a> calls a previously imported function. The function <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_free</code></a> disposes a function reference previously returned from <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_import</code></a>. <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_call_python_module_function</code></a> is a convenience function that does all three.</p>
+<p>The <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_call_python_module_function</code></a> function is the easiest and most straightforward way to cover most use cases, but it can only be called from Global Context. If you need to call Python functions from Cell Context or Threaded Context, then you need to import the function in advance, typically when your module is loaded, using <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_import</code></a>. This allows you to call the Python function from Threaded Context using the <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_call</code></a> function.</p>
+<p>The <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_free</code></a> function is provided for completeness; in most cases, python functions are imported by a Simics module upon load, and since Simics modules cannot be unloaded the function never needs to be disposed.</p>
+<p>The functions <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_import</code></a> and <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_call_python_module_function</code></a> describe the Python function using two strings, <code>module</code> and <code>func</code>, where <code>module</code> is the fully qualified name of a Python module, and <code>func</code> is the name of a function within that module. Both strings can be dot-delimited, as in <code>"importable.module"</code> and <code>"object.attr"</code>.</p>
+<p>In the functions <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_pyfunref_call</code></a> and <a href="sim-api-ui.html#SIM_call_python_module_function"><code>SIM_call_python_module_function</code></a>, the positional arguments of the Python function are specified with a variable number of <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> values, using the same varargs format as the <a href="dev-api-attr-value-t.html#SIM_make_attr_list"><code>SIM_make_attr_list</code></a> function. The returned value of the Python function is converted to a value of <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> type. The function arguments are automatically freed, whereas ownership of the return value is passed to the caller.</p>
+<p>The called function needs to fulfill certain criteria:</p>
+<ul>
+<li>It must accept arguments of types representable using the <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a> type, such as <code>bool</code>, <code>int</code>, <code>str</code>, <code>bytes</code>, <code>float</code>, the value <code>None</code>, or nested lists thereof.</li>
+<li>The return value must be representable using the <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a>.</li>
+<li>The function may not throw an exception.</li>
+</ul>
+<p>It is considered an error if any one of these is not fulfilled; if this happens, then an error message is printed in an intrusive manner, with a traceback if applicable, and an invalid attribute value is returned. There is no graceful way to handle errors.</p>
+<p>If a Python function does not fulfill the above criteria, then the function should not be called directly by this function. Instead it can be wrapped in another function that does fulfill them, e.g. by translating exceptions into an explicit out-of-band return value, or by transforming arguments or the return value to a supported format.</p>
+<h2>Execution Context</h2>
+<table><thead><tr><th>Function</th><th>Context</th></tr></thead><tbody>
+<tr><td><code>SIM_call_python_module_function</code></td><td>Global Context</td></tr>
+<tr><td><code>SIM_pyfunref_call</code></td><td>Cell Context</td></tr>
+<tr><td><code>SIM_pyfunref_free</code></td><td>Threaded Context</td></tr>
+<tr><td><code>SIM_pyfunref_import</code></td><td>Global Context</td></tr>
+</tbody></table>
+</section>
+<h2 id="SIM_get_api_function"><a href="#SIM_get_api_function">SIM_get_api_function, GET_API_FUNCTION, api_function_t</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_api_function, GET_API_FUNCTION, api_function_t — return an API function by name</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/device-api.h&gt; // in C
+// always available in DML
+
+api_function_t
+SIM_get_api_function(const char *function);
+
+typedef void (*api_function_t)(void);
+
+// not available in DML
+
+GET_API_FUNCTION(v, f);
+</code></pre>
+<h2>Description</h2>
+<p>Looks up a C function in the Simics API based on its name and returns a pointer to it. Typically used to access a function added to the Simics API in an update release (minor version) while remaining binary compatible with older versions of Simics.</p>
+<p>The pre-processor macro <code>GET_API_FUNCTION</code> provides wrapping of <code>SIM_get_api_function</code> for simpler type casting.</p>
+<p><code>SIM_get_api_function</code> is neither available nor needed in Python. Code examples showing how to access a new function in a backward compatible in Python are provided below.</p>
+<h2>Example</h2>
+<p>A new function <code>SIM_foo</code> is introduced in the Simics release with <em>build id</em> 5234. Since older versions of Simics do not have this function, a module writer that wants to use it while remaining compatible with old Simics versions, can write the following:</p>
+<pre><code>GET_API_FUNCTION(tmp_SIM_foo, SIM_foo);
+if (tmp_SIM_foo != nullptr)
+    tmp_SIM_foo(1);
+else
+    // code for older versions
+</code></pre>
+<p>Once compatibility with versions before build id 5234 can be dropped, the code in the example is simply replaced with a direct call to <code>SIM_foo</code>.</p>
+<p>In Python, one can check whether the function is present like this:</p>
+<pre><code>if hasattr(simics, 'SIM_foo'):
+    simics.SIM_foo(1)
+else:
+    # code for older versions
+</code></pre>
+<p>Another alternative for Python code is to check the build id value:</p>
+<pre><code>if conf.sim.build_id &gt;= 5234:
+    simics.SIM_foo(1)
+else:
+    # code for older versions
+</code></pre>
+<h2>Return Value</h2>
+<p>Returns a pointer to the API function if it exists or zero.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_batch_mode"><a href="#SIM_get_batch_mode">SIM_get_batch_mode</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_batch_mode — return setting of the batch-mode</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+bool
+SIM_get_batch_mode();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_batch_mode(...)
+</code></pre>
+<h2>Description</h2>
+<p>This function returns the current value of Simics’s batch-mode flag.</p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_get_debugger"><a href="#SIM_get_debugger">SIM_get_debugger</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_get_debugger — return the debugger object</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+conf_object_t *
+SIM_get_debugger();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_get_debugger(...)
+</code></pre>
+<h2>Description</h2>
+<p>Returns the Simics Debugger. The returned object is the object which implements the Simics Debugger API. The debugger object is created if it does not already exist. Returns <code>nullptr</code> and signals an exception if the debugger could not be created.</p>
+<h2>Return Value</h2>
+<p>Returns the debugger object</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if the debugger could not be created.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_load_target"><a href="#SIM_load_target">SIM_load_target</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_load_target — load Simics target from file</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_load_target(const char *NOTNULL target,
+                const char *ns, attr_value_t presets,
+                attr_value_t cmdline_args);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_load_target(...)
+</code></pre>
+<h2>Description</h2>
+<p>Load the target <code>target</code> into Simics. This can either be a file name or a target name, as returned by the <a href="../rm-base/rm-cmd-list-targets.html"><code>list-targets</code></a> command.</p>
+<p>This function is functionally equivalent to invoking the script by passing it as a command line argument or to running the script with the <a href="../rm-base/rm-cmd-load-target.html"><code>load-target</code></a> or <a href="../rm-base/rm-cmd-run-script.html"><code>run-script</code></a> command, with the <code>local</code> flag set.</p>
+<p>The <code>ns</code> and <code>presets</code> arguments have the same semantics as <code>namespace</code> and <code>presets</code> arguments to the <a href="../rm-base/rm-cmd-run-script.html"><code>run-script</code></a> command. Each preset can be specified either as a file path or as a preset name, as returned by <code>list-presets</code>.</p>
+<p>The <code>cmdline_args</code> argument should be a list of 2-element lists of target parameters <code>[name, value]</code>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Break</strong> Thrown if the script was interrupted by the user.</p>
+<p><strong>SimExc_General</strong> Thrown if the script was interrupted by an error.</p>
+<p><strong>SimExc_IOError</strong> Thrown if the target or a preset could not be found or opened.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_quit"><a href="#SIM_quit">SIM_quit</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_quit — quit Simics</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_quit(int exit_code);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_quit(...)
+</code></pre>
+<h2>Description</h2>
+<p>Quit Simics in an orderly fashion. The Simics process will return the value <code>exit_code &amp; 0xFF</code>, since the <code>exit(3)</code> call from the C standard library is used (see its man page). See the <a href="../rm-base/rm-haps.html#Core_Clean_At_Exit"><code>Core_Clean_At_Exit</code></a> and <a href="../rm-base/rm-haps.html#Core_At_Exit"><code>Core_At_Exit</code></a> haps for ways to run user code when Simics exits. Callbacks for the <code>Core_Clean_At_Exit</code> hap will only run if <code>SIM_quit</code> is called from Global Context, while <code>Core_At_Exit</code> is always called.</p>
+<h2>Execution Context</h2>
+<p>Cell Context. Global Context if possible.</p>
+</section>
+<h2 id="SIM_run_command"><a href="#SIM_run_command">SIM_run_command</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_run_command — evaluate a CLI command</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_run_command(const char *NOTNULL line);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_run_command(...)
+</code></pre>
+<h2>Description</h2>
+<p>Runs a CLI command and returns the value, if any, as an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a>.</p>
+<p>When called from C, the returned value should be deallocated using <a href="dev-api-attr-value-t.html#SIM_attr_free"><code>SIM_attr_free</code></a>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if there was an error executing the CLI command.</p>
+<p><strong>SimExc_Type</strong> Thrown if the return value could not be converted to an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a>.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_run_command_file"><a href="#SIM_run_command_file">SIM_run_command_file_params, SIM_run_command_file</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_run_command_file_params, SIM_run_command_file — read CLI commands from file</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_run_command_file_params(const char *NOTNULL file, bool local,
+                            attr_value_t params);
+
+void
+SIM_run_command_file(const char *NOTNULL file, bool local);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_run_command_file_params(...)
+simics.SIM_run_command_file(...)
+</code></pre>
+<h2>Description</h2>
+<p>Read and execute the script file <code>file</code>; i.e., execute each line in the file as if it was typed at the Simics prompt.</p>
+<p>This function is functionally equivalent to invoking the script by passing it as a command line argument or to running the script with the <a href="../rm-base/rm-cmd-run-command-file.html"><code>run-command-file</code></a> command.</p>
+<p>If <code>local</code> is true, the script will run with its own copy of all global CLI variables. When the script has finished executing, the previous variable set is restored.</p>
+<p>The <code>params</code> argument can be used to pass parameters to the script. It must be a list of name-value pairs of strings, for example, from Python it could be <code>[["num_cores", "4"], ["memory_megs", "1024"]]</code>.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_Break</strong> Thrown if the script was interrupted by the user.</p>
+<p><strong>SimExc_General</strong> Thrown if the script was interrupted by an error.</p>
+<p><strong>SimExc_IOError</strong> Thrown if the script file could not be opened.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<h2 id="SIM_run_python"><a href="#SIM_run_python">SIM_run_python</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_run_python — run a Python expression</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+attr_value_t
+SIM_run_python(const char *NOTNULL line);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_run_python(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_run_python</code> runs a Python expression or statement. The return value, if any, is converted to a Simics attribute value. If <code>line</code> is a statement, a NIL attribute is returned.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if there was an error executing Python code.</p>
+<p><strong>SimExc_Type</strong> Thrown if the return value could not be converted to an <a href="dev-api-types-generic.html#attr_value_t"><code>attr_value_t</code></a>.</p>
+<p><strong>SimExc_Break</strong> Thrown on user interrupt.</p>
+<h2>See Also</h2>
+<p><a href="sim-api-ui.html#SIM_call_python_function"><code>SIM_call_python_function</code></a></p>
+<h2>Execution Context</h2>
+<p>Cell Context</p>
+</section>
+<h2 id="SIM_shutdown"><a href="#SIM_shutdown">SIM_shutdown</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_shutdown — shutdown Simics</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_shutdown();
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_shutdown(...)
+</code></pre>
+<h2>Description</h2>
+<p>Perform the same clean up as <a href="sim-api-ui.html#SIM_quit"><code>SIM_quit</code></a>, but do not exit the process. After having called this function, no Simics API function can be called.</p>
+<h2>Execution context</h2>
+<p>Cell Context. Global Context if possible.</p>
+</section>
+<h2 id="SIM_source_python"><a href="#SIM_source_python">SIM_source_python, SIM_source_python_in_module</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2>Name</h2>
+<p>SIM_source_python, SIM_source_python_in_module — execute Python source file</p>
+<h2>Synopsis</h2>
+<h3>C and DML</h3>
+<pre><code>#include &lt;simics/simulator-api.h&gt; // in C
+import "simics/simulator-api.dml"; // in DML
+
+void
+SIM_source_python(const char *NOTNULL file);
+
+void
+SIM_source_python_in_module(const char *NOTNULL file,
+                            const char *NOTNULL module);
+</code></pre>
+<h3>Python</h3>
+<pre><code>import simics
+
+simics.SIM_source_python(...)
+simics.SIM_source_python_in_module(...)
+</code></pre>
+<h2>Description</h2>
+<p><code>SIM_source_python</code> executes Python from <code>file</code> in the global Python scope. <code>SIM_source_python_in_module</code> is similar but executes the file contents in a named Python module.</p>
+<h2>Exceptions</h2>
+<p><strong>SimExc_General</strong> Thrown if there was an error executing Python code.</p>
+<p><strong>SimExc_IOError</strong> Thrown if there was an error opening the file.</p>
+<p><strong>SimExc_Break</strong> Thrown on user interrupt.</p>
+<h2>Execution Context</h2>
+<p>Global Context</p>
+</section>
+<div class="chain">
+<a href="sim-api-events.html">Time and Events</a>
+<a href="sim-api-obsolete.html">Obsolete Simulator API Functions</a>
+</div>

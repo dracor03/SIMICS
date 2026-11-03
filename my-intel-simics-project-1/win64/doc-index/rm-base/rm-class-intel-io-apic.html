@@ -1,0 +1,282 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>intel-io-apic</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-instrumentation_filter_aggregator.html">instrumentation_filter_aggregator</a>
+<a href="rm-class-interface_histogram_tool.html">interface_histogram_tool</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="intel-io-apic"><a href="#intel-io-apic">intel-io-apic</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+The IOAPIC device implements the functionality of the Intel® 82093AA I/O-APIC. The IOAPIC is connected to an APIC-bus.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, dml_reset, ioapic, translator
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:apic_bus-optional"><a href="#dt:apic_bus-optional">apic_bus (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: apic_bus
+</dd>
+<dt id="dt:chipset_conf-optional"><a href="#dt:chipset_conf-optional">chipset_conf (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: int_register
+</dd>
+<dt id="dt:lpc_pci_config_connect-optional"><a href="#dt:lpc_pci_config_connect-optional">lpc_pci_config_connect (optional)</a></dt>
+<dd>
+<b>Optional interfaces</b>: int_register, register_view
+</dd>
+<dt id="dt:mem_msi-optional"><a href="#dt:mem_msi-optional">mem_msi (optional)</a></dt>
+<dd>
+<b>Optional interfaces</b>: io_memory, memory_space, port_space, ram, rom, transaction, transaction_translator, translator
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+<dt id="dt:state-change"><a href="#dt:state-change">state-change</a></dt>
+<dd>Notifier on potential DML state change</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:bank-regs"><a href="#dt:bank-regs">bank.regs</a></dt>
+<dd>
+<a href="rm-class-intel-io-apic.html#intel-io-apic.regs">intel-io-apic.regs</a>
+</dd>
+<dt id="dt:port-reset"><a href="#dt:port-reset">port.RESET</a></dt>
+<dd>
+<a href="rm-class-intel-io-apic.html#intel-io-apic.RESET">intel-io-apic.RESET</a>
+ – RESET port</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-intel-io-apic.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-intel-io-apic.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="commands-for-interface-translator">
+<a href="#commands-for-interface-translator">Commands for interface translator</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-translator.memory-map.html">memory-map</a>
+ – print physical memory map</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:apic_bus"><a href="#dt:apic_bus">
+<i>apic_bus</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>APIC bus to send interrupts to
+<p>
+Required interface: <tt>apic_bus</tt></p></dd>
+<dt id="dt:boot_configuration"><a href="#dt:boot_configuration">
+<i>boot_configuration</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Shortcut to bank.regs.boot_configuration</dd>
+<dt id="dt:chipset_conf"><a href="#dt:chipset_conf">
+<i>chipset_conf</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Object implementing int_register interface (used for accesses to lpc RCBA configuration registers)
+<p>
+Required interface: <tt>int_register</tt></p></dd>
+<dt id="dt:edid_size"><a href="#dt:edid_size">
+<i>edid_size</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>RW part of EDID field in redirection entry. Writeable EDID is [48 + edid_size - 1 : 48]. Zero means no EDID.</dd>
+<dt id="dt:ibdf_def_value"><a href="#dt:ibdf_def_value">
+<i>ibdf_def_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Default value of the IBDF register used if lpc isn't connected</dd>
+<dt id="dt:ioapic_id"><a href="#dt:ioapic_id">
+<i>ioapic_id</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Shortcut to bank.regs.ioapic_id</dd>
+<dt id="dt:ioapic_version"><a href="#dt:ioapic_version">
+<i>ioapic_version</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Shortcut to bank.regs.ioapic_version</dd>
+<dt id="dt:ioapic_version_once_ref"><a href="#dt:ioapic_version_once_ref">
+<i>ioapic_version_once_ref</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Initialize to 0 to enable RWO behavior on the IOAPIC version register. Otherwise (the default) the register is read-only. Allowed values are: 0=RWO not yet written, 1=RWO written, 2=always read-only.</dd>
+<dt id="dt:lpc_pci_config"><a href="#dt:lpc_pci_config">
+<i>lpc_pci_config</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n|[oss]|[osi]</code>
+<br>Configuration info describing how to get the IBDF value from LPC PCI configuration registers. The accepted inputs are: <br>
+<ul><li> Nothing. The default IBDF will be used.</li><li> An object implementing int_register and/or register_view (int_register is preferred).For int_register, the default ibdf register name will be used to fetch the IBDF. For register_view it will be always register 0.</li><li> A named port implementing int_register and/or register_view (int_register is preferred).For int_register, the default ibdf register name will be used to fetch the IBDF. For register_view it will be always register 0.</li><li> A list of object, string and string. The object and first string define who implements int_register/register_view. If the string is empty, it is just the object. If the string is non-empty, object and string form a named port. The second string is the register name to be used to fetch the IBDF via int_register.</li><li> A list of object, string and integer. The object and string define who implements int_register. If the string is empty, it is just the object. If the string is non-empty, object and string form a named port. The integer is the register ID to be used with int_register/register_view to fetch the IBDF.</li></ul></dd>
+<dt id="dt:mem_msi"><a href="#dt:mem_msi">
+<i>mem_msi</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|[os]|n</code>
+<br>Target to send MSI to
+<p>
+Optional interfaces: <tt>io_memory</tt>, <tt>memory_space</tt>, <tt>port_space</tt>, <tt>ram</tt>, <tt>rom</tt>, <tt>transaction</tt>, <tt>transaction_translator</tt>, <tt>translator</tt></p></dd>
+<dt id="dt:redirection_vector_read_only"><a href="#dt:redirection_vector_read_only">
+<i>redirection_vector_read_only</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Set to True if interrupt vectors in redirection table should be read-only</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.io-apic.html">io-apic</a>
+</section>
+<h2 id="intel-io-apic.RESET"><a href="#intel-io-apic.RESET">intel-io-apic.RESET</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+RESET port
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<h2 id="intel-io-apic.regs"><a href="#intel-io-apic.regs">intel-io-apic.regs</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="interfaces-implemented-3">
+<a href="#interfaces-implemented-3">Interfaces Implemented</a>
+</h2>conf_object, log_object, bank_instrumentation_subscribe, instrumentation_order, register_view, register_view_catalog, register_view_read_only, transaction
+<h2 id="notifiers-3">
+<a href="#notifiers-3">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-3"><a href="#dt:cell-change-3">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-3"><a href="#dt:object-delete-3">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-3"><a href="#dt:queue-change-3">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-interface-bank_instrumentation_subscribe">
+<a href="#commands-for-interface-bank_instrumentation_subscribe">Commands for interface bank_instrumentation_subscribe</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-break-bank.html">bp-break-bank</a>
+ – set device access break</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-run-until-bank.html">bp-run-until-bank</a>
+ – run until specified device access occurs</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-trace-bank.html">bp-trace-bank</a>
+ – enable tracing of device accesses</li>
+<li>
+<a href="rm-cmd-bank_instrumentation_subscribe.bp-wait-for-bank.html">bp-wait-for-bank</a>
+ – wait for specified device access</li>
+</ul>
+<h2 id="commands-for-interface-instrumentation_order">
+<a href="#commands-for-interface-instrumentation_order">Commands for interface instrumentation_order</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-instrumentation-move.html">instrumentation-move</a>
+ – reorder instrumentation connections</li>
+<li>
+<a href="rm-cmd-instrumentation-order.html">instrumentation-order</a>
+ – list instrumentation order for object</li>
+</ul>
+<h2 id="commands-for-interface-transaction">
+<a href="#commands-for-interface-transaction">Commands for interface transaction</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-transaction.wait-for-get.html">wait-for-get</a>
+ – issue an inquiry read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-read.html">wait-for-read</a>
+ – issue a read transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-set.html">wait-for-set</a>
+ – issue an inquiry write transaction and wait for it to complete</li>
+<li>
+<a href="rm-cmd-transaction.wait-for-write.html">wait-for-write</a>
+ – issue a write transaction and wait for it to complete</li>
+</ul>
+</section>
+<div class="chain">
+<a href="rm-class-instrumentation_filter_aggregator.html">instrumentation_filter_aggregator</a>
+<a href="rm-class-interface_histogram_tool.html">interface_histogram_tool</a>
+</div>

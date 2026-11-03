@@ -1,0 +1,50 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>6 Simics Environment Interaction</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="processor-api-breakpoints.html">5 Breakpoints</a>
+<a href="simics-api-functions.html">7 Simics API Functions</a>
+</div>
+<div class="path">
+<a href="index.html">Processor Model Integration Guide</a>
+&nbsp;/&nbsp;</div><h1 id="simics-environment-interaction"><a href="#simics-environment-interaction">6 Simics Environment Interaction</a></h1>
+<p>How a processor model fits into the Simics environment is the topic of this Chapter.</p>
+<dl>
+<dt id="dt:simics-api"><a href="#dt:simics-api">Simics API</a></dt>
+<dd>Although the processor model does not directly expose any part of the Simics API, many API calls make use of the interfaces described in this document.</dd>
+<dt id="dt:command-line-interface"><a href="#dt:command-line-interface">Command Line Interface</a></dt>
+<dd>Some commands are bound to interfaces, and a processor model that implements a set of interfaces therefore automatically gets a set of commands defined.
+See Section <a class="reference" href="controlling-and-inspecting-processor-state.html#commands">4.1</a> for more information about such commands.
+The processor model can implement additional commands beyond the pre-defined commands.</dd>
+<dt id="dt:debug-functionality"><a href="#dt:debug-functionality">Debug Functionality</a></dt>
+<dd>Low-level debug functionality that can be supported by a processor model is breakpoints (see Chapter <a class="reference" href="processor-api-breakpoints.html">5</a>) and the <code>context_handler</code> interface.
+The <code>context_handler</code> interface is used by a context switcher object to change target software context based on information from an operating system awareness module.</dd>
+<dt id="dt:checkpointing"><a href="#dt:checkpointing">Checkpointing</a></dt>
+<dd>Just like any other model, a processor model needs to properly save and restore all simulated state through attributes to support checkpointing.</dd>
+<dt id="dt:snapshots-in-memory"><a href="#dt:snapshots-in-memory">Snapshots (In-memory)</a></dt>
+<dd>In-memory snapshots have the same requirements as checkpoints written to disk.</dd>
+<dt id="dt:system-model-devices"><a href="#dt:system-model-devices">System Model Devices</a></dt>
+<dd>Device models interact with the processor model through interfaces and can be reused as is when using a new processor model.
+Naturally, modifications need to be made if a different system is to be simulated.
+Close interaction with the system model builder is typically needed when changing the CPU model.
+For some system models, information about this is covered in the associated target guide.</dd>
+<dt id="dt:system-model-components"><a href="#dt:system-model-components">System Model Components</a></dt>
+<dd>Components are usually built to abstract away the low-level configuration of a model.
+Components for a user defined processor model can usually be derived from a Simics-provided component with only minor changes needed to bridge low-level differences in attributes and configuration.</dd>
+<dt id="dt:operating-system-awareness"><a href="#dt:operating-system-awareness">Operating System Awareness</a></dt>
+<dd>The Simics environment provides support for application debugging and analysis through operating system awareness modules that define process tracker objects.
+The operating system awareness models need to be modified to support new architectures, new revisions of operating systems, and also for completely new operating systems.
+When using an existing operating system awareness module with a user defined processor model, the naming of registers in the <code>int_register</code> interface needs to be consistent.</dd>
+<dt id="dt:software-development-environment-awareness"><a href="#dt:software-development-environment-awareness">Software Development Environment Awareness</a></dt>
+<dd>Software development environments such as WindRiver Workbench are supported on multiple levels, including symbolic debugging capabilities and integration with vendor IDEs.
+The software development environment awareness support in Simics can be used as-is with a user defined processor model.</dd>
+</dl>
+
+<div class="chain">
+<a href="processor-api-breakpoints.html">5 Breakpoints</a>
+<a href="simics-api-functions.html">7 Simics API Functions</a>
+</div>

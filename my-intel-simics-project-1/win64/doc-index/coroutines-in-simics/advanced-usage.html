@@ -1,0 +1,191 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>3 Advanced Usage Example</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="basic-usage.html">2 Basic Usage Example</a>
+<a href="script-branch.html">4 Integration with Script Branches</a>
+</div>
+<div class="path">
+<a href="index.html">Python Coroutines in Simics</a>
+&nbsp;/&nbsp;</div><h1 id="advanced-usage-example"><a href="#advanced-usage-example">3 Advanced Usage Example</a></h1>
+<p>This section demonstrates how to utilize <code>snoop</code> and <code>sloop</code> for monitoring
+complex conditions.</p>
+<h2 id="problem-statement"><a href="#problem-statement">3.1 Problem Statement</a></h2>
+<p>Imagine a memory-space <code>ms</code> with a device mapped such that writing <em>sz</em> bytes
+(where <em>sz</em> ≤ 8) to an address <code>addr</code> appends these bytes to a FIFO queue.
+Our objective is to continue simulation until a total of <code>N</code> bytes have been
+accumulated in the FIFO.
+For example, if <code>N</code> is 10, the condition would be met after
+two writes of 4 bytes and two writes of 1 byte.
+We aim to design a coroutine <code>wait_accumulated_writes</code> that behaves
+as expected when invoked like this:</p>
+<pre><code>sloop.run_until_complete(
+    wait_accumulated_writes(ms, address=addr, length=8, threshold=N))
+</code></pre>
+<p>The following sections describe different strategies for implementing the
+<code>wait_accumulated_writes</code> function, along with their pros and cons.</p>
+<h2 id="repeated-sloop-wait"><a href="#repeated-sloop-wait">3.2 Repeated <code>sloop.wait</code></a></h2>
+<p>The initial method involves iteratively awaiting the snooper’s trigger:</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    tot_written = 0
+    one_access = snoop.MemoryWrite(memory_space, addr, length)
+    while tot_written &lt; threshold:
+        access = await sloop.wait(one_access)
+        tot_written += len(access.value)
+</code></pre>
+<p>While generally effective, this method has a notable drawback:
+it can sometimes miss write operations that occur in rapid succession.</p>
+<p>To recapitulate, a snooper is a low-level construct for registering callbacks.
+These callbacks are typically invoked during simulation,
+often in the midst of a CPU instruction.
+In contrast, <code>sloop</code> coroutines operate independently of the simulation;
+they execute logic in a more permissive context (Global Context),
+where simulation is temporarily halted.
+This ensures that the simulation state can be inspected
+and modified without concurrency issues.</p>
+<p>When the coroutine encounters <code>await sloop.wait(MemoryAccess(...))</code>,
+the <code>sloop.wait</code> function registers a callback with the snooper,
+and the <code>await</code> statement pauses the coroutine,
+allowing simulation to continue.
+Upon a write operation, the callback is triggered, it unregisters itself,
+and uses the <code>SIM_run_alone</code> function to request that the Simics scheduler
+temporarily halts the simulation, enabling the coroutine to proceed.
+However, this pause may not take effect immediately — for instance,
+the current CPU may need to finish its current instruction. Consequently,
+if two accesses occur during the same instruction,
+the second may be missed if the snooper is deactivated,
+leading to an inaccurate total size count.</p>
+<p>This method is still viable under certain conditions.
+For example, if you know that each write to an address
+is triggered by a distinct instruction and executed by the same CPU,
+the coroutine will have sufficient time to reactivate the snooper
+between writes.</p>
+<h2 id="sloop-tracer"><a href="#sloop-tracer">3.3 <code>sloop.Tracer</code></a></h2>
+<p>The second method uses the <code>Tracer</code> asynchronous context manager to
+maintain snooper activation between writes:</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    tot_written = 0
+    with sloop.Tracer(
+            snoop.MemoryWrite(memory_space, addr, length)) as tr:
+        async for access in tr:
+            tot_written += len(access.value)
+            if tot_written &gt;= threshold:
+                break
+</code></pre>
+<p>The <code>Tracer</code> object activates the snooper once and retains
+all write events in an internal queue.
+If multiple writes are triggered by the same instruction,
+they are queued, and the <code>async for</code> loop processes them without interruption.
+When the queue is empty, the loop pauses,
+allowing the simulation to resume until the next write occurs.</p>
+<p>Although this method is functionally robust,
+it still requires starting and stopping the simulation for each memory write,
+which can significantly slow down the simulation.</p>
+<h2 id="compound-snoopers"><a href="#compound-snoopers">3.4 Compound Snoopers</a></h2>
+<p>The first two methods express the logic for aggregating write sizes
+within the coroutine’s control flow, necessitating simulation
+pauses between writes.
+This can be costly, especially with multiple CPUs involved.</p>
+<p>The third method introduces <em>compound snoopers</em> that execute this
+logic directly within the simulation thread.
+These snoopers are composed of a snooper and a function that
+is called synchronously when the snooper yields a value.
+By chaining such snoopers, we create a single snooper that
+triggers exactly when the final condition is met,
+so that a single <code>sloop.wait</code> call suffices.</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    writes = snoop.MemoryWrite(memory_space, addr, length)
+    # This snooper yields lengths of individual writes
+    lengths = snoop.Map(lambda access: len(access.value), writes)
+    # This snooper yields accumulated total lengths
+    acc_lengths = snoop.Accumulate(lengths, lambda a, b: a + b)
+    # This snooper yields when accumulated length exceeds the threshold
+    exceed = snoop.Filter(lambda length: length &gt;= threshold, acc_lengths)
+    await sloop.wait(exceed)
+</code></pre>
+<h2 id="sloop-callbackscope"><a href="#sloop-callbackscope">3.5 <code>sloop.CallbackScope</code></a></h2>
+<p>While compound snoopers offer a coding style familiar
+from functional programming,
+there are scenarios where an imperative style with direct callbacks
+is more suitable.
+The <code>CallbackScope</code> asynchronous context manager facilitates
+this within a coroutine:</p>
+<pre><code>async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    tot_written = 0
+    done = sloop.get_running_loop().create_future()
+    def cb(access):
+        nonlocal tot_written
+        tot_written += len(access.value)
+        if tot_written &gt;= threshold:
+            done.set_result(None)
+    async with sloop.CallbackScope(
+            snoop.MemoryWrite(memory_space, addr, length), cb):
+        await done
+</code></pre>
+<p>In this scenario, the callback <code>cb</code> is invoked directly from
+the simulation thread after each write.
+When the threshold is reached,
+the callback signals the coroutine using a <code>sloop.Future</code> object.</p>
+<p><code>CallbackScope</code> is preferred over the low-level <code>MemoryWrite.add_callback</code> in
+coroutine implementations,
+as it automatically manages cancellation and exceptions, ensuring robustness.</p>
+<p>There is no significant difference in performance between using a
+<code>CallbackScope</code> and compound snoopers.</p>
+<h2 id="custom-snooper"><a href="#custom-snooper">3.6 Custom Snooper</a></h2>
+<p>The final method involves creating a custom snooper:</p>
+<pre><code>class AccumulatedWrites(snoop.MemoryWrite):
+    def __init__(self, memory_space, addr, length, threshold):
+        super().__init__(memory_space, addr, length)
+        self.threshold = threshold
+    def add_callback(self, cb, exc_cb, state):
+        if state is not snoop.SESSION:
+            raise NotImplementedError(
+                'serialization not yet implemented')
+        tot_written = 0
+        def write_cb(access):
+            nonlocal tot_written
+            tot_written += len(access.value)
+            while tot_written &gt;= self.threshold:
+                tot_written -= self.threshold
+                cb(None)
+        return super().add_callback(write_cb, exc_cb, state)
+
+async def wait_accumulated_writes(memory_space, addr, length, threshold):
+    await sloop.wait(AccumulatedWrites(
+        memory_space, addr, length, threshold))
+</code></pre>
+<p>This method offers the most flexibility,
+as the <code>AccumulatedWrites</code> snooper can be used independently
+or combined with other compound snoopers.
+For example, <code>sloop.CallbackScope(AccumulatedWrites(...), cb)</code>
+could provide a callback within the simulation thread for every
+N bytes written.</p>
+<p>However, writing your own custom snooper requires a deeper understanding
+of low-level concepts such as callback handles, exception handling,
+and execution contexts.
+It also carries the risk of subtle bugs if not implemented correctly,
+whereas higher-level methods typically offer better error detection.</p>
+<h2 id="summary"><a href="#summary">3.7 Summary</a></h2>
+<p>We have explored five distinct methods for monitoring a sequence
+of simulation events.
+The first choice should normally be either
+repeated <code>sloop.wait</code> or <code>sloop.Tracer</code>,
+as they are straightforward but may have performance implications.
+If performance is a concern, then compound snoopers or
+<code>sloop.CallbackScope</code> may be more appropriate,
+depending on the complexity of the control flow and the use case.
+Compound snoopers are well-suited for scenarios where a
+functional programming style can elegantly manage event sequences.
+In contrast, <code>sloop.CallbackScope</code> is advantageous for more complex
+control flows that require maintaining state or handling side effects,
+where an imperative approach is more natural.
+A fifth valid option is a custom snooper, but this is seldom the best choice.</p>
+
+<div class="chain">
+<a href="basic-usage.html">2 Basic Usage Example</a>
+<a href="script-branch.html">4 Integration with Script Branches</a>
+</div>

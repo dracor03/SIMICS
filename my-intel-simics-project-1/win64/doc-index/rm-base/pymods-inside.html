@@ -1,0 +1,77 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>9.4 Test Framework Libraries Available in Simics Tests</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="pymods-outside.html">9.3 Test Framework Libraries Available Outside Simics</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="test-framework.html">9 Test Framework</a>
+&nbsp;/&nbsp;</div>
+<h1>9.4 Test Framework Libraries Available in Simics Tests</h1>
+<article class="not-numbered">
+<h2 id="info_status"><a href="#info_status">info_status</a></h2>
+<p>Library for checking if classes has info and status commands.</p>
+<h3 id="report_info_status_errors"><a href="#report_info_status_errors">report_info_status_errors</a></h3>
+<article class="doc-item not-in-toc not-numbered">
+<h4 id="synopsis"><a href="#synopsis">SYNOPSIS</a></h4>
+<pre><code>report_info_status_errors(missing_info, missing_status, unexpected_info, unexpected_status)
+</code></pre>
+<h4 id="description"><a href="#description">DESCRIPTION</a></h4>
+<p>Prints its input lists and quits Simics with an error.</p>
+<p>First each provided list is printed in a human readable manner and then the
+function quits Simics with the result 1, which will be detected by the test
+system as a test failure.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:missing_info"><a href="#dt:missing_info">missing_info</a></dt>
+<dd>a list of classes which do not have <code>info</code> commands</dd>
+<dt id="dt:missing_status"><a href="#dt:missing_status">missing_status</a></dt>
+<dd>a list of classes which do not have <code>status</code> commands</dd>
+<dt id="dt:unexpected_info"><a href="#dt:unexpected_info">unexpected_info</a></dt>
+<dd>a list of classes which have <code>info</code> commands, but which
+were on the info command passlist</dd>
+<dt id="dt:unexpected_status"><a href="#dt:unexpected_status">unexpected_status</a></dt>
+<dd>a list of classes which have <code>status</code> commands, but which
+were on the status command passlist</dd>
+</dl>
+</article>
+<h3 id="check_for_info_status"><a href="#check_for_info_status">check_for_info_status</a></h3>
+<article class="doc-item not-in-toc not-numbered">
+<h4 id="synopsis-2"><a href="#synopsis-2">SYNOPSIS</a></h4>
+<pre><code>check_for_info_status(modules, info_passlist = [], status_passlist = [], report_errors = \&lt;function report_info_status_errors\&gt;)
+</code></pre>
+<h4 id="description-2"><a href="#description-2">DESCRIPTION</a></h4>
+<p>Check that the classes in a list of modules have info and status commands.</p>
+<p>Classes are Simics configuration classes, not python classes. The function
+checks all the classes in the named modules to see if they have <code>info</code> and
+<code>status</code> commands. If any such command is missing it will be detected as an
+error, but you can provide passlists. If a class is passlisted and still has
+the command it will be detected as an error. If any errors are detected the
+function calls a function to report this. By default the
+<code>report_info_status_error</code> is called, but you can override this with the
+<code>report_errors</code> argument.</p>
+<p>The modules named in modules will be loaded into Simics as a side effect of
+running this test.</p>
+<p>Arguments:</p>
+<dl>
+<dt id="dt:modules"><a href="#dt:modules">modules</a></dt>
+<dd>the modules whose classes to test</dd>
+<dt id="dt:info_passlist"><a href="#dt:info_passlist">info_passlist</a></dt>
+<dd>the list of classes which should not have info commands</dd>
+<dt id="dt:status_passlist"><a href="#dt:status_passlist">status_passlist</a></dt>
+<dd>the list of classes which should not have status commands</dd>
+<dt id="dt:report_errors"><a href="#dt:report_errors">report_errors</a></dt>
+<dd>the function to call to report errors</dd>
+</dl>
+</article>
+</article>
+
+<div class="chain">
+<a href="pymods-outside.html">9.3 Test Framework Libraries Available Outside Simics</a>
+</div>

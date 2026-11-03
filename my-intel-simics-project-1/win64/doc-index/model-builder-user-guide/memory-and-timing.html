@@ -1,0 +1,389 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>45 Memory Tracing and Timing</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="inspecting-and-controlling-the-virtual-system.html">44 Inspecting and Controlling the Virtual System</a>
+<a href="external-world.html">46 Connecting to the External World</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="extension-builder.html">VII Extending Simics</a>
+&nbsp;/&nbsp;</div><h1 id="memory-tracing-and-timing"><a href="#memory-tracing-and-timing">45 Memory Tracing and Timing</a></h1>
+<p>Simics provides extensive support for tracing and modifying memory transactions
+coming out of a processor. This chapter aims at describing how to access memory
+transactions programmatically to write extensions such as trace tools, timing
+models or cache simulation.</p>
+<h2 id="tracing-instruction-execution"><a href="#tracing-instruction-execution">45.1 Tracing Instruction Execution</a></h2>
+<p>All processor models in Simics offer an interface that provides a registered
+listener with all executed instructions. This is used by the <code>trace</code> module,
+among others, to produce its execution trace.</p>
+<p>Registering a function to listen to a trace interface is simple. Assuming that
+<code>cpu</code> is the traced processor, the following code will register the function
+<code>trace_listener()</code> to be called for each instruction executed by <code>cpu</code>:</p>
+<pre><code>void *data_for_trace_listener = some_data;
+const exec_trace_interface_t *iface = 
+        SIM_c_get_interface(cpu, EXEC_TRACE_INTERFACE);
+iface-&gt;register_tracer(cpu, trace_listener, data_for_trace_listener);
+</code></pre>
+<p>Turning off tracing is just as simple:</p>
+<pre><code>void *data_for_trace_listener = some_data;
+const exec_trace_interface_t *iface =
+        SIM_c_get_interface(cpu, EXEC_TRACE_INTERFACE);
+iface-&gt;unregister_tracer(cpu, trace_listener, data_for_trace_listener);
+</code></pre>
+<p>The listener function itself is expected to be defined as an
+<a href="../rm-api/model-to-model-interfaces.html#instruction_trace_callback_t"><code>instruction_trace_callback_t</code></a>.</p>
+<p>Tracer functions are not expected to return any value to Simics.</p>
+<p>The <code>trace</code> module is provided along with Simics, both as a binary and source
+code. It is an excellent starting point for developing new tracing modules.</p>
+<h2 id="tracing-memory-transactions"><a href="#tracing-memory-transactions">45.2 Tracing Memory Transactions</a></h2>
+<p>This section expects the reader to be familiar with <em>memory spaces</em> and how
+memory accesses are directed to the correct device or memory. More information
+on memory spaces is available in chapter <a class="reference" href="memory-space.html">25</a>.</p>
+<h3 id="observing-memory-transactions"><a href="#observing-memory-transactions">45.2.1 Observing Memory Transactions</a></h3>
+<p>Memory-spaces provide a <em>memory hierarchy interface</em> for observing and modifying
+memory transactions passing through them. This interface is in fact composed of
+two different interfaces acting at different phases of a memory transaction
+execution:</p>
+<ul>
+<li>The <code>timing_model</code> interface provides access to a transaction <em>before</em> it has
+been executed (i.e., it has just arrived at the memory-space).</li>
+</ul>
+<p>To connect an object to the timing model interface, just set the <code>timing_model</code>
+attribute of the corresponding memory-space with the value of the object you
+want to connect:
+<code>simics     simics&gt; @conf.phys_mem0.timing_model = conf.listening_object     </code></p>
+<p>The timing model interface can also be used to change the timing and the
+execution of a memory transaction, as well as to modify the value of a store
+going to memory. This is described in more detail in section
+<a class="reference" href="#changing-the-behavior-of-a-memory-transaction">45.3.2</a>.</p>
+<ul>
+<li>The <code>snoop_memory</code> interface provides access to a transaction <em>after</em> it has
+been executed.</li>
+</ul>
+<p>Connecting an object to the snoop memory interface is done in the same way as
+for the timing model interface:
+<code>simics     simics&gt; @conf.phys_mem0.snoop_device = conf.listening_object     </code></p>
+<p>The <code>trace</code> module, for example, automatically connects itself (or rather one of
+its objects) to this interface when a trace is started. The advantage of using
+this interface is that the value of load operations is accessible, since the
+operation has already been performed.</p>
+<p>The snoop memory interface can also be used to modify the value of a load
+operation. This is described in more detail in section
+<a class="reference" href="#changing-the-behavior-of-a-memory-transaction">45.3.2</a>.</p>
+<blockquote class="markdown-alert-note">
+<p>Both interfaces can be used simultaneously, even by the same object. This
+property is used by the <code>trace</code> module, which is in fact connected both to the
+timing_model and the snoop_memory interfaces. The reason for this double
+connection is explained in section <a class="reference" href="#simulator-translation-cache-stc">45.2.4</a>.</p>
+</blockquote>
+<p>Information about implementing these two interfaces is available in section
+<a class="reference" href="#implementing-the-interface">45.2.6</a> and section
+<a class="reference" href="#changing-the-behavior-of-a-memory-transaction">45.3.2</a>.</p>
+<h3 id="observing-instruction-fetches"><a href="#observing-instruction-fetches">45.2.2 Observing Instruction Fetches</a></h3>
+<p>For performance reasons, instruction fetches are not sent to the memory
+hierarchy by default.</p>
+<p>Instruction fetches can be activated for each processor with the
+<code>&lt;cpu&gt;.instruction-fetch-mode</code> command. It can take several values:</p>
+<dl>
+<dt id="dt:no-instruction-fetch"><a href="#dt:no-instruction-fetch"><em>no-instruction-fetch</em></a></dt>
+<dd>
+<p>No instruction fetches are sent to the memory hierarchy interface.</p>
+</dd>
+<dt id="dt:instruction-cache-access-trace"><a href="#dt:instruction-cache-access-trace"><em>instruction-cache-access-trace</em></a></dt>
+<dd>
+<p>An instruction
+fetch is sent every time a different cache line is accessed by the processor.
+The size of the cache line is set by the processor attribute
+<code>instruction_fetch_line_size</code>.</p>
+<p>This option is meant to be used for cache simulation where successive accesses
+to the same cache line do not modify the cache state.</p>
+</dd>
+<dt id="dt:instruction-fetch-trace"><a href="#dt:instruction-fetch-trace"><em>instruction-fetch-trace</em></a></dt>
+<dd>
+<p>All instruction fetches
+are sent to the memory hierarchy interface. This option is often implemented
+as <em>instruction-cache-access-trace</em> with a line size equal to the size of one
+instruction.</p>
+<p>This option is meant to provide a complete trace of fetch transactions.</p>
+</dd>
+</dl>
+<p>Finally, instruction fetch transactions are not generated by all processor
+models. The section <a class="reference" href="#memory-features-availability">45.4</a> contains a summary of
+which features are available on which models.</p>
+<h3 id="observing-page-table-accesses"><a href="#observing-page-table-accesses">45.2.3 Observing Page-table Accesses</a></h3>
+<p>For performance reasons, page-table reads are not sent to the memory hierarchy
+by default on some CPU models. For PPC models with classic MMU, you have to set
+the <code>mmu_mode</code> attribute to get page-table reads. See the attribute description
+in the Reference Manual for more information.</p>
+<h3 id="simulator-translation-cache-stc"><a href="#simulator-translation-cache-stc">45.2.4 Simulator Translation Cache (STC)</a></h3>
+<p>In order to improve the speed of the simulation, Simics does not perform all
+accesses through the memory spaces. The Simulator Translation Caches (STCs) try
+to serve most memory operations directly by caching relevant information. In
+particular, an STC is intended to contain the following:</p>
+<ul>
+<li>The current logical-to-physical translation for the address;</li>
+<li>A count of number of accesses to the address.</li>
+</ul>
+<p>The general idea is that the STC will contain information about “harmless”
+memory addresses, i.e., addresses where an access would not cause any device
+state change or side-effect. A particular memory address is mapped by the STC
+only if:</p>
+<ul>
+<li>The given logical-to-physical mapping is valid.</li>
+<li>An access would not affect the MMU (TLB) state.</li>
+<li>There are no breakpoints, callbacks, etc associated with the address.</li>
+</ul>
+<blockquote class="markdown-alert-note">
+<p>Memory transactions targeting devices are also mapped by the STC.</p>
+</blockquote>
+<p>The contents of the STCs can be flushed at any time, so models using them to
+improve speed cannot rely on a specific address being cached. They can however
+let the STCs cache addresses when further accesses to these addresses do not
+change the state of the model (this is used by cache simulation with <code>g-cache</code>;
+see the <em>Cache Simulation</em> chapter in the <em>Analyzer User’s Guide</em>).</p>
+<p>The STCs are activated by default. They can be turned on or off at the command
+prompt, using the <code>stc-enable/disable</code> functions. An object connected to the
+<code>timing_model</code> interface can also mark a memory transaction so that it will not
+be cached by the STCs. For example, the <code>trace</code> module uses that method to
+ensure that no memory transaction will be cached, so that the trace will be
+complete.</p>
+<p>Note that since information is inserted into the STCs when transactions are
+executed, only objects connected to the <code>timing model</code> interface can influence
+the STCs’ behavior. The section <a class="reference" href="#modifying-memory-transactions">45.3</a> provides a
+complete description of the changes authorized on a memory transaction when
+using the memory hierarchy interface.</p>
+<h3 id="summary-of-simics-memory-system"><a href="#summary-of-simics-memory-system">45.2.5 Summary of Simics Memory System</a></h3>
+<p>This diagram puts together the concepts introduced in chapter
+<a class="reference" href="memory-space.html">25</a>. It describes the path followed by a processor transaction
+through Simics memory system.</p>
+<figure id="simics-memory-path">
+<p><img alt="" src="simics-memory-path.png"> </p><figcaption>Figure 46. Transaction Path through Simics Memory
+System</figcaption><p></p>
+</figure>
+<ol>
+<li>
+<p>The CPU executes a load instruction.</p>
+</li>
+<li>
+<p>A memory transaction is created.</p>
+</li>
+<li>
+<p>If the address is in the STC, the data is read and returned to the CPU using
+the cached information.</p>
+</li>
+<li>
+<p>If the address is not in the STC, the transaction is passed along to the CPU
+memory-space.</p>
+</li>
+<li>
+<p>If a timing-model is connected to the memory-space, it receives the
+transaction.</p>
+<ol>
+<li>If the timing model returns a non-zero stalling time, the processor is
+stalled and the transaction will be reissued when the stall time is
+finished (see also section
+<a class="reference" href="#changing-the-behavior-of-a-memory-transaction">45.3.2</a></li>
+<li>If the timing model returns a zero stall time, the memory-space is free
+to execute the transaction.</li>
+</ol>
+</li>
+<li>
+<p>The memory-space determines the target object (in this example, a RAM
+object).</p>
+</li>
+<li>
+<p>The RAM object receives the transactions and executes it.</p>
+</li>
+<li>
+<p>If possible, the transaction is inserted in the STC.</p>
+</li>
+<li>
+<p>If a snoop-memory is connected to the memory-space, it receives the
+transaction.</p>
+</li>
+<li>
+<p>The transaction is returned to the CPU with the correct data.</p>
+</li>
+</ol>
+<p>Store operations works in the same way, but no data is returned to the CPU.</p>
+<blockquote class="markdown-alert-note">
+<p>Simics’s memory system is more complex than what is presented here, but from
+the point of view of a user timing-model or snoop-memory, this diagram
+explains correctly at which point the main events happen.</p>
+</blockquote>
+<h3 id="implementing-the-interface"><a href="#implementing-the-interface">45.2.6 Implementing the Interface</a></h3>
+<p>The <code>timing_model</code> and <code>snoop_memory</code> contains only one function called
+<code>operate()</code>:</p>
+<pre><code>static cycles_t
+my_timing_model_operate(conf_object_t         *mem_hier,
+                        conf_object_t         *mem_space,
+                        map_list_t            *map_list,
+                        generic_transaction_t *mem_op);
+</code></pre>
+<p>The four arguments are:</p>
+<p><code>conf_object_t *</code> <code>mem_hier</code></p>
+<ul>
+<li>This points to the
+timing model or snooper itself; it can be safely cast to the actual type of
+the listening object.</li>
+</ul>
+<p><code>conf_object_t *</code> <code>mem_space</code></p>
+<ul>
+<li>The <code>mem_space</code>
+argument is the memory space object that the timing model or snooper is
+connected to.</li>
+</ul>
+<p><code>map_list_t *</code> <code>map_list</code></p>
+<ul>
+<li>The <code>map_list</code> argument
+describes the entry in the <code>map</code> attribute list that this memory operation
+matched (as returned from a call to the <code>space_lookup</code> function in the
+<code>memory_space</code> interface).</li>
+</ul>
+<p><code>generic_transaction_t *</code> <code>mem_op</code></p>
+<ul>
+<li>This contains
+information about the current memory operation. It is manipulated using
+accessor functions defined in the <em>API Reference Manual</em>.</li>
+</ul>
+<p>The return value is the number of cycles the transaction should stall before
+being executed (or reissued). Returning 0 disables all stalling.</p>
+<h3 id="chaining-timing-models"><a href="#chaining-timing-models">45.2.7 Chaining Timing Models</a></h3>
+<p>Sometimes it is desirable to chain timing models, e.g., if you are implementing
+a multi-level cache model and want to model each level of the cache as an
+individual class. To do this, the <code>operate()</code> function must call the
+corresponding functions of the lower levels (a <em>lower</em> or <em>next</em> level cache
+means a cache further away from the CPU, closer to the actual memory).</p>
+<p>The <code>g-cache</code> source code included with Simics is an example of how to do this.
+Whenever there is a miss in the cache, the <code>g-cache</code> object creates a new memory
+operation and calls the <code>operate()</code> method of the <code>timing_model</code> interface from
+the next level cache specified by the <code>timing_model</code> attribute.</p>
+<h2 id="modifying-memory-transactions"><a href="#modifying-memory-transactions">45.3 Modifying Memory Transactions</a></h2>
+<h3 id="stalling-transactions"><a href="#stalling-transactions">45.3.1 Stalling Transactions</a></h3>
+<p>The precision of the simulation can be improved by adding timing controls for
+memory operations: memory-related instructions are no longer atomic operations,
+but actually take virtual time to execute.</p>
+<p>Stalling is controlled via the <code>timing_model</code> interface. The interface simply
+allows the implementer to return a non-zero number of cycles to <em>stall</em> before
+the transaction is allowed to progress. During this time, the processor is given
+back control and lets time advance until the transaction’s stall time has
+elapsed. The transaction is then reissued to the memory system.</p>
+<p>Stalling a transaction is not always possible, depending on the processor model
+you are using in the simulation. The section <a class="reference" href="#memory-features-availability">45.4</a>
+explains what is available for each model.</p>
+<p>Cache models, described in the <em>Analyzer User’s Guide</em>, are good examples of
+complex timing models. Finally, the <em>Understanding Simics Timing</em> application
+note goes into more details in the exact way Simics handles timing and
+multiprocessor systems.</p>
+<h3 id="changing-the-behavior-of-a-memory-transaction"><a href="#changing-the-behavior-of-a-memory-transaction">45.3.2 Changing the Behavior of a Memory Transaction</a></h3>
+<h4 id="in-a-timing-model"><a href="#in-a-timing-model">45.3.2.1 In a Timing Model</a></h4>
+<p>An object listening on the <code>timing_model</code> interface is presented with memory
+transactions before they have been executed, and may therefore change both their
+semantics and their timing. Here is a list of changes that a timing model is
+authorized to perform:</p>
+<dl>
+<dt id="dt:sim_mem_op_may_stall"><a href="#dt:sim_mem_op_may_stall">SIM_mem_op_may_stall</a></dt>
+<dd>
+<p>Before attempting to stall a
+memory transaction, the timing model should call this function to check if a
+transaction is stallable. Typically only the first memory operation of a
+complex instruction is stallable. Page-crossing transactions and page-table
+walks are unstallable too. The timing model could accumulate stall time for
+these and stall after the current instruction has completed instead, see the
+<code>SIM_stall_cycle</code> function.</p>
+</dd>
+<dt id="dt:sim_set_mem_op_reissue"><a href="#dt:sim_set_mem_op_reissue">SIM_set_mem_op_reissue</a></dt>
+<dd>
+<p>If set, and the memory
+hierarchy is stalling, the memory transaction will be sent again to the timing
+model after the stalling was performed. If not set, the transaction will be
+executed without further calls to the timing model.</p>
+</dd>
+<dt id="dt:sim_mem_op_ensure_future_visibility"><a href="#dt:sim_mem_op_ensure_future_visibility">SIM_mem_op_ensure_future_visibility</a></dt>
+<dd>
+<p>If called, the
+transaction will not be cached in the STCs, ensuring that the next access to
+the same memory area will be sent to the timing model. Otherwise the next
+access to that area of memory may not be sent to the memory hierarchy at all.
+The address granularity for this purpose is given by the <code>min_cacheline_size</code>
+processor attribute, and is always a power of 2 no greater than the MMU page
+size.</p>
+</dd>
+<dt id="dt:memory-store-value"><a href="#dt:memory-store-value">Memory Store Value</a></dt>
+<dd>
+<p>Since the memory operation has
+not been executed yet, it is possible to change the value of a store operation
+in the timing model. However, it is important to <em>restore the original value</em>
+in the snoop device once the operation has been performed. The
+<code>SIM_get_mem_op_value()</code> and <code>SIM_set_mem_op_value()</code> functions (and their
+variants) can be used to get and set the value of a given memory transaction.</p>
+</dd>
+<dt id="dt:stalling-the-memory-transaction"><a href="#dt:stalling-the-memory-transaction">Stalling the Memory Transaction</a></dt>
+<dd>
+<p>When an object
+attached to the <em>timing_model</em> interface receives a memory-transaction, it is
+allowed to modify the timing of the transaction by returning a <em>stall time</em>
+(as a number of processor cycles). This behavior is a key to modeling caches
+and memory hierarchies in Simics.</p>
+<p>By returning a non-zero number of cycles from the <code>operate()</code> function, Simics
+will stall the memory transaction that was passed as argument for that amount of
+time.</p>
+</dd>
+</dl>
+<p>If a zero stall time is returned, some additional operations are allowed:</p>
+<dl>
+<dt id="dt:sim_set_mem_op_exception"><a href="#dt:sim_set_mem_op_exception">SIM_set_mem_op_exception</a></dt>
+<dd>If set to an exception, the
+transaction will be interrupted and an exception will be taken. Default is no
+exception (<code>Sim_PE_No_Exception</code>).</dd>
+<dt id="dt:sim_set_mem_op_user_data"><a href="#dt:sim_set_mem_op_user_data">SIM_set_mem_op_user_data</a></dt>
+<dd>This <code>void *</code> pointer is
+not touched by Simics during the memory operation execution. It can be used to
+pass information from a timing model to a snoop device.</dd>
+</dl>
+<blockquote class="markdown-alert-note">
+<p>A transaction may go through several memory-spaces in hierarchical order
+before being executed. Each of these memory-spaces may have a timing-model
+connected to them. However, if the transaction is stalled by one timing model,
+other timing models connected to other memory spaces may see the transaction
+being reissued before it is executed. It is not supported to return a non zero
+stall time from these other timing models, that is, a transaction may be
+stalled by at most one timing model.</p>
+</blockquote>
+<h4 id="in-a-snoop-device"><a href="#in-a-snoop-device">45.3.2.2 In a Snoop Device</a></h4>
+<p>An object listening on the <code>snoop_memory</code> interface is presented with memory
+transactions after they have completed. It cannot influence the execution of the
+operation and it may not return a non-zero value for stalling, but it is allowed
+to modify the value of the memory operation. Since the data returned by read
+operations are available at this stage, the snoop device is also an ideal place
+to trace memory transactions. Note that if you want to modify the properties of
+the memory transaction, such as future visibility and reissue, you have to do
+that in a <code>timing_model</code> interface <code>operate</code> function.</p>
+<p>The following actions are allowed:</p>
+<dl>
+<dt id="dt:change-a-memory-store-value"><a href="#dt:change-a-memory-store-value">Change a Memory Store Value</a></dt>
+<dd>If the value of a memory
+store has been changed in the timing model, it should be reset in the snoop
+device.</dd>
+<dt id="dt:change-a-memory-load-value"><a href="#dt:change-a-memory-load-value">Change a Memory Load Value</a></dt>
+<dd>Since the operation has
+been performed, the snoop device is the right place to change the value of a
+load. This is done with the usual <code>SIM_get/set_mem_op_value()</code> functions.</dd>
+</dl>
+<h2 id="memory-features-availability"><a href="#memory-features-availability">45.4 Memory Features Availability</a></h2>
+<p>All types of cache modeling features are not supported by all processor types.
+The instrumentation API need to be supported in order to do cache modeling for a
+specific processor.</p>
+<p>Currently ARC, ARM, MIPS, PPC, X86 and Xtensa target architectures support
+instrumentation.</p>
+
+<div class="chain">
+<a href="inspecting-and-controlling-the-virtual-system.html">44 Inspecting and Controlling the Virtual System</a>
+<a href="external-world.html">46 Connecting to the External World</a>
+</div>

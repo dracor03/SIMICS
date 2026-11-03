@@ -1,0 +1,49 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>4 Runtime Evaluation Order</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="parameter-section.html">3 Parameter Section</a>
+</div>
+<div class="path">
+<a href="index.html">Target Parameters Reference</a>
+&nbsp;/&nbsp;</div><h1 id="runtime-evaluation-order"><a href="#runtime-evaluation-order">4 Runtime Evaluation Order</a></h1>
+<p>Running a script can be done in several ways:</p>
+<ul>
+<li>Using the <code>load-target</code> or <code>run-script</code> commands.</li>
+<li>Specifying the target name or script file name on the Simics command line.</li>
+<li>Using the <code>target</code> key in the script parameter section, since that effectively runs the specified script from the current script.</li>
+</ul>
+<p>In the first two cases, one can also provide arguments on the command line.
+In the last case, the <code>args</code> section in the current script is used as input.</p>
+<p>When running a script, the following happens:</p>
+<ol>
+<li>The script and all its imports are parsed, recursively, to construct its parameter tree and argument (default value) tree.</li>
+<li>If the script is not the top level script to run, then all arguments have been assigned already.
+If it is the top level script, then the arguments are assigned as follows:
+<ol>
+<li>The argument tree is taken from the <code>args</code> section in the script, then it is overridden using any arguments on the command line, or using the <code>args</code> section in the script containing the <code>target</code> key.</li>
+<li>Assign parameters using the default values specified in the parameter definitions.</li>
+<li>Assign parameters from the argument tree, overwriting any assignments from default values.</li>
+<li>Check that all required parameters have been assigned.</li>
+<li>Check that everything in argument tree has been used to assign parameters.</li>
+</ol>
+</li>
+<li>Any associated pre-init code is run.
+It can use <code>params.setdefault</code> to assign parameters.
+If the parameter is already assigned this statement has no effect.</li>
+<li>All mentioned blueprints are expanded, using the same blueprint builder (unless the blueprints are included via a script inside an array namespace, in which case each one has its own builder).
+All blueprints are then instantiated.</li>
+<li>The associated code is run.
+It can use <code>params.setdefault</code> to assign parameters.
+If the parameter is already assigned this statement has no effect.</li>
+</ol>
+<p>Note that a script containing a <code>target</code> key may itself be called by another script using the <code>target</code> key.
+It follows from the above that the arguments from the caller script overrides the callee, and by induction, in a series of caller script the arguments from the outermost script are used.</p>
+
+<div class="chain">
+<a href="parameter-section.html">3 Parameter Section</a>
+</div>

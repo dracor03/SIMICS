@@ -1,0 +1,742 @@
+<!doctype html>
+<meta charset=utf8>
+<link rel=stylesheet href="../simics.css">
+<title>Product Family Overview</title>
+
+<section class="page" id="index.html"><h1 id="index.html:product-family-overview"><a href="#index.html:product-family-overview">Product Family Overview</a></h1>
+</section><section class="page" id="simics-products.html"><h1 id="simics-products.html:simics-products"><a href="#simics-products.html:simics-products">1 Simics Products</a></h1>
+<p>The Simics product family is made up of multiple products and optional add-on
+products. For clarity the products are grouped into tools products and model
+products. This section defines what these products are and how they interact
+with each other. Please contact your Simics provider for the licensing terms of
+each product.</p>
+<p>Features presented in this document may not always be supported for all
+architectures, for all target software and on all hosts.</p>
+<h2 id="simics-products.html:simics-tool-products"><a href="#simics-products.html:simics-tool-products">1.1 Simics Tool Products</a></h2>
+<h3 id="simics-products.html:simics"><a href="#simics-products.html:simics">1.1.1 Simics</a></h3>
+<p>Simics is the primary product in the family. It provides the core simulation
+engine and user interface. With Simics, users can set up, run, control and
+inspect the virtual target system. User-written models and user-written
+extensions and fault injectors can run in Simics without those products
+available or installed.</p>
+<p>The primary functions of Simics are the simulator itself with hardware-level
+inspection capabilities, the ability to save and restore checkpoints,
+record-replay functionality, snapshots, breakpoints, scripting, host connections
+(aka real networking), and simulation performance monitoring. Checkpoints
+contain the complete state of the system, thus when you save a checkpoint you
+are saving the entire state of the system, including the processors, devices,
+and all the software. When you restore a checkpoint, you begin executing from
+the exact place where you stopped executing when you saved that checkpoint.</p>
+<p>Simics offers a fully featured command line which enables scripting of all
+Simics commands in CLI and Python. Simics also supports non-intrusive platform
+level debug or standalone debuggers such as the Intel* System Debugger, and the
+GNU Debugger (GDB) which connect to agents running on the virtual board to
+support application debug.</p>
+<h3 id="simics-products.html:simics-analyzer"><a href="#simics-products.html:simics-analyzer">1.1.2 Simics Analyzer</a></h3>
+<p>Simics Analyzer is a part of the Simics product which provides analysis and
+debugging capabilities for software applications for large distributed and
+heterogeneous systems as well as less complex systems. Information is primarily
+accessed via GUI views, as well as being accessible from the Simics
+command-line. The primary functionalities of Analyzer are Source Code Debugger,
+OS Awareness, Full System Process List, System Execution Time Line, and Code
+Coverage. More details can be found in the Feature List document. Simics
+Analyzer is a system-level debugger that provides debug across all targets in a
+Simics session. Simics Analyzer can debug heterogeneous systems from a single
+debug view, including different target architectures and operating systems.</p>
+<p>While Simics provides a hardware-centric view of the system, Simics Analyzer
+extends this to a software-centric view. At its most basic Simics Analyzer
+extends the assembly level debug of Simics with stack frames and local
+variables. On supported architectures (ARM, Intel, PPC, and MIPS) this can be
+extended to source level debug for single context systems such as boot code and
+OS kernels. Source level debug can be extended to multi-context systems through
+the use of OS awareness. OS awareness, which must be enabled for each
+combination of Operating System and CPU type, is provided for most Wind River
+Operating Systems and Linux with many Simics Model Products, see the associated
+Target Guide for supported combinations. Users can enable OS awareness for
+additional Operating Systems using Simics Model Builder. Simics Analyzer
+requires no instrumentation or other changes to the target code.</p>
+<h3 id="simics-products.html:simics-model-builder"><a href="#simics-products.html:simics-model-builder">1.1.3 Simics Model Builder</a></h3>
+<p>Simics Model Builder is an add-on product in the Simics Family. Simics Model
+Builder allows users to create and modify the device models, virtual boards, and
+systems that Simics runs. Additionally it lets users adapt and extend Simics
+with new capabilities, allowing for customization, expanded use cases and
+integration into other tooling environments.</p>
+<p>Simics Model Builder provides access to the Simics API documentation and
+frameworks needed to build device models, components, and system configurations
+in DML, C, C++, SystemC, Python, and any other language that can be compiled to
+a C-language API. The API includes frameworks for common types of devices such
+as PCI, I2C, and Ethernet. The Device Modeling Language (DML) allows device
+models to be created quickly and efficiently by providing appropriate constructs
+for common modeling tasks such as register banks, bit fields, and endianness.
+Additionally, Simics Model Builder includes a kit for creating target system
+panels.</p>
+<p>Simics Model Builder includes a SystemC Library that provides the ability to use
+SystemC TLM models within Simics, and to build SystemC models into Simics
+modules that can be run in Simics. SystemC Library-based models support most
+Simics CLI and GUI inspection features in the same way as models written
+directly for Simics. The SystemC Library supports SystemC 2.3, TLM-2.0, and both
+AT and LT-style SystemC models.</p>
+<h4 id="simics-products.html:systemc-library-requirements"><a href="#simics-products.html:systemc-library-requirements">1.1.3.1 SystemC Library Requirements</a></h4>
+<p>Simics supports running SystemC models, but because C++ does not have a
+standardized ABI, all SystemC Library modules as well as all SystemC models to
+be run inside Simics need to be compiled with exactly the same compiler,
+compiler version, and compiler flags. It works perfectly fine to include binary
+SystemC models as long as they are Accellera compliant and the compiler
+guidelines just outlined are followed.</p>
+<p>Simics does not guarantee that the Simics SystemC Library API will not change
+between releases. Simics’ SystemC support is still being gradually improved and
+a completely frozen API would limit what improvements can be made. A lot of
+effort will, however, be made to avoid changing the API. If a change is needed,
+the end-user effort will be minimized.</p>
+<h2 id="simics-products.html:simics-model-products"><a href="#simics-products.html:simics-model-products">1.2 Simics Model Products</a></h2>
+<p>Simics Virtual Platforms model the functionality of real or imagined hardware
+and are required for useful operation of a Simics Tools product. A Simics
+Virtual Platform can be as simple or complex as the physical target system is.
+It can contain anything from a simple CPU and RAM, to a complex single board
+computer containing a multi-core processor, to a personal computer with
+graphics, disk drives, and mouse, or even to a complex network of computers and
+systems. Simics Virtual Platforms can connect to other Simics Virtual Platforms
+or to the real world via networks like Ethernet.</p>
+<p>Simics Virtual Platforms are comprised of a combination of model Components,
+Processor/SoCs models, and device models. Simics Virtual Platforms may not model
+all possible functionality of the hardware as models are frequently written to
+support the needs of a specific Operating System or set of Operating Systems.
+Simics Virtual Platforms are often referred to as “targets”.</p>
+<h3 id="simics-products.html:simics-quick-start-platform"><a href="#simics-products.html:simics-quick-start-platform">1.2.1 Simics Quick-Start Platform</a></h3>
+<p>A Simics Quick-Start Platform or QSP includes a model of a generic machine with
+a real core. The point of the QSP is to enable basic simulation of code that is
+Architecture and OS dependent, but BSP independent. The set of devices provides
+what an OS requires to execute: interrupt controller, system controller, timers,
+memory, serial connection, Ethernet, real-time clock, disk and flash. The
+devices are PC compatible with x86 QSP. The QSPs include board support packages
+(BSP) that enable operating systems to run on the QSP.</p>
+<h3 id="simics-products.html:simics-platforms"><a href="#simics-products.html:simics-platforms">1.2.2 Simics Platforms</a></h3>
+<p>A Simics Platform (Model Library) is an add-on product to Simics that provides a
+collection of device models that a user can add to a Simics Virtual Platform
+using Simics Model Builder.</p>
+</section><section class="page" id="standard-limitations.html"><h1 id="standard-limitations.html:standard-limitations"><a href="#standard-limitations.html:standard-limitations">2 Standard Limitations</a></h1>
+<p>The standard limitations may apply to all model products.</p>
+<ol>
+<li>Error states and diagnostic registers typically only return default values
+corresponding to no error when read.</li>
+<li>Performance counters will only return approximate values.</li>
+<li>Hardware models are simplified for performance and complexity reasons, as
+long as target software in the Delivery Criteria can run unmodified on the
+model.</li>
+<li>Only listed components or models will be implemented. Listed components or
+models can have limited functionality as long as the Delivery Criteria are
+fulfilled.</li>
+<li>The default in-order execution model in Simics allows one instruction or
+exception to be simulated each simulated clock tick. This means that the
+simulated processors implicitly have a “firm” consistency model. Unless
+otherwise specified, the in-order execution model is the only execution
+model supported.</li>
+<li>Simics is timing approximate; while Simics maintains a conceptual model of
+execution time, it will vary from the execution time of the same software
+running on a particular instance of physical hardware.</li>
+<li>Processor and device models simulate the architecturally defined behavior,
+usually defined in a Programmers Reference Manual. The Simics implementation
+of processor and device models may differ from hardware implementations but
+will comply with the architecture unless otherwise specified.</li>
+<li>For unusual cases, floating point calculations may have rounding errors,
+causing low order bits to differ from what is defined by architecture.</li>
+<li>While error status registers are available in the simulation model, they
+typically have read-write semantics without any side effects. This means
+they are not set by the simulation model and setting the registers will not
+cause any other effects in the model (such as triggering an interrupt or
+setting other registers).</li>
+<li>Deviations from product specification will be noted in the release notes.</li>
+</ol>
+</section><section class="page" id="simics-feature-list.html"><h1 id="simics-feature-list.html:simics-feature-list"><a href="#simics-feature-list.html:simics-feature-list">3 Simics Feature List</a></h1>
+<p>This section provides a short but comprehensive list of the major product
+characteristics and features of Simics 6. For more detailed descriptions, refer
+to the complete Simics documentation.</p>
+<h2 id="simics-feature-list.html:product-characteristics"><a href="#simics-feature-list.html:product-characteristics">3.1 Product Characteristics</a></h2>
+<dl>
+<dt id="simics-feature-list.html:dt:deterministic-simulation"><a href="#simics-feature-list.html:dt:deterministic-simulation">Deterministic Simulation</a></dt>
+<dd>
+<p>Simics is deterministic,
+forcing the exact same sequence of simulated instructions and device events to
+occur when rerunning the simulation. A deterministic simulation greatly
+simplifies debugging of target systems.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:non-intrusive-inspection"><a href="#simics-feature-list.html:dt:non-intrusive-inspection">Non-intrusive Inspection</a></dt>
+<dd>
+<p>Observation of the
+simulated system by scripts, GUI, command line and actions like checkpoint
+creation is non-intrusive; i.e., the simulation does not change although
+observation is being done.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:well-defined-api"><a href="#simics-feature-list.html:dt:well-defined-api">Well-defined API</a></dt>
+<dd>
+<p>Simics exports two well-defined
+application programming interfaces (APIs) based on C, available from both C
+and C++. One
+for device modeling, the Device API and one for extending the simulator, the
+Simulator API. The two APIs are also available in Python, and there is a small
+Python-only API in addition.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:api-and-abi-compatibility"><a href="#simics-feature-list.html:dt:api-and-abi-compatibility">API and ABI Compatibility</a></dt>
+<dd>
+<p>Simics follows the
+standard semantic versioning rules. This implies that in minor releases (where
+only the second digit in the version number changes), there can be additions
+to the API, but not removals, so Simics maintains ABI compatibility. Hence
+there is no need to recompile modules when upgrading.</p>
+<p>The API remains compatible with previous Simics releases. When building modules
+written for an older version of Simics, the API to use must be specified.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:modular-product-distribution"><a href="#simics-feature-list.html:dt:modular-product-distribution">Modular Product Distribution</a></dt>
+<dd>
+<p>The Simics product is
+distributed as a single common base package, with several add-on packages.
+There is typically one add-on package for every modeled system architecture.
+Installing support for a new architecture for example does not require the
+base package to be re-installed. Add-on packages and the base package can be
+upgraded independently of each other within the same major release.</p>
+</dd>
+</dl>
+<h2 id="simics-feature-list.html:simics"><a href="#simics-feature-list.html:simics">3.2 Simics</a></h2>
+<h3 id="simics-feature-list.html:general-features"><a href="#simics-feature-list.html:general-features">3.2.1 General Features</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:save-and-restore-of-checkpoints"><a href="#simics-feature-list.html:dt:save-and-restore-of-checkpoints">Save and Restore of Checkpoints</a></dt>
+<dd>
+<p>The simulation state
+of an entire Simics simulation can be saved to disk and restored at a later
+time in a host independent format. Saving a checkpoint can be done at any
+point in time during a simulation. Checkpoints are stored in a combination of
+human readable configuration files and binary files for large state (such as
+simulated disk or memory) and can be annotated with a clear text description.
+Checkpoints are incremental by default, i.e. only data that has changed since
+the last checkpoint is saved. But independent, stand-alone checkpoints can
+also be created. Only the simulated state is saved in a checkpoint; session
+data such as simulator preferences and statistics is not. It is also possible
+to include a recording of user and network input in a checkpoint. Old
+checkpoints can usually be loaded into newer versions of Simics.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:snapshots"><a href="#simics-feature-list.html:dt:snapshots">Snapshots</a></dt>
+<dd>
+<p>The simulation state can also be saved as
+in-memory snapshots. This is similar to checkpoints but is used within one
+simulation session. Snapshots can be loaded later, thus jumping between
+different points in simulation time.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:save-and-restore-of-persistent-data"><a href="#simics-feature-list.html:dt:save-and-restore-of-persistent-data">Save and Restore of Persistent Data</a></dt>
+<dd>
+<p>Persistent data,
+such as disk images and NVRAM contents that survive power-cycling, can be
+saved and restored at any time without the need to save the complete simulated
+state.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:dynamic-machine-configuration-system"><a href="#simics-feature-list.html:dt:dynamic-machine-configuration-system">Dynamic Machine Configuration System</a></dt>
+<dd>
+<p>Simics
+simulations are configured using objects and object attributes. The
+configuration language is used to setup machines and connect machines via
+networks. Configurations are host independent and can be created
+programmatically. Although editing by hand is possible configurations are
+typically created by tools, such as the component system. Objects can be added
+to and removed from the simulation at any time.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:high-level-component-configuration-system"><a href="#simics-feature-list.html:dt:high-level-component-configuration-system">High-Level Component Configuration System</a></dt>
+<dd>
+<p>The
+primary configuration system uses components that represent actual replaceable
+hardware units, such as mother-boards, disks, keyboards, PCI cards and network
+links. Components support hot-plugging if applicable, and they also make sure
+that only valid hardware configurations are set up.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:hierarchical-configuration-system"><a href="#simics-feature-list.html:dt:hierarchical-configuration-system">Hierarchical Configuration System</a></dt>
+<dd>
+<p>The configuration
+system supports hierarchies of objects as a way to impose structure of large
+and complex system. Some configuration aspects are inherited based on the
+hierarchy, simplifying setup.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:recording-of-asynchronous-input"><a href="#simics-feature-list.html:dt:recording-of-asynchronous-input">Recording of Asynchronous Input</a></dt>
+<dd>
+<p>Simics can record
+all input coming from the real world, allowing replay of a simulated session.
+Since the simulation is deterministic, a session can be rerun with the exact
+same result. Asynchronous input includes network traffic, serial port
+communication, keyboard and mouse input. The recording can also be saved
+separately or together with a checkpoint.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:hybrid-simulation"><a href="#simics-feature-list.html:dt:hybrid-simulation">Hybrid Simulation</a></dt>
+<dd>
+<p>The Hybrid Simulation feature
+allows integration between Simics and an external, much more timing accurate
+simulation model. As the accurate model will run significantly slower than a
+Simics functional model, the functional model can be used for workload
+positioning. Once this has been done, the simulation state can be transferred
+(and transformed) into the accurate model, and simulation can be continued.</p>
+<p>Integration of external timing accurate models require specific development,
+please contact Simics Support for more information.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:integrated-python-support"><a href="#simics-feature-list.html:dt:integrated-python-support">Integrated Python support</a></dt>
+<dd>
+<p>Simics is built and
+distributed as a binary Python extension module. It can be used with any
+sufficiently recent Python interpreter that is compatible with standard
+CPython binary modules.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:scripting-languages"><a href="#simics-feature-list.html:dt:scripting-languages">Scripting Languages</a></dt>
+<dd>
+<p>In Simics, one can use Python
+for both simple and more advanced scripting, with access to the full Simics
+API.</p>
+<p>The Simics specific command line interface (CLI) can also be used to write
+scripts.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:quick-start-platform-for-x86"><a href="#simics-feature-list.html:dt:quick-start-platform-for-x86">Quick-Start Platform for x86</a></dt>
+<dd>
+<p>The Simics Quick-Start
+Platform for x86 is a model of a standard Intel®-based personal computer (PC).
+The virtual platform boots from a TianoCore-based open-source UEFI (Unified
+Extensible Firmware Interface) and can run modern Linux, Windows*, and other
+operating system distributions. The platform is highly configurable and
+includes aspects like the number and types of processor cores, memory size,
+disks, network setup, PCIe* cards, and more.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:network-services"><a href="#simics-feature-list.html:dt:network-services">Network Services</a></dt>
+<dd>
+<p>Simics includes a virtual network
+server which provides a number of common network services over IPv4, and in
+some cases IPv6, on Ethernet networks. These include BOOTP, DHCP, DHCPv6, DNS,
+FTP, NTP, RARP, and TFTP.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:computer-industry-standards"><a href="#simics-feature-list.html:dt:computer-industry-standards">Computer Industry Standards</a></dt>
+<dd>
+<p>A wide range of common
+computer standards are supported and implemented in Simics in some form. There
+is often generic support for common protocols that can be extended for
+specific devices.</p>
+</dd>
+</dl>
+<h3 id="simics-feature-list.html:performance"><a href="#simics-feature-list.html:performance">3.2.2 Performance</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:host-multithreading"><a href="#simics-feature-list.html:dt:host-multithreading">Host Multithreading</a></dt>
+<dd>
+<p>Simics can utilize more than one
+host core to get improved simulation performance for both target systems that
+can be partitioned into multiple machines, called <em>cells</em> in Simics, and for
+tightly-coupled multi-processor target systems based on the ARM, PPC and x86
+architectures.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:distributed-simulation"><a href="#simics-feature-list.html:dt:distributed-simulation">Distributed Simulation</a></dt>
+<dd>
+<p>A simulation can be
+distributed over several Simics processes, either running on the same real
+host or on multiple networked hosts. A distributed simulation keeps the
+determinism of non-distributed simulations, and maintains global time across
+all processes. Simulations can be distributed at link boundaries, such as
+Ethernet and serial port connections.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:run-time-code-generation"><a href="#simics-feature-list.html:dt:run-time-code-generation">Run-time Code Generation</a></dt>
+<dd>
+<p>Simics uses a run-time code
+generator to achieve high performance, often better than 10x compute slowdown.</p>
+<p>Supported architectures: ARM, MIPS, PPC, RISC-V, SH4, SPARC-V8, x86.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:hardware-assisted-virtualization-vmp"><a href="#simics-feature-list.html:dt:hardware-assisted-virtualization-vmp">Hardware-assisted Virtualization - VMP</a></dt>
+<dd>
+<p>The Simics
+VMP feature can improve the simulated performance by utilizing the hardware
+virtualization support found in modern Intel® processors.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:hypersimulation"><a href="#simics-feature-list.html:dt:hypersimulation">Hypersimulation</a></dt>
+<dd>
+<p>Hypersimulation, also known as
+idle-loop-optimization, improves the performance of the simulation by doing
+fast forward of the virtual time when the target system is running code
+without side-effects. The system automatically identifies many hypersimulation
+opportunities of moderate complexity. For more complex opportunities, users
+can adapt the hypersimulation to match their own target code.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:restriction-on-host-memory-consumption"><a href="#simics-feature-list.html:dt:restriction-on-host-memory-consumption">Restriction on Host Memory Consumption</a></dt>
+<dd>
+<p>The amount of
+host memory used by Simics to cache simulated memory and disk images can be
+limited to avoid memory related performance problems. Excess data is swapped
+out to files in a user specified directory.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:real-time-mode"><a href="#simics-feature-list.html:dt:real-time-mode">Real-time Mode</a></dt>
+<dd>
+<p>Simics can be throttled to make sure
+that virtual time does not run faster than real time, or faster than some
+fixed ratio compared to real time.</p>
+</dd>
+</dl>
+<h3 id="simics-feature-list.html:processor-features"><a href="#simics-feature-list.html:processor-features">3.2.3 Processor Features</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:instruction-set-architectures"><a href="#simics-feature-list.html:dt:instruction-set-architectures">Instruction Set Architectures</a></dt>
+<dd>
+<p>Simics implements at
+least one processor for each of the following instruction set architectures:</p>
+<p>ARC, ARMv5, ARMv6, ARMv7, ARMv8, H8, i8051, M68K, MIPS32, MIPS64, NIOS II, NIOS V, PPC32, PPC64, RISC-V, SH4, SPARC-V8, X86, X86-64.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:multi-processor-and-multi-core-models"><a href="#simics-feature-list.html:dt:multi-processor-and-multi-core-models">Multi-processor and Multi-core Models</a></dt>
+<dd>
+<p>Target systems
+with multiple processors (SMP, AMP systems and multi-core processors) are
+supported.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:configurable-ratio-between-cycles-and-instructions"><a href="#simics-feature-list.html:dt:configurable-ratio-between-cycles-and-instructions">Configurable Ratio Between Cycles and Instructions</a></dt>
+<dd>
+<p>The CPI (cycles per instruction) of a processor can be modified at run-time to
+get processor timing that is closer to real hardware for example. Both 0 and
+infinity are valid CPI values.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:generic-parameterized-cache"><a href="#simics-feature-list.html:dt:generic-parameterized-cache">Generic Parameterized Cache</a></dt>
+<dd>
+<p>Simics includes a simple
+parameterized cache which can be configured to have parameters similar to a
+real cache in both single- and multi-processor systems. The parameters include
+size, associativity, number of levels, replacement policy and replacement
+algorithm. Simple miss penalties can be configured.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:instrumentation-framework"><a href="#simics-feature-list.html:dt:instrumentation-framework">Instrumentation Framework</a></dt>
+<dd>
+<p>The instrumentation
+framework allows flexible extraction of run-time information from the system
+in an efficient way. The framework supports processor and device
+instrumentation, including tracing. It provides generic commands for adding
+and controlling instrumentation in the simulation. Several example <em>tools</em> and
+<em>filters</em> are provided with source code as examples.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:processor-instrumentation"><a href="#simics-feature-list.html:dt:processor-instrumentation">Processor Instrumentation</a></dt>
+<dd>
+<p>It is possible to get
+callbacks on many events in a processor model such as instruction fetches and
+execution, data accesses, exceptions and interrupts. Data in transactions and
+default instruction semantics can be overridden.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:device-instrumentation"><a href="#simics-feature-list.html:dt:device-instrumentation">Device Instrumentation</a></dt>
+<dd>
+<p>It is possible to get
+callbacks on device register accesses, where data can be overridden.
+Instrumentation works automatically for devices written in DML or SystemC.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:device-register-coverage"><a href="#simics-feature-list.html:dt:device-register-coverage">Device Register Coverage</a></dt>
+<dd>
+<p>Simics can generate
+information about register coverage, i.e. which registers in a system have
+been read/written during a session. This can for example be used to verify
+that expected parts of a system have been covered by tests.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:magic-instructions"><a href="#simics-feature-list.html:dt:magic-instructions">Magic Instructions</a></dt>
+<dd>
+<p>The software on the simulated
+system can communicate with the simulator by using magic instructions; i.e.,
+instructions that are treated as NOPs on real hardware, but have a special,
+user-defined, meaning in Simics. The Simics Agent, described separately,
+provides a more high level way of communication between host and target.</p>
+</dd>
+</dl>
+
+<h3 id="simics-feature-list.html:memory-features"><a href="#simics-feature-list.html:memory-features">3.2.4 Memory Features</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:generic-address-spaces"><a href="#simics-feature-list.html:dt:generic-address-spaces">Generic Address Spaces</a></dt>
+<dd>The memory-space abstraction
+in Simics supports a generic 64-bit address space where memory and devices can
+be mapped in. Objects can be mapped at multiple addresses and be mapped
+overlapping with different priorities. Several common byte-swapping operations
+are supported for mappings. Memory spaces can be mapped in other spaces, with
+optional address translation being performed between them.</dd>
+<dt id="simics-feature-list.html:dt:dynamic-memory-mapping"><a href="#simics-feature-list.html:dt:dynamic-memory-mapping">Dynamic Memory Mapping</a></dt>
+<dd>Both memory and devices can
+be mapped and unmapped in memory-spaces at any time during the simulation.
+This is typically used when simulating system chipsets and host bridges that
+allow target software to modify the memory and device layout in the physical
+memory space.</dd>
+<dt id="simics-feature-list.html:dt:catch-accesses-to-unmapped-areas"><a href="#simics-feature-list.html:dt:catch-accesses-to-unmapped-areas">Catch Accesses to Unmapped Areas</a></dt>
+<dd>Memory areas that
+are not mapped by any device or memory can either be handled as on real
+hardware or caught by the simulator producing a warning or triggering a user
+callback.</dd>
+<dt id="simics-feature-list.html:dt:memory-access-callbacks"><a href="#simics-feature-list.html:dt:memory-access-callbacks">Memory Access Callbacks</a></dt>
+<dd>User callbacks can be
+installed for each memory space and are called on memory accesses.</dd>
+</dl>
+<h3 id="simics-feature-list.html:breakpoint-features"><a href="#simics-feature-list.html:breakpoint-features">3.2.5 Breakpoint Features</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:memory-access-breakpoints"><a href="#simics-feature-list.html:dt:memory-access-breakpoints">Memory Access Breakpoints</a></dt>
+<dd>Breakpoint can be set on
+reads, writes and execution from memory. Any number of breakpoints can be used
+and they can be of any size. Breakpoints usually have a very small impact on
+performance.</dd>
+<dt id="simics-feature-list.html:dt:time-breakpoints"><a href="#simics-feature-list.html:dt:time-breakpoints">Time Breakpoints</a></dt>
+<dd>Breakpoints can be set on cycle or
+step count for each processor and on time in seconds.</dd>
+<dt id="simics-feature-list.html:dt:instruction-breakpoints"><a href="#simics-feature-list.html:dt:instruction-breakpoints">Instruction Breakpoints</a></dt>
+<dd>Execution breakpoints can be
+set on instruction disassembly sub-strings and instruction bit patterns.</dd>
+<dt id="simics-feature-list.html:dt:processor-register-breakpoints"><a href="#simics-feature-list.html:dt:processor-register-breakpoints">Processor Register Breakpoints</a></dt>
+<dd>Read and write breakpoints can be set on processor register writes.</dd>
+<dt id="simics-feature-list.html:dt:processor-exception-breakpoints"><a href="#simics-feature-list.html:dt:processor-exception-breakpoints">Processor Exception Breakpoints</a></dt>
+<dd>The execution can be stopped when a processor takes a specific exception.</dd>
+<dt id="simics-feature-list.html:dt:device-access-breakpoints"><a href="#simics-feature-list.html:dt:device-access-breakpoints">Device Access Breakpoints</a></dt>
+<dd>Breakpoints can be set on accesses to memory and port mapped devices.</dd>
+<dt id="simics-feature-list.html:dt:notifier-trigger-breakpoints"><a href="#simics-feature-list.html:dt:notifier-trigger-breakpoints">Notifier/Trigger Breakpoints</a></dt>
+<dd>Breakpoints can be set
+on notifiers (see Simulation and Simulator Triggers) occurrences.</dd>
+<dt id="simics-feature-list.html:dt:console-output-breakpoints"><a href="#simics-feature-list.html:dt:console-output-breakpoints">Console Output Breakpoints</a></dt>
+<dd>It is possible to set
+breakpoints on console output. For text consoles, a string to break on is
+used. Graphical consoles have support for breaking on a rectangular bitmap
+area.</dd>
+</dl>
+<h3 id="simics-feature-list.html:communication-channels"><a href="#simics-feature-list.html:communication-channels">3.2.6 Communication Channels</a></h3>
+<p>Communication links in Simics that work with multithreading and distribution.
+Links provide the only supported target communication between simulated machines
+that run in different host threads or on different host machines.</p>
+<dl>
+<dt id="simics-feature-list.html:dt:ethernet"><a href="#simics-feature-list.html:dt:ethernet">Ethernet</a></dt>
+<dd>Generic models of an Ethernet cable, a switch and a hub.</dd>
+<dt id="simics-feature-list.html:dt:i2c"><a href="#simics-feature-list.html:dt:i2c">I2C</a></dt>
+<dd>A link for I2C communication.</dd>
+<dt id="simics-feature-list.html:dt:i3c"><a href="#simics-feature-list.html:dt:i3c">I3C</a></dt>
+<dd>A link for I3C communication.</dd>
+<dt id="simics-feature-list.html:dt:serial"><a href="#simics-feature-list.html:dt:serial">Serial</a></dt>
+<dd>A serial link that can be connected to UARTs and text consoles.</dd>
+<dt id="simics-feature-list.html:dt:signal"><a href="#simics-feature-list.html:dt:signal">Signal</a></dt>
+<dd>A link for single line signals.</dd>
+<dt id="simics-feature-list.html:dt:link-library"><a href="#simics-feature-list.html:dt:link-library">Link Library</a></dt>
+<dd>A link library is provided for creating
+new user defined link types, replacing the old generic message link.</dd>
+</dl>
+<h3 id="simics-feature-list.html:host-access"><a href="#simics-feature-list.html:host-access">3.2.7 Host Access</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:exported-serial-line"><a href="#simics-feature-list.html:dt:exported-serial-line">Exported Serial Line</a></dt>
+<dd>A simulated serial port can be
+made visible to the host system where Simics is running. On Linux systems,
+this is implemented by connecting the simulated device to a pseudo terminal
+(pty). On Windows, a virtual COM port on the host is used.</dd>
+<dt id="simics-feature-list.html:dt:telnet-to-serial-port"><a href="#simics-feature-list.html:dt:telnet-to-serial-port">Telnet to Serial Port</a></dt>
+<dd>Simulated serial ports can be
+accessed using a standard telnet client from a real host.</dd>
+<dt id="simics-feature-list.html:dt:vnc-to-graphical-console"><a href="#simics-feature-list.html:dt:vnc-to-graphical-console">VNC to Graphical Console</a></dt>
+<dd>It is possible to connect
+to a simulated graphical console from a VNC client.</dd>
+<dt id="simics-feature-list.html:dt:host-serial-port"><a href="#simics-feature-list.html:dt:host-serial-port">Host Serial Port</a></dt>
+<dd>A simulated serial port can be
+connected to a real serial port on the host. On Windows hosts, additional
+third-party software is needed.</dd>
+<dt id="simics-feature-list.html:dt:the-simics-agent"><a href="#simics-feature-list.html:dt:the-simics-agent">The Simics Agent</a></dt>
+<dd>The Simics agent runs on the
+simulated target system and can be controlled from the Simics command line. It
+supports file transfers between the host and the target machine, without the
+need for any network connection.</dd>
+<dt id="simics-feature-list.html:dt:simics-file-system-for-linux"><a href="#simics-feature-list.html:dt:simics-file-system-for-linux">Simics File System for Linux</a></dt>
+<dd>The Simics file system
+is a kernel module for the simulated Linux operating system that gives the
+target machine access to the host file system.</dd>
+<dt id="simics-feature-list.html:dt:iso-file-as-cd-rom-and-dvd-rom-medium"><a href="#simics-feature-list.html:dt:iso-file-as-cd-rom-and-dvd-rom-medium">ISO file as CD-ROM and DVD-ROM Medium</a></dt>
+<dd>The simulated
+CD-ROM drive can use a standard ISO 9660 file as CD/DVD-ROM medium.</dd>
+<dt id="simics-feature-list.html:dt:host-hard-disk"><a href="#simics-feature-list.html:dt:host-hard-disk">Host Hard Disk</a></dt>
+<dd>Hard disks and disk partitions on the
+host can be used as part of a simulated hard disk. The disk can be used in
+either read-only or read-write mode.</dd>
+<dt id="simics-feature-list.html:dt:graphical-display"><a href="#simics-feature-list.html:dt:graphical-display">Graphical Display</a></dt>
+<dd>Output from simulated graphics
+devices are displayed in a separate window on the host, a <em>graphical console</em>.</dd>
+<dt id="simics-feature-list.html:dt:keyboard-and-mouse"><a href="#simics-feature-list.html:dt:keyboard-and-mouse">Keyboard and Mouse</a></dt>
+<dd>The keyboard and the mouse of the
+real host can be used to give input to the simulated keyboard and mouse.</dd>
+<dt id="simics-feature-list.html:dt:system-panel"><a href="#simics-feature-list.html:dt:system-panel">System Panel</a></dt>
+<dd>A System Panel is a graphical interface
+for controlling and inspecting a specific simulated machine. The panel can
+either be a concrete panel, which could represent the front of a computer with
+buttons and blinking LEDs; or it can be an abstract panel that can be, for
+example, used to inject network traffic or other data into a simulated system.</dd>
+<dt id="simics-feature-list.html:dt:port-forwarding-nat"><a href="#simics-feature-list.html:dt:port-forwarding-nat">Port-forwarding/NAT</a></dt>
+<dd>Port forwarding (incoming) and
+NAT (outgoing) allow the target systems to communicate with the real network
+using their own private IP addresses. Simics translates between external and
+internal IP addresses. Port-forwarding/NAT does not require administrator
+privileges to setup. Both UDP- and TCP-based protocols are supported, although
+a few higher-level protocols, such as FTP, may require special support. Common
+protocols that work are SSH, Telnet, TFTP, FTP and HTTP.</dd>
+<dt id="simics-feature-list.html:dt:ethernet-bridge"><a href="#simics-feature-list.html:dt:ethernet-bridge">Ethernet Bridge</a></dt>
+<dd>Simics can act as an Ethernet bridge
+between the real and simulated network, where the simulated machines appear to
+be on the real Ethernet network. Administrator privileges on the host are
+required for installation. The simulated machines have to be configured with
+IP addresses matching the real network.</dd>
+<dt id="simics-feature-list.html:dt:virtual-host-interface-on-the-simulated-network"><a href="#simics-feature-list.html:dt:virtual-host-interface-on-the-simulated-network">Virtual Host Interface on the Simulated Network</a></dt>
+<dd>Simics can create a virtual interface (TAP) on the real host that appears as a
+network device on the simulated network.</dd>
+</dl>
+<h3 id="simics-feature-list.html:remote-interfaces"><a href="#simics-feature-list.html:remote-interfaces">3.2.8 Remote Interfaces</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:gdb-remote"><a href="#simics-feature-list.html:dt:gdb-remote">GDB Remote</a></dt>
+<dd>Simics supports the GDB remote protocol.
+Multiple GDB debuggers can be connected to Simics simultaneously, one to each
+target.</dd>
+<dt id="simics-feature-list.html:dt:telnet-frontend"><a href="#simics-feature-list.html:dt:telnet-frontend">Telnet Frontend</a></dt>
+<dd>It is possible to connect to a
+running Simics using a standard telnet client for access to the command line.</dd>
+</dl>
+<h3 id="simics-feature-list.html:miscellaneous-features"><a href="#simics-feature-list.html:miscellaneous-features">3.2.9 Miscellaneous Features</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:simulation-and-simulator-triggers"><a href="#simics-feature-list.html:dt:simulation-and-simulator-triggers">Simulation and Simulator Triggers</a></dt>
+<dd>Simics defines
+notifiers as pre-defined conditions in the simulation that trigger the
+callback of one or more user-installed function. Users may also add new
+notifiers to the simulation. Notifiers are either simulation or simulator
+specific. Examples of the first kind are processor interrupt, control register
+write and magic instruction. Examples of the second kind are configuration
+object created, simulation stopped and preferences changed.</dd>
+<dt id="simics-feature-list.html:dt:time-server"><a href="#simics-feature-list.html:dt:time-server">Time Server</a></dt>
+<dd>The virtual time can be distributed to
+externally running tools, allowing them to run with the same virtual time as
+the simulated session. This is useful for timing sensitive tests, for example,
+when the real and simulated time differs.</dd>
+<dt id="simics-feature-list.html:dt:loading-binary-files-into-simulated-memory"><a href="#simics-feature-list.html:dt:loading-binary-files-into-simulated-memory">Loading Binary Files into Simulated Memory</a></dt>
+<dd>Simics
+can load binary files, including executables, directly into the simulated
+memory, without the need for any initial loader software. The formats
+supported are raw binary files, ELF, Motorola S-Record, PE32 and PE32+, Intel
+.obj and Intel HEX.</dd>
+<dt id="simics-feature-list.html:dt:compressed-disk-images"><a href="#simics-feature-list.html:dt:compressed-disk-images">Compressed Disk Images</a></dt>
+<dd>Disk images for simulated
+systems can be stored in a compressed random access format, called CRAFF, to
+save disk space on the host. The compression is transparent to the target
+system. The standard VHDX format is also supported.</dd>
+<dt id="simics-feature-list.html:dt:load-and-store-of-memory-and-disk-to-host-file"><a href="#simics-feature-list.html:dt:load-and-store-of-memory-and-disk-to-host-file">Load and Store of Memory and Disk to Host File</a></dt>
+<dd>Parts
+of, or complete, memory and disk images in Simics can be saved to a file on
+the host file system.</dd>
+<dt id="simics-feature-list.html:dt:ethernet-frame-injection"><a href="#simics-feature-list.html:dt:ethernet-frame-injection">Ethernet Frame Injection</a></dt>
+<dd>Frames on the simulated
+Ethernet link can be inserted, removed and modified by the user. It is
+possible to inject a stream of frames using the PCAP format.</dd>
+</dl>
+<h2 id="simics-feature-list.html:simics-analyzer"><a href="#simics-feature-list.html:simics-analyzer">3.3 Simics Analyzer</a></h2>
+<h3 id="simics-feature-list.html:general-features-2"><a href="#simics-feature-list.html:general-features-2">3.3.1 General Features</a></h3>
+<dl>
+<dt id="simics-feature-list.html:dt:symbolic-debugging"><a href="#simics-feature-list.html:dt:symbolic-debugging">Symbolic Debugging</a></dt>
+<dd>Simics has built-in support for
+source code debugging of programs written in C or C++. The formats supported are
+ELF with DWARF debug information and PE32 with PDB debug information. Formats
+such as COFF and STABS are not supported. The debugger works with ARM, PPC,
+X86, MIPS and ARC targets.</dd>
+<dt id="simics-feature-list.html:dt:os-aware-process-tracking"><a href="#simics-feature-list.html:dt:os-aware-process-tracking">OS Aware Process Tracking</a></dt>
+<dd>Simics can detect when
+processes start and exit on the simulated machine, and keep track of what
+process that is currently active. Process tracking is useful for single
+process debugging, or when collecting statistics on a per process basis. Since
+knowledge about the target OS is needed, the process tracker has to be
+extended to support new operating systems. There is also a simple process
+tracker that only differentiates between user and supervisor mode that can be
+used if the OS is not supported. See Analyzer User’s Guide for list of
+supported systems, including Linux, UEFI and VxWorks.</dd>
+<dt id="simics-feature-list.html:dt:code-coverage"><a href="#simics-feature-list.html:dt:code-coverage">Code Coverage</a></dt>
+<dd>Simics supports collecting code
+coverage (statement and branch coverage) on C, C++ and assembler source code
+for software running on the simulated target without any need to instrument
+the binary code.</dd>
+</dl>
+<h2 id="simics-feature-list.html:simics-model-builder"><a href="#simics-feature-list.html:simics-model-builder">3.4 Simics Model Builder</a></h2>
+<p>See <a href="../installation-guide/hardware-and-software-requirements.html"><em>Hardware and Software
+Requirements</em></a>
+for supported compilers.</p>
+<dl>
+<dt id="simics-feature-list.html:dt:user-developed-devices"><a href="#simics-feature-list.html:dt:user-developed-devices">User Developed Devices</a></dt>
+<dd>
+<p>Users can develop their own
+models of devices by writing DML, Python, SystemC, C or C++.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:dml"><a href="#simics-feature-list.html:dt:dml">DML</a></dt>
+<dd>
+<p>The device modeling tool DML simplifies the task
+of implementing simulation models at the right level of abstraction and makes
+it easier to develop models that support standard features such as inspection,
+checkpointing and snapshots.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:systemc-library"><a href="#simics-feature-list.html:dt:systemc-library">SystemC Library</a></dt>
+<dd>
+<p>The SystemC library enables a
+SystemC device to be integrated into a Simics simulation. This is done by
+compiling the SystemC kernel into a Simics module, together with the SystemC
+simulation models.</p>
+<p>The user will have to write translators between the SystemC and Simics
+interfaces.</p>
+<p><strong>Limitation:</strong> For checkpointing to work, the SystemC model has to be adapted
+to use the Simics checkpoint mechanism. Also, it may not use threads or have
+some other implicit state.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:system-panel-build-kit"><a href="#simics-feature-list.html:dt:system-panel-build-kit">System Panel Build Kit</a></dt>
+<dd>
+<p>The System Panel Build Kit
+enables the construction of System Panels. A System Panel is a graphical
+interface for controlling and inspecting a specific simulated machine.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:example-code"><a href="#simics-feature-list.html:dt:example-code">Example Code</a></dt>
+<dd>
+<p>There is example code in DML and Python
+included for several common device classes such as DMA, I2C, PCI, interrupt,
+serial devices and timers.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:multithreaded-user-extensions"><a href="#simics-feature-list.html:dt:multithreaded-user-extensions">Multithreaded User Extensions</a></dt>
+<dd>
+<p>Simics extensions may
+be written using threads in C, C++ or Python. Only a few thread safe
+functions in the Simics API are then available. The rest of the API can be
+accessed by synchronizing to the Simics core, which is done using the thread
+safe functions.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:access-to-python-from-c-and-c"><a href="#simics-feature-list.html:dt:access-to-python-from-c-and-c">Access to Python From C and C++</a></dt>
+<dd>
+<p>The Simics API allows
+extensions to evaluate Python code in the global Python interpreter
+environment and to get a return value back.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:access-to-c-functions-from-python"><a href="#simics-feature-list.html:dt:access-to-c-functions-from-python">Access to C Functions from Python</a></dt>
+<dd>
+<p>User defined Simics <em>interfaces</em> can be called from Python code.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:user-defined-commands"><a href="#simics-feature-list.html:dt:user-defined-commands">User-defined Commands</a></dt>
+<dd>
+<p>Users can add their own
+commands to the command line interface. Commands can be added dynamically at
+any time.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:user-defined-processor-instructions"><a href="#simics-feature-list.html:dt:user-defined-processor-instructions">User-defined Processor Instructions</a></dt>
+<dd>
+<p>Using the
+instrumentation framework, a user may override the semantics of existing
+instructions or define new ones.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:user-developed-processors"><a href="#simics-feature-list.html:dt:user-developed-processors">User Developed Processors</a></dt>
+<dd>
+<p>Users can plug in their
+own processor models in Simics using the Simics Processor API.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:user-developed-simulator-extensions"><a href="#simics-feature-list.html:dt:user-developed-simulator-extensions">User Developed Simulator Extensions</a></dt>
+<dd>
+<p>The simulator can be extended by modules written in Python, C or C++.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:simics-as-a-library"><a href="#simics-feature-list.html:dt:simics-as-a-library">Simics as a Library</a></dt>
+<dd>
+<p>There is a Simics shared object
+(DLL/.so) that can be linked with other binaries. This can be used to
+integrate Simics into another simulator or application.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:time-synchronization-library"><a href="#simics-feature-list.html:dt:time-synchronization-library">Time Synchronization Library</a></dt>
+<dd>
+<p>The time
+synchronization library, as its name implies, provides synchronization of the
+virtual time in Simics with the virtual time in an external simulator. It also
+provides a deterministic way to exchange information between them, such as
+network traffic.</p>
+</dd>
+<dt id="simics-feature-list.html:dt:hypersimulation-interface"><a href="#simics-feature-list.html:dt:hypersimulation-interface">Hypersimulation Interface</a></dt>
+<dd>
+<p>There is an interface for
+adding user-written hypersimulation patterns (idle loop detectors) to the
+generic hypersimulation framework.</p>
+</dd>
+</dl>
+</section>

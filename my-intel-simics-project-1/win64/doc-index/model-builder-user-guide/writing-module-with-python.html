@@ -1,0 +1,76 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>16 Modeling with Python</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="writing-module-with-c.html">15 Modeling with C</a>
+<a href="writing-module-with-pyobj.html">16.1 Modeling with Python (pyobj)</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-device-modeling.html">II Device Modeling</a>
+&nbsp;/&nbsp;</div><h1 id="modeling-with-python"><a href="#modeling-with-python">16 Modeling with Python</a></h1>
+<p>This section describes modeling devices with Python.
+There are currently three ways of modeling with Python:</p>
+<ol>
+<li>Use the <code>pyobj</code> module (<code>ConfObject</code> class), which is documented in the
+<a href="writing-module-with-pyobj.html"><em>Modeling with Python (pyobj)</em></a> section.</li>
+<li>Use the <code>confclass</code> class, which is documented in the <a href="writing-module-with-confclass.html"><em>Modeling with Python
+(confclass)</em></a> section.</li>
+<li>Using the Simics API directly from Python. This method is <em>not recommended</em>,
+but just mentioned as a possibility.
+An example is available in the <code>empty-device-python</code> module.</li>
+</ol>
+<p>In the choice between <code>pyobj</code> and <code>confclass</code>:</p>
+<ul>
+<li><code>pyobj</code> is slightly more feature complete, but relies on inheritance to add
+attributes and interfaces, which means that subclasses for these needs to be
+added.</li>
+<li><code>confclass</code> is the newest of the two, and has a slightly more condensed
+syntax, where attributes and interfaces are added using hierarchical
+decorators. The missing functionality (see below) will be addressed in future
+releases.</li>
+</ul>
+<p>This is a short high-level functionality comparison between <code>pyobj</code> and
+<code>confclass</code>:</p>
+<table><thead><tr><th><em>Aspect/Property</em></th><th style="text-align: left"><strong>pyobj</strong></th><th style="text-align: left"><strong>confclass</strong></th></tr></thead><tbody>
+<tr><td><em>Documentation</em></td><td style="text-align: left">good</td><td style="text-align: left">fair, but lacks API documentation</td></tr>
+<tr><td><em>Attributes</em></td><td style="text-align: left">supported</td><td style="text-align: left">supported</td></tr>
+<tr><td><em>Ports</em></td><td style="text-align: left">supported</td><td style="text-align: left">supported</td></tr>
+<tr><td><em>Class attributes</em></td><td style="text-align: left">supported</td><td style="text-align: left">not supported</td></tr>
+<tr><td><em>Events</em></td><td style="text-align: left">supported</td><td style="text-align: left">supported, but lacks API documentation</td></tr>
+<tr><td><em>Inheritance</em></td><td style="text-align: left">supported</td><td style="text-align: left">supported</td></tr>
+<tr><td><em>Info and Status commands</em></td><td style="text-align: left">automatically added</td><td style="text-align: left">not automatically added, but can be added with decorators (see <a class="reference" href="writing-module-with-confclass.html#info-and-status-commands">16.2.8</a>)</td></tr>
+</tbody></table>
+<p>Information on how to port a <code>pyobj</code> class to <code>confclass</code>, see section
+<a class="reference" href="migrate-pyobj-to-confclass.html">16.3</a>.</p>
+<blockquote class="markdown-alert-note">
+<p>The API you use to write components is based on pyobj (see
+<a href="../rm-api/comp.html#comp.StandardComponent">StandardComponent</a>).
+There is <em>no plan</em> to implement a <code>confclass</code> based variant of this API as the
+component system is being phased out. The recommendation is to instead use
+<a href="../blueprints/blueprints.html">blueprints</a> (see
+<a href="../blueprints/blueprints.html#comparison-with-components">comparison</a> and
+<a href="../blueprints/blueprints.html#porting-from-components-to-blueprints">porting</a>
+sections).</p>
+</blockquote>
+
+<ul class="subsections">
+<li>
+<a href="writing-module-with-pyobj.html">16.1 Modeling with Python (pyobj)</a>
+</li>
+<li>
+<a href="writing-module-with-confclass.html">16.2 Modeling with Python (confclass)</a>
+</li>
+<li>
+<a href="migrate-pyobj-to-confclass.html">16.3 Migrating to confclass</a>
+</li>
+</ul>
+<div class="chain">
+<a href="writing-module-with-c.html">15 Modeling with C</a>
+<a href="writing-module-with-pyobj.html">16.1 Modeling with Python (pyobj)</a>
+</div>

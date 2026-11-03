@@ -1,0 +1,44 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>40 Logging and output</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="checkpoint-compatibility.html">39 Checkpoint Compatibility</a>
+<a href="extension-builder.html">VII Extending Simics</a>
+</div>
+<div class="path">
+<a href="index.html">Model Builder User’s Guide</a>
+&nbsp;/&nbsp;
+<a href="part-simics-programming.html">VI Simics API</a>
+&nbsp;/&nbsp;</div><h1 id="logging-and-output"><a href="#logging-and-output">40 Logging and output</a></h1>
+<p>The Simics logging and output facility can be controlled via
+attributes on the <code>sim</code> object and via command line parameters.</p>
+<p>Warning messages are either log warnings, or messages printed using
+<code>SIM_printf_warning</code>. Similarly, error messages are either log errors
+or messages printed using <code>SIM_printf_error</code>.</p>
+<p>This table summarizes how Simics behaves for the different message types.</p>
+<table><thead><tr><th></th><th>sim-&gt;stop_on_error=false</th><th>sim-&gt;stop_on_error=true<br>sim-&gt;warnings_as_errors=false</th><th>sim-&gt;warnings_as_errors=true</th></tr></thead><tbody>
+<tr><td>Warnings</td><td></td><td></td><td>Stop</td></tr>
+<tr><td>Errors</td><td></td><td>Stop</td><td>Stop</td></tr>
+<tr><td>Log critical</td><td>Stop</td><td>Stop</td><td>Stop</td></tr>
+<tr><td>Deprecation warnings</td><td></td><td>Stop</td><td>Stop</td></tr>
+</tbody></table>
+<p>In the case of deprecation warnings, there is also
+<code>sim-&gt;deprecations_as_errors</code> which has the same effect as
+<code>sim-&gt;stop_on_error</code>.</p>
+<p>There is also an attribute <code>sim-&gt;ignore_error_count</code>, which can be set
+to a positive integer. This results in Simics ignoring the error
+condition of that number of error messages, i.e. the
+<code>sim-&gt;stop_on_error=true</code> effect is ignored.</p>
+<p>The attributes <code>sim-&gt;stop_on_error</code>, <code>sim-&gt;warnings_as_errors</code> and
+<code>sim-&gt;deprecations_as_errors</code> can be set using the corresponding
+command line flags, <code>--stop-on-error</code>, <code>--warnings-as-errors</code> and
+<code>--deprecations-as-errors</code>.</p>
+
+<div class="chain">
+<a href="checkpoint-compatibility.html">39 Checkpoint Compatibility</a>
+<a href="extension-builder.html">VII Extending Simics</a>
+</div>

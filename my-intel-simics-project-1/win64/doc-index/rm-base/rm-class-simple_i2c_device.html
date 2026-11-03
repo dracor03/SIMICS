@@ -1,0 +1,97 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>simple_i2c_device</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-simple_directory.html">simple_directory</a>
+<a href="rm-class-simple_pcie_device.html">simple_pcie_device</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="simple_i2c_device"><a href="#simple_i2c_device">simple_i2c_device</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Simple I2C slave device implementing both i2c_bus and i2c_slave_v2 interfaces. It can be used for testing.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, i2c_device, i2c_slave_v2
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:i2c_bus-optional"><a href="#dt:i2c_bus-optional">i2c_bus (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_bus
+</dd>
+<dt id="dt:i2c_link_v2-optional"><a href="#dt:i2c_link_v2-optional">i2c_link_v2 (optional)</a></dt>
+<dd>
+<b>Required interfaces</b>: i2c_master_v2
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-simple_i2c_device.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-simple_i2c_device.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:address"><a href="#dt:address">
+<i>address</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Address on the i2c bus.</dd>
+<dt id="dt:read_value"><a href="#dt:read_value">
+<i>read_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Value to return on reads.</dd>
+<dt id="dt:written_value"><a href="#dt:written_value">
+<i>written_value</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Last byte written to this device.</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.simple-i2c-device.html">simple-i2c-device</a>
+</section>
+<div class="chain">
+<a href="rm-class-simple_directory.html">simple_directory</a>
+<a href="rm-class-simple_pcie_device.html">simple_pcie_device</a>
+</div>

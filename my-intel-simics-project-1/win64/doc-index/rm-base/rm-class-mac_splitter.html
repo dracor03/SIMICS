@@ -1,0 +1,68 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>mac_splitter</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-linux_tracker_comp.html">linux_tracker_comp</a>
+<a href="rm-class-magic_character_capture.html">magic_character_capture</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="mac_splitter"><a href="#mac_splitter">mac_splitter</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+This object splits incoming access from one PHY to several MACs.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, ieee_802_3_mac_v3
+<h2 id="connects">
+<a href="#connects">Connects</a>
+</h2>
+<dl>
+<dt id="dt:mac-required"><a href="#dt:mac-required">mac (required)</a></dt>
+<dd>
+<b>Required interfaces</b>: ieee_802_3_mac_v3
+</dd>
+</dl>
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:mac"><a href="#dt:mac">
+<i>mac</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[o|[os]{2}]</code>
+<br>The MACs connected to the splitter.
+<p>
+Required interfaces: <tt>ieee_802_3_mac_v3</tt>.</p></dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.mac-splitter.html">mac-splitter</a>
+</section>
+<div class="chain">
+<a href="rm-class-linux_tracker_comp.html">linux_tracker_comp</a>
+<a href="rm-class-magic_character_capture.html">magic_character_capture</a>
+</div>

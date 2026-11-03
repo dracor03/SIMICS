@@ -1,0 +1,381 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>sample-risc-core</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="rm-class-sample-risc.html">sample-risc</a>
+<a href="rm-class-sample-user-decoder.html">sample-user-decoder</a>
+</div>
+<div class="path">
+<a href="index.html">Simics Reference Manual</a>
+&nbsp;/&nbsp;
+<a href="rm-classes.html">5 Classes</a>
+&nbsp;/&nbsp;</div><h1 id="sample-risc-core"><a href="#sample-risc-core">sample-risc-core</a></h1>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description">
+<a href="#description">Description</a>
+</h2>
+Sample RISC core.
+<h2 id="interfaces-implemented">
+<a href="#interfaces-implemented">Interfaces Implemented</a>
+</h2>conf_object, log_object, context_handler, processor_info_v2, processor_info, int_register, exception, processor_cli, opcode_info
+<h2 id="notifiers">
+<a href="#notifiers">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change"><a href="#dt:cell-change">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete"><a href="#dt:object-delete">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change"><a href="#dt:queue-change">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+<h2 id="port-objects">
+<a href="#port-objects">Port Objects</a>
+</h2>
+<dl>
+<dt id="dt:port-external_interrupt"><a href="#dt:port-external_interrupt">port.EXTERNAL_INTERRUPT</a></dt>
+<dd>
+<a href="rm-class-sample-risc-core.html#sample-risc-core.EXTERNAL_INTERRUPT">sample-risc-core.EXTERNAL_INTERRUPT</a>
+ – External interrupt line.</dd>
+</dl>
+<h2 id="commands-for-this-class">
+<a href="#commands-for-this-class">Commands for this class</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-sample-risc-core.info.html">info</a>
+ – print information about the object</li>
+<li>
+<a href="rm-cmd-sample-risc-core.status.html">status</a>
+ – print status of the object</li>
+</ul>
+<h2 id="commands-for-interface-context_handler">
+<a href="#commands-for-interface-context_handler">Commands for interface context_handler</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-set-context.html">set-context</a>
+ – set the current context of a CPU</li>
+</ul>
+<h2 id="commands-for-interface-processor_info">
+<a href="#commands-for-interface-processor_info">Commands for interface processor_info</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-processor_info.debug.html">debug</a>
+ – get debug object</li>
+<li>
+<a href="rm-cmd-penable.html">disable</a>
+ – switch processor off</li>
+<li>
+<a href="rm-cmd-disassemble.html">disassemble</a>
+ – disassemble instructions</li>
+<li>
+<a href="rm-cmd-penable.html">enable</a>
+ – switch processor on</li>
+<li>
+<a href="rm-cmd-processor_info.enabled.html">enabled</a>
+ – get enable status</li>
+<li>
+<a href="rm-cmd-get.html">get-memory</a>
+ – get value of physical address</li>
+<li>
+<a href="rm-cmd-load-binary.html">load-binary</a>
+ – load binary (executable) file into memory</li>
+<li>
+<a href="rm-cmd-logical-to-physical.html">logical-to-physical</a>
+ – translate logical address to physical</li>
+<li>
+<a href="rm-cmd-print-processor-registers.html">print-processor-registers</a>
+ – print cpu registers</li>
+<li>
+<a href="rm-cmd-read-reg.html">read-reg</a>
+ – read a register</li>
+<li>
+<a href="rm-cmd-set.html">set-memory</a>
+ – set physical address to specified value</li>
+<li>
+<a href="rm-cmd-set-pc.html">set-pc</a>
+ – set the program counter</li>
+<li>
+<a href="rm-cmd-write-reg.html">write-reg</a>
+ – write to register</li>
+<li>
+<a href="rm-cmd-x.html">x</a>
+ – examine raw memory contents</li>
+</ul>
+<h2 id="commands-for-interface-exception">
+<a href="#commands-for-interface-exception">Commands for interface exception</a>
+</h2>
+<ul>
+<li>
+<a href="rm-cmd-exception.bp-break-exception.html">bp-break-exception</a>
+ – set break on exception</li>
+<li>
+<a href="rm-cmd-exception.bp-run-until-exception.html">bp-run-until-exception</a>
+ – run until specified exception occurs</li>
+<li>
+<a href="rm-cmd-exception.bp-trace-exception.html">bp-trace-exception</a>
+ – enable tracing of exceptions</li>
+<li>
+<a href="rm-cmd-exception.bp-wait-for-exception.html">bp-wait-for-exception</a>
+ – wait for specified exception</li>
+<li>
+<a href="rm-cmd-exception.list-exceptions.html">list-exceptions</a>
+ – list exceptions on a processor</li>
+</ul>
+<h2 id="attributes">
+<a href="#attributes">Attributes</a>
+</h2>
+<dl>
+<dt id="dt:sample_risc"><a href="#dt:sample_risc">
+<i>sample_risc</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Cosimulator object.</dd>
+<dt id="dt:physical_memory_space"><a href="#dt:physical_memory_space">
+<i>physical_memory_space</i>
+</a></dt>
+<dd>
+<b>Required</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o</code>
+<br>Physical memory space.</dd>
+<dt id="dt:core_enabled"><a href="#dt:core_enabled">
+<i>core_enabled</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>Core state: enabled.</dd>
+<dt id="dt:idle_cycles"><a href="#dt:idle_cycles">
+<i>idle_cycles</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Number of idle cycles.</dd>
+<dt id="dt:stallable_memops"><a href="#dt:stallable_memops">
+<i>stallable_memops</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>b</code>
+<br>If true, read and write transactions will be issued as stallable operations.</dd>
+<dt id="dt:current_context"><a href="#dt:current_context">
+<i>current_context</i>
+</a></dt>
+<dd>
+<b>Pseudo</b> attribute; 
+<b>read/write</b> access; type: 
+<code>o|n</code>
+<br>Current context object</dd>
+<dt id="dt:processor_number"><a href="#dt:processor_number">
+<i>processor_number</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>Simics internal number for an instance of the 'processor_info' interface. Each instance must have a unique number. This attribute can only be set as part of an initial configuration.</dd>
+<dt id="dt:registers"><a href="#dt:registers">
+<i>registers</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>[i*]</code>
+<br>The registers.</dd>
+<dt id="dt:freq_mhz"><a href="#dt:freq_mhz">
+<i>freq_mhz</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>f</code>
+<br>The frequency in MHz for the core.</dd>
+<dt id="dt:r0"><a href="#dt:r0">
+<i>r0</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r0</dd>
+<dt id="dt:r1"><a href="#dt:r1">
+<i>r1</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r1</dd>
+<dt id="dt:r2"><a href="#dt:r2">
+<i>r2</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r2</dd>
+<dt id="dt:r3"><a href="#dt:r3">
+<i>r3</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r3</dd>
+<dt id="dt:r4"><a href="#dt:r4">
+<i>r4</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r4</dd>
+<dt id="dt:r5"><a href="#dt:r5">
+<i>r5</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r5</dd>
+<dt id="dt:r6"><a href="#dt:r6">
+<i>r6</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r6</dd>
+<dt id="dt:r7"><a href="#dt:r7">
+<i>r7</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r7</dd>
+<dt id="dt:r8"><a href="#dt:r8">
+<i>r8</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r8</dd>
+<dt id="dt:r9"><a href="#dt:r9">
+<i>r9</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r9</dd>
+<dt id="dt:r10"><a href="#dt:r10">
+<i>r10</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r10</dd>
+<dt id="dt:r11"><a href="#dt:r11">
+<i>r11</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r11</dd>
+<dt id="dt:r12"><a href="#dt:r12">
+<i>r12</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r12</dd>
+<dt id="dt:r13"><a href="#dt:r13">
+<i>r13</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r13</dd>
+<dt id="dt:r14"><a href="#dt:r14">
+<i>r14</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r14</dd>
+<dt id="dt:r15"><a href="#dt:r15">
+<i>r15</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>r15</dd>
+<dt id="dt:pc"><a href="#dt:pc">
+<i>pc</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>pc</dd>
+<dt id="dt:msr"><a href="#dt:msr">
+<i>msr</i>
+</a></dt>
+<dd>
+<b>Optional</b> attribute; 
+<b>read/write</b> access; type: 
+<code>i</code>
+<br>msr</dd>
+</dl>
+<h2 id="provided-by">
+<a href="#provided-by">Provided By</a>
+</h2>
+<a href="mod.sample-risc.html">sample-risc</a>
+</section>
+<h2 id="sample-risc-core.EXTERNAL_INTERRUPT"><a href="#sample-risc-core.EXTERNAL_INTERRUPT">sample-risc-core.EXTERNAL_INTERRUPT</a></h2>
+<section class="doc-item not-numbered not-in-toc">
+<h2 id="description-2">
+<a href="#description-2">Description</a>
+</h2>
+External interrupt line.
+<h2 id="interfaces-implemented-2">
+<a href="#interfaces-implemented-2">Interfaces Implemented</a>
+</h2>conf_object, log_object, signal
+<h2 id="notifiers-2">
+<a href="#notifiers-2">Notifiers</a>
+</h2>
+<dl>
+<dt id="dt:cell-change-2"><a href="#dt:cell-change-2">cell-change</a></dt>
+<dd>Notifier that is triggered after the object's cell was changed.</dd>
+<dt id="dt:object-delete-2"><a href="#dt:object-delete-2">object-delete</a></dt>
+<dd>Notifier that is triggered just before Simics object is deleted.</dd>
+<dt id="dt:queue-change-2"><a href="#dt:queue-change-2">queue-change</a></dt>
+<dd>Notifier that is triggered after the object's clock was changed. New clock can be obtained with the SIM_object_clock function.</dd>
+</dl>
+</section>
+<div class="chain">
+<a href="rm-class-sample-risc.html">sample-risc</a>
+<a href="rm-class-sample-user-decoder.html">sample-user-decoder</a>
+</div>

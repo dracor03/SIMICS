@@ -1,0 +1,42 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>2 SystemC Library Requirements</title>
+<link rel="stylesheet" href="../simics.css">
+<script src="../page-script.js"></script>
+</head>
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="running-a-systemc-model-in-simics.html">3 Running a SystemC Model in Simics</a>
+</div>
+<div class="path">
+<a href="index.html">SystemC* Library</a>
+&nbsp;/&nbsp;</div><h1 id="systemc-library-requirements"><a href="#systemc-library-requirements">2 SystemC Library Requirements</a></h1>
+<p>Because C++ does not have a standardized ABI, all SystemC Library modules as
+well as all SystemC models built from these modules must be compiled with
+exactly the same compiler, compiler version, and compiler flags. It works
+perfectly fine to include binary SystemC models as long as they are Accellera
+compliant and the compiler guidelines just outlined are followed.</p>
+<p>As of Simics 6 it is also possible to combine Simics SystemC modules compiled
+with different toolchains, provided each individual module has been constructed
+from a set of binaries built using the same toolchain.</p>
+<p>The SystemC Library has been moved out of the <em>Simics Base</em> package to a
+separate package 1013 (<em>SystemC Library</em>). Users of the Simics SystemC Library
+must install the package 1013.</p>
+<p>The SystemC Library supports the Accellera kernels 2.3.3, 2.3.4, and 3.0.0. The
+supported and known to be working configurations are:</p>
+<table><thead><tr><th>SystemC kernel version</th><th>Linux</th><th>Windows</th></tr></thead><tbody>
+<tr><td>2.3.3/2.3.4</td><td>GCC 6.4 or 12.1 with C++14 or C++17</td><td>MSVC 2015/2022</td></tr>
+<tr><td>3.0.0</td><td>GCC 12.1 with C++17</td><td>MSVC 2022</td></tr>
+</tbody></table>
+<p>These are the only versions tested by Simics regression tests.</p>
+<p>Simics does not guarantee that the Simics SystemC Library API will not change
+between releases. Simics’ SystemC support is still being gradually improved and
+a completely frozen API would limit what improvements can be made. A lot of
+effort will, however, be made to avoid changing the API. If a change is needed,
+the end-user effort will be minimized.</p>
+
+<div class="chain">
+<a href="introduction.html">1 Introduction</a>
+<a href="running-a-systemc-model-in-simics.html">3 Running a SystemC Model in Simics</a>
+</div>
